@@ -37,20 +37,47 @@
 
 .app__tabs {
   display: flex;
-  gap: 0.25rem;
-  padding: 0 1.75rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0.6rem 1.75rem 0;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
 }
 
+.app__tab-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.4rem;
+  border-right: 1px solid var(--border);
+  padding-right: 1.5rem;
+}
+
+.app__tab-group:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.app__tab-group-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.app__tab-group-buttons {
+  display: flex;
+  gap: 0.15rem;
+}
+
 .app__tab {
-  padding: 0.65rem 1.1rem;
+  padding: 0.4rem 0.85rem;
   border: none;
   background: none;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   font-family: var(--mono);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-dim);
