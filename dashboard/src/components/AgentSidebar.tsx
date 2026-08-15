@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLang } from "../i18n";
 import { useAgent } from "../agentContext";
 import "./AgentSidebar.css";
@@ -10,6 +10,11 @@ const CHECKLIST_KEYS = [
   "agent_checklist_4",
   "agent_checklist_5",
 ] as const;
+
+const WIDTH_STORAGE_KEY = "ppa-eda-agent-dashboard:sidebar-width";
+const DEFAULT_WIDTH = 420;
+const MIN_WIDTH = 300;
+const MAX_WIDTH = 780;
 
 export default function AgentSidebar() {
   const { t } = useLang();
@@ -26,8 +31,57 @@ export default function AgentSidebar() {
   const [keyInput, setKeyInput] = useState("");
   const hasActivity = diagnosing || streamedText.length > 0;
 
+  const [width, setWidth] = useState<number>(() => {
+    const stored = Number(localStorage.getItem(WIDTH_STORAGE_KEY));
+    return stored >= MIN_WIDTH && stored <= MAX_WIDTH ? stored : DEFAULT_WIDTH;
+  });
+  const resizing = useRef(false);
+
+  const onPointerMove = useCallback((e: PointerEvent) => {
+    if (!resizing.current) return;
+    // Sidebar is on the right edge, so dragging left (smaller clientX)
+    // should grow it — width is measured from the viewport's right edge.
+    const newWidth = window.innerWidth - e.clientX;
+    const clamped = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, newWidth));
+    setWidth(clamped);
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    if (!resizing.current) return;
+    resizing.current = false;
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+    setWidth((w) => {
+      localStorage.setItem(WIDTH_STORAGE_KEY, String(w));
+      return w;
+    });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", stopResizing);
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", stopResizing);
+    };
+  }, [onPointerMove, stopResizing]);
+
+  function startResizing(e: React.PointerEvent) {
+    e.preventDefault();
+    resizing.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }
+
   return (
-    <aside className="agent-sidebar">
+    <aside className="agent-sidebar" style={{ width }}>
+      <div
+        className="agent-sidebar__resize-handle"
+        onPointerDown={startResizing}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize agent sidebar"
+      />
       <div className="agent-sidebar__header">
         <span
           className={
