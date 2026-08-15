@@ -19,7 +19,9 @@ export default function ReportInput({
         placeholder={placeholder}
         rows={10}
       />
-      <button onClick={onLoadExample}>Load example</button>
+      <div className="report-input__actions">
+        <button onClick={onLoadExample}>Load example</button>
+      </div>
     </div>
   );
 }

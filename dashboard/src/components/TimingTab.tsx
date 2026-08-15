@@ -22,31 +22,57 @@ export default function TimingTab() {
 
   return (
     <div className="tab">
-      <ReportInput
-        value={text}
-        onChange={setText}
-        onLoadExample={() => setText(EXAMPLE_TIMING_REPORT)}
-        placeholder="Paste PrimeTime report_timing output here (one or more paths)…"
-      />
+      <div className="panel">
+        <span className="panel__title">report_timing — input</span>
+        <div className="panel__body">
+          <ReportInput
+            value={text}
+            onChange={setText}
+            onLoadExample={() => setText(EXAMPLE_TIMING_REPORT)}
+            placeholder="Paste PrimeTime report_timing output here (one or more paths)…"
+          />
+        </div>
+      </div>
+
       {result && !result.ok && <div className="tab__error">{result.error}</div>}
+
       {result?.ok && (
         <>
-          <div className="tab__meta">
-            <span>WNS: {wns !== null ? wns.toFixed(2) : "—"}</span>
-            <span>Violated paths: {violatedCount} / {sortedPaths.length}</span>
+          <div className="panel">
+            <span className="panel__title">timing summary</span>
+            <div className="panel__body">
+              <div className="tab__meta">
+                <span>
+                  <span className="tab__meta-label">WNS</span>
+                  {wns !== null ? wns.toFixed(2) : "—"} ns
+                </span>
+                <span>
+                  <span className="tab__meta-label">Violated</span>
+                  <span className={violatedCount > 0 ? "pill pill--critical" : "pill pill--good"}>
+                    {violatedCount} / {sortedPaths.length}
+                  </span>
+                </span>
+              </div>
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={Math.max(150, sortedPaths.length * 40)}>
-            <BarChart data={chartData} layout="vertical">
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" width={220} tick={{ fontSize: 10 }} />
-              <Tooltip />
-              <Bar dataKey="slack">
-                {chartData.map((entry, i) => (
-                  <Cell key={i} fill={entry.slack < 0 ? "#e5484d" : "#3dd68c"} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+
+          <div className="panel">
+            <span className="panel__title">slack per path (ns)</span>
+            <div className="panel__body">
+              <ResponsiveContainer width="100%" height={Math.max(150, sortedPaths.length * 42)}>
+                <BarChart data={chartData} layout="vertical">
+                  <XAxis type="number" tick={{ fill: "var(--text-dim)", fontSize: 11 }} stroke="var(--border)" />
+                  <YAxis type="category" dataKey="name" width={230} tick={{ fill: "var(--text-dim)", fontSize: 10 }} stroke="var(--border)" />
+                  <Tooltip contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }} />
+                  <Bar dataKey="slack">
+                    {chartData.map((entry, i) => (
+                      <Cell key={i} fill={entry.slack < 0 ? "var(--critical)" : "var(--good)"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </>
       )}
     </div>

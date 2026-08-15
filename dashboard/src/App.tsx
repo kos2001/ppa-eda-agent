@@ -18,8 +18,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>ppa-eda-analyst</h1>
-        <p>Paste Synopsys reports to visualize Power / Performance / Area</p>
+        <span className="app__eyebrow">Synopsys report reader</span>
+        <h1>PPA Readout</h1>
+        <p>Paste a report_area / report_timing / report_power dump and see the Power / Performance / Area numbers it contains.</p>
       </header>
       <nav className="app__tabs">
         {TABS.map((t) => (
