@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AreaTab from "./components/AreaTab";
 import TimingTab from "./components/TimingTab";
 import PowerTab from "./components/PowerTab";
@@ -7,6 +7,9 @@ import SimulateTab from "./components/SimulateTab";
 import "./App.css";
 
 type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate";
+type Theme = "dark" | "light";
+
+const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "simulate", label: "Simulate" },
@@ -18,12 +21,30 @@ const TABS: { id: TabId; label: string }[] = [
 
 export default function App() {
   const [active, setActive] = useState<TabId>("simulate");
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   return (
     <div className="app">
       <header className="app__header">
-        <span className="app__eyebrow">Synopsys report reader</span>
-        <h1>PPA Readout</h1>
+        <div className="app__header-row">
+          <div>
+            <span className="app__eyebrow">Synopsys report reader</span>
+            <h1>PPA Readout</h1>
+          </div>
+          <button
+            className="app__theme-toggle"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? "☀ Light" : "● Dark"}
+          </button>
+        </div>
         <p>Run a real OpenSTA simulation, paste a report_area / report_timing / report_power dump, or see how common fixes trade Power, Performance, and Area against each other.</p>
       </header>
       <nav className="app__tabs">
