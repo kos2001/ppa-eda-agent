@@ -1,0 +1,6 @@
+read_liberty nangate45_typ.lib.gz
+read_verilog example1.v
+link_design top
+create_clock -name clk1 -period {{PERIOD}} {clk1 clk2 clk3}
+report_checks -path_delay max
+report_power

@@ -9,7 +9,41 @@ function matchPowerMw(text: string, label: string): number | undefined {
   return m[2].toLowerCase() === "uw" ? value / 1000 : value;
 }
 
+// OpenSTA's plain `report_power` output is a "Group" table (Internal /
+// Switching / Leakage / Total columns, in Watts) rather than PrimePower's
+// "Cell Internal Power = X mW" lines — confirmed against a real live
+// OpenSTA run, not assumed. Its "Total" row sums every group
+// (Sequential/Combinational/Clock/Macro/Pad).
+function parseGroupTablePower(text: string): PowerResult | undefined {
+  const totalRowM = text.match(
+    /^Total\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)/m
+  );
+  if (!totalRowM) return undefined;
+
+  const internalW = parseFloat(totalRowM[1]);
+  const switchingW = parseFloat(totalRowM[2]);
+  const leakageW = parseFloat(totalRowM[3]);
+  const totalW = parseFloat(totalRowM[4]);
+  if ([internalW, switchingW, leakageW, totalW].some(Number.isNaN)) {
+    return undefined;
+  }
+
+  const wToMw = (w: number) => w * 1000;
+  return {
+    cellInternalPowerMw: wToMw(internalW),
+    netSwitchingPowerMw: wToMw(switchingW),
+    totalDynamicPowerMw: wToMw(internalW + switchingW),
+    cellLeakagePowerMw: wToMw(leakageW),
+    totalPowerMw: wToMw(totalW),
+  };
+}
+
 export function parsePower(text: string): ParseResult<PowerResult> {
+  const groupTable = parseGroupTablePower(text);
+  if (groupTable) {
+    return { ok: true, data: groupTable };
+  }
+
   const cellInternalPowerMw = matchPowerMw(text, "Cell Internal Power");
   const netSwitchingPowerMw = matchPowerMw(text, "Net Switching Power");
   const totalDynamicPowerMw = matchPowerMw(text, "Total Dynamic Power");
