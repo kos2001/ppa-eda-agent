@@ -39,9 +39,25 @@ verified by cloning and reading them directly, 2026-08-15):
    (excerpt, GPLv3-licensed source, quoted for format reference)
 
 All three keep the same `Startpoint:`/`Endpoint:`/`Path Group:`/`Path
-Type:`/`slack (MET/VIOLATED)` framing `report-timing.md` documents —
-**only the per-point column set inside the path body changes.** Don't
-treat an unfamiliar column header as "not a timing report."
+Type:` framing `report-timing.md` documents — **only the per-point column
+set inside the path body changes.** Don't treat an unfamiliar column
+header as "not a timing report."
+
+**Bug found and fixed by testing against these real files, 2026-08-15:**
+`dashboard/src/parsers/parseTiming.ts` originally assumed the slack number
+always comes *after* `(MET)`/`(VIOLATED)` (Synopsys PrimeTime style:
+`slack (MET)   0.77`). Real OpenSTA output puts the number *before* it
+instead (`test/prima3.ok`: `228.48   slack (MET)`;
+`test/report_checks_src_attr.ok`'s sky130 example:
+`9.55   slack (MET)`) — consistent with the rest of that format's
+`number ... description` column order. The parser silently failed on both
+real files (`ok: false`) until fixed to check both orders. This was only
+caught by testing against real, unmodified files pulled from the repos
+above — the synthetic example in `report-timing.md` never would have
+surfaced it, since it was itself written number-after. **Lesson: any
+future format documented here should be spot-tested against a real file
+where possible, not just written from written-out knowledge of the
+format.**
 
 **Multi-corner/multi-mode adds two more header fields.**
 `test/mcmm3.ok` shows `Mode: mode1` and `Corner: scene1` lines appearing

@@ -114,9 +114,16 @@ PrimeTime's `Point / Incr / Path` columns (above) aren't universal. OpenSTA
 variants seen in its own test suite: `Delay / Time / Description`, `Slew /
 Delay / Time / Description`, and `Cap / Slew / Delay / Time / Description /
 Src Attr` (the last adds source-line attribution back into the RTL). All
-keep the same `Startpoint:`/`Endpoint:`/`Path Group:`/`slack
-(MET/VIOLATED)` framing — only the per-point column set changes. Full
-excerpts and sourcing in `see-also.md`.
+keep the same `Startpoint:`/`Endpoint:`/`Path Group:` framing — only the
+per-point column set changes. Full excerpts and sourcing in `see-also.md`.
+
+**The slack line's number position also varies, and this one matters for
+parsing, not just display.** PrimeTime: `slack (MET)   0.77` (number
+after). Real OpenSTA output: `228.48   slack (MET)` (number *before*,
+matching that format's `number ... description` column order throughout).
+A parser that only checks for the number after the status label will
+silently fail on real OpenSTA reports — confirmed the hard way, see
+`see-also.md`.
 
 Two more things confirmed from real OpenSTA output, not in the example
 above: multi-corner/multi-mode analysis adds `Mode:` and `Corner:` lines
