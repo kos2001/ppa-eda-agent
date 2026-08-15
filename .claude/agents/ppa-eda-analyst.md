@@ -15,6 +15,11 @@ repo's `references/`:
 - `references/report-area.md` — Design Compiler `report_area`
 - `references/report-timing.md` — PrimeTime `report_timing`
 - `references/report-power.md` — PrimePower `report_power`
+- `references/see-also.md` — real (non-fabricated) open-source examples
+  found for these report types, and documented format variants (e.g.
+  OpenSTA's `report_timing`/`report_power` differ in column layout and
+  aggregation from PrimeTime/PrimePower's) — check this before assuming a
+  report that doesn't match the PrimeTime/PrimePower shape is malformed.
 
 These cover each report's structure, where the key metrics live, common
 violation patterns and their likely causes, and how each leg of PPA trades

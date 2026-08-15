@@ -98,3 +98,11 @@ clock gating is enabled.
   leakage power and area on non-critical paths by moving cells to a
   smaller, higher-Vt library variant — check `report-area.md`'s macro/cell
   area breakdown alongside this report when evaluating a Vt-remap pass.
+
+## Format variants
+
+The internal/switching/leakage breakdown above is PrimePower's shape.
+OpenSTA's `report_power -format json` breaks power down by *component
+category* first (Sequential/Combinational/Clock/Macro/Pad), each with its
+own internal/switching/leakage/total — a different aggregation axis over
+the same underlying numbers. See `see-also.md`.

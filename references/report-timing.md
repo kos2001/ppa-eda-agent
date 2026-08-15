@@ -106,3 +106,12 @@ slack (MET)                                        0.77
   transition; hold fixes (extra buffers) add both area and switching power
   for no functional benefit — worth minimizing hold-buffer count via SDC
   timing-derate/uncertainty tuning rather than brute-force buffer insertion.
+
+## Format variants
+
+PrimeTime's `Point / Incr / Path` columns (above) aren't universal. OpenSTA
+(free, PrimeTime-command-compatible) defaults to `Delay / Time /
+Description` columns instead — same `Startpoint:`/`Endpoint:`/`Path
+Group:`/`slack (MET/VIOLATED)` structure, different header/spacing. See
+`see-also.md` for where this was confirmed and how to get real sample
+reports from it.
