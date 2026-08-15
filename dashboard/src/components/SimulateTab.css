@@ -1,0 +1,91 @@
+.sim-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.sim-controls__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sim-controls__field input {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  width: 8rem;
+}
+
+.sim-controls button {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.sim-controls button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sim-controls__hint {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  flex-basis: 100%;
+}
+
+.sim-output {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.sim-diagnosis {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.chat-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chat-setup__hint {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.chat-setup input {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.chat-panel__clear-key {
+  color: var(--text-dim) !important;
+  background: none !important;
+  border-color: var(--border) !important;
+}

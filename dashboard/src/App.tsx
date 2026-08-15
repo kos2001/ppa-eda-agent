@@ -3,11 +3,13 @@ import AreaTab from "./components/AreaTab";
 import TimingTab from "./components/TimingTab";
 import PowerTab from "./components/PowerTab";
 import TradeoffsTab from "./components/TradeoffsTab";
+import SimulateTab from "./components/SimulateTab";
 import "./App.css";
 
-type TabId = "area" | "timing" | "power" | "tradeoffs";
+type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate";
 
 const TABS: { id: TabId; label: string }[] = [
+  { id: "simulate", label: "Simulate" },
   { id: "area", label: "Area" },
   { id: "timing", label: "Timing" },
   { id: "power", label: "Power" },
@@ -15,14 +17,14 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 export default function App() {
-  const [active, setActive] = useState<TabId>("area");
+  const [active, setActive] = useState<TabId>("simulate");
 
   return (
     <div className="app">
       <header className="app__header">
         <span className="app__eyebrow">Synopsys report reader</span>
         <h1>PPA Readout</h1>
-        <p>Paste a report_area / report_timing / report_power dump — or see how common fixes trade Power, Performance, and Area against each other.</p>
+        <p>Run a real OpenSTA simulation, paste a report_area / report_timing / report_power dump, or see how common fixes trade Power, Performance, and Area against each other.</p>
       </header>
       <nav className="app__tabs">
         {TABS.map((t) => (
@@ -36,6 +38,7 @@ export default function App() {
         ))}
       </nav>
       <main className="app__main">
+        {active === "simulate" && <SimulateTab />}
         {active === "area" && <AreaTab />}
         {active === "timing" && <TimingTab />}
         {active === "power" && <PowerTab />}
