@@ -1,36 +1,24 @@
 import { useState } from "react";
 import { runSimulation } from "../api/simulation";
-import {
-  getStoredKey,
-  setStoredKey,
-  clearStoredKey,
-  diagnose,
-} from "../api/gateway";
 import { parseTiming } from "../parsers/parseTiming";
 import { parsePower } from "../parsers/parsePower";
 import { useLang } from "../i18n";
+import { useAgent } from "../agentContext";
 import "./Tabs.css";
 import "./SimulateTab.css";
 
 export default function SimulateTab() {
   const { t } = useLang();
+  const { key, diagnosing, runDiagnosis } = useAgent();
   const [period, setPeriod] = useState(2.0);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
   const [simError, setSimError] = useState<string | null>(null);
 
-  const [key, setKey] = useState<string | null>(getStoredKey());
-  const [keyInput, setKeyInput] = useState("");
-  const [diagnosing, setDiagnosing] = useState(false);
-  const [diagnosis, setDiagnosis] = useState<string | null>(null);
-  const [diagnosisError, setDiagnosisError] = useState<string | null>(null);
-
   async function handleRun() {
     setRunning(true);
     setSimError(null);
     setOutput(null);
-    setDiagnosis(null);
-    setDiagnosisError(null);
     try {
       const result = await runSimulation(period);
       setOutput(result);
@@ -38,32 +26,6 @@ export default function SimulateTab() {
       setSimError(String(e));
     } finally {
       setRunning(false);
-    }
-  }
-
-  function handleSaveKey() {
-    if (!keyInput.trim()) return;
-    setStoredKey(keyInput.trim());
-    setKey(keyInput.trim());
-    setKeyInput("");
-  }
-
-  function handleClearKey() {
-    clearStoredKey();
-    setKey(null);
-  }
-
-  async function handleDiagnose() {
-    if (!output || !key) return;
-    setDiagnosing(true);
-    setDiagnosisError(null);
-    try {
-      const result = await diagnose(key, output);
-      setDiagnosis(result);
-    } catch (e) {
-      setDiagnosisError(String(e));
-    } finally {
-      setDiagnosing(false);
     }
   }
 
@@ -165,39 +127,25 @@ export default function SimulateTab() {
         </div>
       )}
 
-      {output && (
+      {output && key && (
         <div className="panel">
           <span className="panel__title">{t("sim_diagnosis_title")}</span>
           <div className="panel__body">
-            {!key && (
-              <div className="chat-setup">
-                <p>{t("key_input_prompt")}</p>
-                <p className="chat-setup__hint">{t("key_input_hint")}</p>
-                <input
-                  type="password"
-                  value={keyInput}
-                  onChange={(e) => setKeyInput(e.target.value)}
-                  placeholder="gw-..."
-                />
-                <div className="report-input__actions">
-                  <button onClick={handleSaveKey}>{t("save_key")}</button>
-                </div>
-              </div>
-            )}
-            {key && !diagnosis && (
-              <div className="report-input__actions">
-                <button onClick={handleDiagnose} disabled={diagnosing}>
-                  {diagnosing ? t("sim_diagnosing") : t("sim_diagnose_button")}
-                </button>
-                <button onClick={handleClearKey} className="chat-panel__clear-key">
-                  {t("clear_key")}
-                </button>
-              </div>
-            )}
-            {diagnosisError && (
-              <div className="tab__error">{diagnosisError}</div>
-            )}
-            {diagnosis && <div className="sim-diagnosis">{diagnosis}</div>}
+            <div className="report-input__actions">
+              <button onClick={() => runDiagnosis(output)} disabled={diagnosing}>
+                {diagnosing ? t("sim_diagnosing") : t("sim_diagnose_button")}
+              </button>
+            </div>
+            <p className="sim-diagnosis-hint">→ {t("agent_sidebar_title")}</p>
+          </div>
+        </div>
+      )}
+
+      {output && !key && (
+        <div className="panel">
+          <span className="panel__title">{t("sim_diagnosis_title")}</span>
+          <div className="panel__body">
+            <p className="sim-diagnosis-hint">{t("key_input_prompt")}</p>
           </div>
         </div>
       )}

@@ -57,35 +57,8 @@
   color: var(--text-dim);
 }
 
-.sim-diagnosis {
-  font-size: 0.85rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.chat-setup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.chat-setup__hint {
+.sim-diagnosis-hint {
   font-size: 0.78rem;
   color: var(--text-dim);
-}
-
-.chat-setup input {
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  padding: 0.5rem 0.7rem;
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-}
-
-.chat-panel__clear-key {
-  color: var(--text-dim) !important;
-  background: none !important;
-  border-color: var(--border) !important;
+  margin: 0.5rem 0 0;
 }

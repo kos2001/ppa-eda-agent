@@ -100,6 +100,43 @@ const dict = {
     en: "Couldn't parse this as an area report",
     ko: "area 리포트로 파싱하지 못했습니다",
   },
+
+  agent_sidebar_title: { en: "ppa-eda-analyst", ko: "ppa-eda-analyst" },
+  agent_sidebar_subtitle: {
+    en: "hermes profile · model minimax/minimax-m3 · via hermes-gateway :8700",
+    ko: "hermes 프로필 · 모델 minimax/minimax-m3 · hermes-gateway :8700 경유",
+  },
+  agent_checklist_title: { en: "diagnostic checklist", ko: "진단 체크리스트" },
+  agent_checklist_1: {
+    en: "Identify report type",
+    ko: "리포트 종류 식별",
+  },
+  agent_checklist_2: {
+    en: "Extract key metrics (WNS, power split, area split)",
+    ko: "핵심 지표 추출 (WNS, 전력/면적 분포)",
+  },
+  agent_checklist_3: {
+    en: "Flag violations and anomalies",
+    ko: "위반·이상 징후 표시",
+  },
+  agent_checklist_4: {
+    en: "Map violations to likely root causes",
+    ko: "위반을 근본 원인으로 매핑",
+  },
+  agent_checklist_5: {
+    en: "Propose PPA-tradeoff-labeled fixes",
+    ko: "PPA 트레이드오프를 명시한 해결책 제안",
+  },
+  agent_idle: {
+    en: "Run a simulation in the Simulate tab, then click \"Diagnose this result\" to see this agent work live, right here.",
+    ko: "Simulate 탭에서 시뮬레이션을 돌린 뒤 \"Diagnose this result\"를 누르면 이 에이전트가 실시간으로 작동하는 걸 여기서 볼 수 있습니다.",
+  },
+  agent_streaming_live: { en: "● streaming live", ko: "● 실시간 스트리밍 중" },
+  agent_tokens: { en: "chunks", ko: "청크" },
+  agent_confirmed_upstream: {
+    en: "Confirmed live response from upstream:",
+    ko: "실제 upstream으로부터 온 응답 확인됨:",
+  },
 } as const;
 
 export type DictKey = keyof typeof dict;

@@ -102,10 +102,23 @@
   outline-offset: -2px;
 }
 
+.app__body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
 .app__main {
   flex: 1;
   max-width: 920px;
   width: 100%;
   margin: 0 auto;
   padding: 0 1.25rem 3rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .app__body {
+    flex-direction: column;
+  }
 }

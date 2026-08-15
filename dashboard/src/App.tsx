@@ -4,7 +4,9 @@ import TimingTab from "./components/TimingTab";
 import PowerTab from "./components/PowerTab";
 import TradeoffsTab from "./components/TradeoffsTab";
 import SimulateTab from "./components/SimulateTab";
+import AgentSidebar from "./components/AgentSidebar";
 import { LangProvider, useLang } from "./i18n";
+import { AgentProvider } from "./agentContext";
 import "./App.css";
 
 type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate";
@@ -70,13 +72,16 @@ function AppInner() {
           </button>
         ))}
       </nav>
-      <main className="app__main">
-        {active === "simulate" && <SimulateTab />}
-        {active === "area" && <AreaTab />}
-        {active === "timing" && <TimingTab />}
-        {active === "power" && <PowerTab />}
-        {active === "tradeoffs" && <TradeoffsTab />}
-      </main>
+      <div className="app__body">
+        <main className="app__main">
+          {active === "simulate" && <SimulateTab />}
+          {active === "area" && <AreaTab />}
+          {active === "timing" && <TimingTab />}
+          {active === "power" && <PowerTab />}
+          {active === "tradeoffs" && <TradeoffsTab />}
+        </main>
+        <AgentSidebar />
+      </div>
     </div>
   );
 }
@@ -84,7 +89,9 @@ function AppInner() {
 export default function App() {
   return (
     <LangProvider>
-      <AppInner />
+      <AgentProvider>
+        <AppInner />
+      </AgentProvider>
     </LangProvider>
   );
 }
