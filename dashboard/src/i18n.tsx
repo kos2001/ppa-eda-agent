@@ -58,6 +58,14 @@ const dict = {
   },
   number_of_cells: { en: "Number of cells", ko: "셀 개수" },
   area_breakdown: { en: "area breakdown (µm²)", ko: "면적 분포 (µm²)" },
+  area_floorplan: {
+    en: "area floorplan — block size ∝ actual area",
+    ko: "면적 플로어플랜 — 블록 크기 ∝ 실제 면적",
+  },
+  area_floorplan_caption: {
+    en: "Each block's size is proportional to its share of total cell area — the closest thing to seeing the die's real footprint from a report_area dump.",
+    ko: "각 블록의 크기는 전체 셀 면적에서 차지하는 비율에 비례합니다 — report_area 텍스트만으로 다이의 실제 면적을 가장 직관적으로 보는 방법입니다.",
+  },
 
   wns: { en: "WNS", ko: "WNS" },
   violated_paths: { en: "Violated paths", ko: "위반 경로" },

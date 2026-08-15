@@ -1,10 +1,56 @@
 import { useMemo, useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Treemap,
+} from "recharts";
 import ReportInput from "./ReportInput";
 import { parseArea } from "../parsers/parseArea";
 import { EXAMPLE_AREA_REPORT } from "../exampleReports";
 import { useLang } from "../i18n";
 import "./Tabs.css";
+
+interface FloorplanNode {
+  name: string;
+  size: number;
+  fill: string;
+  [key: string]: unknown;
+}
+
+function FloorplanCell(props: any) {
+  const { x, y, width, height, name, fill } = props;
+  if (width <= 0 || height <= 0) return null;
+  const showLabel = width > 46 && height > 22;
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fill}
+        stroke="var(--surface)"
+        strokeWidth={2}
+      />
+      {showLabel && (
+        <text
+          x={x + 6}
+          y={y + 16}
+          fontSize={10}
+          fontFamily="var(--mono)"
+          fill="var(--surface)"
+        >
+          {name}
+        </text>
+      )}
+    </g>
+  );
+}
 
 export default function AreaTab() {
   const { t } = useLang();
@@ -22,6 +68,36 @@ export default function AreaTab() {
           macro: result.data.totalMacroArea,
         },
       ]
+    : [];
+
+  const floorplanData: FloorplanNode[] = result?.ok
+    ? [
+        {
+          name: t("macro_area"),
+          size: result.data.totalMacroArea,
+          fill: "var(--good)",
+        },
+        {
+          name: t("noncombinational"),
+          size: result.data.totalNoncombinationalArea,
+          fill: "var(--warn)",
+        },
+        {
+          name: t("combinational"),
+          size:
+            result.data.totalCombinationalArea - (result.data.totalBufInvArea ?? 0),
+          fill: "var(--accent)",
+        },
+        ...(result.data.totalBufInvArea
+          ? [
+              {
+                name: "buf/inv",
+                size: result.data.totalBufInvArea,
+                fill: "var(--accent-soft)",
+              },
+            ]
+          : []),
+      ].filter((n) => n.size > 0)
     : [];
 
   return (
@@ -59,6 +135,29 @@ export default function AreaTab() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          <div className="panel">
+            <span className="panel__title">{t("area_floorplan")}</span>
+            <div className="panel__body">
+              <ResponsiveContainer width="100%" height={260}>
+                <Treemap
+                  data={floorplanData}
+                  dataKey="size"
+                  aspectRatio={4 / 3}
+                  stroke="var(--surface)"
+                  content={<FloorplanCell />}
+                >
+                  <Tooltip
+                    contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }}
+                    formatter={(value) =>
+                      typeof value === "number" ? value.toLocaleString() : String(value ?? "")
+                    }
+                  />
+                </Treemap>
+              </ResponsiveContainer>
+              <p className="area-floorplan__caption">{t("area_floorplan_caption")}</p>
             </div>
           </div>
 
