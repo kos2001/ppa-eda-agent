@@ -65,7 +65,12 @@ export default function TimingTab() {
                 <BarChart data={chartData} layout="vertical">
                   <XAxis type="number" tick={{ fill: "var(--text-dim)", fontSize: 11 }} stroke="var(--border)" />
                   <YAxis type="category" dataKey="name" width={230} tick={{ fill: "var(--text-dim)", fontSize: 10 }} stroke="var(--border)" />
-                  <Tooltip contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }}
+                    labelStyle={{ color: "var(--text)" }}
+                    itemStyle={{ color: "var(--text)" }}
+                    cursor={{ fill: "var(--accent-soft)", opacity: 0.4 }}
+                  />
                   <Bar dataKey="slack">
                     {chartData.map((entry, i) => (
                       <Cell key={i} fill={entry.slack < 0 ? "var(--critical)" : "var(--good)"} />

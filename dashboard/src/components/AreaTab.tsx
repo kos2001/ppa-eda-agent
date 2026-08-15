@@ -151,6 +151,8 @@ export default function AreaTab() {
                 >
                   <Tooltip
                     contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }}
+                    labelStyle={{ color: "var(--text)" }}
+                    itemStyle={{ color: "var(--text)" }}
                     formatter={(value) =>
                       typeof value === "number" ? value.toLocaleString() : String(value ?? "")
                     }
@@ -168,7 +170,12 @@ export default function AreaTab() {
                 <BarChart data={chartData} layout="vertical">
                   <XAxis type="number" tick={{ fill: "var(--text-dim)", fontSize: 11 }} stroke="var(--border)" />
                   <YAxis type="category" dataKey="name" tick={{ fill: "var(--text-dim)", fontSize: 11 }} stroke="var(--border)" />
-                  <Tooltip contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }}
+                    labelStyle={{ color: "var(--text)" }}
+                    itemStyle={{ color: "var(--text)" }}
+                    cursor={{ fill: "var(--accent-soft)", opacity: 0.4 }}
+                  />
                   <Legend wrapperStyle={{ fontFamily: "var(--mono)", fontSize: 11 }} />
                   <Bar dataKey="combinational" stackId="a" fill="var(--accent)" name={t("combinational")} />
                   <Bar dataKey="bufInv" stackId="a" fill="var(--accent-soft)" name="buf/inv" />

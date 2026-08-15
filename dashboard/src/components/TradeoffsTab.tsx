@@ -91,6 +91,9 @@ export default function TradeoffsTab() {
                   fontFamily: "var(--mono)",
                   fontSize: 12,
                 }}
+                labelStyle={{ color: "var(--text)" }}
+                itemStyle={{ color: "var(--text)" }}
+                cursor={{ fill: "var(--accent-soft)", opacity: 0.4 }}
               />
               <Bar dataKey="area" name="Area" barSize={12}>
                 {chartData.map((d, i) => (

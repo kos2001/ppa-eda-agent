@@ -59,12 +59,22 @@ export default function PowerTab() {
             <div className="panel__body">
               <ResponsiveContainer width="100%" height={230}>
                 <PieChart>
-                  <Pie data={chartData} dataKey="value" nameKey="name" outerRadius={85} label>
+                  <Pie
+                    data={chartData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={85}
+                    label={{ fill: "var(--text)", fontFamily: "var(--mono)", fontSize: 11 }}
+                  >
                     {chartData.map((_, i) => (
                       <Cell key={i} fill={SLICE_COLORS[i % SLICE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }} />
+                  <Tooltip
+                    contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", fontFamily: "var(--mono)", fontSize: 12 }}
+                    labelStyle={{ color: "var(--text)" }}
+                    itemStyle={{ color: "var(--text)" }}
+                  />
                   <Legend wrapperStyle={{ fontFamily: "var(--mono)", fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
