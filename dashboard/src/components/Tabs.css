@@ -1,0 +1,38 @@
+.tab {
+  padding: 1rem;
+}
+.report-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.report-input textarea {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.8rem;
+  padding: 0.5rem;
+}
+.report-input button {
+  align-self: flex-start;
+}
+.tab__error {
+  color: #b00020;
+  margin-bottom: 1rem;
+}
+.tab__summary {
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+.tab__summary td {
+  padding: 0.2rem 0.8rem 0.2rem 0;
+  font-size: 0.9rem;
+}
+.tab__summary td:first-child {
+  color: #555;
+}
+.tab__meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
