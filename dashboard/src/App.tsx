@@ -2,14 +2,16 @@ import { useState } from "react";
 import AreaTab from "./components/AreaTab";
 import TimingTab from "./components/TimingTab";
 import PowerTab from "./components/PowerTab";
+import TradeoffsTab from "./components/TradeoffsTab";
 import "./App.css";
 
-type TabId = "area" | "timing" | "power";
+type TabId = "area" | "timing" | "power" | "tradeoffs";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "area", label: "Area" },
   { id: "timing", label: "Timing" },
   { id: "power", label: "Power" },
+  { id: "tradeoffs", label: "Trade-offs" },
 ];
 
 export default function App() {
@@ -20,7 +22,7 @@ export default function App() {
       <header className="app__header">
         <span className="app__eyebrow">Synopsys report reader</span>
         <h1>PPA Readout</h1>
-        <p>Paste a report_area / report_timing / report_power dump and see the Power / Performance / Area numbers it contains.</p>
+        <p>Paste a report_area / report_timing / report_power dump — or see how common fixes trade Power, Performance, and Area against each other.</p>
       </header>
       <nav className="app__tabs">
         {TABS.map((t) => (
@@ -37,6 +39,7 @@ export default function App() {
         {active === "area" && <AreaTab />}
         {active === "timing" && <TimingTab />}
         {active === "power" && <PowerTab />}
+        {active === "tradeoffs" && <TradeoffsTab />}
       </main>
     </div>
   );

@@ -1,0 +1,102 @@
+.ppa-triangle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.ppa-triangle svg {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+}
+
+.ppa-triangle__label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text);
+}
+
+.ppa-triangle__caption {
+  margin: 0;
+  max-width: 32ch;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.tradeoffs-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin-bottom: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.tradeoffs-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.swatch--good {
+  background: var(--good);
+}
+
+.swatch--critical {
+  background: var(--critical);
+}
+
+.swatch--neutral {
+  background: var(--text-dim);
+}
+
+.tradeoff-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tradeoff-note {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tradeoff-note:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.tradeoff-note__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.tradeoff-note__head strong {
+  font-size: 0.88rem;
+}
+
+.tradeoff-note__head code {
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.tradeoff-note p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
