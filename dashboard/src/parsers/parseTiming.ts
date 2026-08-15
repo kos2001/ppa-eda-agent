@@ -17,9 +17,17 @@ export function parseTiming(text: string): ParseResult<TimingResult> {
     const startpointM = block.match(/Startpoint:\s*(.+)/);
     const endpointM = block.match(/Endpoint:\s*(.+)/);
     const pathGroupM = block.match(/Path Group:\s*(.+)/);
-    const slackM = block.match(/slack\s*\((MET|VIOLATED)\)\s+(-?[\d.]+)/);
+    // Slack number position relative to "slack (STATUS)" differs by tool:
+    // Synopsys PrimeTime puts it after ("slack (MET)   0.77"), OpenSTA
+    // puts it before ("228.48   slack (MET)") — confirmed against real
+    // OpenSTA test/prima3.ok output, not assumed. Match the status first,
+    // then pull whichever number is on the same line.
+    const slackLineM = block.match(/^.*slack\s*\((MET|VIOLATED)\).*$/m);
+    const slackNumberM = slackLineM
+      ? slackLineM[0].match(/(-?[\d.]+)/)
+      : null;
 
-    if (!startpointM || !slackM) {
+    if (!startpointM || !slackLineM || !slackNumberM) {
       continue;
     }
 
@@ -27,8 +35,8 @@ export function parseTiming(text: string): ParseResult<TimingResult> {
       startpoint: startpointM[1].trim(),
       endpoint: endpointM ? endpointM[1].trim() : "(unknown)",
       pathGroup: pathGroupM ? pathGroupM[1].trim() : "(unknown)",
-      slack: parseFloat(slackM[2]),
-      violated: slackM[1] === "VIOLATED",
+      slack: parseFloat(slackNumberM[1]),
+      violated: slackLineM[1] === "VIOLATED",
     });
   }
 
