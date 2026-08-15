@@ -6,7 +6,7 @@ import { EXAMPLE_TIMING_REPORT } from "../exampleReports";
 import "./Tabs.css";
 
 export default function TimingTab() {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(EXAMPLE_TIMING_REPORT);
   const result = useMemo(() => (text.trim() ? parseTiming(text) : null), [text]);
 
   const sortedPaths = result?.ok

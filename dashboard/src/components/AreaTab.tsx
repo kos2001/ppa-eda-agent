@@ -6,7 +6,7 @@ import { EXAMPLE_AREA_REPORT } from "../exampleReports";
 import "./Tabs.css";
 
 export default function AreaTab() {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(EXAMPLE_AREA_REPORT);
   const result = useMemo(() => (text.trim() ? parseArea(text) : null), [text]);
 
   const chartData = result?.ok

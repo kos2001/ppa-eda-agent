@@ -8,7 +8,7 @@ import "./Tabs.css";
 const COLORS = ["#4f8ef7", "#f7934f", "#8c8c8c"];
 
 export default function PowerTab() {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(EXAMPLE_POWER_REPORT);
   const result = useMemo(() => (text.trim() ? parsePower(text) : null), [text]);
 
   const chartData = result?.ok
