@@ -4,18 +4,19 @@ import TimingTab from "./components/TimingTab";
 import PowerTab from "./components/PowerTab";
 import TradeoffsTab from "./components/TradeoffsTab";
 import SimulateTab from "./components/SimulateTab";
-import AgentSidebar from "./components/AgentSidebar";
+import DiagnosisPage from "./components/DiagnosisPage";
 import { LangProvider, useLang } from "./i18n";
-import { AgentProvider } from "./agentContext";
+import { AgentProvider, useAgent } from "./agentContext";
 import "./App.css";
 
-type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate";
+type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate" | "diagnosis";
 type Theme = "dark" | "light";
 
 const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
 
 function AppInner() {
   const { lang, setLang, t } = useLang();
+  const { diagnosing, hasUnseenResult } = useAgent();
   const [active, setActive] = useState<TabId>("simulate");
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
@@ -71,17 +72,29 @@ function AppInner() {
             {tab.label}
           </button>
         ))}
+        <button
+          className={
+            active === "diagnosis"
+              ? "app__tab app__tab--active app__tab--agent"
+              : "app__tab app__tab--agent"
+          }
+          onClick={() => setActive("diagnosis")}
+        >
+          {t("agent_sidebar_title")}
+          {diagnosing && <span className="app__tab-dot app__tab-dot--live" />}
+          {!diagnosing && hasUnseenResult && (
+            <span className="app__tab-dot app__tab-dot--unseen" />
+          )}
+        </button>
       </nav>
-      <div className="app__body">
-        <main className="app__main">
-          {active === "simulate" && <SimulateTab />}
-          {active === "area" && <AreaTab />}
-          {active === "timing" && <TimingTab />}
-          {active === "power" && <PowerTab />}
-          {active === "tradeoffs" && <TradeoffsTab />}
-        </main>
-        <AgentSidebar />
-      </div>
+      <main className="app__main">
+        {active === "simulate" && <SimulateTab />}
+        {active === "area" && <AreaTab />}
+        {active === "timing" && <TimingTab />}
+        {active === "power" && <PowerTab />}
+        {active === "tradeoffs" && <TradeoffsTab />}
+        {active === "diagnosis" && <DiagnosisPage />}
+      </main>
     </div>
   );
 }

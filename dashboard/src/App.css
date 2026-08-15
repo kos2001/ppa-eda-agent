@@ -102,10 +102,32 @@
   outline-offset: -2px;
 }
 
-.app__body {
-  flex: 1;
-  display: flex;
-  min-height: 0;
+.app__tab--agent {
+  margin-left: auto;
+  position: relative;
+}
+
+.app__tab-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.app__tab-dot--live {
+  background: var(--good);
+  animation: agent-pulse 1.4s ease-in-out infinite;
+}
+
+.app__tab-dot--unseen {
+  background: var(--critical);
+}
+
+@keyframes agent-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
 }
 
 .app__main {
@@ -114,11 +136,4 @@
   width: 100%;
   margin: 0 auto;
   padding: 0 1.25rem 3rem;
-  overflow-y: auto;
-}
-
-@media (max-width: 900px) {
-  .app__body {
-    flex-direction: column;
-  }
 }

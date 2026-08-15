@@ -148,3 +148,54 @@
   color: var(--text-dim);
   line-height: 1.5;
 }
+
+/* Shared agent-status indicator styles, used by DiagnosisPage (and
+   previously by the now-removed AgentSidebar). */
+
+.agent-sidebar__status {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.agent-sidebar__status--live {
+  color: var(--good);
+  animation: agent-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes agent-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.agent-sidebar__idle {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.agent-sidebar__meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.5rem;
+}
+
+.agent-sidebar__cursor {
+  color: var(--accent);
+  animation: agent-blink 1s step-start infinite;
+}
+
+@keyframes agent-blink {
+  50% { opacity: 0; }
+}
+
+.agent-sidebar__confirmed {
+  font-size: 0.72rem;
+  color: var(--good);
+  margin: 0.6rem 0 0;
+}
