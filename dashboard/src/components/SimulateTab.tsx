@@ -8,10 +8,12 @@ import {
 } from "../api/gateway";
 import { parseTiming } from "../parsers/parseTiming";
 import { parsePower } from "../parsers/parsePower";
+import { useLang } from "../i18n";
 import "./Tabs.css";
 import "./SimulateTab.css";
 
 export default function SimulateTab() {
+  const { t } = useLang();
   const [period, setPeriod] = useState(2.0);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
@@ -71,12 +73,10 @@ export default function SimulateTab() {
   return (
     <div className="tab">
       <div className="panel">
-        <span className="panel__title">
-          live OpenSTA simulation — 5-cell design, real Nangate45 library
-        </span>
+        <span className="panel__title">{t("sim_panel_title")}</span>
         <div className="panel__body sim-controls">
           <label className="sim-controls__field">
-            <span className="tab__meta-label">Clock period (ns)</span>
+            <span className="tab__meta-label">{t("sim_clock_period")}</span>
             <input
               type="number"
               step="0.05"
@@ -86,18 +86,15 @@ export default function SimulateTab() {
             />
           </label>
           <button onClick={handleRun} disabled={running}>
-            {running ? "Running OpenSTA…" : "Run simulation"}
+            {running ? t("sim_running") : t("sim_run")}
           </button>
-          <span className="sim-controls__hint">
-            Tightening the period below ~0.13ns will produce a real timing
-            violation — try it.
-          </span>
+          <span className="sim-controls__hint">{t("sim_hint")}</span>
         </div>
       </div>
 
       {simError && (
         <div className="tab__error">
-          {simError}. Is the simulation server running?{" "}
+          {simError}. {t("sim_error_hint")}{" "}
           <code>node server/index.mjs</code> in the repo root, and is Docker
           running with the <code>openroad/opensta</code> image pulled?
         </div>
@@ -105,7 +102,7 @@ export default function SimulateTab() {
 
       {output && (
         <div className="panel">
-          <span className="panel__title">raw OpenSTA output</span>
+          <span className="panel__title">{t("sim_raw_output")}</span>
           <div className="panel__body">
             <pre className="sim-output">{output}</pre>
           </div>
@@ -114,7 +111,7 @@ export default function SimulateTab() {
 
       {output && timingResult?.ok && (
         <div className="panel">
-          <span className="panel__title">parsed timing</span>
+          <span className="panel__title">{t("sim_parsed_timing")}</span>
           <div className="panel__body">
             <table className="tab__summary">
               <tbody>
@@ -142,24 +139,24 @@ export default function SimulateTab() {
 
       {output && powerResult?.ok && (
         <div className="panel">
-          <span className="panel__title">parsed power</span>
+          <span className="panel__title">{t("sim_parsed_power")}</span>
           <div className="panel__body">
             <table className="tab__summary">
               <tbody>
                 <tr>
-                  <td>Total power</td>
+                  <td>{t("total_power")}</td>
                   <td>{powerResult.data.totalPowerMw.toFixed(6)} mW</td>
                 </tr>
                 <tr>
-                  <td>Internal</td>
+                  <td>{t("cell_internal_power")}</td>
                   <td>{powerResult.data.cellInternalPowerMw.toFixed(6)} mW</td>
                 </tr>
                 <tr>
-                  <td>Switching</td>
+                  <td>{t("net_switching_power")}</td>
                   <td>{powerResult.data.netSwitchingPowerMw.toFixed(6)} mW</td>
                 </tr>
                 <tr>
-                  <td>Leakage</td>
+                  <td>{t("cell_leakage_power")}</td>
                   <td>{powerResult.data.cellLeakagePowerMw.toFixed(6)} mW</td>
                 </tr>
               </tbody>
@@ -170,14 +167,12 @@ export default function SimulateTab() {
 
       {output && (
         <div className="panel">
-          <span className="panel__title">ppa-eda-analyst — live diagnosis</span>
+          <span className="panel__title">{t("sim_diagnosis_title")}</span>
           <div className="panel__body">
             {!key && (
               <div className="chat-setup">
-                <p>Enter your hermes-gateway client key to get a live diagnosis.</p>
-                <p className="chat-setup__hint">
-                  Stored only in this browser's localStorage.
-                </p>
+                <p>{t("key_input_prompt")}</p>
+                <p className="chat-setup__hint">{t("key_input_hint")}</p>
                 <input
                   type="password"
                   value={keyInput}
@@ -185,17 +180,17 @@ export default function SimulateTab() {
                   placeholder="gw-..."
                 />
                 <div className="report-input__actions">
-                  <button onClick={handleSaveKey}>Save key</button>
+                  <button onClick={handleSaveKey}>{t("save_key")}</button>
                 </div>
               </div>
             )}
             {key && !diagnosis && (
               <div className="report-input__actions">
                 <button onClick={handleDiagnose} disabled={diagnosing}>
-                  {diagnosing ? "ppa-eda-analyst is thinking…" : "Diagnose this result"}
+                  {diagnosing ? t("sim_diagnosing") : t("sim_diagnose_button")}
                 </button>
                 <button onClick={handleClearKey} className="chat-panel__clear-key">
-                  Clear key
+                  {t("clear_key")}
                 </button>
               </div>
             )}

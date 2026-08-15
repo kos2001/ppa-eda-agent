@@ -42,6 +42,11 @@
   gap: 1rem;
 }
 
+.app__header-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .app__theme-toggle {
   font-family: var(--mono);
   font-size: 0.72rem;

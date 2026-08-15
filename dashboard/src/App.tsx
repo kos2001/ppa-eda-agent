@@ -4,6 +4,7 @@ import TimingTab from "./components/TimingTab";
 import PowerTab from "./components/PowerTab";
 import TradeoffsTab from "./components/TradeoffsTab";
 import SimulateTab from "./components/SimulateTab";
+import { LangProvider, useLang } from "./i18n";
 import "./App.css";
 
 type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate";
@@ -11,15 +12,8 @@ type Theme = "dark" | "light";
 
 const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "simulate", label: "Simulate" },
-  { id: "area", label: "Area" },
-  { id: "timing", label: "Timing" },
-  { id: "power", label: "Power" },
-  { id: "tradeoffs", label: "Trade-offs" },
-];
-
-export default function App() {
+function AppInner() {
+  const { lang, setLang, t } = useLang();
   const [active, setActive] = useState<TabId>("simulate");
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
@@ -30,31 +24,49 @@ export default function App() {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  const TABS: { id: TabId; label: string }[] = [
+    { id: "simulate", label: t("tab_simulate") },
+    { id: "area", label: t("tab_area") },
+    { id: "timing", label: t("tab_timing") },
+    { id: "power", label: t("tab_power") },
+    { id: "tradeoffs", label: t("tab_tradeoffs") },
+  ];
+
   return (
     <div className="app">
       <header className="app__header">
         <div className="app__header-row">
           <div>
-            <span className="app__eyebrow">Synopsys report reader</span>
-            <h1>PPA Readout</h1>
+            <span className="app__eyebrow">{t("eyebrow")}</span>
+            <h1>{t("title")}</h1>
           </div>
-          <button
-            className="app__theme-toggle"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? "☀ Light" : "● Dark"}
-          </button>
+          <div className="app__header-controls">
+            <button
+              className="app__theme-toggle"
+              onClick={() => setLang(lang === "en" ? "ko" : "en")}
+            >
+              {lang === "en" ? "한국어" : "English"}
+            </button>
+            <button
+              className="app__theme-toggle"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? "☀ Light" : "● Dark"}
+            </button>
+          </div>
         </div>
-        <p>Run a real OpenSTA simulation, paste a report_area / report_timing / report_power dump, or see how common fixes trade Power, Performance, and Area against each other.</p>
+        <p>{t("subtitle")}</p>
       </header>
       <nav className="app__tabs">
-        {TABS.map((t) => (
+        {TABS.map((tab) => (
           <button
-            key={t.id}
-            className={active === t.id ? "app__tab app__tab--active" : "app__tab"}
-            onClick={() => setActive(t.id)}
+            key={tab.id}
+            className={
+              active === tab.id ? "app__tab app__tab--active" : "app__tab"
+            }
+            onClick={() => setActive(tab.id)}
           >
-            {t.label}
+            {tab.label}
           </button>
         ))}
       </nav>
@@ -66,5 +78,13 @@ export default function App() {
         {active === "tradeoffs" && <TradeoffsTab />}
       </main>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LangProvider>
+      <AppInner />
+    </LangProvider>
   );
 }

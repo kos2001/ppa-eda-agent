@@ -3,11 +3,13 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 import ReportInput from "./ReportInput";
 import { parsePower } from "../parsers/parsePower";
 import { EXAMPLE_POWER_REPORT } from "../exampleReports";
+import { useLang } from "../i18n";
 import "./Tabs.css";
 
 const SLICE_COLORS = ["var(--accent)", "var(--warn)", "var(--text-dim)"];
 
 export default function PowerTab() {
+  const { t } = useLang();
   const [text, setText] = useState(EXAMPLE_POWER_REPORT);
   const result = useMemo(() => (text.trim() ? parsePower(text) : null), [text]);
 
@@ -38,22 +40,22 @@ export default function PowerTab() {
       {result?.ok && (
         <>
           <div className="panel">
-            <span className="panel__title">key metrics</span>
+            <span className="panel__title">{t("key_metrics")}</span>
             <div className="panel__body">
               <table className="tab__summary">
                 <tbody>
-                  <tr><td>Total power</td><td>{result.data.totalPowerMw.toFixed(4)} mW</td></tr>
-                  <tr><td>Total dynamic power</td><td>{result.data.totalDynamicPowerMw.toFixed(4)} mW</td></tr>
-                  <tr><td>Cell internal power</td><td>{result.data.cellInternalPowerMw.toFixed(4)} mW</td></tr>
-                  <tr><td>Net switching power</td><td>{result.data.netSwitchingPowerMw.toFixed(4)} mW</td></tr>
-                  <tr><td>Cell leakage power</td><td>{result.data.cellLeakagePowerMw.toFixed(4)} mW</td></tr>
+                  <tr><td>{t("total_power")}</td><td>{result.data.totalPowerMw.toFixed(4)} mW</td></tr>
+                  <tr><td>{t("total_dynamic_power")}</td><td>{result.data.totalDynamicPowerMw.toFixed(4)} mW</td></tr>
+                  <tr><td>{t("cell_internal_power")}</td><td>{result.data.cellInternalPowerMw.toFixed(4)} mW</td></tr>
+                  <tr><td>{t("net_switching_power")}</td><td>{result.data.netSwitchingPowerMw.toFixed(4)} mW</td></tr>
+                  <tr><td>{t("cell_leakage_power")}</td><td>{result.data.cellLeakagePowerMw.toFixed(4)} mW</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
 
           <div className="panel">
-            <span className="panel__title">power breakdown</span>
+            <span className="panel__title">{t("power_breakdown")}</span>
             <div className="panel__body">
               <ResponsiveContainer width="100%" height={230}>
                 <PieChart>

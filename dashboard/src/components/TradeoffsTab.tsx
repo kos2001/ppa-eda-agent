@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { TRADEOFFS } from "../tradeoffs";
+import { useLang } from "../i18n";
 import "./Tabs.css";
 import "./TradeoffsTab.css";
 
@@ -27,17 +28,18 @@ function timingColor(v: number) {
 }
 
 export default function TradeoffsTab() {
-  const chartData = TRADEOFFS.map((t) => ({
-    technique: t.technique,
-    area: t.area,
-    timing: t.timing,
-    power: t.power,
+  const { t } = useLang();
+  const chartData = TRADEOFFS.map((item) => ({
+    technique: item.technique,
+    area: item.area,
+    timing: item.timing,
+    power: item.power,
   }));
 
   return (
     <div className="tab">
       <div className="panel">
-        <span className="panel__title">the PPA triangle</span>
+        <span className="panel__title">{t("ppa_triangle_title")}</span>
         <div className="panel__body">
           <div className="ppa-triangle">
             <svg viewBox="0 0 200 176" role="img" aria-label="PPA triangle: Power, Performance, Area">
@@ -52,21 +54,18 @@ export default function TradeoffsTab() {
               <text x="8" y="176" textAnchor="start" className="ppa-triangle__label">Area</text>
               <text x="192" y="176" textAnchor="end" className="ppa-triangle__label">Performance</text>
             </svg>
-            <p className="ppa-triangle__caption">
-              Every optimization pulls this triangle — rarely can you improve
-              one corner without giving up another.
-            </p>
+            <p className="ppa-triangle__caption">{t("ppa_triangle_caption")}</p>
           </div>
         </div>
       </div>
 
       <div className="panel">
-        <span className="panel__title">how common techniques trade PPA</span>
+        <span className="panel__title">{t("tradeoffs_chart_title")}</span>
         <div className="panel__body">
           <div className="tradeoffs-legend">
-            <span><span className="swatch swatch--good" /> improves / saves</span>
-            <span><span className="swatch swatch--critical" /> costs more / worsens</span>
-            <span><span className="swatch swatch--neutral" /> no meaningful change</span>
+            <span><span className="swatch swatch--good" /> {t("legend_improves")}</span>
+            <span><span className="swatch swatch--critical" /> {t("legend_worsens")}</span>
+            <span><span className="swatch swatch--neutral" /> {t("legend_neutral")}</span>
           </div>
           <ResponsiveContainer width="100%" height={TRADEOFFS.length * 90}>
             <BarChart data={chartData} layout="vertical" barGap={2} margin={{ left: 8 }}>
@@ -114,15 +113,15 @@ export default function TradeoffsTab() {
       </div>
 
       <div className="panel">
-        <span className="panel__title">why, in each case</span>
+        <span className="panel__title">{t("why_each_case")}</span>
         <div className="panel__body tradeoff-notes">
-          {TRADEOFFS.map((t) => (
-            <div key={t.technique} className="tradeoff-note">
+          {TRADEOFFS.map((item) => (
+            <div key={item.technique} className="tradeoff-note">
               <div className="tradeoff-note__head">
-                <strong>{t.technique}</strong>
-                <code>{t.source}</code>
+                <strong>{item.technique}</strong>
+                <code>{item.source}</code>
               </div>
-              <p>{t.note}</p>
+              <p>{item.note}</p>
             </div>
           ))}
         </div>

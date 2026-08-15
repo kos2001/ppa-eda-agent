@@ -1,3 +1,5 @@
+import { useLang } from "../i18n";
+
 interface ReportInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -11,6 +13,7 @@ export default function ReportInput({
   onLoadExample,
   placeholder,
 }: ReportInputProps) {
+  const { t } = useLang();
   return (
     <div className="report-input">
       <textarea
@@ -20,7 +23,7 @@ export default function ReportInput({
         rows={10}
       />
       <div className="report-input__actions">
-        <button onClick={onLoadExample}>Load example</button>
+        <button onClick={onLoadExample}>{t("load_example")}</button>
       </div>
     </div>
   );

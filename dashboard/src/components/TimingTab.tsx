@@ -3,9 +3,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer } from 
 import ReportInput from "./ReportInput";
 import { parseTiming } from "../parsers/parseTiming";
 import { EXAMPLE_TIMING_REPORT } from "../exampleReports";
+import { useLang } from "../i18n";
 import "./Tabs.css";
 
 export default function TimingTab() {
+  const { t } = useLang();
   const [text, setText] = useState(EXAMPLE_TIMING_REPORT);
   const result = useMemo(() => (text.trim() ? parseTiming(text) : null), [text]);
 
@@ -39,15 +41,15 @@ export default function TimingTab() {
       {result?.ok && (
         <>
           <div className="panel">
-            <span className="panel__title">timing summary</span>
+            <span className="panel__title">{t("timing_summary")}</span>
             <div className="panel__body">
               <div className="tab__meta">
                 <span>
-                  <span className="tab__meta-label">WNS</span>
+                  <span className="tab__meta-label">{t("wns")}</span>
                   {wns !== null ? wns.toFixed(2) : "—"} ns
                 </span>
                 <span>
-                  <span className="tab__meta-label">Violated</span>
+                  <span className="tab__meta-label">{t("violated_paths")}</span>
                   <span className={violatedCount > 0 ? "pill pill--critical" : "pill pill--good"}>
                     {violatedCount} / {sortedPaths.length}
                   </span>
@@ -57,7 +59,7 @@ export default function TimingTab() {
           </div>
 
           <div className="panel">
-            <span className="panel__title">slack per path (ns)</span>
+            <span className="panel__title">{t("slack_per_path")}</span>
             <div className="panel__body">
               <ResponsiveContainer width="100%" height={Math.max(150, sortedPaths.length * 42)}>
                 <BarChart data={chartData} layout="vertical">
