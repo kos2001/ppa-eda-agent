@@ -87,3 +87,12 @@ Total area:                    undefined
   input capacitance and thus higher dynamic power on their output nets —
   cross-check any upsizing decision against `report-power.md`'s switching
   power section before accepting it as "free."
+
+## Format variants
+
+The combinational/noncombinational/macro breakdown above is specific to
+Design Compiler. There's no universal "area report" shape: Yosys (the
+standard open-source synthesizer) has no `report_area` command at all —
+its equivalent, `stat -liberty`, outputs a per-cell-type instance count
+histogram plus a single "Chip area" total, with no combinational/
+noncombinational/macro split and no buf/inv subset. See `see-also.md`.

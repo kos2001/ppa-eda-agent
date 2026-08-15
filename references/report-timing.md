@@ -110,8 +110,16 @@ slack (MET)                                        0.77
 ## Format variants
 
 PrimeTime's `Point / Incr / Path` columns (above) aren't universal. OpenSTA
-(free, PrimeTime-command-compatible) defaults to `Delay / Time /
-Description` columns instead — same `Startpoint:`/`Endpoint:`/`Path
-Group:`/`slack (MET/VIOLATED)` structure, different header/spacing. See
-`see-also.md` for where this was confirmed and how to get real sample
-reports from it.
+(free, PrimeTime-command-compatible) has at least three real column
+variants seen in its own test suite: `Delay / Time / Description`, `Slew /
+Delay / Time / Description`, and `Cap / Slew / Delay / Time / Description /
+Src Attr` (the last adds source-line attribution back into the RTL). All
+keep the same `Startpoint:`/`Endpoint:`/`Path Group:`/`slack
+(MET/VIOLATED)` framing — only the per-point column set changes. Full
+excerpts and sourcing in `see-also.md`.
+
+Two more things confirmed from real OpenSTA output, not in the example
+above: multi-corner/multi-mode analysis adds `Mode:` and `Corner:` lines
+right after `Path Type:`; and slack can be reported `(VIOLATED)` at exactly
+`0.00`, not only when negative — trust the report's own MET/VIOLATED label
+over re-deriving it from the slack number's sign.
