@@ -16,6 +16,25 @@ const dict = {
   tab_timing: { en: "Timing", ko: "Timing" },
   tab_power: { en: "Power", ko: "Power" },
   tab_tradeoffs: { en: "Trade-offs", ko: "트레이드오프" },
+  tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
+
+  pipeline_panel_title: {
+    en: "autonomous layout pipeline — real OpenLane2 runs from reference-db/",
+    ko: "자율형 레이아웃 파이프라인 — reference-db/의 실제 OpenLane2 실행 결과",
+  },
+  pipeline_intro: {
+    en: "Every case below is a real pipeline.orchestrator.py run: real placement/routing candidates, real OpenLane metrics.json verdicts, real failures where they occurred. See docs/superpowers/specs/2026-08-21-autonomous-layout-agent-design.md for the full design.",
+    ko: "아래 각 케이스는 실제 pipeline.orchestrator.py 실행 결과입니다: 실제 배치/배선 후보, 실제 OpenLane metrics.json 판정, 발생한 실제 실패까지 그대로 보여줍니다. 전체 설계는 docs/superpowers/specs/2026-08-21-autonomous-layout-agent-design.md 참고.",
+  },
+  pipeline_loading: { en: "Loading reference-db…", ko: "reference-db 불러오는 중…" },
+  pipeline_error_hint: {
+    en: "is the simulation server (node server/index.mjs) running?",
+    ko: "시뮬레이션 서버(node server/index.mjs)가 실행 중인가요?",
+  },
+  pipeline_empty: {
+    en: "No cases yet — run pipeline/orchestrator.py on a design to populate reference-db/.",
+    ko: "아직 케이스가 없습니다 — pipeline/orchestrator.py를 실행해 reference-db/를 채워보세요.",
+  },
 
   load_example: { en: "Load example", ko: "예시 불러오기" },
 

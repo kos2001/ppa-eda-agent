@@ -1,0 +1,29 @@
+.pipeline__iteration {
+  margin-top: 1rem;
+}
+
+.pipeline__iteration .tab__summary td:last-child {
+  text-align: left;
+  font-weight: 400;
+}
+
+.pipeline__error-cell {
+  color: var(--critical);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pipeline__diagnosis {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.pipeline__diagnosis p {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+}
