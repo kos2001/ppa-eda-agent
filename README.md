@@ -32,7 +32,46 @@ dashboard/                          React + Vite + TypeScript UI: paste a
                                      diagnosis
 docs/superpowers/                   Design specs and implementation plans
                                      from how this was built
+pipeline/                           Autonomous layout pipeline: real
+                                     placement/routing candidate
+                                     generation and evaluation via
+                                     OpenLane 2 + sky130 (see below)
+reference-db/                       Case store of past pipeline runs —
+                                     topology signature, candidate
+                                     configs tried, real PPA/DRC/LVS
+                                     results — for reuse across designs
 ```
+
+## Autonomous layout pipeline
+
+Beyond reading reports, this repo can now drive a real
+RTL → placement → routing → signoff loop and evaluate the candidates it
+produces — see
+`docs/superpowers/specs/2026-08-21-autonomous-layout-agent-design.md` for
+the full design and
+`.claude/agents/{circuit-layout-extractor,topology-analyst,
+placement-strategist,physical-constraint-evaluator,
+routing-candidate-evaluator,verification-ppa-evaluator,
+feedback-optimizer}.md` for the subagents that reason about it.
+
+Requires Docker and a local sky130 PDK (fetched once via `volare`, see
+the spec doc). Standard-cell-only, digital designs for now — no SRAM
+bitcell layout yet (see the spec's "Known limitations").
+
+```sh
+cd pipeline
+python3 orchestrator.py --design designs/counter4 \
+  --run-spec designs/counter4/run_spec.json
+```
+
+This runs every candidate in `run_spec.json` through a real OpenLane
+flow, scores each against the spec's targets using OpenLane's own real
+`metrics.json` (DRC/LVS/timing/power/area), and writes the result to
+`reference-db/`. A real first case is already there:
+`reference-db/cases/counter4__2026-08-21.json` — three placement
+candidates at different core-utilization targets, one passing cleanly
+and two hitting a real `OpenROAD.GeneratePDN` power-grid failure at
+higher density on that die size.
 
 ## Dashboard
 

@@ -33,6 +33,26 @@ This pipeline targets the repeatable part of that work first.
   invokes the real tool. If a stage can't run in a given environment
   (missing PDK, no Docker), it must say so rather than fabricate output.
 
+## Data model
+
+Every design carried through this pipeline is described by four data
+categories (this is what `reference-db/` cases and
+`circuit-layout-extractor`'s output are organized around):
+
+1. **Circuit data** — schematic/RTL, netlist, device/instance info,
+   connectivity hierarchy, power domains.
+2. **Layout data** — DEF, LEF, GDS (real physical views, once a run
+   produces them).
+3. **Physical design rules/constraints** — the PDK (sky130 version
+   actually enabled under `pdk/`) and design constraints (SDC).
+4. **Verification data** — DRC/LVS results, parasitics (SPEF), timing,
+   power, area — OpenLane's real signoff output.
+
+`pipeline/orchestrator.py`'s `data_pointers()` records real paths into
+all four for every candidate that completes a run (see a real example in
+`reference-db/cases/counter4__2026-08-21.json`) rather than
+re-deriving or duplicating that data elsewhere.
+
 ## Process mapping
 
 | User's process step | Component |
