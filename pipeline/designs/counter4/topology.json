@@ -1,0 +1,9 @@
+{
+  "module_count": 1,
+  "has_macros": false,
+  "clock_domain_count": 1,
+  "port_count": 4,
+  "sequential_element_estimate": 4,
+  "power_domain_count": 1,
+  "notes": "Single-module 4-bit synchronous up-counter, synchronous reset, enable. Purely standard-cell, no macros — the regular/simple end of this pipeline's topology range, contrasted with sram_wrapper's macro-heavy case."
+}

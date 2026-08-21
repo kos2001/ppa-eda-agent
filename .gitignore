@@ -1,0 +1,10 @@
+node_modules/
+dashboard/dist/
+
+# Real EDA artifacts — large binary tool output and downloaded PDK, not
+# source. Regenerate via pipeline/run_stage.py / pipeline/orchestrator.py
+# and the volare command in docs/superpowers/specs/
+# 2026-08-21-autonomous-layout-agent-design.md.
+pdk/
+pipeline/designs/*/runs/
+__pycache__/

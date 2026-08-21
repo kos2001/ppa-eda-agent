@@ -15,6 +15,7 @@ const execFileAsync = promisify(execFile);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const simDir = path.resolve(__dirname, "..", "sim");
+const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const PORT = 8123;
 
 // Any localhost dev-server port is fine — this is a local-only tool.
@@ -25,7 +26,7 @@ function corsHeaders(req) {
   if (origin && ALLOWED_ORIGIN_RE.test(origin)) {
     return {
       "Access-Control-Allow-Origin": origin,
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
   }
@@ -80,6 +81,35 @@ async function runSimulation(period) {
   }
 }
 
+// Reads the real reference-db/ case store (written by
+// pipeline/orchestrator.py — see docs/superpowers/specs/
+// 2026-08-21-autonomous-layout-agent-design.md) — every design's list of
+// cases, each with its real iterations/candidates/verdicts/diagnosis.
+// Read-only: this endpoint never runs anything, just serves what the
+// pipeline already wrote to disk.
+async function loadReferenceDb() {
+  let index;
+  try {
+    index = JSON.parse(await readFile(path.join(refDbDir, "index.json"), "utf-8"));
+  } catch {
+    return { designs: {} };
+  }
+
+  const designs = {};
+  for (const [designName, caseFiles] of Object.entries(index)) {
+    designs[designName] = [];
+    for (const fileName of caseFiles) {
+      try {
+        const raw = await readFile(path.join(refDbDir, "cases", fileName), "utf-8");
+        designs[designName].push(JSON.parse(raw));
+      } catch (err) {
+        console.error(`[reference-db] failed to read ${fileName}`, err);
+      }
+    }
+  }
+  return { designs };
+}
+
 const server = createServer(async (req, res) => {
   const headers = corsHeaders(req);
 
@@ -89,9 +119,22 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url === "/reference-db") {
+    try {
+      const data = await loadReferenceDb();
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify(data));
+    } catch (err) {
+      console.error("[reference-db error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
   if (req.method !== "POST" || req.url !== "/simulate") {
     res.writeHead(404, { ...headers, "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "POST /simulate {period} only" }));
+    res.end(JSON.stringify({ error: "POST /simulate {period}, or GET /reference-db" }));
     return;
   }
 
