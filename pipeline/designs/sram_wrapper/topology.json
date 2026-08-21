@@ -1,0 +1,9 @@
+{
+  "module_count": 2,
+  "has_macros": true,
+  "clock_domain_count": 1,
+  "port_count": 4,
+  "sequential_element_estimate": 72,
+  "power_domain_count": 1,
+  "notes": "Top module sram_wrapper instantiates one hard macro (sky130_sram_1kbyte_1rw1r_32x256_8, blackboxed for synthesis via EXTRA_VERILOG_MODELS / MACROS config) plus an 8-bit free-running address counter and a 64-bit output register placed at the macro boundary. sequential_element_estimate = 8 (address counter) + 64 (dout0/dout1 registers) = 72 flip-flops in the wrapper's own std-cell logic; the macro's internal storage (256x32b) is not counted here since it's a blackboxed macro, not synthesized std-cell sequential logic."
+}

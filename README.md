@@ -77,6 +77,13 @@ the auto-repair loop converges to a passing candidate by iteration 3.
 `reference-db/cases/counter4__2026-08-21.json` has the real committed
 result.
 
+A second, macro-heavy design (`pipeline/designs/sram_wrapper`, wrapping a
+real sky130 SRAM hard macro) hits a different real constraint — the
+macro's clock pins need tighter slew control than OpenLane's default
+pre-CTS clock model provides — documented with full diagnosis in
+`reference-db/cases/sram_wrapper__2026-08-21.json`. Left open rather than
+forced past; see the design spec's "Second vertical slice" section.
+
 ## Dashboard
 
 Four report-visualization tabs (Area, Timing, Power, Trade-offs) plus a

@@ -182,6 +182,32 @@ the backend loop above is validated on a real design.
   thin orchestration wrappers around a real external tool, and the real
   validation is "did a real OpenLane run actually produce these files."
 
+## Second vertical slice: a macro-heavy design
+
+`pipeline/designs/sram_wrapper` adds a real hard macro (sky130's
+`sky130_sram_1kbyte_1rw1r_32x256_8` OpenRAM-generated SRAM, 256×32b) to
+validate the `has_macros: true` topology path — `MACROS` config
+(gds/lef/lib/instance placement), not the `EXTRA_LEFS`/`EXTRA_LIBS`
+approach originally tried (that leaves the macro unplaced going into PDN
+generation; `MACROS` places-and-fixes it as part of floorplanning).
+
+This case does **not** currently pass — and that's a real, useful result,
+not a gap to hide (see `reference-db/cases/sram_wrapper__2026-08-21.json`'s
+`diagnosis` field for the full write-up): the macro's clock pins carry a
+liberty `max_transition` spec (~0.04ns) tighter than OpenLane's default
+pre-CTS ideal clock model (0.15ns), and no data-path buffering fixes a
+clock-pin constraint checked before clock-tree synthesis runs. Registering
+the macro's data outputs at its boundary (standard practice, tried here)
+correctly ruled out the data path as the cause but left the clock-pin
+constraint untouched. This is a genuinely different failure mode from
+`counter4`'s PDN/utilization one — `orchestrator.py`'s `propose_repairs()`
+correctly does *not* auto-repair it (out of its narrow, evidence-based
+scope) and iteration stops for a human/`feedback-optimizer` to pick up:
+resolving it needs a CTS-aware macro-clock strategy (e.g. explicit clock
+buffering/insertion ordered before the pre-CTS repair check, or a
+justified per-pin SDC exception), which is future work, not something to
+force past on a toy design.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
