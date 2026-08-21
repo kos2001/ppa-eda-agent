@@ -67,11 +67,15 @@ python3 orchestrator.py --design designs/counter4 \
 This runs every candidate in `run_spec.json` through a real OpenLane
 flow, scores each against the spec's targets using OpenLane's own real
 `metrics.json` (DRC/LVS/timing/power/area), and writes the result to
-`reference-db/`. A real first case is already there:
-`reference-db/cases/counter4__2026-08-21.json` — three placement
-candidates at different core-utilization targets, one passing cleanly
-and two hitting a real `OpenROAD.GeneratePDN` power-grid failure at
-higher density on that die size.
+`reference-db/`. If nothing passes, it auto-repairs the one real failure
+mode it knows how to (an `OpenROAD.GeneratePDN` power-grid failure from
+utilization pushed too high — steps `FP_CORE_UTIL` down and retries) for
+up to `max_iterations` before handing off to `feedback-optimizer` for
+anything it can't pattern-match on. Validated for real: starting from two
+candidates (`FP_CORE_UTIL` 55 and 70) that both fail at that PDN error,
+the auto-repair loop converges to a passing candidate by iteration 3.
+`reference-db/cases/counter4__2026-08-21.json` has the real committed
+result.
 
 ## Dashboard
 

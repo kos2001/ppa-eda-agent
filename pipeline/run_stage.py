@@ -51,11 +51,17 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     cmd.append("/design/config.json")
 
     print(f"$ {' '.join(cmd)}", file=sys.stderr)
-    result = subprocess.run(cmd, cwd=design_dir)
+    result = subprocess.run(cmd, cwd=design_dir, capture_output=True, text=True)
+    # Stream what OpenLane printed even though we captured it, so a live
+    # run is still visible — only the *raised error message* needs the
+    # tail of it for propose_repairs() to pattern-match on.
+    sys.stderr.write(result.stdout)
+    sys.stderr.write(result.stderr)
     if result.returncode != 0:
+        tail = (result.stdout + result.stderr)[-2000:]
         raise RuntimeError(
             f"OpenLane run '{tag}' exited {result.returncode} — "
-            f"see runs/{tag}/ for logs"
+            f"see runs/{tag}/ for logs. Tail of output:\n{tail}"
         )
     return design_dir / "runs" / tag
 

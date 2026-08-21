@@ -82,9 +82,13 @@ Drives one full iteration:
 4. Run the surviving candidates through routing + signoff.
 5. Collect `runs/<tag>/final/metrics.json` (OpenLane's own structured PPA:
    area, WNS/TNS, power, DRC/LVS violation counts) per candidate.
-6. Hand all candidate results to `feedback-optimizer`, which either picks
-   a winner (targets met) or proposes a constraint delta and starts the
-   next iteration (up to `max_iterations`).
+6. Between iterations, `orchestrator.py` itself mechanically retries the
+   one real, observed failure mode it can pattern-match on (PDN strap-
+   width failure from utilization set too high — see `propose_repairs()`)
+   for up to `max_iterations`. Anything it can't pattern-match on (an
+   unrecognized failure, or `max_iterations` exhausted) is handed to
+   `feedback-optimizer`, which diagnoses the real cause and proposes a
+   genuinely new candidate set via `placement-strategist`.
 7. Write the winning (or best-so-far) run's config + metrics + a short
    rationale into `reference-db/`.
 
