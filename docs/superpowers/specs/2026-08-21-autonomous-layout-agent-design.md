@@ -205,8 +205,15 @@ pin capacitance). Not fixable by SDC overrides (tried both
 `MAX_TRANSITION_CONSTRAINT` and `CLOCK_TRANSITION_CONSTRAINT` — no
 effect, since `repair_design` reads this limit from the liberty pin
 attribute directly) and not fixable by registering the macro's *outputs*
-(tried — irrelevant, since the violating pins are macro *inputs*). This is
-a genuinely different failure mode from `counter4`'s PDN/utilization one —
+(tried — irrelevant, since the violating pins are macro *inputs*). A
+follow-up experiment confirmed the diagnosis without fully solving it:
+switching `STD_CELL_LIBRARY` to `sky130_fd_sc_hs` (faster cells) got the
+flow past this exact failure (stage 31/78 → stage 43/78) but hit a
+second, unrelated problem — the hs library isn't fully wired into this
+OpenLane setup's antenna-repair machinery, crashing OpenROAD. Reverted
+rather than chase a second gap in the same pass; full write-up in the
+reference-db case's `diagnosis` field. This is a genuinely different
+failure mode from `counter4`'s PDN/utilization one —
 `orchestrator.py`'s `propose_repairs()` correctly does *not* auto-repair
 it (out of its narrow, evidence-based scope) and iteration stops for a
 human/`feedback-optimizer` to pick up. The real fix is placement-side:
