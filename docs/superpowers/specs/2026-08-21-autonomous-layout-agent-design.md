@@ -239,10 +239,25 @@ attribute directly) and not fixable by registering the macro's *outputs*
 follow-up experiment confirmed the diagnosis without fully solving it:
 switching `STD_CELL_LIBRARY` to `sky130_fd_sc_hs` (faster cells) got the
 flow past this exact failure (stage 31/78 → stage 43/78) but hit a
-second, unrelated problem — the hs library isn't fully wired into this
-OpenLane setup's antenna-repair machinery, crashing OpenROAD. Reverted
-rather than chase a second gap in the same pass; full write-up in the
-reference-db case's `diagnosis` field. This is a genuinely different
+second, unrelated problem. That one turned out to have a real fix:
+`OpenROAD.RepairAntennas` is the actual orchestratable step id (the
+private `_DiodeInsertion` sub-step inside it isn't a standalone step —
+confirmed via the CLI's own "no step(s) with ID found" error), and
+`--skip OpenROAD.RepairAntennas` gets past the hs cell-inventory gap,
+advancing to stage 61/78. That surfaced a third, also-real bug:
+`u_sram`'s power pins were never actually hooked into the grid (the
+"not connected to power/ground nets" warning present since the very
+first run) — `PDN_MACRO_CONNECTIONS` is the real OpenLane variable for
+explicit macro power-grid hookup, added to `config.json` permanently
+(confirmed it doesn't change the `hd` baseline's earlier RSZ-0090
+failure, so it's a safe, unconditionally-correct addition). With both
+fixes plus `hs`, the flow reaches stage 61/78 (Magic LEF write) before
+hitting a fourth blocker: the vendor SRAM macro's own `.mag` view has
+self-overlapping contacts in its `row_cap_array` cells — looks like a
+quirk in the macro's own reference layout, not this project's config.
+`STD_CELL_LIBRARY` reverted to `hd` for the committed baseline since
+`hs` still doesn't reach a clean pass; full write-up of all four
+findings in the reference-db case's `diagnosis` field. This is a genuinely different
 failure mode from `counter4`'s PDN/utilization one —
 `orchestrator.py`'s `propose_repairs()` correctly does *not* auto-repair
 it (out of its narrow, evidence-based scope) and iteration stops for a
