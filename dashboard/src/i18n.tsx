@@ -35,6 +35,8 @@ const dict = {
     en: "No cases yet — run pipeline/orchestrator.py on a design to populate reference-db/.",
     ko: "아직 케이스가 없습니다 — pipeline/orchestrator.py를 실행해 reference-db/를 채워보세요.",
   },
+  pipeline_filter_design: { en: "design", ko: "디자인" },
+  pipeline_filter_all: { en: "all designs", ko: "전체" },
 
   load_example: { en: "Load example", ko: "예시 불러오기" },
 

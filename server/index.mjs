@@ -95,19 +95,21 @@ async function loadReferenceDb() {
     return { designs: {} };
   }
 
-  const designs = {};
-  for (const [designName, caseFiles] of Object.entries(index)) {
-    designs[designName] = [];
-    for (const fileName of caseFiles) {
+  const entries = await Promise.all(
+    Object.entries(index).map(async ([designName, caseFiles]) => {
+      const cases = await Promise.all(caseFiles.map(async (fileName) => {
       try {
         const raw = await readFile(path.join(refDbDir, "cases", fileName), "utf-8");
-        designs[designName].push(JSON.parse(raw));
+        return JSON.parse(raw);
       } catch (err) {
         console.error(`[reference-db] failed to read ${fileName}`, err);
+        return null;
       }
-    }
-  }
-  return { designs };
+      }));
+      return [designName, cases.filter((item) => item !== null)];
+    })
+  );
+  return { designs: Object.fromEntries(entries) };
 }
 
 const server = createServer(async (req, res) => {

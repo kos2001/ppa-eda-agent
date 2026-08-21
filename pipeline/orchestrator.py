@@ -17,6 +17,7 @@ next candidate set. This script's job is only to run real candidates and
 score them consistently, not to invent optimization strategy itself.
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import sys
 from datetime import date
@@ -136,24 +137,50 @@ def override_value(v) -> str:
     return json.dumps(v)
 
 
-def run_candidates(design_dir: Path, run_spec: dict) -> list[dict]:
-    results = []
-    for cand in run_spec["candidates"]:
-        tag = cand["tag"]
-        overrides = [f"{k}={override_value(v)}" for k, v in cand.get("overrides", {}).items()]
-        print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})} ===",
-              file=sys.stderr)
-        try:
-            run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides)
-            metrics = read_metrics(run_dir)
-            verdict = score(metrics, run_spec.get("targets", {}))
-            results.append({"tag": tag, "overrides": cand.get("overrides", {}),
-                             "verdict": verdict, "run_dir": str(run_dir),
-                             "data": data_pointers(run_dir)})
-        except Exception as e:  # noqa: BLE001 - report and keep evaluating others
-            results.append({"tag": tag, "overrides": cand.get("overrides", {}),
-                             "error": str(e)})
-    return results
+def run_candidate(design_dir: Path, run_spec: dict, cand: dict) -> dict:
+    """Runs and scores one independent candidate."""
+    tag = cand["tag"]
+    overrides = [f"{k}={override_value(v)}" for k, v in cand.get("overrides", {}).items()]
+    print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})} ===",
+          file=sys.stderr)
+    try:
+        run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides)
+        metrics = read_metrics(run_dir)
+        verdict = score(metrics, run_spec.get("targets", {}))
+        return {"tag": tag, "overrides": cand.get("overrides", {}),
+                "verdict": verdict, "run_dir": str(run_dir),
+                "data": data_pointers(run_dir)}
+    except Exception as e:  # noqa: BLE001 - report and keep evaluating others
+        return {"tag": tag, "overrides": cand.get("overrides", {}),
+                "error": str(e)}
+
+
+def run_candidates(design_dir: Path, run_spec: dict,
+                   max_parallel: int = 1) -> list[dict]:
+    candidates = run_spec["candidates"]
+    if max_parallel <= 1 or len(candidates) <= 1:
+        return [run_candidate(design_dir, run_spec, cand) for cand in candidates]
+
+    results_by_tag = {}
+    with ThreadPoolExecutor(max_workers=min(max_parallel, len(candidates))) as executor:
+        futures = {
+            executor.submit(run_candidate, design_dir, run_spec, cand): cand["tag"]
+            for cand in candidates
+        }
+        for future in as_completed(futures):
+            tag = futures[future]
+            try:
+                results_by_tag[tag] = future.result()
+            except Exception as e:  # defensive: preserve other candidate results
+                cand = next(c for c in candidates if c["tag"] == tag)
+                results_by_tag[tag] = {
+                    "tag": tag,
+                    "overrides": cand.get("overrides", {}),
+                    "error": str(e),
+                }
+
+    # Preserve run_spec order so reports and reference cases stay deterministic.
+    return [results_by_tag[cand["tag"]] for cand in candidates]
 
 
 def pick_winner(results: list[dict]) -> dict | None:
@@ -295,6 +322,8 @@ def main():
                      help="path to a run_spec.json (candidates + targets)")
     ap.add_argument("--max-iterations", type=int, default=None,
                      help="overrides run_spec.json's max_iterations, if set")
+    ap.add_argument("--max-parallel", type=int, default=1,
+                    help="number of independent candidates to run concurrently")
     args = ap.parse_args()
 
     run_spec = json.loads(args.run_spec.read_text())
@@ -307,7 +336,11 @@ def main():
 
     iteration = 1
     while True:
-        results = run_candidates(args.design, {**run_spec, "candidates": candidates})
+        results = run_candidates(
+            args.design,
+            {**run_spec, "candidates": candidates},
+            max_parallel=max(1, args.max_parallel),
+        )
         print_iteration_summary(iteration, results)
         all_iterations.append({"iteration": iteration, "results": results})
 
