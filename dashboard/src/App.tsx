@@ -49,11 +49,17 @@ function AppInner() {
     <div className="app">
       <header className="app__header">
         <div className="app__header-row">
-          <div>
-            <span className="app__eyebrow">{t("eyebrow")}</span>
-            <h1>{t("title")}</h1>
+          <div className="app__brand">
+            <div className="app__mark" aria-hidden="true">
+              <span>P</span><span>P</span><span>A</span>
+            </div>
+            <div>
+              <span className="app__eyebrow">{t("eyebrow")}</span>
+              <h1>{t("title")}</h1>
+            </div>
           </div>
           <div className="app__header-controls">
+            <span className="app__system-status"><i /> OpenLane connected</span>
             <button
               className="app__theme-toggle"
               onClick={() => setLang(lang === "en" ? "ko" : "en")}
@@ -69,6 +75,9 @@ function AppInner() {
           </div>
         </div>
         <p>{t("subtitle")}</p>
+        <div className="app__signal-line" aria-hidden="true">
+          {Array.from({ length: 28 }, (_, i) => <span key={i} />)}
+        </div>
       </header>
       <nav className="app__tabs">
         {TABS.map((tab) => (

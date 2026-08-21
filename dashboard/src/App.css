@@ -137,3 +137,23 @@
   margin: 0 auto;
   padding: 0 1.25rem 3rem;
 }
+
+/* Visual command-center layer */
+.app__header { padding: 1.25rem clamp(1rem, 4vw, 3rem) 1rem; background: radial-gradient(circle at 15% -30%, var(--accent-glow), transparent 36%), var(--surface); position: relative; overflow: hidden; }
+.app__header h1 { font-size: clamp(1.25rem, 2vw, 1.7rem); }
+.app__header p { margin: 0.6rem 0 0 4.75rem; }
+.app__brand { display: flex; align-items: center; gap: 1rem; }
+.app__mark { display: grid; grid-template-columns: repeat(3, 1fr); width: 3.75rem; height: 3.75rem; padding: 0.45rem; border: 1px solid var(--border-strong); border-radius: 12px; background: linear-gradient(145deg, var(--surface-raised), var(--accent-soft)); box-shadow: 0 0 30px var(--accent-glow); }
+.app__mark span { display: grid; place-items: center; color: var(--accent); font-weight: 800; font-size: 0.68rem; border-right: 1px solid var(--border); }
+.app__mark span:last-child { border-right: 0; }
+.app__header-controls { align-items: center; }
+.app__system-status { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.7rem; color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 35%, var(--border)); border-radius: 999px; font-size: 0.68rem; background: var(--good-soft); }
+.app__system-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 10px var(--good); }
+.app__signal-line { position: absolute; right: 2rem; bottom: 0; display: flex; align-items: end; gap: 3px; height: 28px; opacity: 0.22; }
+.app__signal-line span { width: 3px; height: 7px; background: var(--accent); }
+.app__signal-line span:nth-child(3n) { height: 22px; }
+.app__signal-line span:nth-child(4n) { height: 12px; }
+.app__signal-line span:nth-child(7n) { height: 26px; }
+.app__tabs { padding-inline: clamp(1rem, 4vw, 3rem); position: sticky; top: 0; z-index: 20; overflow-x: auto; backdrop-filter: blur(16px); }
+.app__main { max-width: 1380px; padding: 0 clamp(1rem, 3vw, 2rem) 4rem; }
+@media (max-width: 760px) { .app__header-controls { flex-wrap: wrap; justify-content: flex-end; } .app__system-status { display: none; } .app__header p { margin-left: 0; } .app__tab { padding-inline: 0.75rem; font-size: 0.72rem; white-space: nowrap; } .app__tab--agent { margin-left: 0; } }

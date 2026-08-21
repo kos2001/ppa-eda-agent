@@ -6,6 +6,7 @@ import {
   type PipelineCase,
 } from "../api/referenceDb";
 import { useLang } from "../i18n";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import "./Tabs.css";
 import "./PipelineTab.css";
 
@@ -104,6 +105,12 @@ function CandidateRow({
 
 function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
+  const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
+  const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
+  const failed = candidates.length - passed;
+  const chartData = candidates
+    .filter((candidate) => candidate.verdict?.area_um2 != null)
+    .map((candidate) => ({ name: candidate.tag, area: candidate.verdict?.area_um2 ?? 0, passed: Boolean(candidate.verdict?.passed) }));
 
   function toggle(tag: string) {
     setExpandedTags((prev) => {
@@ -120,6 +127,38 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
         {pipelineCase.design} — {pipelineCase.date}
       </span>
       <div className="panel__body">
+        <div className="metric-grid pipeline__metrics">
+          <div className={`metric-card ${pipelineCase.winner_tag ? "metric-card--good" : "metric-card--critical"}`}>
+            <span className="metric-card__label">closure status</span>
+            <strong className="metric-card__value">{pipelineCase.winner_tag ? "CLOSED" : "OPEN"}</strong>
+            <span className="metric-card__note">winner · {pipelineCase.winner_tag ?? "not found"}</span>
+          </div>
+          <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length} candidates</span></div>
+          <div className="metric-card metric-card--good"><span className="metric-card__label">passed</span><strong className="metric-card__value">{passed}</strong><span className="metric-card__note">verified candidates</span></div>
+          <div className={`metric-card ${failed > 0 ? "metric-card--critical" : ""}`}><span className="metric-card__label">rejected</span><strong className="metric-card__value">{failed}</strong><span className="metric-card__note">failed or violated guardrails</span></div>
+        </div>
+
+        <div className="pipeline__flow" aria-label="Pipeline stages">
+          {["RTL", "Floorplan", "Place", "Route", "Signoff"].map((stage, index) => (
+            <div key={stage} className="pipeline__flow-stage"><span>{String(index + 1).padStart(2, "0")}</span><strong>{stage}</strong></div>
+          ))}
+        </div>
+
+        {chartData.length > 0 && (
+          <div className="pipeline__chart">
+            <div className="tab__meta-label">candidate area comparison · lower is better</div>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={chartData} margin={{ top: 18, right: 12, left: 6, bottom: 30 }}>
+                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" angle={-18} textAnchor="end" tick={{ fill: "var(--text-dim)", fontSize: 10 }} stroke="var(--border)" />
+                <YAxis tick={{ fill: "var(--text-dim)", fontSize: 10 }} stroke="var(--border)" />
+                <Tooltip contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", borderRadius: 8, fontFamily: "var(--mono)" }} />
+                <Bar dataKey="area" radius={[5, 5, 0, 0]}>{chartData.map((entry) => <Cell key={entry.name} fill={entry.passed ? "var(--good)" : "var(--critical)"} />)}</Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
         <div className="tab__meta">
           <span>
             <span className="tab__meta-label">outcome</span>

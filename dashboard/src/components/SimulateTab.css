@@ -62,3 +62,11 @@
   color: var(--text-dim);
   margin: 0.5rem 0 0;
 }
+
+.sim-metrics { margin-bottom: 0; }
+.sim-visual-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.8fr); gap: 1.25rem; }
+.sim-raw-details summary { cursor: pointer; list-style: none; }
+.sim-raw-details summary::-webkit-details-marker { display: none; }
+.sim-raw-details summary::after { content: "+ expand raw report"; float: right; color: var(--accent); font-size: 0.62rem; }
+.sim-raw-details[open] summary::after { content: "− collapse"; }
+@media (max-width: 900px) { .sim-visual-grid { grid-template-columns: 1fr; } }
