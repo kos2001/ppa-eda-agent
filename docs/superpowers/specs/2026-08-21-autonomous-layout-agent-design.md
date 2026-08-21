@@ -193,20 +193,28 @@ generation; `MACROS` places-and-fixes it as part of floorplanning).
 
 This case does **not** currently pass — and that's a real, useful result,
 not a gap to hide (see `reference-db/cases/sram_wrapper__2026-08-21.json`'s
-`diagnosis` field for the full write-up): the macro's clock pins carry a
-liberty `max_transition` spec (~0.04ns) tighter than OpenLane's default
-pre-CTS ideal clock model (0.15ns), and no data-path buffering fixes a
-clock-pin constraint checked before clock-tree synthesis runs. Registering
-the macro's data outputs at its boundary (standard practice, tried here)
-correctly ruled out the data path as the cause but left the clock-pin
-constraint untouched. This is a genuinely different failure mode from
-`counter4`'s PDN/utilization one — `orchestrator.py`'s `propose_repairs()`
-correctly does *not* auto-repair it (out of its narrow, evidence-based
-scope) and iteration stops for a human/`feedback-optimizer` to pick up:
-resolving it needs a CTS-aware macro-clock strategy (e.g. explicit clock
-buffering/insertion ordered before the pre-CTS repair check, or a
-justified per-pin SDC exception), which is future work, not something to
-force past on a toy design.
+`diagnosis` field for the full write-up, including a correction: an
+earlier version of this diagnosis speculatively blamed the clock pins
+without checking the actual liberty file — wrong, and corrected once
+verified). Confirmed root cause: the macro's own liberty file specifies
+an explicit `max_transition` of 0.04ns on its `addr0`/`wmask0`/`addr1`
+input buses — tighter than the strongest resizer-available buffer can
+drive even at zero wire length (RSZ-0090's reported achievable transition,
+0.043ns, is against a load of ~0.01pF — essentially just that bus's own
+pin capacitance). Not fixable by SDC overrides (tried both
+`MAX_TRANSITION_CONSTRAINT` and `CLOCK_TRANSITION_CONSTRAINT` — no
+effect, since `repair_design` reads this limit from the liberty pin
+attribute directly) and not fixable by registering the macro's *outputs*
+(tried — irrelevant, since the violating pins are macro *inputs*). This is
+a genuinely different failure mode from `counter4`'s PDN/utilization one —
+`orchestrator.py`'s `propose_repairs()` correctly does *not* auto-repair
+it (out of its narrow, evidence-based scope) and iteration stops for a
+human/`feedback-optimizer` to pick up. The real fix is placement-side:
+keep whatever drives the address/mask buses physically adjacent to the
+macro (or insert an explicit macro-local repeater) so the driver only
+needs to charge the bus's bare pin capacitance — a placement-strategist
+concern (macro-adjacent logic placement), not a config knob. Left open
+for a future session rather than forced past.
 
 ## Known limitations / explicit non-goals
 
