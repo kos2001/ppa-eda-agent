@@ -77,6 +77,14 @@ the auto-repair loop converges to a passing candidate by iteration 3.
 `reference-db/cases/counter4__2026-08-21.json` has the real committed
 result.
 
+A third design (`pipeline/designs/counter4_tinydie`) validates a *second*
+auto-repairable failure pattern — a die started too small even for
+floorplan margins, repaired by growing `DIE_AREA` instead of lowering
+utilization — converging for real across 4 automatic iterations (8x8um →
+64x64um → clean pass). Along the way it caught a real bug in how list-
+valued overrides (like `DIE_AREA`) were serialized for OpenLane's CLI;
+see `reference-db/cases/counter4_tinydie__2026-08-21.json`.
+
 A second, macro-heavy design (`pipeline/designs/sram_wrapper`, wrapping a
 real sky130 SRAM hard macro) hits a different real constraint — the
 macro's own liberty file specifies a max_transition on its address/mask

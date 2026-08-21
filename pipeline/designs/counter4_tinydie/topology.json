@@ -1,0 +1,9 @@
+{
+  "module_count": 1,
+  "has_macros": false,
+  "clock_domain_count": 1,
+  "port_count": 4,
+  "sequential_element_estimate": 4,
+  "power_domain_count": 1,
+  "notes": "Same RTL as counter4 (4-bit counter) — this case exists purely to exercise a deliberately too-small starting DIE_AREA, not a different circuit. Added to validate a second and third auto-repair pattern in orchestrator.py's propose_repairs(), not to test a new topology class."
+}
