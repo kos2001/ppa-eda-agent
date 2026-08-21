@@ -237,6 +237,41 @@ def override_value(v) -> str:
     return json.dumps(v)
 
 
+def expand_sweeps(run_spec: dict) -> list[dict]:
+    """Expands run_spec.json's optional "sweeps" into concrete candidates.
+
+    Inspired by the OpenROAD Project's own AutoTuner
+    (github.com/The-OpenROAD-Project/OpenROAD-flow-scripts,
+    tools/AutoTuner) — a real, actively maintained parameter-sweep/
+    hyperparameter-optimization tool for exactly this flow, built on
+    Ray + hyperopt for genetic/Bayesian search over large parameter
+    spaces. Deliberately NOT pulling in that dependency here: this
+    pipeline's candidate counts are small (single digits, see every
+    reference-db/cases/*.json so far) and its repair loop already does
+    the "improve based on feedback" job AutoTuner's search does at
+    scale — Ray/hyperopt would be substantial, untested new machinery
+    for a problem this pipeline doesn't have yet. What's genuinely worth
+    borrowing is the *shape*: declaring "sweep this parameter across
+    these values" instead of hand-listing every candidate. That's what
+    this function does, in ~15 lines, no new dependency.
+
+    A sweep entry: {"param": "FP_CORE_UTIL", "values": [30, 40, 50],
+    "tag_prefix": "sweep-util"} expands to one candidate per value,
+    merged with any base "overrides" the entry also specifies (e.g. to
+    sweep FP_CORE_UTIL within an already-fixed DIE_AREA).
+    """
+    expanded = []
+    for sweep in run_spec.get("sweeps", []):
+        base_overrides = sweep.get("overrides", {})
+        for value in sweep["values"]:
+            tag = f"{sweep.get('tag_prefix', sweep['param'])}-{value}"
+            expanded.append({
+                "tag": tag,
+                "overrides": {**base_overrides, sweep["param"]: value},
+            })
+    return expanded
+
+
 def run_candidate(design_dir: Path, run_spec: dict, cand: dict) -> dict:
     """Runs and scores one independent candidate."""
     tag = cand["tag"]
@@ -433,7 +468,10 @@ def main():
     design_name = run_spec.get("design_name", args.design.name)
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
 
-    candidates = run_spec["candidates"]
+    candidates = run_spec.get("candidates", []) + expand_sweeps(run_spec)
+    if not candidates:
+        raise ValueError("run_spec.json must have a non-empty 'candidates' "
+                          "and/or 'sweeps' list")
     all_iterations = []
     winner = None
 

@@ -49,7 +49,44 @@
       "iteration": 1,
       "results": [
         {
-          "tag": "cand-util35",
+          "tag": "sweep-util-25",
+          "overrides": {
+            "FP_CORE_UTIL": 25
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "area_um2": 290.278,
+            "utilization": 0.460317,
+            "worst_setup_wns": 0
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-25/final/sdf"
+            }
+          },
+          "stage": "verification_ppa",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "sweep-util-35",
           "overrides": {
             "FP_CORE_UTIL": 35
           },
@@ -60,52 +97,61 @@
             "utilization": 0.604167,
             "worst_setup_wns": 0
           },
-          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35",
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35",
           "data": {
             "circuit": {
-              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/nl",
-              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/pnl",
-              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/spice"
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/spice"
             },
             "layout": {
-              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/def",
-              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/lef",
-              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/gds"
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/gds"
             },
             "constraint_pdk": {
               "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
-              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/sdc"
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/sdc"
             },
             "verification": {
-              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/metrics.json",
-              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/spef",
-              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/sdf"
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/sweep-util-35/final/sdf"
             }
           },
           "stage": "verification_ppa",
           "produced_by_feedback": false
         },
         {
-          "tag": "cand-util55",
+          "tag": "sweep-util-45",
           "overrides": {
-            "FP_CORE_UTIL": 55
+            "FP_CORE_UTIL": 45
           },
-          "error": "OpenLane run 'cand-util55' exited 2 \u2014 see runs/cand-util55/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[14:00:54] ERROR    [PDN-0185] Insufficient width (17.48 um) to  openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2578                         19/78 0:00:09\n[14:00:54] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[14:00:54] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[14:00:54] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:00:54] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (17.48 um) to                 \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[14:00:54] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "error": "OpenLane run 'sweep-util-45' exited 2 \u2014 see runs/sweep-util-45/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[14:10:55] ERROR    [PDN-0185] Insufficient width (19.32 um) to  openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2578                         19/78 0:00:11\n[14:10:55] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[14:10:55] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[14:10:55] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:10:55] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (19.32 um) to                 \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[14:10:55] ERROR    OpenLane will now quit.                      __main__.py:188\n",
           "stage": "physical_constraint",
           "produced_by_feedback": false
         },
         {
-          "tag": "cand-util70",
+          "tag": "sweep-util-55",
           "overrides": {
-            "FP_CORE_UTIL": 70
+            "FP_CORE_UTIL": 55
           },
-          "error": "OpenLane run 'cand-util70' exited 2 \u2014 see runs/cand-util70/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[14:01:04] ERROR    [PDN-0185] Insufficient width (15.64 um) to  openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2578                         19/78 0:00:09\n[14:01:04] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[14:01:04] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[14:01:04] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:01:04] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (15.64 um) to                 \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[14:01:04] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "error": "OpenLane run 'sweep-util-55' exited 2 \u2014 see runs/sweep-util-55/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[14:11:05] ERROR    [PDN-0185] Insufficient width (17.48 um) to  openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2578                         19/78 0:00:09\n[14:11:06] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[14:11:06] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[14:11:06] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:11:06] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (17.48 um) to                 \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[14:11:06] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "sweep-util-65",
+          "overrides": {
+            "FP_CORE_UTIL": 65
+          },
+          "error": "OpenLane run 'sweep-util-65' exited 2 \u2014 see runs/sweep-util-65/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[14:11:16] ERROR    [PDN-0185] Insufficient width (16.1 um) to   openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2578                         19/78 0:00:09\n[14:11:16] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[14:11:16] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[14:11:16] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:11:16] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (16.1 um) to                  \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[14:11:16] ERROR    OpenLane will now quit.                      __main__.py:188\n",
           "stage": "physical_constraint",
           "produced_by_feedback": false
         }
       ]
     }
   ],
-  "winner_tag": "cand-util35",
+  "winner_tag": "sweep-util-25",
   "outcome": "passed"
 }
