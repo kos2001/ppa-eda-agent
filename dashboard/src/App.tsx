@@ -5,11 +5,19 @@ import PowerTab from "./components/PowerTab";
 import TradeoffsTab from "./components/TradeoffsTab";
 import SimulateTab from "./components/SimulateTab";
 import DiagnosisPage from "./components/DiagnosisPage";
+import PipelineTab from "./components/PipelineTab";
 import { LangProvider, useLang } from "./i18n";
 import { AgentProvider, useAgent } from "./agentContext";
 import "./App.css";
 
-type TabId = "area" | "timing" | "power" | "tradeoffs" | "simulate" | "diagnosis";
+type TabId =
+  | "area"
+  | "timing"
+  | "power"
+  | "tradeoffs"
+  | "simulate"
+  | "pipeline"
+  | "diagnosis";
 type Theme = "dark" | "light";
 
 const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
@@ -33,6 +41,7 @@ function AppInner() {
     { id: "timing", label: t("tab_timing") },
     { id: "power", label: t("tab_power") },
     { id: "tradeoffs", label: t("tab_tradeoffs") },
+    { id: "pipeline", label: t("tab_pipeline") },
   ];
 
   return (
@@ -93,6 +102,7 @@ function AppInner() {
         {active === "timing" && <TimingTab />}
         {active === "power" && <PowerTab />}
         {active === "tradeoffs" && <TradeoffsTab />}
+        {active === "pipeline" && <PipelineTab />}
         {active === "diagnosis" && <DiagnosisPage />}
       </main>
     </div>
