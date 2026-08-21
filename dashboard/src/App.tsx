@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
-import AreaTab from "./components/AreaTab";
-import TimingTab from "./components/TimingTab";
-import PowerTab from "./components/PowerTab";
-import TradeoffsTab from "./components/TradeoffsTab";
-import SimulateTab from "./components/SimulateTab";
-import DiagnosisPage from "./components/DiagnosisPage";
-import PipelineTab from "./components/PipelineTab";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { LangProvider, useLang } from "./i18n";
 import { AgentProvider, useAgent } from "./agentContext";
 import "./App.css";
+
+const AreaTab = lazy(() => import("./components/AreaTab"));
+const TimingTab = lazy(() => import("./components/TimingTab"));
+const PowerTab = lazy(() => import("./components/PowerTab"));
+const TradeoffsTab = lazy(() => import("./components/TradeoffsTab"));
+const SimulateTab = lazy(() => import("./components/SimulateTab"));
+const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
+const PipelineTab = lazy(() => import("./components/PipelineTab"));
 
 type TabId =
   | "area"
@@ -97,13 +98,15 @@ function AppInner() {
         </button>
       </nav>
       <main className="app__main">
-        {active === "simulate" && <SimulateTab />}
-        {active === "area" && <AreaTab />}
-        {active === "timing" && <TimingTab />}
-        {active === "power" && <PowerTab />}
-        {active === "tradeoffs" && <TradeoffsTab />}
-        {active === "pipeline" && <PipelineTab />}
-        {active === "diagnosis" && <DiagnosisPage />}
+        <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
+          {active === "simulate" && <SimulateTab />}
+          {active === "area" && <AreaTab />}
+          {active === "timing" && <TimingTab />}
+          {active === "power" && <PowerTab />}
+          {active === "tradeoffs" && <TradeoffsTab />}
+          {active === "pipeline" && <PipelineTab />}
+          {active === "diagnosis" && <DiagnosisPage />}
+        </Suspense>
       </main>
     </div>
   );
