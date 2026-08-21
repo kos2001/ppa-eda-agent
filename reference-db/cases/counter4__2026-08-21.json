@@ -1,55 +1,60 @@
 {
   "design": "counter4",
   "date": "2026-08-21",
-  "candidates": [
+  "iterations": [
     {
-      "tag": "cand-util35",
-      "overrides": {
-        "FP_CORE_UTIL": 35
-      },
-      "verdict": {
-        "passed": true,
-        "violations": [],
-        "area_um2": 290.278,
-        "utilization": 0.604167,
-        "worst_setup_wns": 0
-      },
-      "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35",
-      "data": {
-        "circuit": {
-          "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/nl",
-          "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/pnl",
-          "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/spice"
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "cand-util35",
+          "overrides": {
+            "FP_CORE_UTIL": 35
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "area_um2": 290.278,
+            "utilization": 0.604167,
+            "worst_setup_wns": 0
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/sdf"
+            }
+          }
         },
-        "layout": {
-          "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/def",
-          "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/lef",
-          "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/gds"
+        {
+          "tag": "cand-util55",
+          "overrides": {
+            "FP_CORE_UTIL": 55
+          },
+          "error": "OpenLane run 'cand-util55' exited 2 \u2014 see runs/cand-util55/ for logs"
         },
-        "constraint_pdk": {
-          "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
-          "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/sdc"
-        },
-        "verification": {
-          "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/metrics.json",
-          "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/spef",
-          "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/cand-util35/final/sdf"
+        {
+          "tag": "cand-util70",
+          "overrides": {
+            "FP_CORE_UTIL": 70
+          },
+          "error": "OpenLane run 'cand-util70' exited 2 \u2014 see runs/cand-util70/ for logs"
         }
-      }
-    },
-    {
-      "tag": "cand-util55",
-      "overrides": {
-        "FP_CORE_UTIL": 55
-      },
-      "error": "OpenLane run 'cand-util55' exited 2 \u2014 see runs/cand-util55/ for logs"
-    },
-    {
-      "tag": "cand-util70",
-      "overrides": {
-        "FP_CORE_UTIL": 70
-      },
-      "error": "OpenLane run 'cand-util70' exited 2 \u2014 see runs/cand-util70/ for logs"
+      ]
     }
   ],
   "winner_tag": "cand-util35",

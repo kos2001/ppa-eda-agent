@@ -148,16 +148,58 @@ def pick_winner(results: list[dict]) -> dict | None:
     return min(passing, key=lambda r: r["verdict"]["area_um2"] or float("inf"))
 
 
-def write_case(design_name: str, results: list[dict], winner: dict | None) -> Path:
+# Known, real failure signature (see reference-db/cases/counter4__2026-08-21.json):
+# OpenROAD's PDN generator errors out rather than degrading gracefully when
+# core utilization is pushed too high for the die's power-strap geometry.
+PDN_STRAP_ERROR = "Insufficient width"
+UTIL_STEP_DOWN = 15  # percentage points; conservative, matches the gap that
+                      # separated the one passing candidate (35) from the
+                      # first failing one (55) in the counter4 case.
+MIN_CORE_UTIL = 20
+
+
+def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
+    """Mechanically proposes a repaired candidate set from real failures.
+
+    This is deliberately narrow: it only knows how to repair the one real
+    failure mode this pipeline has actually observed (PDN strap-width
+    failure from FP_CORE_UTIL set too high for the die). Any other
+    failure/violation is left for a human or the feedback-optimizer /
+    placement-strategist subagents to diagnose — this function does not
+    guess at causes it hasn't been shown real evidence for (see the
+    "Known limitations" section of the design spec).
+    """
+    next_candidates = []
+    for r in results:
+        error = r.get("error", "")
+        util_override = r["overrides"].get("FP_CORE_UTIL")
+        if PDN_STRAP_ERROR in error and isinstance(util_override, (int, float)):
+            repaired = max(MIN_CORE_UTIL, util_override - UTIL_STEP_DOWN)
+            if repaired == util_override:
+                continue  # already at floor, no repair to propose
+            new_overrides = dict(r["overrides"])
+            new_overrides["FP_CORE_UTIL"] = repaired
+            next_candidates.append({
+                "tag": f"{r['tag']}-iter{iteration}",
+                "overrides": new_overrides,
+            })
+        # Other failure/violation modes (DRC/LVS errors, timing violations,
+        # unrecognized run errors) are not auto-repaired — flagged in the
+        # iteration summary instead so a person or feedback-optimizer can
+        # look at them.
+    return next_candidates
+
+
+def write_case(design_name: str, iterations: list[dict], winner: dict | None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     case_file = REFDB / "cases" / f"{design_name}__{date.today().isoformat()}.json"
     case = {
         "design": design_name,
         "date": date.today().isoformat(),
-        "candidates": results,
+        "iterations": iterations,
         "winner_tag": winner["tag"] if winner else None,
-        "outcome": "passed" if winner else "no candidate met targets",
+        "outcome": "passed" if winner else "no candidate met targets after all iterations",
     }
     case_file.write_text(json.dumps(case, indent=2))
 
@@ -168,21 +210,8 @@ def write_case(design_name: str, results: list[dict], winner: dict | None) -> Pa
     return case_file
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--design", required=True, type=Path)
-    ap.add_argument("--run-spec", required=True, type=Path,
-                     help="path to a run_spec.json (candidates + targets)")
-    args = ap.parse_args()
-
-    run_spec = json.loads(args.run_spec.read_text())
-    design_name = run_spec.get("design_name", args.design.name)
-
-    results = run_candidates(args.design, run_spec)
-    winner = pick_winner(results)
-    case_file = write_case(design_name, results, winner)
-
-    print("\n=== iteration summary ===")
+def print_iteration_summary(iteration: int, results: list[dict]) -> None:
+    print(f"\n=== iteration {iteration} summary ===")
     for r in results:
         if "error" in r:
             print(f"  {r['tag']}: FAILED TO RUN — {r['error']}")
@@ -191,6 +220,53 @@ def main():
             status = "PASS" if v["passed"] else f"FAIL ({'; '.join(v['violations'])})"
             print(f"  {r['tag']}: {status} — area={v['area_um2']} um^2, "
                   f"util={v['utilization']}, worst_setup_wns={v['worst_setup_wns']}")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--design", required=True, type=Path)
+    ap.add_argument("--run-spec", required=True, type=Path,
+                     help="path to a run_spec.json (candidates + targets)")
+    ap.add_argument("--max-iterations", type=int, default=None,
+                     help="overrides run_spec.json's max_iterations, if set")
+    args = ap.parse_args()
+
+    run_spec = json.loads(args.run_spec.read_text())
+    design_name = run_spec.get("design_name", args.design.name)
+    max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
+
+    candidates = run_spec["candidates"]
+    all_iterations = []
+    winner = None
+
+    iteration = 1
+    while True:
+        results = run_candidates(args.design, {**run_spec, "candidates": candidates})
+        print_iteration_summary(iteration, results)
+        all_iterations.append({"iteration": iteration, "results": results})
+
+        winner = pick_winner(results)
+        if winner:
+            print(f"\nwinner found in iteration {iteration}: {winner['tag']}")
+            break
+        if iteration >= max_iterations:
+            print(f"\nreached max_iterations ({max_iterations}) with no winner")
+            break
+
+        next_candidates = propose_repairs(results, iteration)
+        if not next_candidates:
+            print("\nno auto-repairable failures found — stopping "
+                  "(needs placement-strategist/feedback-optimizer to propose "
+                  "a genuinely new candidate set)")
+            break
+
+        print(f"\nauto-repair proposing {len(next_candidates)} candidate(s) "
+              f"for iteration {iteration + 1}: "
+              f"{[(c['tag'], c['overrides']) for c in next_candidates]}")
+        candidates = next_candidates
+        iteration += 1
+
+    case_file = write_case(design_name, all_iterations, winner)
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
     print(f"case written to: {case_file}")
 
