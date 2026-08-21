@@ -1,0 +1,11 @@
+{
+  "design_name": "counter4",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    { "tag": "cand-util35", "overrides": { "FP_CORE_UTIL": 35 } },
+    { "tag": "cand-util55", "overrides": { "FP_CORE_UTIL": 55 } },
+    { "tag": "cand-util70", "overrides": { "FP_CORE_UTIL": 70 } }
+  ]
+}
