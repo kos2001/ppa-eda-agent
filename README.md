@@ -79,8 +79,10 @@ result.
 
 A second, macro-heavy design (`pipeline/designs/sram_wrapper`, wrapping a
 real sky130 SRAM hard macro) hits a different real constraint — the
-macro's clock pins need tighter slew control than OpenLane's default
-pre-CTS clock model provides — documented with full diagnosis in
+macro's own liberty file specifies a max_transition on its address/mask
+input buses tighter than the strongest resizer-available buffer can meet
+even at zero wire length — documented with full diagnosis (including a
+correction of an earlier, unverified guess) in
 `reference-db/cases/sram_wrapper__2026-08-21.json`. Left open rather than
 forced past; see the design spec's "Second vertical slice" section.
 
