@@ -61,13 +61,16 @@ bitcell layout yet (see the spec's "Known limitations").
 ```sh
 cd pipeline
 python3 orchestrator.py --design designs/counter4 \
-  --run-spec designs/counter4/run_spec.json
+  --run-spec designs/counter4/run_spec.json \
+  --max-parallel 3
 ```
 
 This runs every candidate in `run_spec.json` through a real OpenLane
 flow, scores each against the spec's targets using OpenLane's own real
 `metrics.json` (DRC/LVS/timing/power/area), and writes the result to
-`reference-db/`. If nothing passes, it auto-repairs the one real failure
+`reference-db/`. Independent candidates run concurrently when
+`--max-parallel` is greater than 1; keep the default of 1 on memory-limited
+machines. If nothing passes, it auto-repairs the one real failure
 mode it knows how to (an `OpenROAD.GeneratePDN` power-grid failure from
 utilization pushed too high — steps `FP_CORE_UTIL` down and retries) for
 up to `max_iterations` before handing off to `feedback-optimizer` for
