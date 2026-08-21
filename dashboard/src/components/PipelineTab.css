@@ -88,12 +88,74 @@
 }
 
 .pipeline__metrics { margin-bottom: 1rem; }
-.pipeline__flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin: 1.1rem 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--border); }
-.pipeline__flow-stage { position: relative; display: flex; align-items: center; gap: 0.65rem; padding: 0.8rem; background: var(--surface-raised); }
-.pipeline__flow-stage::after { content: ""; position: absolute; right: -5px; width: 9px; height: 9px; rotate: 45deg; background: var(--surface-raised); border-top: 1px solid var(--border); border-right: 1px solid var(--border); z-index: 2; }
-.pipeline__flow-stage:last-child::after { display: none; }
-.pipeline__flow-stage span { color: var(--accent); font-size: 0.66rem; }
-.pipeline__flow-stage strong { font-size: 0.74rem; letter-spacing: 0.04em; }
+
+/* The real 8-step process (docs/superpowers/specs/
+   2026-08-21-autonomous-layout-agent-design.md), not a generic EDA
+   flow strip — see pipeline/orchestrator.py's PROCESS_STAGES, which
+   this list is driven from. */
+.pipeline__process {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  margin: 1.1rem 0;
+}
+.pipeline__process-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+}
+.pipeline__process-stage--reached {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.pipeline__process-stage--empty {
+  opacity: 0.55;
+}
+.pipeline__process-stage-index {
+  color: var(--accent);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+.pipeline__process-stage strong {
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
+  line-height: 1.25;
+}
+.pipeline__process-stage-note {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.pipeline__topology {
+  margin: 0.75rem 0 1.1rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+}
+
+.pipeline__stage-badge {
+  display: inline-block;
+  padding: 0.05rem 0.4rem;
+  margin: 0.1rem 0.2rem 0.1rem 0;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.pipeline__stage-badge--feedback {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .pipeline__chart { margin: 1rem 0; padding: 1rem 1rem 0; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in srgb, var(--surface-raised) 80%, transparent); }
 .pipeline__iteration { overflow-x: auto; }
-@media (max-width: 760px) { .pipeline__flow { grid-template-columns: 1fr; } .pipeline__flow-stage::after { display: none; } .pipeline__iteration .tab__summary { min-width: 720px; } }
+@media (max-width: 760px) {
+  .pipeline__process { grid-template-columns: 1fr 1fr; }
+  .pipeline__iteration .tab__summary { min-width: 780px; }
+}

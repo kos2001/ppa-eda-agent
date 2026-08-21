@@ -66,6 +66,36 @@ re-deriving or duplicating that data elsewhere.
 | Verification & PPA evaluation | OpenLane's `metrics.json` + Magic DRC + Netgen LVS + OpenSTA |
 | AI feedback / repair / optimization | `feedback-optimizer` subagent, writes deltas, loops |
 
+**This table was originally aspirational** — written before any of it
+existed, describing intent rather than what runs. That gap was real and
+went unaddressed for a while: `topology.json` (the "Topology
+understanding" step's output) existed on disk per design but nothing in
+`orchestrator.py` ever read it, and the dashboard's stage indicator
+showed a generic `RTL → Floorplan → Place → Route → Signoff` strip that
+had nothing to do with this table at all. Fixed:
+`orchestrator.py`'s `PROCESS_STAGES` constant is now the single source
+of truth for these 8 stage names (id + name), `read_topology()` actually
+reads `topology.json` into every written case, and
+`classify_stage()`/`produced_by_feedback` tag every candidate result
+with which stage its real run outcome reached — all surfaced in
+`reference-db/*.json` and rendered directly in the dashboard's Pipeline
+tab (`ProcessStages`/`TopologySummary` components), instead of living
+only as prose in this doc.
+
+Still honestly aspirational: stages 5 (Routing Generation Evaluation)
+and 6 (Routing Candidate Generation) are not run as separate steps —
+`run_stage.py` runs one full OpenLane flow per candidate and doesn't
+stop to re-evaluate between global and detailed routing.
+`classify_stage()` tags a routing-stage failure with whichever of the
+two names its real OpenLane error text matches most specifically, which
+is real classification of real failures, not a claim that this pipeline
+implements two distinct routing steps. And the subagents in this table
+(`circuit-layout-extractor`, `topology-analyst`, `placement-strategist`,
+`feedback-optimizer`) are Claude Code subagents a human/agent session
+invokes — they are not wired into `orchestrator.py`'s automated loop,
+which only knows the two mechanical repair patterns in
+`propose_repairs()`.
+
 ## Components
 
 ### 1. `pipeline/orchestrator.py`
