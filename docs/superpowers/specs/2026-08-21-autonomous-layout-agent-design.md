@@ -261,12 +261,18 @@ findings in the reference-db case's `diagnosis` field. This is a genuinely diffe
 failure mode from `counter4`'s PDN/utilization one —
 `orchestrator.py`'s `propose_repairs()` correctly does *not* auto-repair
 it (out of its narrow, evidence-based scope) and iteration stops for a
-human/`feedback-optimizer` to pick up. The real fix is placement-side:
-keep whatever drives the address/mask buses physically adjacent to the
-macro (or insert an explicit macro-local repeater) so the driver only
-needs to charge the bus's bare pin capacitance — a placement-strategist
-concern (macro-adjacent logic placement), not a config knob. Left open
-for a future session rather than forced past.
+human/`feedback-optimizer` to pick up. A `feedback-optimizer` subagent was
+actually dispatched (not self-assessed) to make that call: its verdict was
+that there is **no actionable `placement-strategist` next step right now**.
+The "keep the driving logic physically adjacent" idea doesn't survive
+scrutiny against the numbers already in hand — RSZ-0090's best-achievable
+transition (0.043ns) was measured at a load (~0.01pF) already close to the
+macro pin's bare capacitance (0.00689pF), meaning placement is already
+near-optimal and missing spec by a small, physically-floored margin, not a
+distance the placer hasn't tried. The `hs`-library path's remaining Magic
+`.mag` blocker is a vendor-macro-artifact/tooling issue outside all three
+subagents' scope. Left open for a future session rather than forced past
+or handed to a subagent with no real lever to pull.
 
 ## Third vertical slice: teaching propose_repairs() a second failure pattern
 
