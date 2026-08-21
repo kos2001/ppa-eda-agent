@@ -24,6 +24,7 @@ from datetime import date
 from pathlib import Path
 
 from run_stage import run_stage, read_metrics
+import def_layout
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
@@ -60,6 +61,28 @@ def pdk_version() -> str | None:
         return None
     versions = sorted(p.name for p in versions_dir.iterdir() if p.is_dir())
     return versions[0] if versions else None
+
+
+def extra_lef_paths(design_dir: Path) -> list[Path]:
+    """Real macro LEF paths declared in this design's config.json (the
+    "MACROS" block — see docs/superpowers/specs/
+    2026-08-21-autonomous-layout-agent-design.md), translated from the
+    "/pdk/..." container path OpenLane's config uses back to this
+    repo's real pdk/ directory, so def_layout.py can read them
+    host-side without needing a container.
+    """
+    config_file = design_dir / "config.json"
+    if not config_file.exists():
+        return []
+    config = json.loads(config_file.read_text())
+    paths = []
+    for macro in config.get("MACROS", {}).values():
+        for lef in macro.get("lef", []):
+            if lef.startswith("/pdk/"):
+                paths.append(PDK_ROOT / lef[len("/pdk/"):])
+            else:
+                paths.append(Path(lef))
+    return paths
 
 
 def read_topology(design_dir: Path) -> dict | None:
@@ -212,12 +235,51 @@ def score(metrics: dict, targets: dict) -> dict:
     if worst_wns < 0:
         violations.append(f"worst setup WNS {worst_wns} (timing violation)")
 
+    # Every real timing corner OpenLane actually analyzed (typically 9:
+    # {min,nom,max} x {ff_n40C_1v95, tt_025C_1v80, ss_100C_1v60}), setup
+    # and hold WNS for each — not just the single worst value, so the
+    # dashboard can show real per-PVT-corner timing instead of one number.
+    timing_corners = []
+    for key in setup_wns_keys:
+        corner = key[len("timing__setup__wns__corner:"):]
+        hold_key = f"timing__hold__wns__corner:{corner}"
+        timing_corners.append({
+            "corner": corner,
+            "setup_wns": metrics[key],
+            "hold_wns": metrics.get(hold_key),
+        })
+    timing_corners.sort(key=lambda c: c["corner"])
+
+    # Real power (OpenLane's default/vectorless estimate — no VCD/SAIF
+    # activity annotation configured in this pipeline yet, so these are
+    # OpenSTA's default-activity numbers, not switching-activity-accurate
+    # ones; still real computed values, not fabricated) and real IR-drop/
+    # power-grid numbers from the actual PDN OpenROAD generated.
+    power = None
+    if "power__total" in metrics:
+        power = {
+            "internal_w": metrics.get("power__internal__total"),
+            "leakage_w": metrics.get("power__leakage__total"),
+            "switching_w": metrics.get("power__switching__total"),
+            "total_w": metrics.get("power__total"),
+        }
+    power_domain = None
+    if "ir__voltage__worst" in metrics:
+        power_domain = {
+            "ir_drop_avg_v": metrics.get("ir__drop__avg"),
+            "ir_drop_worst_v": metrics.get("ir__drop__worst"),
+            "voltage_worst_v": metrics.get("ir__voltage__worst"),
+        }
+
     return {
         "passed": len(violations) == 0,
         "violations": violations,
         "area_um2": metrics.get("design__instance__area"),
         "utilization": util,
         "worst_setup_wns": worst_wns,
+        "timing_corners": timing_corners,
+        "power": power,
+        "power_domain": power_domain,
     }
 
 
@@ -282,9 +344,11 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict) -> dict:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides)
         metrics = read_metrics(run_dir)
         verdict = score(metrics, run_spec.get("targets", {}))
+        layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
         return {"tag": tag, "overrides": cand.get("overrides", {}),
                 "verdict": verdict, "run_dir": str(run_dir),
-                "data": data_pointers(run_dir)}
+                "data": data_pointers(run_dir),
+                "layout": layout}
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         return {"tag": tag, "overrides": cand.get("overrides", {}),
                 "error": str(e)}

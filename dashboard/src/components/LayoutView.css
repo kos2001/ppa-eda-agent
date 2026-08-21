@@ -1,0 +1,59 @@
+.layout-view {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.layout-view svg {
+  display: block;
+  max-height: 420px;
+}
+
+.layout-view__die {
+  fill: none;
+  stroke: var(--border-strong, var(--border));
+  stroke-width: 0.05;
+}
+
+.layout-view__cell {
+  fill: var(--accent);
+  fill-opacity: 0.28;
+  stroke: var(--accent);
+  stroke-opacity: 0.8;
+  stroke-width: 0.015;
+}
+
+.layout-view__empty {
+  padding: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.layout-view__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.layout-view__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.layout-view__legend-swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 2px;
+}
+
+.layout-view__legend-swatch--cell {
+  background: var(--accent);
+  opacity: 0.6;
+}

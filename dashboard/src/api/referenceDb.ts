@@ -1,11 +1,62 @@
 export const REFERENCE_DB_URL = "http://127.0.0.1:8123/reference-db";
 
+export interface TimingCorner {
+  corner: string;
+  setup_wns: number;
+  hold_wns: number | null;
+}
+
+export interface Power {
+  internal_w: number | null;
+  leakage_w: number | null;
+  switching_w: number | null;
+  total_w: number | null;
+}
+
+export interface PowerDomain {
+  ir_drop_avg_v: number | null;
+  ir_drop_worst_v: number | null;
+  voltage_worst_v: number | null;
+}
+
 export interface CandidateVerdict {
   passed: boolean;
   violations: string[];
   area_um2: number | null;
   utilization: number | null;
   worst_setup_wns: number;
+  timing_corners: TimingCorner[];
+  power: Power | null;
+  power_domain: PowerDomain | null;
+}
+
+export interface LayoutCell {
+  inst: string;
+  master: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  orient: string;
+}
+
+export interface LayoutNetSegment {
+  layer: string;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+}
+
+export interface LayoutNet {
+  name: string;
+  segments: LayoutNetSegment[];
+}
+
+export interface LayoutSummary {
+  die: [number, number, number, number] | null;
+  cells: LayoutCell[];
+  nets: LayoutNet[];
 }
 
 export interface CandidateDataPointers {
@@ -49,6 +100,7 @@ export interface CandidateResult {
   error?: string;
   run_dir?: string;
   data?: CandidateDataPointers;
+  layout?: LayoutSummary | null;
   stage?: ProcessStageId;
   produced_by_feedback?: boolean;
 }

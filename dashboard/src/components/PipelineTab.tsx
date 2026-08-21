@@ -3,11 +3,13 @@ import {
   fetchReferenceDb,
   type CandidateDataPointers,
   type CandidateResult,
+  type CandidateVerdict,
   type PipelineCase,
   type ProcessStageId,
 } from "../api/referenceDb";
 import { useLang } from "../i18n";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import LayoutView from "./LayoutView";
 import "./Tabs.css";
 import "./PipelineTab.css";
 
@@ -144,6 +146,92 @@ function DataPointers({ data }: { data: CandidateDataPointers }) {
   );
 }
 
+// Every real PVT corner OpenLane actually analyzed (typically 9: {min,
+// nom, max} x {ff_n40C_1v95, tt_025C_1v80, ss_100C_1v60}) — real setup/
+// hold WNS per corner from metrics.json, not just the single worst value.
+function TimingCorners({ corners }: { corners: CandidateVerdict["timing_corners"] }) {
+  if (corners.length === 0) return null;
+  return (
+    <div className="pipeline__timing">
+      <span className="tab__meta-label">timing — real WNS per PVT corner</span>
+      <table className="tab__summary pipeline__timing-table">
+        <thead>
+          <tr>
+            <th>corner</th>
+            <th>setup WNS</th>
+            <th>hold WNS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {corners.map((c) => (
+            <tr key={c.corner}>
+              <td>{c.corner}</td>
+              <td className={c.setup_wns < 0 ? "pipeline__timing-bad" : undefined}>
+                {c.setup_wns.toFixed(3)} ns
+              </td>
+              <td className={c.hold_wns != null && c.hold_wns < 0 ? "pipeline__timing-bad" : undefined}>
+                {c.hold_wns != null ? `${c.hold_wns.toFixed(3)} ns` : "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Real power (OpenLane's default-activity estimate — no VCD/SAIF
+// annotation configured in this pipeline yet) and real IR-drop / supply-
+// voltage numbers from the actual power grid OpenROAD generated for
+// this candidate's power domain.
+function PowerSummary({ verdict }: { verdict: CandidateVerdict }) {
+  const { power, power_domain: powerDomain } = verdict;
+  if (!power && !powerDomain) return null;
+  return (
+    <div className="pipeline__power">
+      <span className="tab__meta-label">power / power domain</span>
+      <div className="tab__meta">
+        {power && (
+          <>
+            <span>
+              <span className="tab__meta-label">internal</span>
+              {(power.internal_w! * 1000).toFixed(4)} mW
+            </span>
+            <span>
+              <span className="tab__meta-label">switching</span>
+              {(power.switching_w! * 1000).toFixed(4)} mW
+            </span>
+            <span>
+              <span className="tab__meta-label">leakage</span>
+              {(power.leakage_w! * 1e6).toFixed(4)} µW
+            </span>
+            <span>
+              <span className="tab__meta-label">total</span>
+              {(power.total_w! * 1000).toFixed(4)} mW
+            </span>
+          </>
+        )}
+        {powerDomain && (
+          <>
+            <span>
+              <span className="tab__meta-label">supply voltage</span>
+              {powerDomain.voltage_worst_v} V
+            </span>
+            <span>
+              <span className="tab__meta-label">IR drop (worst)</span>
+              {(powerDomain.ir_drop_worst_v! * 1000).toFixed(4)} mV
+            </span>
+            <span>
+              <span className="tab__meta-label">IR drop (avg)</span>
+              {(powerDomain.ir_drop_avg_v! * 1000).toFixed(4)} mV
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function CandidateRow({
   candidate,
   expanded,
@@ -214,6 +302,14 @@ function CandidateRow({
       {expanded && candidate.data && (
         <tr className="pipeline__detail-row">
           <td colSpan={6}>
+            {candidate.layout && (
+              <>
+                <span className="tab__meta-label">placement &amp; routing — real DEF output</span>
+                <LayoutView layout={candidate.layout} />
+              </>
+            )}
+            {v && <TimingCorners corners={v.timing_corners} />}
+            {v && <PowerSummary verdict={v} />}
             <DataPointers data={candidate.data} />
           </td>
         </tr>

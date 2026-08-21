@@ -154,6 +154,21 @@
 }
 
 .pipeline__chart { margin: 1rem 0; padding: 1rem 1rem 0; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in srgb, var(--surface-raised) 80%, transparent); }
+
+.pipeline__timing,
+.pipeline__power {
+  margin-top: 1rem;
+}
+
+.pipeline__timing-table {
+  margin-top: 0.35rem;
+  max-width: 420px;
+}
+
+.pipeline__timing-bad {
+  color: var(--critical);
+  font-weight: 700;
+}
 .pipeline__iteration { overflow-x: auto; }
 @media (max-width: 760px) {
   .pipeline__process { grid-template-columns: 1fr 1fr; }
