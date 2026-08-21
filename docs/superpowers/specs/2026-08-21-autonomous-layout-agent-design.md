@@ -33,6 +33,26 @@ This pipeline targets the repeatable part of that work first.
   invokes the real tool. If a stage can't run in a given environment
   (missing PDK, no Docker), it must say so rather than fabricate output.
 
+## Data model
+
+Every design carried through this pipeline is described by four data
+categories (this is what `reference-db/` cases and
+`circuit-layout-extractor`'s output are organized around):
+
+1. **Circuit data** — schematic/RTL, netlist, device/instance info,
+   connectivity hierarchy, power domains.
+2. **Layout data** — DEF, LEF, GDS (real physical views, once a run
+   produces them).
+3. **Physical design rules/constraints** — the PDK (sky130 version
+   actually enabled under `pdk/`) and design constraints (SDC).
+4. **Verification data** — DRC/LVS results, parasitics (SPEF), timing,
+   power, area — OpenLane's real signoff output.
+
+`pipeline/orchestrator.py`'s `data_pointers()` records real paths into
+all four for every candidate that completes a run (see a real example in
+`reference-db/cases/counter4__2026-08-21.json`) rather than
+re-deriving or duplicating that data elsewhere.
+
 ## Process mapping
 
 | User's process step | Component |
@@ -62,9 +82,13 @@ Drives one full iteration:
 4. Run the surviving candidates through routing + signoff.
 5. Collect `runs/<tag>/final/metrics.json` (OpenLane's own structured PPA:
    area, WNS/TNS, power, DRC/LVS violation counts) per candidate.
-6. Hand all candidate results to `feedback-optimizer`, which either picks
-   a winner (targets met) or proposes a constraint delta and starts the
-   next iteration (up to `max_iterations`).
+6. Between iterations, `orchestrator.py` itself mechanically retries the
+   one real, observed failure mode it can pattern-match on (PDN strap-
+   width failure from utilization set too high — see `propose_repairs()`)
+   for up to `max_iterations`. Anything it can't pattern-match on (an
+   unrecognized failure, or `max_iterations` exhausted) is handed to
+   `feedback-optimizer`, which diagnoses the real cause and proposes a
+   genuinely new candidate set via `placement-strategist`.
 7. Write the winning (or best-so-far) run's config + metrics + a short
    rationale into `reference-db/`.
 
@@ -157,6 +181,47 @@ the backend loop above is validated on a real design.
   handling and `orchestrator.py`'s candidate-pruning logic — these are
   thin orchestration wrappers around a real external tool, and the real
   validation is "did a real OpenLane run actually produce these files."
+
+## Second vertical slice: a macro-heavy design
+
+`pipeline/designs/sram_wrapper` adds a real hard macro (sky130's
+`sky130_sram_1kbyte_1rw1r_32x256_8` OpenRAM-generated SRAM, 256×32b) to
+validate the `has_macros: true` topology path — `MACROS` config
+(gds/lef/lib/instance placement), not the `EXTRA_LEFS`/`EXTRA_LIBS`
+approach originally tried (that leaves the macro unplaced going into PDN
+generation; `MACROS` places-and-fixes it as part of floorplanning).
+
+This case does **not** currently pass — and that's a real, useful result,
+not a gap to hide (see `reference-db/cases/sram_wrapper__2026-08-21.json`'s
+`diagnosis` field for the full write-up, including a correction: an
+earlier version of this diagnosis speculatively blamed the clock pins
+without checking the actual liberty file — wrong, and corrected once
+verified). Confirmed root cause: the macro's own liberty file specifies
+an explicit `max_transition` of 0.04ns on its `addr0`/`wmask0`/`addr1`
+input buses — tighter than the strongest resizer-available buffer can
+drive even at zero wire length (RSZ-0090's reported achievable transition,
+0.043ns, is against a load of ~0.01pF — essentially just that bus's own
+pin capacitance). Not fixable by SDC overrides (tried both
+`MAX_TRANSITION_CONSTRAINT` and `CLOCK_TRANSITION_CONSTRAINT` — no
+effect, since `repair_design` reads this limit from the liberty pin
+attribute directly) and not fixable by registering the macro's *outputs*
+(tried — irrelevant, since the violating pins are macro *inputs*). A
+follow-up experiment confirmed the diagnosis without fully solving it:
+switching `STD_CELL_LIBRARY` to `sky130_fd_sc_hs` (faster cells) got the
+flow past this exact failure (stage 31/78 → stage 43/78) but hit a
+second, unrelated problem — the hs library isn't fully wired into this
+OpenLane setup's antenna-repair machinery, crashing OpenROAD. Reverted
+rather than chase a second gap in the same pass; full write-up in the
+reference-db case's `diagnosis` field. This is a genuinely different
+failure mode from `counter4`'s PDN/utilization one —
+`orchestrator.py`'s `propose_repairs()` correctly does *not* auto-repair
+it (out of its narrow, evidence-based scope) and iteration stops for a
+human/`feedback-optimizer` to pick up. The real fix is placement-side:
+keep whatever drives the address/mask buses physically adjacent to the
+macro (or insert an explicit macro-local repeater) so the driver only
+needs to charge the bus's bare pin capacitance — a placement-strategist
+concern (macro-adjacent logic placement), not a config knob. Left open
+for a future session rather than forced past.
 
 ## Known limitations / explicit non-goals
 

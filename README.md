@@ -32,7 +32,59 @@ dashboard/                          React + Vite + TypeScript UI: paste a
                                      diagnosis
 docs/superpowers/                   Design specs and implementation plans
                                      from how this was built
+pipeline/                           Autonomous layout pipeline: real
+                                     placement/routing candidate
+                                     generation and evaluation via
+                                     OpenLane 2 + sky130 (see below)
+reference-db/                       Case store of past pipeline runs —
+                                     topology signature, candidate
+                                     configs tried, real PPA/DRC/LVS
+                                     results — for reuse across designs
 ```
+
+## Autonomous layout pipeline
+
+Beyond reading reports, this repo can now drive a real
+RTL → placement → routing → signoff loop and evaluate the candidates it
+produces — see
+`docs/superpowers/specs/2026-08-21-autonomous-layout-agent-design.md` for
+the full design and
+`.claude/agents/{circuit-layout-extractor,topology-analyst,
+placement-strategist,physical-constraint-evaluator,
+routing-candidate-evaluator,verification-ppa-evaluator,
+feedback-optimizer}.md` for the subagents that reason about it.
+
+Requires Docker and a local sky130 PDK (fetched once via `volare`, see
+the spec doc). Standard-cell-only, digital designs for now — no SRAM
+bitcell layout yet (see the spec's "Known limitations").
+
+```sh
+cd pipeline
+python3 orchestrator.py --design designs/counter4 \
+  --run-spec designs/counter4/run_spec.json
+```
+
+This runs every candidate in `run_spec.json` through a real OpenLane
+flow, scores each against the spec's targets using OpenLane's own real
+`metrics.json` (DRC/LVS/timing/power/area), and writes the result to
+`reference-db/`. If nothing passes, it auto-repairs the one real failure
+mode it knows how to (an `OpenROAD.GeneratePDN` power-grid failure from
+utilization pushed too high — steps `FP_CORE_UTIL` down and retries) for
+up to `max_iterations` before handing off to `feedback-optimizer` for
+anything it can't pattern-match on. Validated for real: starting from two
+candidates (`FP_CORE_UTIL` 55 and 70) that both fail at that PDN error,
+the auto-repair loop converges to a passing candidate by iteration 3.
+`reference-db/cases/counter4__2026-08-21.json` has the real committed
+result.
+
+A second, macro-heavy design (`pipeline/designs/sram_wrapper`, wrapping a
+real sky130 SRAM hard macro) hits a different real constraint — the
+macro's own liberty file specifies a max_transition on its address/mask
+input buses tighter than the strongest resizer-available buffer can meet
+even at zero wire length — documented with full diagnosis (including a
+correction of an earlier, unverified guess) in
+`reference-db/cases/sram_wrapper__2026-08-21.json`. Left open rather than
+forced past; see the design spec's "Second vertical slice" section.
 
 ## Dashboard
 
