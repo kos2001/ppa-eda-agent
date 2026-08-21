@@ -65,20 +65,28 @@ python3 orchestrator.py --design designs/counter4 \
   --max-parallel 3
 ```
 
-This runs every candidate in `run_spec.json` through a real OpenLane
-flow, scores each against the spec's targets using OpenLane's own real
-`metrics.json` (DRC/LVS/timing/power/area), and writes the result to
-`reference-db/`. Independent candidates run concurrently when
-`--max-parallel` is greater than 1; keep the default of 1 on memory-limited
-machines. If nothing passes, it auto-repairs the one real failure
-mode it knows how to (an `OpenROAD.GeneratePDN` power-grid failure from
-utilization pushed too high — steps `FP_CORE_UTIL` down and retries) for
-up to `max_iterations` before handing off to `feedback-optimizer` for
-anything it can't pattern-match on. Validated for real: starting from two
-candidates (`FP_CORE_UTIL` 55 and 70) that both fail at that PDN error,
-the auto-repair loop converges to a passing candidate by iteration 3.
-`reference-db/cases/counter4__2026-08-21.json` has the real committed
-result.
+`run_spec.json`'s `candidates` can be listed by hand, and/or generated
+via a `sweeps` entry — `{"param": "FP_CORE_UTIL", "values": [25, 35,
+45, 55, 65], "tag_prefix": "sweep-util"}` expands to one candidate per
+value (`orchestrator.py`'s `expand_sweeps()` — a small, dependency-free
+idea borrowed from the OpenROAD Project's own
+[AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/tools/AutoTuner),
+without pulling in its full Ray/hyperopt search machinery, which this
+pipeline's scale doesn't need yet — see the design spec's "Borrowed
+from prior art" section). Every candidate runs through a real OpenLane
+flow, concurrently when `--max-parallel` is greater than 1 (keep the
+default of 1 on memory-limited machines), scored against the spec's
+targets using OpenLane's own real `metrics.json`
+(DRC/LVS/timing/power/area), and written to `reference-db/`. If nothing
+passes, it auto-repairs the one real failure mode it knows how to (an
+`OpenROAD.GeneratePDN` power-grid failure from utilization pushed too
+high — steps `FP_CORE_UTIL` down and retries) for up to
+`max_iterations` before handing off to `feedback-optimizer` for
+anything it can't pattern-match on. Validated for real:
+`designs/counter4/run_spec.json`'s utilization sweep (25–65%, run with
+`--max-parallel 3`) found the same real PDN strap-width boundary as
+before — 25/35 pass, 45+ fails.
+`reference-db/cases/counter4__2026-08-21.json` has the current result.
 
 A third design (`pipeline/designs/counter4_tinydie`) validates a *second*
 auto-repairable failure pattern — a die started too small even for

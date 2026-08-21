@@ -283,6 +283,32 @@ actually expects. Found by trying an override no earlier candidate set
 had exercised — a reminder that this pipeline is only as validated as
 the config surface it's actually been run against.
 
+## Borrowed from prior art: sweep-based candidate generation
+
+Researched what exists already in this space before continuing to
+hand-list every candidate in `run_spec.json`. The relevant prior art is
+real and actively maintained: the OpenROAD Project's own
+[AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/tools/AutoTuner)
+does hyperparameter optimization over exactly this flow's parameters
+(Ray + hyperopt/genetic search, cloud-scale). Deliberately **not**
+adopting that dependency here — this pipeline's candidate counts are
+still single digits (see every `reference-db/cases/*.json` so far) and
+its repair loop already does the "improve from feedback" job AutoTuner
+does at scale; pulling in Ray/hyperopt would be substantial, untested
+machinery for a problem this pipeline doesn't have yet.
+
+What was genuinely worth borrowing: the *shape* of declaring a parameter
+sweep instead of hand-listing every candidate. `orchestrator.py`'s
+`expand_sweeps()` (~15 lines, no new dependency) reads an optional
+`run_spec.json` `"sweeps"` list — `{"param": "FP_CORE_UTIL", "values":
+[...], "tag_prefix": "..."}` — and expands it into concrete candidates
+alongside any explicit `"candidates"`. Validated for real on `counter4`:
+a 5-value utilization sweep (25/35/45/55/65) run with `--max-parallel 3`
+(also the first real exercise of that flag) found the same real PDN
+strap-width boundary as before, with two passing candidates instead of
+one — `reference-db/cases/counter4__2026-08-21.json` has the current
+result.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
