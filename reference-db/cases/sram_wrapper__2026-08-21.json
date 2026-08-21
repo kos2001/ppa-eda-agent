@@ -1,0 +1,19 @@
+{
+  "design": "sram_wrapper",
+  "date": "2026-08-21",
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "cand-baseline",
+          "overrides": {},
+          "error": "OpenLane run 'cand-baseline' exited 2 — see runs/cand-baseline/ for logs. Tail of output:\nsky130A/libs.ref/sky130_sram_macros/lib/sky            \n                    130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib              \n                    line 1, library                                             \n                    sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C_li            \n                    b already exists. (and 9 similar warnings)                  \n[12:30:42] WARNING  [Odb.CheckMacroAntennaProperties] Cell           flow.py:675\n                    'sky130_sram_1kbyte_1rw1r_32x256_8' has (57)                \n                    input pin(s) without antenna gate information.              \n                    They might not be connected to a gate. (and 1               \n                    similar warnings)                                           \n[12:30:42] WARNING  [OpenROAD.GeneratePDN] [PDN-0231] u_sram is not  flow.py:675\n                    connected to any power/ground nets.                         \n[12:30:42] WARNING  [OpenROAD.GeneratePDN] [PDN-0189] Supply pin     flow.py:675\n                    u_sram/vccd1 is not connected to any net. (and 1            \n                    similar warnings)                                           \n[12:30:42] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[12:30:42] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.RepairDesignPostGPL failed with the                \n                    following errors:                                           \n                    [RSZ-0090] Max transition time from SDC is                  \n                    0.040ns. Best achievable transition time is                 \n                    0.043ns with a load of 0.01pF                               \n[12:30:42] ERROR    OpenLane will now quit.                      __main__.py:188\n"
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "diagnosis": "RSZ-0090 pre-CTS: OpenLane's RepairDesignPostGPL step fails design-wide (not on the SRAM data path, which was already registered right at the macro boundary to rule that out) because the SRAM macro's clk0/clk1 pins carry a liberty max_transition spec of ~0.04ns (best achievable transition reported is 0.043ns at a load of only ~0.01pF, i.e. bare pin capacitance, not wire) — tighter than the ideal pre-CTS clock-source transition OpenLane's default flow assumes (0.15ns, from CLOCK_TRANSITION_CONSTRAINT). This is not fixable by buffering the data path (already tried: registering dout0/dout1 at the macro boundary made no difference) because the constraint is on the macro's *clock* input, checked before clock-tree synthesis has run. Real SRAM-integration constraint: hard macro clock pins often need tighter slew control than standard-cell CTS defaults provide, and need either a dedicated CTS strategy for macro clock pins or a documented, justified SDC exception on that specific pin — not something placement-strategist's utilization/die-size knobs can repair. Left for a future session's CTS-aware macro clock handling rather than force-fit here."
+}
