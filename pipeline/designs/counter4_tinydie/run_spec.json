@@ -1,0 +1,10 @@
+{
+  "design_name": "counter4_tinydie",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    { "tag": "cand-die8", "overrides": { "DIE_AREA": [0, 0, 8, 8] } }
+  ],
+  "max_iterations": 4
+}

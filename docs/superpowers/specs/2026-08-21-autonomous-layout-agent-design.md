@@ -223,6 +223,36 @@ needs to charge the bus's bare pin capacitance — a placement-strategist
 concern (macro-adjacent logic placement), not a config knob. Left open
 for a future session rather than forced past.
 
+## Third vertical slice: teaching propose_repairs() a second failure pattern
+
+`pipeline/designs/counter4_tinydie` (same RTL as `counter4`, deliberately
+started at an 8x8um `DIE_AREA` — too small to fit even core margins) exists
+purely to exercise a *second* real, auto-repairable failure signature:
+OpenROAD's Floorplan Init step rejecting a `DIE_AREA` whose core area
+(die minus margins) comes out zero or negative (`STA-0572 core_area ...
+is not a positive float`) — a much earlier-stage failure than the PDN
+strap-width one, and repaired by growing `DIE_AREA` rather than lowering
+utilization.
+
+Real, validated convergence: 8x8 → (die-too-small repair) → 16x16 →
+(now big enough for floorplan, but hits the *same* PDN-0185 strap error
+as `counter4`'s pattern — except this candidate has no `FP_CORE_UTIL`
+override to step down, only `DIE_AREA`) → 32x32 → (still PDN-0185) → 64x64
+→ **PASS** (0 DRC/LVS, 0 timing violations, area 315.302µm²), all four
+iterations automatic, no human intervention. See
+`reference-db/cases/counter4_tinydie__2026-08-21.json`.
+
+This exercise also caught a real bug in the orchestrator itself:
+`run_candidates()` was serializing list-valued overrides (like
+`DIE_AREA`) as a literal JSON array (`"[0, 0, 8, 8]"`) for OpenLane's
+`--override-config`, which OpenLane's CLI parser doesn't accept for
+`List[Decimal]`-typed variables — it mis-split the value and errored on
+a phantom `DIE_AREA[0]`. Fixed in `override_value()`: lists now serialize
+as a bare comma-joined list (`"0,0,8,8"`), which is what the CLI
+actually expects. Found by trying an override no earlier candidate set
+had exercised — a reminder that this pipeline is only as validated as
+the config surface it's actually been run against.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

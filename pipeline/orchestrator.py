@@ -120,11 +120,27 @@ def score(metrics: dict, targets: dict) -> dict:
     }
 
 
+def override_value(v) -> str:
+    """Formats a config override for OpenLane's `--override-config KEY=VALUE`.
+
+    Scalars: plain JSON (e.g. 35 -> "35"). Lists (e.g. DIE_AREA): a bare
+    comma-joined list with no brackets/spaces — discovered the hard way
+    (see reference-db/cases/counter4_tinydie__2026-08-21.json): passing
+    a real JSON array literal like "[0, 0, 8, 8]" makes OpenLane's CLI
+    parser mis-split it and error on a phantom variable 'DIE_AREA[0]'
+    with value '[0'. Its List[Decimal]-typed variables want the elements
+    directly, comma-separated, no brackets.
+    """
+    if isinstance(v, list):
+        return ",".join(json.dumps(x) for x in v)
+    return json.dumps(v)
+
+
 def run_candidates(design_dir: Path, run_spec: dict) -> list[dict]:
     results = []
     for cand in run_spec["candidates"]:
         tag = cand["tag"]
-        overrides = [f"{k}={json.dumps(v)}" for k, v in cand.get("overrides", {}).items()]
+        overrides = [f"{k}={override_value(v)}" for k, v in cand.get("overrides", {}).items()]
         print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})} ===",
               file=sys.stderr)
         try:
@@ -148,37 +164,82 @@ def pick_winner(results: list[dict]) -> dict | None:
     return min(passing, key=lambda r: r["verdict"]["area_um2"] or float("inf"))
 
 
-# Known, real failure signature (see reference-db/cases/counter4__2026-08-21.json):
-# OpenROAD's PDN generator errors out rather than degrading gracefully when
-# core utilization is pushed too high for the die's power-strap geometry.
+# Known, real failure signatures this pipeline has actually observed and
+# verified a repair for — see reference-db/cases/*.json for each one's
+# full evidence. propose_repairs() stays deliberately narrow: anything
+# not listed here is left for a human or the feedback-optimizer /
+# placement-strategist subagents to diagnose, rather than guessed at
+# (see the "Known limitations" section of the design spec).
+
+# 1. counter4__2026-08-21: OpenROAD's PDN generator errors out rather
+#    than degrading gracefully when core utilization is pushed too high
+#    for the die's power-strap geometry.
 PDN_STRAP_ERROR = "Insufficient width"
-UTIL_STEP_DOWN = 15  # percentage points; conservative, matches the gap that
-                      # separated the one passing candidate (35) from the
-                      # first failing one (55) in the counter4 case.
+UTIL_STEP_DOWN = 15  # percentage points; conservative, matches the gap
+                      # that separated the one passing candidate (35)
+                      # from the first failing one (55) in that case.
 MIN_CORE_UTIL = 20
+
+# 2. counter4_tinydie__2026-08-21: OpenROAD's Floorplan Init step
+#    rejects a DIE_AREA whose core area (after subtracting core margins)
+#    is zero or negative — the die is structurally too small to fit
+#    even the margins, before any cell placement is attempted. Distinct
+#    from #1: this fails at a much earlier stage (Floorplan Init, before
+#    placement/PDN), and the repair is DIE_AREA itself, not utilization.
+DIE_TOO_SMALL_ERROR = "core_area"
+DIE_AREA_GROWTH_FACTOR = 2  # doubles width/height each iteration; simple
+                            # and matches the real counter4_tinydie case
+                            # (8x8um -> 16x16um converged in one step)
 
 
 def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
-    """Mechanically proposes a repaired candidate set from real failures.
-
-    This is deliberately narrow: it only knows how to repair the one real
-    failure mode this pipeline has actually observed (PDN strap-width
-    failure from FP_CORE_UTIL set too high for the die). Any other
-    failure/violation is left for a human or the feedback-optimizer /
-    placement-strategist subagents to diagnose — this function does not
-    guess at causes it hasn't been shown real evidence for (see the
-    "Known limitations" section of the design spec).
-    """
+    """Mechanically proposes a repaired candidate set from real failures."""
     next_candidates = []
     for r in results:
         error = r.get("error", "")
-        util_override = r["overrides"].get("FP_CORE_UTIL")
+        overrides = r["overrides"]
+
+        util_override = overrides.get("FP_CORE_UTIL")
+        die_area_override = overrides.get("DIE_AREA")
+
         if PDN_STRAP_ERROR in error and isinstance(util_override, (int, float)):
             repaired = max(MIN_CORE_UTIL, util_override - UTIL_STEP_DOWN)
             if repaired == util_override:
                 continue  # already at floor, no repair to propose
-            new_overrides = dict(r["overrides"])
+            new_overrides = dict(overrides)
             new_overrides["FP_CORE_UTIL"] = repaired
+            next_candidates.append({
+                "tag": f"{r['tag']}-iter{iteration}",
+                "overrides": new_overrides,
+            })
+        elif DIE_TOO_SMALL_ERROR in error and isinstance(die_area_override, list) \
+                and len(die_area_override) == 4:
+            x0, y0, x1, y1 = die_area_override
+            new_overrides = dict(overrides)
+            new_overrides["DIE_AREA"] = [
+                x0, y0,
+                x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
+                y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
+            ]
+            next_candidates.append({
+                "tag": f"{r['tag']}-iter{iteration}",
+                "overrides": new_overrides,
+            })
+        elif PDN_STRAP_ERROR in error and isinstance(die_area_override, list) \
+                and len(die_area_override) == 4:
+            # Same PDN strap failure as pattern #1, but this candidate has
+            # no FP_CORE_UTIL to step down (it's using the default) — an
+            # explicit DIE_AREA is the knob available here instead. Real
+            # case: counter4_tinydie's 16x16um candidate got past
+            # Floorplan Init (pattern #2 fixed that) only to hit this
+            # same PDN-0185 error with no FP_CORE_UTIL override present.
+            x0, y0, x1, y1 = die_area_override
+            new_overrides = dict(overrides)
+            new_overrides["DIE_AREA"] = [
+                x0, y0,
+                x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
+                y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
+            ]
             next_candidates.append({
                 "tag": f"{r['tag']}-iter{iteration}",
                 "overrides": new_overrides,
@@ -205,7 +266,12 @@ def write_case(design_name: str, iterations: list[dict], winner: dict | None) ->
 
     index_file = REFDB / "index.json"
     index = json.loads(index_file.read_text()) if index_file.exists() else {}
-    index[design_name] = index.get(design_name, []) + [case_file.name]
+    existing = index.get(design_name, [])
+    # A rerun on the same day overwrites case_file in place (same name) —
+    # don't duplicate the index entry for it.
+    if case_file.name not in existing:
+        existing.append(case_file.name)
+    index[design_name] = existing
     index_file.write_text(json.dumps(index, indent=2))
     return case_file
 
