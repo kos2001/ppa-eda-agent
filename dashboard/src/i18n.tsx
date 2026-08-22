@@ -17,6 +17,7 @@ const dict = {
   tab_power: { en: "Power", ko: "Power" },
   tab_tradeoffs: { en: "Trade-offs", ko: "트레이드오프" },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
+  nav_reports_label: { en: "report tabs", ko: "리포트" },
 
   pipeline_panel_title: {
     en: "autonomous layout pipeline — real OpenLane2 runs from reference-db/",

@@ -12,12 +12,12 @@ const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 
 type TabId =
+  | "pipeline"
+  | "simulate"
   | "area"
   | "timing"
   | "power"
   | "tradeoffs"
-  | "simulate"
-  | "pipeline"
   | "diagnosis";
 type Theme = "dark" | "light";
 
@@ -26,7 +26,11 @@ const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
 function AppInner() {
   const { lang, setLang, t } = useLang();
   const { diagnosing, hasUnseenResult } = useAgent();
-  const [active, setActive] = useState<TabId>("simulate");
+  // Pipeline is the primary surface of this app (real placement/routing
+  // candidate generation + evaluation) — everything else (report-paste
+  // tabs, live sim) is secondary, so it's the default view and sits
+  // first/highlighted in the sidebar rather than buried among report tabs.
+  const [active, setActive] = useState<TabId>("pipeline");
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
   );
@@ -36,30 +40,72 @@ function AppInner() {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
-  const TABS: { id: TabId; label: string }[] = [
+  const PRIMARY_TAB: { id: TabId; label: string } = { id: "pipeline", label: t("tab_pipeline") };
+  const REPORT_TABS: { id: TabId; label: string }[] = [
     { id: "simulate", label: t("tab_simulate") },
     { id: "area", label: t("tab_area") },
     { id: "timing", label: t("tab_timing") },
     { id: "power", label: t("tab_power") },
     { id: "tradeoffs", label: t("tab_tradeoffs") },
-    { id: "pipeline", label: t("tab_pipeline") },
   ];
 
   return (
-    <div className="app">
-      <header className="app__header">
-        <div className="app__header-row">
-          <div className="app__brand">
-            <div className="app__mark" aria-hidden="true">
-              <span>P</span><span>P</span><span>A</span>
-            </div>
-            <div>
-              <span className="app__eyebrow">{t("eyebrow")}</span>
-              <h1>{t("title")}</h1>
-            </div>
+    <div className="app app--sidebar">
+      <aside className="app__sidebar">
+        <div className="app__brand">
+          <div className="app__mark" aria-hidden="true">
+            <span>P</span><span>P</span><span>A</span>
           </div>
-          <div className="app__header-controls">
-            <span className="app__system-status"><i /> OpenLane connected</span>
+          <div>
+            <span className="app__eyebrow">{t("eyebrow")}</span>
+            <h1>{t("title")}</h1>
+          </div>
+        </div>
+
+        <nav className="app__nav">
+          <button
+            className={
+              active === PRIMARY_TAB.id
+                ? "app__nav-item app__nav-item--primary app__nav-item--active"
+                : "app__nav-item app__nav-item--primary"
+            }
+            onClick={() => setActive(PRIMARY_TAB.id)}
+          >
+            {PRIMARY_TAB.label}
+          </button>
+
+          <span className="app__nav-label">{t("nav_reports_label")}</span>
+          {REPORT_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={
+                active === tab.id ? "app__nav-item app__nav-item--active" : "app__nav-item"
+              }
+              onClick={() => setActive(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+
+          <button
+            className={
+              active === "diagnosis"
+                ? "app__nav-item app__nav-item--active app__nav-item--agent"
+                : "app__nav-item app__nav-item--agent"
+            }
+            onClick={() => setActive("diagnosis")}
+          >
+            {t("agent_sidebar_title")}
+            {diagnosing && <span className="app__tab-dot app__tab-dot--live" />}
+            {!diagnosing && hasUnseenResult && (
+              <span className="app__tab-dot app__tab-dot--unseen" />
+            )}
+          </button>
+        </nav>
+
+        <div className="app__sidebar-footer">
+          <span className="app__system-status"><i /> OpenLane connected</span>
+          <div className="app__sidebar-controls">
             <button
               className="app__theme-toggle"
               onClick={() => setLang(lang === "en" ? "ko" : "en")}
@@ -74,49 +120,27 @@ function AppInner() {
             </button>
           </div>
         </div>
-        <p>{t("subtitle")}</p>
-        <div className="app__signal-line" aria-hidden="true">
-          {Array.from({ length: 28 }, (_, i) => <span key={i} />)}
-        </div>
-      </header>
-      <nav className="app__tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={
-              active === tab.id ? "app__tab app__tab--active" : "app__tab"
-            }
-            onClick={() => setActive(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-        <button
-          className={
-            active === "diagnosis"
-              ? "app__tab app__tab--active app__tab--agent"
-              : "app__tab app__tab--agent"
-          }
-          onClick={() => setActive("diagnosis")}
-        >
-          {t("agent_sidebar_title")}
-          {diagnosing && <span className="app__tab-dot app__tab-dot--live" />}
-          {!diagnosing && hasUnseenResult && (
-            <span className="app__tab-dot app__tab-dot--unseen" />
-          )}
-        </button>
-      </nav>
-      <main className="app__main">
-        <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
-          {active === "simulate" && <SimulateTab />}
-          {active === "area" && <AreaTab />}
-          {active === "timing" && <TimingTab />}
-          {active === "power" && <PowerTab />}
-          {active === "tradeoffs" && <TradeoffsTab />}
-          {active === "pipeline" && <PipelineTab />}
-          {active === "diagnosis" && <DiagnosisPage />}
-        </Suspense>
-      </main>
+      </aside>
+
+      <div className="app__content">
+        <header className="app__topbar">
+          <p>{t("subtitle")}</p>
+          <div className="app__signal-line" aria-hidden="true">
+            {Array.from({ length: 28 }, (_, i) => <span key={i} />)}
+          </div>
+        </header>
+        <main className="app__main">
+          <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
+            {active === "simulate" && <SimulateTab />}
+            {active === "area" && <AreaTab />}
+            {active === "timing" && <TimingTab />}
+            {active === "power" && <PowerTab />}
+            {active === "tradeoffs" && <TradeoffsTab />}
+            {active === "pipeline" && <PipelineTab />}
+            {active === "diagnosis" && <DiagnosisPage />}
+          </Suspense>
+        </main>
+      </div>
     </div>
   );
 }

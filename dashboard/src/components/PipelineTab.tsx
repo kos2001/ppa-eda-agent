@@ -318,6 +318,41 @@ function CandidateRow({
   );
 }
 
+// Surfaces the real human-in-the-loop workflow (pipeline/request_review.py):
+// an OPEN case (no winner, and propose_repairs() found nothing auto-
+// repairable) is flagged for review; once a subagent's verdict has been
+// applied via `request_review.py apply`, it shows up here as real history,
+// not just buried in the diagnosis text.
+function HumanInTheLoopPanel({ pipelineCase }: { pipelineCase: PipelineCase }) {
+  const isOpen = !pipelineCase.winner_tag;
+  const reviews = pipelineCase.human_in_the_loop ?? [];
+  if (!isOpen && reviews.length === 0) return null;
+
+  return (
+    <div className="pipeline__hitl">
+      <span className="tab__meta-label">human-in-the-loop</span>
+      {isOpen && reviews.length === 0 && (
+        <p className="pipeline__hitl-needed">
+          needs review — run{" "}
+          <code>python3 pipeline/request_review.py request --design {pipelineCase.design}</code>{" "}
+          to dispatch a subagent
+        </p>
+      )}
+      {reviews.length > 0 && (
+        <ul className="pipeline__hitl-log">
+          {reviews.map((r, i) => (
+            <li key={i}>
+              <span className="pill pill--good">{r.agent}</span>
+              <span className="pipeline__hitl-time">{r.reviewed_at}</span>
+              <span className="pipeline__hitl-summary">{r.summary}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
@@ -421,6 +456,8 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
             <p>{pipelineCase.diagnosis}</p>
           </div>
         )}
+
+        <HumanInTheLoopPanel pipelineCase={pipelineCase} />
       </div>
     </div>
   );
