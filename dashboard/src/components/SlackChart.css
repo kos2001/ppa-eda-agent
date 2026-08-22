@@ -1,0 +1,44 @@
+.slack-chart {
+  margin-top: 0.5rem;
+  overflow-x: auto;
+}
+
+.slack-chart__baseline {
+  stroke: var(--border-strong, var(--border));
+  stroke-width: 1;
+}
+
+.slack-chart__label {
+  font-size: 10px;
+  fill: var(--text-dim);
+  font-family: var(--mono);
+}
+
+.slack-chart__worst-label {
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--text);
+  font-family: var(--mono);
+}
+
+.slack-chart__bar--pos {
+  fill: var(--good);
+}
+
+.slack-chart__bar--neg {
+  fill: var(--critical);
+}
+
+.slack-chart__tooltip {
+  position: fixed;
+  z-index: 50;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-family: var(--mono);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
