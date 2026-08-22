@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useRef,
   useState,
   type ReactNode,
@@ -10,12 +11,18 @@ import {
   setStoredKey,
   clearStoredKey,
   diagnoseStream,
+  diagnoseViaServer,
+  checkGatewayStatus,
 } from "./api/gateway";
 
 interface AgentState {
   key: string | null;
   saveKey: (k: string) => void;
   clearKey: () => void;
+  // True once GET /gateway-status confirms server/index.mjs has its own
+  // PPA_EDA_GATEWAY_KEY configured — when true, runDiagnosis() uses the
+  // server-proxied path and the UI can skip asking for a pasted key.
+  serverConfigured: boolean;
   diagnosing: boolean;
   streamedText: string;
   tokenCount: number;
@@ -41,7 +48,12 @@ function notifyBrowser() {
 
 export function AgentProvider({ children }: { children: ReactNode }) {
   const [key, setKey] = useState<string | null>(getStoredKey());
+  const [serverConfigured, setServerConfigured] = useState(false);
   const [diagnosing, setDiagnosing] = useState(false);
+
+  useEffect(() => {
+    checkGatewayStatus().then(setServerConfigured);
+  }, []);
   const [streamedText, setStreamedText] = useState("");
   const [tokenCount, setTokenCount] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -65,7 +77,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   }
 
   function runDiagnosis(reportText: string) {
-    if (!key) return;
+    if (!serverConfigured && !key) return;
 
     // Ask for notification permission at the moment the user triggers a
     // run (a real user gesture) — not on page load, which browsers ignore
@@ -97,24 +109,30 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    diagnoseStream(key, reportText, {
-      onToken: (delta) => {
+    const callbacks = {
+      onToken: (delta: string) => {
         setStreamedText((prev) => prev + delta);
         setTokenCount((prev) => prev + 1);
       },
-      onDone: (upstreamHeader) => {
+      onDone: (upstreamHeader: string | null) => {
         stopTimer();
         setDiagnosing(false);
         setConfirmedUpstream(upstreamHeader);
         setHasUnseenResult(true);
         notifyBrowser();
       },
-      onError: (err) => {
+      onError: (err: Error) => {
         stopTimer();
         setDiagnosing(false);
         setError(err.message);
       },
-    });
+    };
+
+    if (serverConfigured) {
+      diagnoseViaServer(reportText, callbacks);
+    } else if (key) {
+      diagnoseStream(key, reportText, callbacks);
+    }
   }
 
   return (
@@ -123,6 +141,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
         key,
         saveKey,
         clearKey,
+        serverConfigured,
         diagnosing,
         streamedText,
         tokenCount,

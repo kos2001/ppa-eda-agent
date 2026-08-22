@@ -115,6 +115,10 @@ const dict = {
   legend_neutral: { en: "no meaningful change", ko: "유의미한 변화 없음" },
   why_each_case: { en: "why, in each case", ko: "각각 왜 그런가" },
 
+  server_key_configured: {
+    en: "Server has its own hermes-gateway key configured (PPA_EDA_GATEWAY_KEY) — no key needed here.",
+    ko: "서버가 자체 hermes-gateway 키를 갖고 있습니다 (PPA_EDA_GATEWAY_KEY) — 여기서 키를 입력할 필요 없습니다.",
+  },
   key_input_prompt: {
     en: "Enter your hermes-gateway client key to get a live diagnosis.",
     ko: "실시간 진단을 받으려면 hermes-gateway 클라이언트 키를 입력하세요.",

@@ -112,6 +112,83 @@ async function loadReferenceDb() {
   return { designs: Object.fromEntries(entries) };
 }
 
+// Server-side hermes-gateway proxy — pattern borrowed from
+// ~/gitspace/mi-report/backend/app/agentchat.py: the *server* holds the
+// gateway credential via its own environment variable
+// (PPA_EDA_GATEWAY_KEY, set in this process's own env/shell — never
+// written into this codebase, never read from another project's .env by
+// anything in this repo), and the browser calls this local proxy instead
+// of ever handling the key itself. Falls back gracefully (GET
+// /gateway-status reports false) when the env var isn't set, matching
+// agentchat.py's explicit 503 rather than a silent/broken call — the
+// dashboard's existing "paste your own key" flow (api/gateway.ts) still
+// works standalone for anyone who'd rather not set the server env var.
+const GATEWAY_BASE_URL = process.env.PPA_EDA_GATEWAY_BASE_URL || "http://127.0.0.1:8700";
+const GATEWAY_MODEL = "ppa-eda-analyst";
+
+function gatewayKey() {
+  return (process.env.PPA_EDA_GATEWAY_KEY || "").trim();
+}
+
+async function proxyDiagnose(reportText, res, headers) {
+  const key = gatewayKey();
+  if (!key) {
+    res.writeHead(503, { ...headers, "Content-Type": "application/json" });
+    res.end(JSON.stringify({
+      error: "Server-side hermes connection not configured — set " +
+        "PPA_EDA_GATEWAY_KEY in this server's environment, or use the " +
+        "dashboard's own client-key field instead.",
+    }));
+    return;
+  }
+
+  let upstream;
+  try {
+    upstream = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: GATEWAY_MODEL,
+        stream: true,
+        messages: [
+          { role: "user", content: `Diagnose this OpenSTA simulation output:\n\n${reportText}` },
+        ],
+      }),
+    });
+  } catch (err) {
+    res.writeHead(502, { ...headers, "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: `hermes-gateway connection failed: ${err.message ?? err}` }));
+    return;
+  }
+
+  if (!upstream.ok || !upstream.body) {
+    const text = await upstream.text().catch(() => "");
+    res.writeHead(upstream.status, { ...headers, "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: `hermes-gateway error ${upstream.status}: ${text.slice(0, 300)}` }));
+    return;
+  }
+
+  // Pipe the real SSE stream straight through — same wire format the
+  // dashboard's diagnoseStream() already parses, so the frontend logic
+  // doesn't need two different response shapes for the two connection
+  // paths (server-proxied vs. browser-direct).
+  const upstreamHeader = upstream.headers.get("X-Hermes-Gateway-Upstream");
+  res.writeHead(200, {
+    ...headers,
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+    Connection: "keep-alive",
+    ...(upstreamHeader ? { "X-Hermes-Gateway-Upstream": upstreamHeader } : {}),
+  });
+  for await (const chunk of upstream.body) {
+    res.write(chunk);
+  }
+  res.end();
+}
+
 const server = createServer(async (req, res) => {
   const headers = corsHeaders(req);
 
@@ -134,9 +211,42 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url === "/gateway-status") {
+    res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+    res.end(JSON.stringify({ configured: Boolean(gatewayKey()) }));
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/diagnose") {
+    let diagBody = "";
+    req.on("data", (chunk) => (diagBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { reportText } = JSON.parse(diagBody || "{}");
+        if (typeof reportText !== "string" || !reportText.trim()) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "reportText (non-empty string) required" }));
+          return;
+        }
+        await proxyDiagnose(reportText, res, headers);
+      } catch (err) {
+        console.error("[diagnose proxy error]", err);
+        if (!res.headersSent) {
+          res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: String(err.message ?? err) }));
+        } else {
+          res.end();
+        }
+      }
+    });
+    return;
+  }
+
   if (req.method !== "POST" || req.url !== "/simulate") {
     res.writeHead(404, { ...headers, "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "POST /simulate {period}, or GET /reference-db" }));
+    res.end(JSON.stringify({
+      error: "POST /simulate {period}, GET /reference-db, GET /gateway-status, or POST /diagnose {reportText}",
+    }));
     return;
   }
 
