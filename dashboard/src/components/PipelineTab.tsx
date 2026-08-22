@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchPipelineRunStatus,
   fetchReferenceDb,
@@ -13,11 +13,16 @@ import {
 import { translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import { useLang } from "../i18n";
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import LayoutView from "./LayoutView";
 import SlackChart from "./SlackChart";
 import "./Tabs.css";
 import "./PipelineTab.css";
+
+// Lazy: recharts' internal chunk is the largest in the app (~88KB
+// gzipped) — deferring it keeps it off the critical path for
+// PipelineTab's initial render (Pipeline is the default tab every
+// session loads). See CandidateAreaChart.tsx.
+const CandidateAreaChart = lazy(() => import("./CandidateAreaChart"));
 
 const DATA_CATEGORY_ORDER: (keyof CandidateDataPointers)[] = [
   "circuit",
@@ -493,15 +498,9 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
         {chartData.length > 0 && (
           <div className="pipeline__chart">
             <div className="tab__meta-label">candidate area comparison · lower is better</div>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={chartData} margin={{ top: 18, right: 12, left: 6, bottom: 30 }}>
-                <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" angle={-18} textAnchor="end" tick={{ fill: "var(--text-dim)", fontSize: 10 }} stroke="var(--border)" />
-                <YAxis tick={{ fill: "var(--text-dim)", fontSize: 10 }} stroke="var(--border)" />
-                <Tooltip contentStyle={{ background: "var(--surface-raised)", border: "1px solid var(--border)", borderRadius: 8, fontFamily: "var(--mono)" }} />
-                <Bar dataKey="area" radius={[5, 5, 0, 0]}>{chartData.map((entry) => <Cell key={entry.name} fill={entry.passed ? "var(--good)" : "var(--critical)"} />)}</Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<div style={{ height: 220 }} />}>
+              <CandidateAreaChart data={chartData} />
+            </Suspense>
           </div>
         )}
 

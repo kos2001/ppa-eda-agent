@@ -568,6 +568,41 @@ claimed as fully working:
   could reduce wait time but wasn't attempted), just making an
   already-working feature legible instead of looking hung.
 
+## Performance: reference-db caching and deferred chart loading
+
+Two real, measured performance fixes made while the user was away
+(explicit "find what needs it yourself" instruction) — both low-risk,
+transparent (no behavior/API change), verified with real before/after
+measurements rather than assumed:
+
+1. **`GET /reference-db` per-file caching** (`server/index.mjs`). Every
+   call re-read and re-`JSON.parse`d every case file from disk, even
+   though `reference-db/` only grows (self_improve.py, the dashboard's
+   own trigger button, and manual runs all append to it — the
+   `counter4` case alone is already 200KB) and the dashboard polls this
+   endpoint on every load plus after every finished triggered run.
+   `readCaseFileCached()` now stats each file (cheap) and only re-reads
+   + re-parses when its `mtimeMs` actually changed, keyed in an
+   in-memory `Map`. Verified correct, not just fast: modified a case
+   file's content directly and confirmed the very next request reflects
+   the change (cache invalidates correctly on mtime change) — not just
+   a "trust the timestamp" assumption.
+2. **Deferred recharts chunk** (`CandidateAreaChart.tsx`, split out of
+   `PipelineTab.tsx`). Real measurement via Playwright on the production
+   build (`vite preview`, not dev mode): recharts' internal
+   `CategoricalChart` chunk is 88KB gzipped — the single largest JS
+   chunk in the app — and was statically imported at the top of
+   `PipelineTab.tsx`, the default/first tab every session loads,
+   forcing it into the initial render's blocking script graph. Moved
+   the one chart that uses it (the case card's "candidate area
+   comparison" bar chart) into its own component behind
+   `lazy(() => import(...))` + `Suspense`. Measured before/after: the
+   `CategoricalChart` chunk's request now starts at 85.7ms, *after*
+   `domContentLoadedEventEnd` (62.5ms) — it no longer blocks initial
+   paint, just loads in parallel and fills in shortly after. Confirmed
+   the chart still renders correctly post-change (real browser check,
+   not just a successful build).
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
