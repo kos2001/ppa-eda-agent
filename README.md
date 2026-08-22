@@ -105,6 +105,29 @@ correction of an earlier, unverified guess) in
 `reference-db/cases/sram_wrapper__2026-08-21.json`. Left open rather than
 forced past; see the design spec's "Second vertical slice" section.
 
+### Human-in-the-loop review + self-improvement loop
+
+When `propose_repairs()` can't auto-repair a failure, escalate to a real
+subagent review instead of leaving it silently open:
+
+```sh
+python3 pipeline/request_review.py request --design sram_wrapper
+# ...dispatch the subagent(s) it names, e.g. via the Agent tool...
+python3 pipeline/request_review.py apply --design sram_wrapper \
+  --agent feedback-optimizer --response-file /path/to/response.txt
+```
+
+`pipeline/self_improve.py` ties this together into a schedulable loop:
+for every design, it reports real auto-repair coverage (what fraction of
+failures `propose_repairs()`'s known patterns actually fixed), generates
+a review request automatically for any OPEN case with no review yet, and
+flags designs where a review concluded there's nothing to auto-repair
+*yet* as pattern-promotion candidates — worth a human periodically
+checking whether that one-off diagnosis should become a new
+`propose_repairs()` pattern. Run by hand, from a crontab entry, or from a
+Claude Code `/loop` — see the design spec's "Self-improvement loop"
+section.
+
 ## Dashboard
 
 Four report-visualization tabs (Area, Timing, Power, Trade-offs) plus a

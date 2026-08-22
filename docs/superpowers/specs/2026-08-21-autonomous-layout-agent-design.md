@@ -407,6 +407,43 @@ by hand (identical area, strictly lower power, tied margin — a genuine
 Pareto win, not an arbitrary tiebreak). See
 `reference-db/cases/counter4__2026-08-22.json`.
 
+## Self-improvement loop
+
+The pieces above — `propose_repairs()`'s mechanical patterns,
+`request_review.py`'s human-in-the-loop escalation, `reference-db/`'s
+growing case history — didn't have a single entry point tying them
+together into an actual loop a human (or a schedule) could just run.
+`pipeline/self_improve.py` is that entry point. Each run:
+
+1. **Auto-repair coverage** — for every design, counts what real
+   fraction of non-passing candidate runs matched a known
+   `propose_repairs()` pattern (PDN strap-width, die-too-small) vs.
+   needed a human decision. A real, honest metric: it only goes up when
+   a genuinely new pattern gets added to `orchestrator.py`, never by
+   redefining what counts as "covered."
+2. **Review backlog** — any OPEN case with no `human_in_the_loop` entry
+   yet gets a `request_review.py request` run automatically, so nobody
+   has to remember which design needs attention.
+3. **Pattern promotion candidates** (flagged, not automated) — any
+   design that's OPEN *and already reviewed* means a human/subagent
+   looked and concluded there's nothing `propose_repairs()` can do yet.
+   That's exactly the signal worth periodically re-examining: either a
+   new mechanical pattern should be written from the diagnosis, or it
+   genuinely doesn't generalize. Left as a flag, not auto-applied —
+   deciding whether a one-off diagnosis is a real, generalizable pattern
+   needs judgment a regex can't provide.
+
+Validated for real on the three existing designs:
+`counter4`/`counter4_tinydie` both report `CLOSED`, `3/3` auto-repair
+coverage; `sram_wrapper` reports `OPEN, reviewed`, `0/1` coverage, and
+is correctly flagged as a pattern-promotion candidate — the loop doesn't
+mistake "a subagent looked at it" for "it's resolved."
+
+Not a Claude-Code-specific loop (no dependency on `/loop` or
+`ScheduleWakeup`) — `self_improve.py` is a plain, schedulable CLI script.
+Run it by hand, from a real crontab entry, or from a Claude Code `/loop`
+wrapping the same command; the script itself doesn't care which.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
