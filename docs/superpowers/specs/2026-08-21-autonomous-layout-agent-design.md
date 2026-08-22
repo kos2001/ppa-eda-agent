@@ -407,6 +407,42 @@ by hand (identical area, strictly lower power, tied margin — a genuine
 Pareto win, not an arbitrary tiebreak). See
 `reference-db/cases/counter4__2026-08-22.json`.
 
+## Using more of OpenLane: SYNTH_STRATEGY, and a real bug it found
+
+OpenLane ships its own `Optimizing` and `SynthesisExploration` demo
+flows that sweep `SYNTH_STRATEGY` (9 real values: `AREA 0`-`3`,
+`DELAY 0`-`4` — ABC logic-synthesis strategies; OpenLane's own docs say
+"there is no way to know which strategy is the best before trying
+them") — but both stop at global placement, never reaching real
+signoff. `expand_sweeps()` already generalizes to any config variable,
+so this needed no new code, just a new `sweeps` entry — validated for
+real on `counter4`: `AREA 0`/`AREA 2` match the default (290.278µm²),
+`DELAY 1`/`DELAY 4` trade area for speed (294.032/300.288µm²) — a real,
+new trade-off axis, run through the *full* flow to real signoff instead
+of stopping at placement like OpenLane's own demo.
+
+Running it surfaced a real, reproducible OpenLane bug, isolated by
+elimination: the exact same `SYNTH_STRATEGY="AREA 0"` override, run
+directly via `docker run ... openlane ...`, succeeds standalone but
+fails with a phantom `1 Lint errors found` (Verilator resolving a stray
+`sky130_fd_sc_hd__udp_pwrgood_pp$PG` reference that has nothing to do
+with this design) purely because the run tag was `"sweep-synth-AREA 0"`
+— a space in `--run-tag` (and thus the `runs/<tag>/` directory name)
+breaks something in OpenLane's own internal subprocess invocations.
+Confirmed by rerunning with only the tag changed (no space) — same
+override, clean pass. Fixed in `expand_sweeps()`: tags built from a
+string sweep value now have spaces replaced before ever reaching
+`--run-tag`, rather than assuming every sweep value is filesystem/CLI-
+safe.
+
+Also fixed in the same pass: `override_value()` was `json.dumps()`-
+wrapping *all* scalars, which is correct for numbers (`35` → `"35"`)
+but wrong for strings — `json.dumps("AREA 0")` produces `'"AREA 0"'`
+(literal quote characters included), which fails OpenLane's
+`Literal`-type validation outright (a clean, loud error, unlike the
+run-tag bug above — this one was found first, immediately, from the
+CLI's own "Value ... is invalid" message).
+
 ## Self-improvement loop
 
 The pieces above — `propose_repairs()`'s mechanical patterns,

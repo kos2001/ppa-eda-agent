@@ -287,16 +287,23 @@ def score(metrics: dict, targets: dict) -> dict:
 def override_value(v) -> str:
     """Formats a config override for OpenLane's `--override-config KEY=VALUE`.
 
-    Scalars: plain JSON (e.g. 35 -> "35"). Lists (e.g. DIE_AREA): a bare
+    Numbers: plain JSON (e.g. 35 -> "35"). Lists (e.g. DIE_AREA): a bare
     comma-joined list with no brackets/spaces — discovered the hard way
     (see reference-db/cases/counter4_tinydie__2026-08-21.json): passing
     a real JSON array literal like "[0, 0, 8, 8]" makes OpenLane's CLI
     parser mis-split it and error on a phantom variable 'DIE_AREA[0]'
     with value '[0'. Its List[Decimal]-typed variables want the elements
-    directly, comma-separated, no brackets.
+    directly, comma-separated, no brackets. Strings (e.g. SYNTH_STRATEGY
+    "AREA 0"): the bare literal value, NOT JSON-quoted — also discovered
+    the hard way (see reference-db/cases/counter4__2026-08-22.json):
+    json.dumps("AREA 0") -> '"AREA 0"' (with literal quote characters)
+    fails OpenLane's Literal-type validation, which compares against the
+    bare enum strings and doesn't strip surrounding quotes.
     """
     if isinstance(v, list):
         return ",".join(json.dumps(x) for x in v)
+    if isinstance(v, str):
+        return v
     return json.dumps(v)
 
 
@@ -327,7 +334,19 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
     for sweep in run_spec.get("sweeps", []):
         base_overrides = sweep.get("overrides", {})
         for value in sweep["values"]:
-            tag = f"{sweep.get('tag_prefix', sweep['param'])}-{value}"
+            # Run tags become real directory names (runs/<tag>/) passed to
+            # OpenLane's --run-tag. A space in that name breaks OpenLane's
+            # own internal subprocess invocations in a real, reproducible
+            # way — found by hitting it directly: the exact same
+            # SYNTH_STRATEGY="AREA 0" override succeeds standalone but
+            # fails with a phantom "1 Lint errors found" (Verilator
+            # resolving a stray sky130_fd_sc_hd__udp_pwrgood_pp$PG
+            # reference from what looks like a stale/wrong temp file)
+            # purely because the run tag was "sweep-synth-AREA 0" instead
+            # of a space-free string — confirmed by rerunning with only
+            # the tag changed. Sanitize here rather than assume every
+            # sweep value is filesystem/CLI-safe.
+            tag = f"{sweep.get('tag_prefix', sweep['param'])}-{value}".replace(" ", "_")
             expanded.append({
                 "tag": tag,
                 "overrides": {**base_overrides, sweep["param"]: value},
