@@ -8,8 +8,14 @@
       "param": "FP_CORE_UTIL",
       "values": [25, 35, 45, 55, 65],
       "tag_prefix": "sweep-util"
+    },
+    {
+      "param": "SYNTH_STRATEGY",
+      "values": ["AREA 0", "AREA 2", "DELAY 1", "DELAY 4"],
+      "tag_prefix": "sweep-synth",
+      "overrides": { "FP_CORE_UTIL": 35 }
     }
   ],
   "candidates": [],
-  "max_iterations": 3
+  "max_iterations": 1
 }
