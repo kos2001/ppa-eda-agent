@@ -547,16 +547,26 @@ claimed as fully working:
   `0.04ns`, `RSZ-0090`, `addr0`, `max_transition` all came through
   unchanged in the Korean output). Confirmed the same path end-to-end in
   the browser via Playwright.
-- **Very long text: stalls.** `sram_wrapper`'s real diagnosis (8,744
-  characters) sent to the same endpoint produced only SSE keepalive
-  comments for over two minutes with zero content tokens, then was
-  manually aborted rather than left hanging indefinitely. Root cause not
-  isolated (hermes-gateway/model struggling with a long prompt, vs. a
-  proxy-level buffering issue) — left as a known limitation rather than
-  guessed at. Practical effect: the "번역보기" button on a long diagnosis
-  block may spin indefinitely with no error and no result. Not chunked
-  or otherwise mitigated in this pass — a deliberate scope decision, not
-  an oversight (see "Known limitations" below).
+- **Very long text: works, but slowly and with no partial output.**
+  `sram_wrapper`'s real diagnosis (8,744 characters) first appeared to
+  hang — over two minutes with only SSE keepalives — and was wrongly
+  aborted as broken on the first attempt. Root cause, isolated by
+  re-running with patience and inspecting the raw SSE frames: the
+  `ppa-eda-analyst` gateway model does not stream token-by-token —
+  every chunk in a response shares the exact same upstream `created`
+  timestamp, meaning the full response is generated server-side and
+  released as one burst only once generation finishes. For this
+  diagnosis that meant `prompt_tokens: 21234` (the persona's own system
+  prompt dominates this — a 2,000-character excerpt alone already cost
+  ~19,700 prompt tokens) and `completion_tokens: 9843`, taking roughly
+  3-4 minutes end to end with the client seeing nothing until the very
+  last moment. Confirmed correct once it landed: the Korean output
+  ended on a complete sentence, not a cutoff. Mitigated in
+  `TranslateBlock` with a visible elapsed-time counter and an explicit
+  "this can take a few minutes, the gateway sends everything at once"
+  hint — not a technical fix (chunking the text or switching models
+  could reduce wait time but wasn't attempted), just making an
+  already-working feature legible instead of looking hung.
 
 ## Known limitations / explicit non-goals
 
@@ -569,9 +579,11 @@ claimed as fully working:
   same constraint the existing OpenSTA sim server already has) — slower
   than native, acceptable for a validation vertical slice, worth
   revisiting if iteration turnaround becomes the bottleneck.
-- On-demand diagnosis translation (`POST /translate`) is validated for
-  short/medium text only — a very long diagnosis (thousands of
-  characters, e.g. `sram_wrapper`'s) stalls with no content tokens for
-  minutes. Not chunked/mitigated; the "번역보기" button on a long
-  diagnosis may spin with no result. Root cause (model vs. proxy) not
-  isolated.
+- On-demand diagnosis translation (`POST /translate`) works for text of
+  any length tested so far, but the `ppa-eda-analyst` gateway model
+  delivers the whole response in one burst rather than token-by-token —
+  a long diagnosis (thousands of characters) can take 3-4 minutes with
+  zero visible progress until the end. `TranslateBlock` shows an
+  elapsed-time counter and an explicit hint rather than a silent
+  spinner, but the underlying wait itself isn't shortened (no chunking,
+  no alternate faster model attempted).

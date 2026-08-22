@@ -46,6 +46,10 @@ const dict = {
   pipeline_translate_loading: { en: "translating…", ko: "번역 중…" },
   pipeline_translate_label: { en: "machine translation — original above is authoritative", ko: "기계번역 — 원문(위)이 정확한 기준입니다" },
   pipeline_translate_needs_key: { en: "needs a hermes-gateway key (see Diagnosis tab)", ko: "hermes-gateway 키가 필요합니다 (진단 탭 참고)" },
+  pipeline_translate_long_wait_hint: {
+    en: "long diagnosis text can take a few minutes — this gateway model delivers the full translation at once, not token-by-token, so nothing appears until it's done",
+    ko: "긴 진단문은 몇 분 걸릴 수 있습니다 — 이 게이트웨이 모델은 토큰 단위가 아니라 전체 번역을 한번에 전달하므로, 끝날 때까지는 아무것도 표시되지 않습니다",
+  },
 
   load_example: { en: "Load example", ko: "예시 불러오기" },
 
