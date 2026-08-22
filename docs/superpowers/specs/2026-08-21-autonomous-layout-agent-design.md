@@ -480,6 +480,49 @@ Not a Claude-Code-specific loop (no dependency on `/loop` or
 Run it by hand, from a real crontab entry, or from a Claude Code `/loop`
 wrapping the same command; the script itself doesn't care which.
 
+## Dashboard as the agent's control surface, not a report viewer
+
+Until this point the dashboard's Layout Pipeline tab was strictly
+read-only: it rendered whatever `reference-db/` already contained, and
+every actual `orchestrator.py` invocation happened from a terminal. That
+made the dashboard read as a *report viewer* for a DTCO
+(design-technology co-optimization) agent rather than the agent's own
+interface — a real gap, not just a framing complaint, since it meant the
+one artifact most people would actually open couldn't drive the thing it
+was displaying.
+
+Closed by adding a real trigger path:
+
+- `server/index.mjs`: `POST /pipeline/run {"design": "<name>"}` spawns a
+  real `python3 orchestrator.py --design designs/<name> --run-spec
+  designs/<name>/run_spec.json` subprocess (validates the design exists
+  first via its `run_spec.json`), tracked in an in-memory `Map` keyed by
+  design name (`status`, `startedAt`, `finishedAt`, a capped stdout/
+  stderr tail, `error`). Returns `202` immediately (the run itself can
+  take minutes); `409` if a run for that design is already in flight,
+  with the existing state attached so the caller can resume polling
+  instead of erroring out. `GET /pipeline/run-status?design=<name>`
+  reports that state. Deliberately no persistence/queue — this is a
+  single-operator local tool, and a run's live status being lost on
+  server restart is the same trade-off any other locally-spawned process
+  already has.
+- `dashboard/src/components/PipelineTab.tsx`'s new `RunAgentPanel`: a
+  "run agent now" button for the currently filtered design, polling
+  `/pipeline/run-status` every 4s while running and showing the real
+  tail log, then refreshing the reference-db view when the run
+  completes so the new case appears without a manual reload.
+- Branding (`i18n.tsx`, `index.html`) updated from "PPA Readout /
+  Synopsys report reader" to "DTCO Agent Console / DTCO AI Agent" —
+  the old copy was accurate for the report-paste tabs but didn't
+  describe what the Pipeline tab (the primary tab) actually is anymore.
+
+Validated for real: `POST /pipeline/run {"design":"counter4"}` via curl
+spawned a real `docker run ... openlane` invocation (confirmed in the
+run-status tail), and the dashboard's button — clicked while that same
+run was still in flight — correctly received the `409`, adopted the
+in-flight state instead of erroring, and rendered the live tail log via
+polling (Playwright screenshot, not just a build check).
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

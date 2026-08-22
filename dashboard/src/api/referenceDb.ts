@@ -140,3 +140,39 @@ export async function fetchReferenceDb(): Promise<ReferenceDb> {
   }
   return data;
 }
+
+const LOCAL_SERVER_URL = "http://127.0.0.1:8123";
+
+export type PipelineRunStatus = "idle" | "running" | "done" | "error";
+
+export interface PipelineRunState {
+  status: PipelineRunStatus;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  tail?: string[];
+  error?: string | null;
+}
+
+// Triggers a real pipeline/orchestrator.py run against a design's
+// run_spec.json via server/index.mjs's POST /pipeline/run — this is
+// what turns the dashboard from a viewer of past reference-db/ cases
+// into an actual control surface for the agent: pressing this button
+// spawns a real OpenLane candidate-generation-and-auto-repair loop.
+export async function triggerPipelineRun(design: string): Promise<PipelineRunState> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/pipeline/run`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ design }),
+  });
+  const data = await res.json();
+  if (!res.ok && res.status !== 409) {
+    throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  }
+  return data;
+}
+
+export async function fetchPipelineRunStatus(design: string): Promise<PipelineRunState> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/pipeline/run-status?design=${encodeURIComponent(design)}`);
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
