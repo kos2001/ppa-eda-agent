@@ -18,6 +18,22 @@ const simDir = path.resolve(__dirname, "..", "sim");
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const PORT = 8123;
 
+// Auto-loads a real .env file at the repo root, if present — same
+// pattern as ~/gitspace/mi-report's load_profile(): the credential
+// (PPA_EDA_GATEWAY_KEY) lives in a real .env this project never commits
+// (see .gitignore) instead of having to be typed inline on every server
+// start. process.loadEnvFile() is Node's own built-in .env loader
+// (stable since Node 20.6) — no dependency needed. Silently no-ops if
+// .env doesn't exist, so a fresh checkout still starts fine and falls
+// back to the browser-paste-key flow.
+try {
+  process.loadEnvFile(path.resolve(__dirname, "..", ".env"));
+  console.log("[env] loaded .env");
+} catch {
+  console.log("[env] no .env file found — server-side gateway key not configured " +
+    "(browser-paste-key flow still works; see .env.example)");
+}
+
 // Any localhost dev-server port is fine — this is a local-only tool.
 const ALLOWED_ORIGIN_RE = /^http:\/\/localhost:\d+$/;
 
