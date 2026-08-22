@@ -25,6 +25,7 @@ from pathlib import Path
 
 from run_stage import run_stage, read_metrics
 import def_layout
+from pareto import ParetoPoint, pick_best
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
@@ -383,11 +384,31 @@ def run_candidates(design_dir: Path, run_spec: dict,
 
 
 def pick_winner(results: list[dict]) -> dict | None:
+    """Picks the winner among passing candidates via constrained Pareto-
+    front ranking (see pipeline/pareto.py) instead of a single "smallest
+    area wins" heuristic — area, power, and timing margin are real,
+    independent trade-offs among passing candidates (see
+    reference-db/cases/*.json for real examples), not one axis to
+    optimize alone. Falls back gracefully when a candidate's power data
+    is unavailable (treated as 0 in that objective — see pareto.py's
+    docstring for why this is a deliberate simplification, not a bug).
+    """
     passing = [r for r in results if r.get("verdict", {}).get("passed")]
     if not passing:
         return None
-    # Among candidates meeting targets, prefer smallest area.
-    return min(passing, key=lambda r: r["verdict"]["area_um2"] or float("inf"))
+    if len(passing) == 1:
+        return passing[0]
+
+    points = []
+    for r in passing:
+        v = r["verdict"]
+        area = v["area_um2"] or 0.0
+        power_total = (v.get("power") or {}).get("total_w") or 0.0
+        margin = -v["worst_setup_wns"]  # minimize negative slack = maximize margin
+        points.append(ParetoPoint(key=r["tag"], objs=(area, power_total, margin)))
+
+    winner_tag = pick_best(points)
+    return next(r for r in passing if r["tag"] == winner_tag)
 
 
 # Known, real failure signatures this pipeline has actually observed and

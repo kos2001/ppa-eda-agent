@@ -376,6 +376,37 @@ real `li1`/`met1`/`met2`/`met3` routed wires, 9 real timing corners (all
 clean), and real power numbers (0.0955mW total, 1.8V supply, 0.0991mV
 worst IR drop).
 
+## Borrowed from prior art: Pareto-front candidate selection
+
+`pick_winner()` had a real blind spot: when multiple candidates passed,
+it picked "smallest area" and ignored everything else, including ties
+it couldn't actually see past. Real example that surfaced this — 
+`counter4`'s `sweep-util-25` and `sweep-util-35` have *identical* area
+(290.278µm²) but different real power (`9.565e-5W` vs `9.550e-5W`, the
+latter strictly lower) — the old rule picked whichever Python's `min()`
+happened to see first, blind to a real, measurable difference.
+
+Researched a second sibling project before building a fix:
+[`kos2001/analog-layout-optimizer`](https://github.com/kos2001/analog-layout-optimizer)'s
+`layout_opt/ppa.py` implements NSGA-II for its op-amp sizing problem
+(power/area/GBW have no single optimum — Pareto front is the honest
+answer). This pipeline doesn't need the evolutionary half (no
+crossover/mutation/generations — candidates here come from
+`expand_sweeps()`/`propose_repairs()`, not a genetic search over a
+continuous parameter space), but the *ranking* half — constrained
+non-dominated sorting plus crowding distance — is exactly the general
+"multiple real objectives, no single winner rule" problem `pick_winner()`
+has. Ported that half (not the generational search) into
+`pipeline/pareto.py`, pure Python, same dependency-free style as the
+source. `pick_winner()` now ranks passing candidates by real area/power/
+timing-margin trade-offs via the Pareto front instead of area alone.
+
+Verified for real: rerunning `counter4`'s utilization sweep with the new
+ranking picks `sweep-util-35` over `sweep-util-25` — confirmed correct
+by hand (identical area, strictly lower power, tied margin — a genuine
+Pareto win, not an arbitrary tiebreak). See
+`reference-db/cases/counter4__2026-08-22.json`.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
