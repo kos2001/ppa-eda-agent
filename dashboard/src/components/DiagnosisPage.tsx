@@ -17,6 +17,7 @@ export default function DiagnosisPage() {
   const {
     key,
     saveKey,
+    serverConfigured,
     diagnosing,
     streamedText,
     tokenCount,
@@ -33,6 +34,10 @@ export default function DiagnosisPage() {
   }, [markResultSeen]);
 
   const hasActivity = diagnosing || streamedText.length > 0;
+  // Server-side PPA_EDA_GATEWAY_KEY (see server/index.mjs, pattern from
+  // ~/gitspace/mi-report/backend/app/agentchat.py) means no pasted key
+  // is needed at all — the browser never handles a credential.
+  const isReady = Boolean(key) || serverConfigured;
 
   return (
     <div className="tab diagnosis-page">
@@ -64,7 +69,15 @@ export default function DiagnosisPage() {
         </div>
       </div>
 
-      {!key && (
+      {serverConfigured && !key && (
+        <div className="panel">
+          <div className="panel__body">
+            <p className="agent-sidebar__confirmed">{t("server_key_configured")}</p>
+          </div>
+        </div>
+      )}
+
+      {!isReady && (
         <div className="panel">
           <span className="panel__title">{t("sim_diagnosis_title")}</span>
           <div className="panel__body chat-setup">
@@ -88,7 +101,7 @@ export default function DiagnosisPage() {
         </div>
       )}
 
-      {!hasActivity && key && (
+      {!hasActivity && isReady && (
         <div className="panel">
           <div className="panel__body">
             <p className="agent-sidebar__idle">{t("agent_idle")}</p>
