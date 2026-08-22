@@ -1,8 +1,12 @@
 # ppa-eda-agent
 
-Semiconductor PPA (Power, Performance, Area) analysis — a Claude Code
-subagent that reads Synopsys/OpenSTA EDA reports, a live OpenSTA
-simulation you can actually run, and a dashboard that ties both together.
+A DTCO (design-technology co-optimization) AI agent for semiconductor
+PPA (Power, Performance, Area): it runs real RTL through real OpenLane2
+placement/routing, evaluates the result against real signoff data, and
+repairs what it can on its own. The dashboard is that agent's control
+surface — trigger a real run and watch it work — not a static report
+viewer, though it can also read pasted Synopsys/OpenSTA reports and
+drive a live OpenSTA simulation on demand.
 
 Not related to [ppa-agent](https://github.com/kos2001/ppa-agent) (Ansible
 Personal Package Archive tooling) despite the shared acronym — same three
@@ -30,9 +34,13 @@ sim/                                 A real 5-cell OpenSTA design (from
 server/index.mjs                    Local server that runs that design
                                      through the openroad/opensta Docker
                                      image on demand
-dashboard/                          React + Vite + TypeScript UI: paste a
-                                     report and see it visualized, or run a
-                                     real simulation and get a live agent
+dashboard/                          React + Vite + TypeScript UI — the
+                                     DTCO agent's control surface: trigger
+                                     a real pipeline/orchestrator.py run
+                                     and watch it live, browse past
+                                     reference-db/ cases, paste a report
+                                     and see it visualized, or run a real
+                                     simulation and get a live agent
                                      diagnosis
 docs/superpowers/                   Design specs and implementation plans
                                      from how this was built
@@ -68,6 +76,15 @@ python3 orchestrator.py --design designs/counter4 \
   --run-spec designs/counter4/run_spec.json \
   --max-parallel 3
 ```
+
+Or trigger the same real run from the dashboard's Layout Pipeline tab
+("run agent now") — `server/index.mjs`'s `POST /pipeline/run
+{"design": "counter4"}` spawns `orchestrator.py` server-side and `GET
+/pipeline/run-status?design=counter4` reports its live status (running/
+done/error) plus a tail of its real stdout/stderr, which the tab polls
+until the run finishes and the new `reference-db/` case appears. This is
+the difference between the dashboard being a viewer of past runs and
+being the agent's actual control surface — see `soul.md`.
 
 `run_spec.json`'s `candidates` can be listed by hand, and/or generated
 via a `sweeps` entry — `{"param": "FP_CORE_UTIL", "values": [25, 35,

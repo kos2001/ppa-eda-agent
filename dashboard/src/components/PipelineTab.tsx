@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  fetchPipelineRunStatus,
   fetchReferenceDb,
+  triggerPipelineRun,
   type CandidateDataPointers,
   type CandidateResult,
   type CandidateVerdict,
   type PipelineCase,
+  type PipelineRunState,
   type ProcessStageId,
 } from "../api/referenceDb";
 import { useLang } from "../i18n";
@@ -465,6 +468,83 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
   );
 }
 
+// Runs the actual agent, not just displays what it did before — the
+// concrete answer to "why is this a dashboard, not the DTCO agent
+// itself": this panel IS the agent's control surface. Press "run", a
+// real pipeline/orchestrator.py candidate-generation-and-auto-repair
+// loop spawns server-side against real OpenLane, and the panel polls
+// its live status until a new reference-db case shows up below.
+function RunAgentPanel({
+  design,
+  onRunFinished,
+}: {
+  design: string | null;
+  onRunFinished: () => void;
+}) {
+  const { t } = useLang();
+  const [runState, setRunState] = useState<PipelineRunState | null>(null);
+  const [launchError, setLaunchError] = useState<string | null>(null);
+  const pollRef = useRef<number | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current != null) {
+      window.clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => stopPolling, [stopPolling]);
+
+  async function handleRun() {
+    if (!design) return;
+    setLaunchError(null);
+    try {
+      const state = await triggerPipelineRun(design);
+      setRunState(state);
+      if (state.status === "running") {
+        stopPolling();
+        pollRef.current = window.setInterval(async () => {
+          try {
+            const polled = await fetchPipelineRunStatus(design);
+            setRunState(polled);
+            if (polled.status !== "running") {
+              stopPolling();
+              onRunFinished();
+            }
+          } catch {
+            // transient — next tick retries
+          }
+        }, 4000);
+      }
+    } catch (e) {
+      setLaunchError(String(e));
+    }
+  }
+
+  if (!design) return null;
+  const running = runState?.status === "running";
+
+  return (
+    <div className="pipeline__run-agent">
+      <button className="pipeline__run-button" disabled={running} onClick={handleRun}>
+        {running ? t("pipeline_run_running") : t("pipeline_run_button")} — {design}
+      </button>
+      {runState?.status === "done" && (
+        <span className="pill pill--good">{t("pipeline_run_done")}</span>
+      )}
+      {runState?.status === "error" && (
+        <span className="pill pill--critical" title={runState.error ?? undefined}>
+          {t("pipeline_run_failed")}
+        </span>
+      )}
+      {launchError && <p className="tab__error">{launchError}</p>}
+      {running && runState?.tail && runState.tail.length > 0 && (
+        <pre className="pipeline__run-log">{runState.tail.slice(-12).join("\n")}</pre>
+      )}
+    </div>
+  );
+}
+
 export default function PipelineTab() {
   const { t } = useLang();
   const [cases, setCases] = useState<PipelineCase[] | null>(null);
@@ -472,21 +552,23 @@ export default function PipelineTab() {
   const [loading, setLoading] = useState(true);
   const [designFilter, setDesignFilter] = useState<string>("all");
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchReferenceDb()
+  const loadCases = useCallback(() => {
+    return fetchReferenceDb()
       .then((db) => {
-        if (cancelled) return;
         const flat = Object.values(db.designs).flat();
         flat.sort((a, b) => b.date.localeCompare(a.date));
         setCases(flat);
       })
-      .catch((e) => !cancelled && setError(String(e)))
-      .finally(() => !cancelled && setLoading(false));
+      .catch((e) => setError(String(e)));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCases().finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [loadCases]);
 
   const designNames = useMemo(
     () => Array.from(new Set((cases ?? []).map((c) => c.design))).sort(),
@@ -522,6 +604,10 @@ export default function PipelineTab() {
               </select>
             </label>
           )}
+          <RunAgentPanel
+            design={designFilter === "all" ? designNames[0] ?? null : designFilter}
+            onRunFinished={loadCases}
+          />
         </div>
       </div>
 

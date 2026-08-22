@@ -5,11 +5,11 @@ export type Lang = "en" | "ko";
 const LANG_STORAGE_KEY = "ppa-eda-agent-dashboard:lang";
 
 const dict = {
-  eyebrow: { en: "Synopsys report reader", ko: "Synopsys 리포트 리더" },
-  title: { en: "PPA Readout", ko: "PPA Readout" },
+  eyebrow: { en: "DTCO AI Agent", ko: "DTCO AI 에이전트" },
+  title: { en: "DTCO Agent Console", ko: "DTCO 에이전트 콘솔" },
   subtitle: {
-    en: "Run a real OpenSTA simulation, paste a report_area / report_timing / report_power dump, or see how common fixes trade Power, Performance, and Area against each other.",
-    ko: "실제 OpenSTA 시뮬레이션을 돌리거나, report_area / report_timing / report_power 리포트를 붙여넣거나, 흔한 최적화 기법들이 Power/Performance/Area를 어떻게 주고받는지 확인하세요.",
+    en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or fall back to reading pasted reports and a live OpenSTA simulation.",
+    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 붙여넣은 리포트나 실시간 OpenSTA 시뮬레이션을 확인할 수도 있습니다.",
   },
   tab_simulate: { en: "Simulate", ko: "시뮬레이션" },
   tab_area: { en: "Area", ko: "Area" },
@@ -38,6 +38,10 @@ const dict = {
   },
   pipeline_filter_design: { en: "design", ko: "디자인" },
   pipeline_filter_all: { en: "all designs", ko: "전체" },
+  pipeline_run_button: { en: "run agent now", ko: "지금 에이전트 실행" },
+  pipeline_run_running: { en: "agent running…", ko: "에이전트 실행 중…" },
+  pipeline_run_done: { en: "run finished — case updated below", ko: "실행 완료 — 아래 케이스가 갱신되었습니다" },
+  pipeline_run_failed: { en: "run failed", ko: "실행 실패" },
 
   load_example: { en: "Load example", ko: "예시 불러오기" },
 

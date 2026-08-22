@@ -4,9 +4,9 @@
 // design in ../sim/ and returns the raw report text. Local-only tool:
 // binds 127.0.0.1, not meant to be exposed.
 import { createServer } from "node:http";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdtemp, readFile, writeFile, rm, cp } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile, rm, cp, access } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,6 +16,7 @@ const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const simDir = path.resolve(__dirname, "..", "sim");
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
+const pipelineDir = path.resolve(__dirname, "..", "pipeline");
 const PORT = 8123;
 
 // Auto-loads a real .env file at the repo root, if present — same
@@ -128,6 +129,64 @@ async function loadReferenceDb() {
   return { designs: Object.fromEntries(entries) };
 }
 
+// Lets the dashboard actually DRIVE the agent instead of only reading
+// what it already did — this is the difference between a report viewer
+// and a DTCO agent console: a real pipeline/orchestrator.py run
+// (candidate generation → OpenLane → auto-repair → reference-db case),
+// spawned on demand from the UI, not just past runs someone triggered
+// from a terminal. In-memory only (no queue/db) since this is a
+// single-operator local tool — a run's status is lost on server
+// restart, same as any other in-flight local process would be.
+const pipelineRuns = new Map(); // design -> {status, startedAt, finishedAt, tail, error}
+const MAX_TAIL_LINES = 200;
+
+async function designExists(design) {
+  try {
+    await access(path.join(pipelineDir, "designs", design, "run_spec.json"));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function startPipelineRun(design) {
+  const designDir = path.join(pipelineDir, "designs", design);
+  const runSpecPath = path.join(designDir, "run_spec.json");
+  const state = { status: "running", startedAt: new Date().toISOString(), finishedAt: null, tail: [], error: null };
+  pipelineRuns.set(design, state);
+
+  const proc = spawn(
+    "python3",
+    ["orchestrator.py", "--design", designDir, "--run-spec", runSpecPath],
+    { cwd: pipelineDir }
+  );
+
+  const pushLine = (line) => {
+    state.tail.push(line);
+    if (state.tail.length > MAX_TAIL_LINES) state.tail.shift();
+  };
+  const onChunk = (chunk) => {
+    for (const line of chunk.toString("utf-8").split("\n")) {
+      if (line.trim()) pushLine(line);
+    }
+  };
+  proc.stdout.on("data", onChunk);
+  proc.stderr.on("data", onChunk);
+
+  proc.on("error", (err) => {
+    state.status = "error";
+    state.error = `failed to start orchestrator.py: ${err.message ?? err}`;
+    state.finishedAt = new Date().toISOString();
+  });
+  proc.on("close", (code) => {
+    if (state.status === "running") {
+      state.status = code === 0 ? "done" : "error";
+      if (code !== 0) state.error = `orchestrator.py exited with code ${code}`;
+    }
+    state.finishedAt = new Date().toISOString();
+  });
+}
+
 // Server-side hermes-gateway proxy — pattern borrowed from
 // ~/gitspace/mi-report/backend/app/agentchat.py: the *server* holds the
 // gateway credential via its own environment variable
@@ -227,6 +286,48 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "POST" && req.url === "/pipeline/run") {
+    let runBody = "";
+    req.on("data", (chunk) => (runBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { design } = JSON.parse(runBody || "{}");
+        if (typeof design !== "string" || !design.trim() || design.includes("/") || design.includes("..")) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "design (bare directory name under pipeline/designs/) required" }));
+          return;
+        }
+        if (!(await designExists(design))) {
+          res.writeHead(404, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: `no pipeline/designs/${design}/run_spec.json` }));
+          return;
+        }
+        const existing = pipelineRuns.get(design);
+        if (existing && existing.status === "running") {
+          res.writeHead(409, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: `a run for ${design} is already in progress`, ...existing }));
+          return;
+        }
+        startPipelineRun(design);
+        res.writeHead(202, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ design, status: "running" }));
+      } catch (err) {
+        console.error("[pipeline run error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === "GET" && req.url?.startsWith("/pipeline/run-status")) {
+    const design = new URL(req.url, "http://localhost").searchParams.get("design") ?? "";
+    const state = pipelineRuns.get(design);
+    res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+    res.end(JSON.stringify(state ?? { status: "idle" }));
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/gateway-status") {
     res.writeHead(200, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify({ configured: Boolean(gatewayKey()) }));
@@ -261,7 +362,9 @@ const server = createServer(async (req, res) => {
   if (req.method !== "POST" || req.url !== "/simulate") {
     res.writeHead(404, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify({
-      error: "POST /simulate {period}, GET /reference-db, GET /gateway-status, or POST /diagnose {reportText}",
+      error: "POST /simulate {period}, GET /reference-db, GET /gateway-status, " +
+        "POST /diagnose {reportText}, POST /pipeline/run {design}, or " +
+        "GET /pipeline/run-status?design=...",
     }));
     return;
   }
