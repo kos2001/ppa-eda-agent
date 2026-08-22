@@ -285,6 +285,12 @@
   line-height: 1.6;
 }
 
+.pipeline__translate-waiting {
+  font-size: 0.75rem;
+  font-style: italic;
+  opacity: 0.8;
+}
+
 .pipeline__iteration { overflow-x: auto; }
 @media (max-width: 760px) {
   .pipeline__process { grid-template-columns: 1fr 1fr; }

@@ -376,6 +376,12 @@ function TranslateBlock({ text }: { text: string }) {
   const [translated, setTranslated] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const timerRef = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) window.clearInterval(timerRef.current);
+  }, []);
 
   if (lang !== "ko") return null;
   const canTranslate = Boolean(key) || serverConfigured;
@@ -384,10 +390,32 @@ function TranslateBlock({ text }: { text: string }) {
     setLoading(true);
     setTranslated("");
     setError(null);
+    setElapsedSec(0);
+    const startedAt = performance.now();
+    timerRef.current = window.setInterval(() => {
+      setElapsedSec(Math.round((performance.now() - startedAt) / 1000));
+    }, 1000);
+    function stopTimer() {
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
     const callbacks = {
+      // This gateway model doesn't stream token-by-token — it generates
+      // the full response server-side and flushes it as one burst (every
+      // chunk shares the same upstream timestamp), so onToken may not
+      // fire at all until the whole translation is ready. Real long
+      // diagnosis text took ~9,800 completion tokens and ~3-4 minutes
+      // end to end with zero partial output in between — the elapsed
+      // timer below exists so that wait doesn't read as broken.
       onToken: (delta: string) => setTranslated((prev) => (prev ?? "") + delta),
-      onDone: () => setLoading(false),
+      onDone: () => {
+        stopTimer();
+        setLoading(false);
+      },
       onError: (e: Error) => {
+        stopTimer();
         setLoading(false);
         setError(e.message);
       },
@@ -400,7 +428,12 @@ function TranslateBlock({ text }: { text: string }) {
     return (
       <div className="pipeline__translation">
         <span className="tab__meta-label">{t("pipeline_translate_label")}</span>
-        <p>{translated}{loading && "…"}</p>
+        {loading && translated === "" && (
+          <p className="pipeline__translate-waiting">
+            {t("pipeline_translate_loading")} ({elapsedSec}s) — {t("pipeline_translate_long_wait_hint")}
+          </p>
+        )}
+        <p>{translated}{loading && translated !== "" && "…"}</p>
         {error && <p className="tab__error">{error}</p>}
       </div>
     );
