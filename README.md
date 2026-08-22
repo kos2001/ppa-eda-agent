@@ -8,6 +8,10 @@ Not related to [ppa-agent](https://github.com/kos2001/ppa-agent) (Ansible
 Personal Package Archive tooling) despite the shared acronym — same three
 letters, completely different domain (chip design vs. Linux packaging).
 
+See [`soul.md`](soul.md) for the commitments behind this project — real
+runs over mocked ones, documented dead-ends over hidden ones — before
+diving into the components below.
+
 ## What's here
 
 ```
