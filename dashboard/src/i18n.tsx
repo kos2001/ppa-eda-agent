@@ -42,6 +42,10 @@ const dict = {
   pipeline_run_running: { en: "agent running…", ko: "에이전트 실행 중…" },
   pipeline_run_done: { en: "run finished — case updated below", ko: "실행 완료 — 아래 케이스가 갱신되었습니다" },
   pipeline_run_failed: { en: "run failed", ko: "실행 실패" },
+  pipeline_translate_button: { en: "translate (machine)", ko: "번역보기 (기계번역)" },
+  pipeline_translate_loading: { en: "translating…", ko: "번역 중…" },
+  pipeline_translate_label: { en: "machine translation — original above is authoritative", ko: "기계번역 — 원문(위)이 정확한 기준입니다" },
+  pipeline_translate_needs_key: { en: "needs a hermes-gateway key (see Diagnosis tab)", ko: "hermes-gateway 키가 필요합니다 (진단 탭 참고)" },
 
   load_example: { en: "Load example", ko: "예시 불러오기" },
 

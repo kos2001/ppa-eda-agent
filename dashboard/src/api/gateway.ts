@@ -141,3 +141,59 @@ export async function diagnoseViaServer(
     callbacks.onError(e instanceof Error ? e : new Error(String(e)));
   }
 }
+
+// On-demand machine translation for real reference-db content (pipeline
+// diagnosis text, human-in-the-loop review summaries) — the dashboard's
+// i18n only covers UI chrome, never this real subagent-written evidence,
+// since a precise number (a transition time, a capacitance) silently
+// mistranslated would misrepresent an actual finding. Same browser-direct
+// / server-proxied split and SSE wire format as diagnose*() above.
+export async function translateStream(
+  key: string,
+  text: string,
+  callbacks: DiagnoseCallbacks
+): Promise<void> {
+  try {
+    const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        stream: true,
+        messages: [
+          {
+            role: "user",
+            content:
+              "Translate the following semiconductor design (EDA/OpenLane/" +
+              "timing) diagnosis text into Korean. Preserve every number, " +
+              "unit, signal name, file path, and technical term exactly as " +
+              "written — do not round, re-derive, or omit any figure. " +
+              "Output only the translation, no commentary:\n\n" + text,
+          },
+        ],
+      }),
+    });
+    await pipeSse(res, callbacks);
+  } catch (e) {
+    callbacks.onError(e instanceof Error ? e : new Error(String(e)));
+  }
+}
+
+export async function translateViaServer(
+  text: string,
+  callbacks: DiagnoseCallbacks
+): Promise<void> {
+  try {
+    const res = await fetch(`${LOCAL_SERVER_URL}/translate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    await pipeSse(res, callbacks);
+  } catch (e) {
+    callbacks.onError(e instanceof Error ? e : new Error(String(e)));
+  }
+}

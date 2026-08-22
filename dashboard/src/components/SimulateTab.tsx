@@ -10,7 +10,8 @@ import "./SimulateTab.css";
 
 export default function SimulateTab() {
   const { t } = useLang();
-  const { key, diagnosing, runDiagnosis } = useAgent();
+  const { key, serverConfigured, diagnosing, runDiagnosis } = useAgent();
+  const isReady = Boolean(key) || serverConfigured;
   const [period, setPeriod] = useState(2.0);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
@@ -145,7 +146,7 @@ export default function SimulateTab() {
         </div>
       )}
 
-      {output && key && (
+      {output && isReady && (
         <div className="panel">
           <span className="panel__title">{t("sim_diagnosis_title")}</span>
           <div className="panel__body">
@@ -159,7 +160,7 @@ export default function SimulateTab() {
         </div>
       )}
 
-      {output && !key && (
+      {output && !isReady && (
         <div className="panel">
           <span className="panel__title">{t("sim_diagnosis_title")}</span>
           <div className="panel__body">

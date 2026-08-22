@@ -10,6 +10,8 @@ import {
   type PipelineRunState,
   type ProcessStageId,
 } from "../api/referenceDb";
+import { translateStream, translateViaServer } from "../api/gateway";
+import { useAgent } from "../agentContext";
 import { useLang } from "../i18n";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import LayoutView from "./LayoutView";
@@ -349,12 +351,70 @@ function HumanInTheLoopPanel({ pipelineCase }: { pipelineCase: PipelineCase }) {
             <li key={i}>
               <span className="pill pill--good">{r.agent}</span>
               <span className="pipeline__hitl-time">{r.reviewed_at}</span>
-              <span className="pipeline__hitl-summary">{r.summary}</span>
+              <span className="pipeline__hitl-summary">
+                {r.summary}
+                <TranslateBlock text={r.summary} />
+              </span>
             </li>
           ))}
         </ul>
       )}
     </div>
+  );
+}
+
+// On-demand machine translation for real reference-db text (diagnosis,
+// review summaries) — only offered when the UI is in Korean, since the
+// dashboard's i18n never touches this real subagent-written content
+// (precise numbers like transition times/capacitances must stay exactly
+// as originally written). Reuses the same hermes-gateway key/server
+// config the Diagnosis tab already manages via useAgent(), so there's
+// no separate key-entry flow for this feature.
+function TranslateBlock({ text }: { text: string }) {
+  const { lang, t } = useLang();
+  const { key, serverConfigured } = useAgent();
+  const [translated, setTranslated] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (lang !== "ko") return null;
+  const canTranslate = Boolean(key) || serverConfigured;
+
+  function handleTranslate() {
+    setLoading(true);
+    setTranslated("");
+    setError(null);
+    const callbacks = {
+      onToken: (delta: string) => setTranslated((prev) => (prev ?? "") + delta),
+      onDone: () => setLoading(false),
+      onError: (e: Error) => {
+        setLoading(false);
+        setError(e.message);
+      },
+    };
+    if (serverConfigured) translateViaServer(text, callbacks);
+    else if (key) translateStream(key, text, callbacks);
+  }
+
+  if (translated !== null) {
+    return (
+      <div className="pipeline__translation">
+        <span className="tab__meta-label">{t("pipeline_translate_label")}</span>
+        <p>{translated}{loading && "…"}</p>
+        {error && <p className="tab__error">{error}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      className="pipeline__translate-button"
+      onClick={handleTranslate}
+      disabled={!canTranslate || loading}
+      title={!canTranslate ? t("pipeline_translate_needs_key") : undefined}
+    >
+      {loading ? t("pipeline_translate_loading") : t("pipeline_translate_button")}
+    </button>
   );
 }
 
@@ -459,6 +519,7 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
           <div className="pipeline__diagnosis">
             <span className="tab__meta-label">diagnosis</span>
             <p>{pipelineCase.diagnosis}</p>
+            <TranslateBlock text={pipelineCase.diagnosis} />
           </div>
         )}
 

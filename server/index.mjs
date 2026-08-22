@@ -205,7 +205,7 @@ function gatewayKey() {
   return (process.env.PPA_EDA_GATEWAY_KEY || "").trim();
 }
 
-async function proxyDiagnose(reportText, res, headers) {
+async function proxyChat(prompt, res, headers) {
   const key = gatewayKey();
   if (!key) {
     res.writeHead(503, { ...headers, "Content-Type": "application/json" });
@@ -228,9 +228,7 @@ async function proxyDiagnose(reportText, res, headers) {
       body: JSON.stringify({
         model: GATEWAY_MODEL,
         stream: true,
-        messages: [
-          { role: "user", content: `Diagnose this OpenSTA simulation output:\n\n${reportText}` },
-        ],
+        messages: [{ role: "user", content: prompt }],
       }),
     });
   } catch (err) {
@@ -345,9 +343,52 @@ const server = createServer(async (req, res) => {
           res.end(JSON.stringify({ error: "reportText (non-empty string) required" }));
           return;
         }
-        await proxyDiagnose(reportText, res, headers);
+        await proxyChat(`Diagnose this OpenSTA simulation output:\n\n${reportText}`, res, headers);
       } catch (err) {
         console.error("[diagnose proxy error]", err);
+        if (!res.headersSent) {
+          res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: String(err.message ?? err) }));
+        } else {
+          res.end();
+        }
+      }
+    });
+    return;
+  }
+
+  // On-demand machine translation for real reference-db content
+  // (pipeline diagnosis text, human-in-the-loop review summaries) — the
+  // dashboard's i18n only covers UI chrome, never this data, since it's
+  // real subagent-written evidence with precise numbers
+  // (transition times, capacitances) that must stay exactly as written
+  // in its original language. Translation is opt-in, on-demand, and the
+  // dashboard labels it as machine-translated rather than silently
+  // replacing the original — see docs/superpowers/specs/
+  // 2026-08-21-autonomous-layout-agent-design.md.
+  if (req.method === "POST" && req.url === "/translate") {
+    let translateBody = "";
+    req.on("data", (chunk) => (translateBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { text } = JSON.parse(translateBody || "{}");
+        if (typeof text !== "string" || !text.trim()) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "text (non-empty string) required" }));
+          return;
+        }
+        await proxyChat(
+          "Translate the following semiconductor design (EDA/OpenLane/timing) " +
+            "diagnosis text into Korean. Preserve every number, unit, signal " +
+            "name, file path, and technical term (e.g. keep 'PDN-0185', " +
+            "'FP_CORE_UTIL', 'RSZ-0090' as-is) exactly as written — do not " +
+            "round, re-derive, or omit any figure. Output only the " +
+            "translation, no commentary:\n\n" + text,
+          res,
+          headers
+        );
+      } catch (err) {
+        console.error("[translate proxy error]", err);
         if (!res.headersSent) {
           res.writeHead(500, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: String(err.message ?? err) }));
@@ -363,8 +404,8 @@ const server = createServer(async (req, res) => {
     res.writeHead(404, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify({
       error: "POST /simulate {period}, GET /reference-db, GET /gateway-status, " +
-        "POST /diagnose {reportText}, POST /pipeline/run {design}, or " +
-        "GET /pipeline/run-status?design=...",
+        "POST /diagnose {reportText}, POST /translate {text}, " +
+        "POST /pipeline/run {design}, or GET /pipeline/run-status?design=...",
     }));
     return;
   }

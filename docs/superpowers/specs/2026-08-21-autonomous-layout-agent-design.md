@@ -523,6 +523,41 @@ run was still in flight — correctly received the `409`, adopted the
 in-flight state instead of erroring, and rendered the live tail log via
 polling (Playwright screenshot, not just a build check).
 
+## On-demand machine translation for reference-db content
+
+The dashboard's `i18n.tsx` only covers UI chrome (buttons, labels) — it
+never touches real reference-db content (`diagnosis`, `human_in_the_loop`
+review summaries), since that's real subagent-written evidence with
+precise numbers (transition times, capacitances) that a translation
+shouldn't be allowed to silently round or drop. Added `POST /translate
+{text}` (`server/index.mjs`, reusing the same `proxyChat()` hermes-gateway
+proxy `/diagnose` already used, refactored out of the old
+`proxyDiagnose()`) and a `TranslateBlock` component
+(`PipelineTab.tsx`) that only appears when the UI language is Korean,
+shows the original text always, and renders the translation in a
+separate, clearly-labeled block below it ("기계번역 — 원문(위)이 정확한
+기준입니다") rather than replacing the original.
+
+Validated for real, with a mixed result — documented honestly rather than
+claimed as fully working:
+
+- **Short/medium text: works correctly.** A one-sentence technical
+  diagnosis fragment translated via `curl` in well under a second, with
+  every number and identifier preserved exactly (`0.01pF`, `0.043ns`,
+  `0.04ns`, `RSZ-0090`, `addr0`, `max_transition` all came through
+  unchanged in the Korean output). Confirmed the same path end-to-end in
+  the browser via Playwright.
+- **Very long text: stalls.** `sram_wrapper`'s real diagnosis (8,744
+  characters) sent to the same endpoint produced only SSE keepalive
+  comments for over two minutes with zero content tokens, then was
+  manually aborted rather than left hanging indefinitely. Root cause not
+  isolated (hermes-gateway/model struggling with a long prompt, vs. a
+  proxy-level buffering issue) — left as a known limitation rather than
+  guessed at. Practical effect: the "번역보기" button on a long diagnosis
+  block may spin indefinitely with no error and no result. Not chunked
+  or otherwise mitigated in this pass — a deliberate scope decision, not
+  an oversight (see "Known limitations" below).
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
@@ -534,3 +569,9 @@ polling (Playwright screenshot, not just a build check).
   same constraint the existing OpenSTA sim server already has) — slower
   than native, acceptable for a validation vertical slice, worth
   revisiting if iteration turnaround becomes the bottleneck.
+- On-demand diagnosis translation (`POST /translate`) is validated for
+  short/medium text only — a very long diagnosis (thousands of
+  characters, e.g. `sram_wrapper`'s) stalls with no content tokens for
+  minutes. Not chunked/mitigated; the "번역보기" button on a long
+  diagnosis may spin with no result. Root cause (model vs. proxy) not
+  isolated.
