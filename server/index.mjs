@@ -6,7 +6,7 @@
 import { createServer } from "node:http";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdtemp, readFile, writeFile, rm, cp, access } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile, rm, cp, access, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -104,6 +104,28 @@ async function runSimulation(period) {
 // cases, each with its real iterations/candidates/verdicts/diagnosis.
 // Read-only: this endpoint never runs anything, just serves what the
 // pipeline already wrote to disk.
+// Per-file cache keyed by mtimeMs — reference-db/cases/*.json only grows
+// (self_improve.py, the dashboard's own trigger, and manual orchestrator
+// runs all append to it over time; the sram_wrapper case alone is
+// already 13KB just for one diagnosis) and GET /reference-db gets
+// re-polled on every dashboard load plus after every triggered pipeline
+// run finishes. Re-reading and re-JSON.parsing every case file on every
+// request is pure repeated work when most files haven't changed since
+// the last request — this cache does the disk stat (cheap) every time
+// but only re-reads+re-parses a file when its mtime actually moved.
+const caseFileCache = new Map(); // fileName -> {mtimeMs, data}
+
+async function readCaseFileCached(fileName) {
+  const filePath = path.join(refDbDir, "cases", fileName);
+  const { mtimeMs } = await stat(filePath);
+  const cached = caseFileCache.get(fileName);
+  if (cached && cached.mtimeMs === mtimeMs) return cached.data;
+  const raw = await readFile(filePath, "utf-8");
+  const data = JSON.parse(raw);
+  caseFileCache.set(fileName, { mtimeMs, data });
+  return data;
+}
+
 async function loadReferenceDb() {
   let index;
   try {
@@ -116,8 +138,7 @@ async function loadReferenceDb() {
     Object.entries(index).map(async ([designName, caseFiles]) => {
       const cases = await Promise.all(caseFiles.map(async (fileName) => {
         try {
-          const raw = await readFile(path.join(refDbDir, "cases", fileName), "utf-8");
-          return JSON.parse(raw);
+          return await readCaseFileCached(fileName);
         } catch (err) {
           console.error(`[reference-db] failed to read ${fileName}`, err);
           return null;
