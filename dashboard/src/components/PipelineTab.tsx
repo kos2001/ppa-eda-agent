@@ -10,6 +10,7 @@ import {
 import { useLang } from "../i18n";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import LayoutView from "./LayoutView";
+import SlackChart from "./SlackChart";
 import "./Tabs.css";
 import "./PipelineTab.css";
 
@@ -154,6 +155,7 @@ function TimingCorners({ corners }: { corners: CandidateVerdict["timing_corners"
   return (
     <div className="pipeline__timing">
       <span className="tab__meta-label">timing — real WNS per PVT corner</span>
+      <SlackChart corners={corners} />
       <table className="tab__summary pipeline__timing-table">
         <thead>
           <tr>
