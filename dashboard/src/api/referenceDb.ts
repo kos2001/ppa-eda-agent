@@ -110,6 +110,12 @@ export interface IterationResult {
   results: CandidateResult[];
 }
 
+export interface HumanInTheLoopEntry {
+  agent: string;
+  reviewed_at: string;
+  summary: string;
+}
+
 export interface PipelineCase {
   design: string;
   date: string;
@@ -119,6 +125,7 @@ export interface PipelineCase {
   winner_tag: string | null;
   outcome: string;
   diagnosis?: string;
+  human_in_the_loop?: HumanInTheLoopEntry[];
 }
 
 export interface ReferenceDb {
