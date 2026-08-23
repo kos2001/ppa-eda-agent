@@ -46,6 +46,11 @@ const dict = {
   pipeline_translate_loading: { en: "translating…", ko: "번역 중…" },
   pipeline_translate_label: { en: "machine translation — original above is authoritative", ko: "기계번역 — 원문(위)이 정확한 기준입니다" },
   pipeline_translate_needs_key: { en: "needs a hermes-gateway key (see Diagnosis tab)", ko: "hermes-gateway 키가 필요합니다 (진단 탭 참고)" },
+  pipeline_agent_legend_title: { en: "which agent does what — 8 subagents", ko: "어떤 에이전트가 무엇을 하는지 — 8개 서브에이전트" },
+  pipeline_agent_legend_diagnosis_note: {
+    en: "Separate from the 8-stage pipeline — the report-paste / live-simulation diagnosis agent behind the sidebar's own tab.",
+    ko: "8단계 파이프라인과는 별개 — 사이드바의 진단 탭에서 리포트 붙여넣기/실시간 시뮬레이션 진단을 담당하는 에이전트입니다.",
+  },
   pipeline_translate_long_wait_hint: {
     en: "long diagnosis text can take a few minutes — this gateway model delivers the full translation at once, not token-by-token, so nothing appears until it's done",
     ko: "긴 진단문은 몇 분 걸릴 수 있습니다 — 이 게이트웨이 모델은 토큰 단위가 아니라 전체 번역을 한번에 전달하므로, 끝날 때까지는 아무것도 표시되지 않습니다",
