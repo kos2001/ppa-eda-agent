@@ -203,6 +203,32 @@ class TestProposeRepairs(unittest.TestCase):
                      "error": "some novel tool crash"}]
         self.assertEqual(orchestrator.propose_repairs(results, 1), [])
 
+    def test_target_violation_on_a_completed_run_is_repaired(self):
+        """Real structural gap this closes: every other pattern reads
+        error text, but a candidate that completes the whole flow and
+        merely misses a target has no error at all — so that entire class
+        escalated to a human despite being the most mechanically
+        repairable kind. Verified end to end with a real OpenLane run:
+        util 0.604 vs a 0.50 target repaired to FP_CORE_UTIL 20, which
+        then passed at 0.379."""
+        verdict = {"passed": False, "area_um2": 290.278, "utilization": 0.604167,
+                    "worst_setup_wns": 0.0, "power": {"total_w": 1e-4},
+                    "violations": ["utilization 0.604 > target 0.5"]}
+        results = [{"tag": "u35", "overrides": {"FP_CORE_UTIL": 35}, "verdict": verdict}]
+        got = orchestrator.propose_repairs(results, 1)
+        self.assertEqual(len(got), 1)
+        self.assertLess(got[0]["overrides"]["FP_CORE_UTIL"], 35)
+
+    def test_a_non_utilization_violation_is_not_guessed_at(self):
+        """A timing violation has no proven mechanical repair here, so it
+        must still escalate. Repairing only what is actually known is the
+        whole point of this function staying narrow."""
+        verdict = {"passed": False, "area_um2": 1.0, "utilization": 0.4,
+                    "worst_setup_wns": -0.5, "power": None,
+                    "violations": ["worst setup WNS -0.5 (timing violation)"]}
+        results = [{"tag": "t", "overrides": {"FP_CORE_UTIL": 35}, "verdict": verdict}]
+        self.assertEqual(orchestrator.propose_repairs(results, 1), [])
+
     def test_passing_candidates_are_not_repaired(self):
         results = [{"tag": "ok", "overrides": {}, "verdict": {"passed": True}}]
         self.assertEqual(orchestrator.propose_repairs(results, 1), [])
