@@ -1248,6 +1248,44 @@ are nearly the same teal, which defeats the point of colouring by role.
 Moving PROPOSE to the theme's existing `--warn` amber raised the minimum
 pairwise distance across all four phases to **104**.
 
+## Emphasis and liveness: what the console was quietly getting wrong
+
+Three related complaints, all correct, all about attention rather than
+missing features.
+
+**Human-in-the-loop was buried.** It rendered *last* in a case card —
+after the metrics, the 8 stages, the agent legend, the layout render, the
+chart, and every iteration table, and immediately after an 8,700-character
+diagnosis. It is the only part of a case that asks the operator to *do*
+something, and it sat past the point anyone scrolls. Moved to directly
+under the status metrics (verified: it is now the 2nd child of the card
+body, was last), and an OPEN case now carries a real bordered treatment
+plus a "NEEDS YOU" badge rather than reading like another subsection.
+
+**The diagnosis dominated by sheer volume.** It is real, kept, and worth
+reading — but open by default it outweighed everything actionable. Now a
+`<details>` with a one-line teaser and the character count, so the choice
+to read it is deliberate.
+
+**Nothing was live.** The page was a snapshot of whenever the tab was
+opened. `reference-db` is written by things this browser doesn't
+control — an `orchestrator.py` run from a terminal, `self_improve.py` on
+a schedule, an MCP tool call — so the console silently showed stale state
+until a manual reload. Added a 15s auto-refresh plus a status strip
+carrying the two facts that make liveness legible: how many cases are
+waiting on a human, and when the view last actually re-read the store.
+Without the timestamp an auto-refreshing page is indistinguishable from a
+frozen one. The poll is cheap because `GET /reference-db` is already
+mtime-cached server-side — a poll that finds nothing new costs a `stat`
+per case file, not a re-read and re-parse.
+
+Verified live in the browser rather than from the diff: the strip reports
+"1 case waiting on a human decision" (matching the one OPEN case,
+`sram_wrapper`), the refresh timestamp advanced on its own from 7:32:03
+to 7:32:33 across a single 18s wait, the pulse animation is running (and
+is disabled under `prefers-reduced-motion`), the HITL block renders with
+its badge, and the diagnosis renders collapsed.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
