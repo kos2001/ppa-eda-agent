@@ -28,8 +28,19 @@ IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 
 
 def run_stage(design_dir: Path, tag: str, to_step: str | None,
-              overrides: list[str], overwrite: bool = True) -> Path:
-    """Runs a real OpenLane flow against design_dir, returns the run dir."""
+              overrides: list[str], overwrite: bool = True,
+              scl: str | None = None) -> Path:
+    """Runs a real OpenLane flow against design_dir, returns the run dir.
+
+    `scl` selects the standard cell library. It is a CLI flag rather than
+    a config override on purpose: OpenLane 2 chooses the SCL from
+    `--scl`, and passing `--override-config STD_CELL_LIBRARY=<x>` instead
+    is silently ineffective — verified directly, the override does land
+    in the run's resolved.json but the resulting netlist still contains
+    only the default library's cells. That failure mode is invisible in
+    the metrics (a comparison against it looks like a real 0% delta), so
+    it is worth the extra parameter rather than a config entry.
+    """
     design_dir = design_dir.resolve()
     if not (design_dir / "config.json").exists():
         raise FileNotFoundError(f"no config.json in {design_dir}")
@@ -42,6 +53,8 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
         "openlane", "--pdk-root", "/pdk",
         "--run-tag", tag,
     ]
+    if scl:
+        cmd += ["--scl", scl]
     if overwrite:
         cmd.append("--overwrite")
     if to_step:

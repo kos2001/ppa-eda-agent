@@ -970,6 +970,58 @@ Expand/collapse, both locales, and the flow's layout geometry (four
 steps in one row, arrows between and none trailing) were each verified
 live rather than inferred from the diff.
 
+## The technology half of DTCO (from analog-layout-optimizer)
+
+`pareto.py`'s ranking was taken from
+github.com/kos2001/analog-layout-optimizer earlier. Revisiting that repo,
+the other genuinely transferable thing is `layout_opt/process_change.py`
+— not its analog machinery (differential-pair device geometry, none of
+which applies to standard-cell digital), but its *framing*: when the
+process changes, the schematic is fixed while the physical
+implementation must be rebuilt, and what you want out of it is a
+before/after pair plus an explicit record of what stayed invariant.
+
+That named a real gap here. The dashboard calls itself a DTCO
+(design-technology co-optimization) console, but every case in
+reference-db varies only *design* knobs — `FP_CORE_UTIL`, `DIE_AREA`,
+`SYNTH_STRATEGY` — against one fixed technology. The technology half of
+"co-optimization" was branding, not something the pipeline had ever
+done, even though this repo's own PDK has two real standard-cell
+technologies installed (`sky130_fd_sc_hd`, `sky130_fd_sc_hs`).
+
+`pipeline/tech_compare.py` closes it: same design, N technologies, one
+real full OpenLane run each, judged by the same `score()` as every other
+case, reported as a PPA delta alongside the `design_invariants` that
+were held constant (without which the deltas are uninterpretable).
+
+**A real silent bug found and fixed while building it, worth recording
+because the first result looked like a finding.** Selecting the library
+via `--override-config STD_CELL_LIBRARY=<x>` is accepted by OpenLane and
+lands correctly in the run's `resolved.json` — and changes nothing. The
+first comparison reported a perfect 0.00% delta on area, utilization and
+power between hd and hs, which reads as "these technologies are
+equivalent" rather than "the override did nothing". Checking the actual
+gate-level netlist rather than trusting the requested config exposed it:
+both runs instantiated only `sky130_fd_sc_hd` cells. OpenLane 2 selects
+the SCL from the `--scl` CLI flag, now plumbed through `run_stage()`.
+
+Two defences were added, not one, because the config-looked-right
+failure mode is invisible in metrics:
+
+- `cells_used()` reads which libraries the real netlist actually
+  instantiates, and a run whose netlist doesn't contain the technology it
+  requested is marked `technology_not_applied`.
+- `delta_vs_baseline()` refuses to compute a delta against such a run.
+  A silently meaningless comparison is worse than a failed one.
+
+With `--scl` actually in effect the result is a genuine DTCO finding
+rather than a fake tie: `sky130_fd_sc_hd` passes at 290.278 µm² (netlist
+confirmed hd), while `sky130_fd_sc_hs` **fails signoff with 21 Magic DRC
+errors** — verified to have really synthesized `sky130_fd_sc_hs` cells
+before failing, so this is the technology failing for this design, not
+the flag being ignored again. "This technology does not work here yet" is
+a real result and is reported as one rather than dropped.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
