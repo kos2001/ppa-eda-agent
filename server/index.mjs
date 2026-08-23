@@ -236,8 +236,44 @@ function gatewayKey() {
   return (process.env.PPA_EDA_GATEWAY_KEY || "").trim();
 }
 
-async function proxyChat(prompt, res, headers) {
-  const key = gatewayKey();
+// A second, optional route for work that needs a language model but not
+// a chip-PPA analyst. Measured why this exists: every hermes-gateway
+// model is somebody's persona, and ppa-eda-analyst spends ~19,100 prompt
+// tokens before it reads a single character of input — a two-letter
+// prompt still bills 19,129, and a 17-character translation still took
+// 9.2s. Worse, the persona reasons rather than just answering:
+// translating the real 8,744-char sram_wrapper diagnosis produced 9,843
+// completion tokens for roughly 3,500 tokens of actual Korean, so about
+// two thirds of a ~200s wait was the analyst thinking about EDA.
+//
+// Translation needs none of that. Pointing it at a plain model removes
+// the persona prompt and the reasoning it triggers. Borrowed from
+// ~/gitspace/lsi_error_analyzer, which drives OpenRouter directly (via
+// Agno) rather than through a persona gateway — the direct-LLM *route*
+// is the transferable part; Agno itself is a Python framework and this
+// is a Node server that already speaks the identical OpenAI-compatible
+// wire format, so adopting it would add a dependency to gain nothing.
+//
+// Entirely opt-in. With no key set, everything keeps using the gateway
+// exactly as before, so a fresh checkout behaves identically.
+const DIRECT_LLM_BASE_URL =
+  process.env.PPA_EDA_DIRECT_LLM_BASE_URL || "https://openrouter.ai/api/v1";
+const DIRECT_LLM_MODEL = process.env.PPA_EDA_DIRECT_LLM_MODEL || "";
+
+function directLlmKey() {
+  return (process.env.PPA_EDA_DIRECT_LLM_KEY || "").trim();
+}
+
+function directLlmAvailable() {
+  return Boolean(directLlmKey() && DIRECT_LLM_MODEL);
+}
+
+// `preferDirect` asks for the plain-model route when one is configured.
+// It is a request, not a guarantee: unconfigured falls back to the
+// gateway rather than failing, because a slower answer beats no answer.
+async function proxyChat(prompt, res, headers, { preferDirect = false } = {}) {
+  const useDirect = preferDirect && directLlmAvailable();
+  const key = useDirect ? directLlmKey() : gatewayKey();
   if (!key) {
     res.writeHead(503, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify({
@@ -248,30 +284,37 @@ async function proxyChat(prompt, res, headers) {
     return;
   }
 
+  const baseUrl = useDirect ? DIRECT_LLM_BASE_URL : GATEWAY_BASE_URL;
+  const model = useDirect ? DIRECT_LLM_MODEL : GATEWAY_MODEL;
+
   let upstream;
   try {
-    upstream = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
+    upstream = await fetch(`${baseUrl}/v1/chat/completions`.replace("/v1/v1/", "/v1/"), {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: GATEWAY_MODEL,
+        model,
         stream: true,
         messages: [{ role: "user", content: prompt }],
       }),
     });
   } catch (err) {
+    const which = useDirect ? "direct LLM" : "hermes-gateway";
     res.writeHead(502, { ...headers, "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: `hermes-gateway connection failed: ${err.message ?? err}` }));
+    res.end(JSON.stringify({ error: `${which} connection failed: ${err.message ?? err}` }));
     return;
   }
 
   if (!upstream.ok || !upstream.body) {
     const text = await upstream.text().catch(() => "");
     res.writeHead(upstream.status, { ...headers, "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: `hermes-gateway error ${upstream.status}: ${text.slice(0, 300)}` }));
+    res.end(JSON.stringify({
+      error: `${useDirect ? "direct LLM" : "hermes-gateway"} error `
+        + `${upstream.status}: ${text.slice(0, 300)}`,
+    }));
     return;
   }
 
@@ -494,7 +537,12 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && req.url === "/gateway-status") {
     res.writeHead(200, { ...headers, "Content-Type": "application/json" });
-    res.end(JSON.stringify({ configured: Boolean(gatewayKey()) }));
+    res.end(JSON.stringify({
+      configured: Boolean(gatewayKey()),
+      // Whether a plain-model route is configured for tasks that don't
+      // need the analyst persona (see proxyChat's DIRECT_LLM_* notes).
+      directLlm: directLlmAvailable() ? DIRECT_LLM_MODEL : null,
+    }));
     return;
   }
 
@@ -551,7 +599,10 @@ const server = createServer(async (req, res) => {
             "round, re-derive, or omit any figure. Output only the " +
             "translation, no commentary:\n\n" + text,
           res,
-          headers
+          headers,
+          // Translation is the clearest case for the plain-model route:
+          // it needs a language model, not a chip-PPA analyst.
+          { preferDirect: true }
         );
       } catch (err) {
         console.error("[translate proxy error]", err);

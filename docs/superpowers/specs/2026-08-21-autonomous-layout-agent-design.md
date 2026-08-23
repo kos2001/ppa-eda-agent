@@ -1136,6 +1136,70 @@ was worth trying; `/review/apply` took `human_in_the_loop` from 1 entry
 to 2 with the right agent name. The apply test's entry was then reverted,
 since it was a mechanism test rather than a real review.
 
+## Why translation was slow, and the plain-model route
+
+Asked why "just a translation" took minutes. Measured rather than
+guessed, against the real gateway:
+
+| input | prompt tokens | completion tokens | elapsed |
+|---|---|---|---|
+| `"hi"` (2 chars) | 19,129 | 57 | — |
+| 17 chars | 19,221 | 159 | **9.2s** |
+| 2,000 chars | 19,715 | 1,488 | ~20s |
+| 8,744 chars (real `sram_wrapper` diagnosis) | 21,234 | 9,843 | ~200s |
+
+Three findings, in order of how much they cost:
+
+1. **It was never "just a translation" to the endpoint.** Every model on
+   this hermes-gateway is somebody's persona — all 17 of them — and
+   `ppa-eda-analyst` spends **~19,100 prompt tokens before it reads any
+   input**. Prompt size barely moves across a 500× change in input,
+   which is what identifies it as fixed persona overhead rather than
+   anything to do with the text.
+2. **So it reasons instead of translating.** The 8,744-character
+   diagnosis produced 9,843 completion tokens for roughly 3,500 tokens
+   of actual Korean — about **two thirds of the wait was the analyst
+   thinking about chip design**. Latency tracks completion tokens, not
+   prompt: ~6s fixed plus roughly 1/51s per generated token.
+3. **It doesn't stream token-by-token** (every chunk shares one upstream
+   timestamp), so nothing appears until it is entirely finished.
+
+The fix is to stop asking an analyst to translate. `proxyChat()` now
+takes `{ preferDirect: true }`, and `/translate` sets it: with
+`PPA_EDA_DIRECT_LLM_KEY` + `PPA_EDA_DIRECT_LLM_MODEL` configured it
+calls a plain OpenAI-compatible model directly (OpenRouter by default)
+instead of the persona gateway. Entirely opt-in — unconfigured, it falls
+back to the gateway and behaves exactly as before, verified.
+
+Borrowed from `~/gitspace/lsi_error_analyzer`, which drives OpenRouter
+directly (through Agno, confirmed installed and configured there at
+2.6.9). The transferable part is the *direct-LLM route*, not Agno: that
+is a Python framework, this is a Node server already speaking the
+identical wire format, so adopting it would add a dependency to gain
+nothing — `soul.md`'s "borrow the working part, not the whole machine".
+
+Verified both branches without ever handling a real third-party key:
+unconfigured, `/gateway-status` reports `directLlm: null` and a
+translation still completes through the gateway (13 SSE events, 24.9s);
+configured with a deliberately fake key, the same request genuinely
+reaches openrouter.ai and returns `direct LLM error 401` — proving the
+switch routes, not just that it parses. A real key is the operator's to
+supply.
+
+**A caching attempt that did not work, and was reverted.** A diagnosis
+is immutable once written, so caching its translation in `reference-db`
+should make every later viewing instant. One real bug was found and
+fixed along the way — the server-side SSE parser assembled 0 characters
+because it parsed each transport chunk independently, and SSE events
+routinely straddle chunk boundaries (the browser's own `pipeSse()`
+buffers the partial trailing line; the server copy did not). Even after
+that fix no cache file appeared, and rather than keep spending on it the
+whole cache was reverted: code that silently never works is worse than
+code that was never added. Worth recording that the apparent speed-up
+seen while testing (0.5s on a repeat call) was **the gateway's own
+prompt caching**, not this cache — there was no cache header and no file
+on disk.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
