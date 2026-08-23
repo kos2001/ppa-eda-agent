@@ -918,6 +918,58 @@ required after the prefix) and pinned by a test, since a checker that
 cries wolf on normal prose gets switched off. Verified against every
 committed case: all cited references are grounded.
 
+## Making the dashboard explain the service
+
+Opened cold as a newcomer would, the dashboard had three measured
+problems — all confirmed in a real browser before changing anything,
+not assumed:
+
+1. **It never said what the service does.** The first prose on screen
+   explained where the data came from ("each case below is a real
+   `orchestrator.py` run") — the data *source*, never the service. A
+   reader could not tell what goes in (RTL + PPA targets), what comes
+   out (a signed-off layout), or what the agent does in between.
+   Everything on the page was evidence for a process the page never
+   stated.
+2. **22.3 screens of scrolling** (16,062px). Every case rendered fully
+   expanded, so there was no way to see *what cases exist* without
+   scrolling through all of their contents.
+3. **The layout image was 902px tall** — larger than the viewport. A
+   regression introduced by the previous change: it buried everything
+   below it and made the page read as one giant picture.
+
+Fixed:
+
+- **`HowItWorks.tsx`** — an orientation panel above everything else:
+  one paragraph on what the agent does, the loop as a real four-step
+  flow (input → propose → run real OpenLane → judge on metrics.json),
+  and its three outcomes written as what they actually are —
+  `PASS` (Pareto-ranked winner), `FAIL ↺` (recognised failure, self-
+  repaired within a bounded budget), `FAIL ⚑` (unrecognised failure,
+  escalated rather than guessed). Those three are exactly
+  `orchestrate()`'s three STOP_REASONS, so the diagram is a view of
+  real control flow, not an idealised funnel.
+
+  Its summary counts are computed from the same cases rendered below,
+  so the explanation and the evidence cannot drift apart. Verified
+  against an independent computation over `reference-db/`: 3 designs,
+  5 cases, 28 real candidate runs, 4 closed, 3 self-repaired — all five
+  match exactly.
+- **Cases collapse by default**, newest open. A collapsed row still
+  shows design, date, CLOSED/OPEN and pass/fail counts, so the list is
+  scannable at a glance — which was impossible before.
+- **Layout image capped at 300px**, click to expand/shrink.
+- **Sidebar label** changed from "report tabs" to "analyze your own
+  reports": those tabs are a separate capability from the pipeline
+  (paste an existing EDA report, run a one-off OpenSTA sim), and the
+  bare label left newcomers reading them as more pipeline output.
+
+Result, measured in the same browser: **22.3 screens → 6.2** (a 72%
+reduction) with strictly more explanation on the page than before.
+Expand/collapse, both locales, and the flow's layout geometry (four
+steps in one row, arrows between and none trailing) were each verified
+live rather than inferred from the diff.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

@@ -14,6 +14,7 @@ import {
 import { translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import { useLang } from "../i18n";
+import HowItWorks from "./HowItWorks";
 import LayoutView from "./LayoutView";
 import SlackChart from "./SlackChart";
 import "./Tabs.css";
@@ -159,17 +160,22 @@ function AgentRolesLegend() {
 function CaseLayoutImage({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const { t } = useLang();
   const [failed, setFailed] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   if (!pipelineCase.layout_image || failed) return null;
   return (
-    <div className="pipeline__layout-image">
+    <div className={`pipeline__layout-image ${expanded ? "pipeline__layout-image--expanded" : ""}`}>
       <span className="tab__meta-label">
         {t("pipeline_layout_image_label")}
         {pipelineCase.layout_image_tag ? ` · ${pipelineCase.layout_image_tag}` : ""}
+        <span className="pipeline__layout-hint">
+          {expanded ? t("pipeline_layout_collapse") : t("pipeline_layout_expand")}
+        </span>
       </span>
       <img
         src={layoutImageUrl(pipelineCase.layout_image)}
         alt={`Rendered GDS layout for ${pipelineCase.design} ${pipelineCase.layout_image_tag ?? ""}`}
         loading="lazy"
+        onClick={() => setExpanded((v) => !v)}
         onError={() => setFailed(true)}
       />
     </div>
@@ -592,7 +598,20 @@ function TranslateBlock({ text }: { text: string }) {
   );
 }
 
-function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
+function CaseCard({
+  pipelineCase,
+  defaultOpen,
+}: {
+  pipelineCase: PipelineCase;
+  defaultOpen: boolean;
+}) {
+  const { t } = useLang();
+  // Collapsed by default for all but the newest case. Measured problem
+  // this fixes: with every case fully expanded the page was 22 screens
+  // tall, so there was no way to see what cases exist without scrolling
+  // through all of their contents. The newest stays open so the page is
+  // never just a list of closed boxes.
+  const [open, setOpen] = useState(defaultOpen);
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
   const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
@@ -610,9 +629,30 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
     });
   }
 
+  if (!open) {
+    return (
+      <div className="panel pipeline__case--collapsed">
+        <button className="pipeline__case-toggle" onClick={() => setOpen(true)}>
+          <span className="pipeline__case-toggle-name">
+            ▸ {pipelineCase.design} — {pipelineCase.date}
+          </span>
+          <span className={`pill ${pipelineCase.winner_tag ? "pill--good" : "pill--critical"}`}>
+            {pipelineCase.winner_tag ? "CLOSED" : "OPEN"}
+          </span>
+          <span className="pipeline__case-toggle-meta">
+            {candidates.length} {t("pipeline_case_candidates")} · {passed} PASS · {failed} FAIL
+          </span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="panel">
       <span className="panel__title">
+        <button className="pipeline__case-collapse" onClick={() => setOpen(false)}>
+          ▾
+        </button>
         {pipelineCase.design} — {pipelineCase.date}
       </span>
       <div className="panel__body">
@@ -821,6 +861,8 @@ export default function PipelineTab() {
 
   return (
     <div className="tab">
+      <HowItWorks cases={cases ?? []} />
+
       <div className="panel">
         <span className="panel__title">{t("pipeline_panel_title")}</span>
         <div className="panel__body">
@@ -858,8 +900,12 @@ export default function PipelineTab() {
         <p>{t("pipeline_empty")}</p>
       )}
 
-      {visibleCases?.map((c) => (
-        <CaseCard key={`${c.design}__${c.date}`} pipelineCase={c} />
+      {visibleCases?.map((c, i) => (
+        <CaseCard
+          key={`${c.design}__${c.date}`}
+          pipelineCase={c}
+          defaultOpen={i === 0}
+        />
       ))}
     </div>
   );

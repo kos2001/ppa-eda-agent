@@ -17,7 +17,11 @@ const dict = {
   tab_power: { en: "Power", ko: "Power" },
   tab_tradeoffs: { en: "Trade-offs", ko: "트레이드오프" },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
-  nav_reports_label: { en: "report tabs", ko: "리포트" },
+  // Names what these tabs *are for* rather than what they contain. They
+  // are a separate capability from the pipeline above (paste an existing
+  // EDA report, or run a one-off OpenSTA sim), and a bare "reports"
+  // label left newcomers reading them as more pipeline output.
+  nav_reports_label: { en: "analyze your own reports", ko: "직접 가져온 리포트 분석" },
 
   pipeline_panel_title: {
     en: "autonomous layout pipeline — real OpenLane2 runs from reference-db/",
@@ -46,6 +50,52 @@ const dict = {
   pipeline_translate_loading: { en: "translating…", ko: "번역 중…" },
   pipeline_translate_label: { en: "machine translation — original above is authoritative", ko: "기계번역 — 원문(위)이 정확한 기준입니다" },
   pipeline_translate_needs_key: { en: "needs a hermes-gateway key (see Diagnosis tab)", ko: "hermes-gateway 키가 필요합니다 (진단 탭 참고)" },
+  hiw_title: { en: "how this works — read this first", ko: "이 서비스는 이렇게 동작합니다 — 먼저 읽어보세요" },
+  hiw_lede: {
+    en: "A DTCO agent that closes chip layout by itself. You give it RTL and PPA targets; it proposes physical-design configurations, runs each one through the real OpenLane2 flow on the sky130 PDK, and judges the result against the targets. When a run fails in a way it recognises, it fixes the configuration and tries again — unaided. When it doesn't recognise the failure, it stops and asks a human instead of guessing.",
+    ko: "칩 레이아웃을 스스로 완성하는 DTCO 에이전트입니다. RTL과 PPA 목표를 주면, 물리 설계 설정을 제안하고, 각각을 sky130 PDK 위에서 실제 OpenLane2 플로우로 돌린 뒤, 결과를 목표와 대조해 판정합니다. 아는 유형으로 실패하면 설정을 스스로 고쳐 다시 시도하고, 모르는 실패면 추측하지 않고 멈춰서 사람에게 묻습니다.",
+  },
+  hiw_step_input: {
+    en: "RTL + PPA targets (utilization, timing, DRC/LVS clean)",
+    ko: "RTL + PPA 목표 (밀도, 타이밍, DRC/LVS 무결)",
+  },
+  hiw_step_propose: {
+    en: "Agent proposes candidate configurations (utilization, die size, synthesis strategy)",
+    ko: "에이전트가 후보 설정을 제안 (밀도, 다이 크기, 합성 전략)",
+  },
+  hiw_step_run: {
+    en: "Each candidate runs the real OpenLane2 flow — synthesis, floorplan, place, CTS, route, signoff",
+    ko: "각 후보를 실제 OpenLane2 플로우로 실행 — 합성, 플로어플랜, 배치, CTS, 배선, 사인오프",
+  },
+  hiw_step_score: {
+    en: "Judged on OpenLane's own metrics.json — never an estimate",
+    ko: "OpenLane이 직접 낸 metrics.json으로 판정 — 추정값이 아님",
+  },
+  hiw_outcome_pass: {
+    en: "A candidate met every target. Among several, the winner is chosen by multi-objective Pareto ranking (area / power / timing margin together), not by one metric.",
+    ko: "목표를 모두 만족한 후보. 여러 개면 단일 지표가 아니라 다목적 파레토 랭킹(면적·전력·타이밍 마진을 함께)으로 승자를 정합니다.",
+  },
+  hiw_outcome_repair: {
+    en: "Failed in a way the agent has really seen before (e.g. power-grid straps don't fit at this utilization). It edits the configuration and re-runs, up to a bounded iteration budget.",
+    ko: "에이전트가 실제로 겪어본 유형의 실패 (예: 이 밀도에서는 전원 그리드 스트랩이 안 들어감). 설정을 고쳐 재실행하며, 반복 횟수에는 상한이 있습니다.",
+  },
+  hiw_outcome_escalate: {
+    en: "Failed in a way no known repair pattern covers. The agent stops and files a review request for a specialist subagent or a human — deliberately, rather than guessing at a fix.",
+    ko: "알려진 복구 패턴에 없는 실패. 에이전트는 멈추고 전문 서브에이전트나 사람에게 리뷰를 요청합니다 — 추측으로 고치지 않기 위한 의도된 동작입니다.",
+  },
+  hiw_real: {
+    en: "Everything below is real. Every number came from an actual OpenLane run in Docker against a real PDK — including the failures, which are kept rather than hidden. Nothing here is simulated or estimated.",
+    ko: "아래 내용은 전부 실제입니다. 모든 수치는 Docker에서 실제 PDK로 돌린 진짜 OpenLane 실행에서 나온 값이며, 실패한 결과도 숨기지 않고 그대로 남겨둡니다. 시뮬레이션이나 추정치는 하나도 없습니다.",
+  },
+  hiw_stat_designs: { en: "designs", ko: "설계" },
+  hiw_stat_cases: { en: "cases", ko: "케이스" },
+  hiw_stat_runs: { en: "real candidate runs", ko: "실제 후보 실행" },
+  hiw_stat_closed: { en: "closed by the agent", ko: "에이전트가 완료" },
+  hiw_stat_repaired: { en: "self-repaired candidates", ko: "자가복구된 후보" },
+
+  pipeline_case_candidates: { en: "candidates", ko: "후보" },
+  pipeline_layout_expand: { en: "(click to enlarge)", ko: "(클릭하면 확대)" },
+  pipeline_layout_collapse: { en: "(click to shrink)", ko: "(클릭하면 축소)" },
   pipeline_layout_image_label: {
     en: "rendered layout — real GDS via KLayout",
     ko: "렌더링된 레이아웃 — KLayout으로 생성한 실제 GDS",
