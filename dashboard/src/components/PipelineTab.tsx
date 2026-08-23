@@ -656,14 +656,19 @@ function HumanInTheLoopPanel({
   pipelineCase: PipelineCase;
   onApplied: () => void;
 }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const isOpen = !pipelineCase.winner_tag;
   const reviews = pipelineCase.human_in_the_loop ?? [];
   if (!isOpen && reviews.length === 0) return null;
 
   return (
-    <div className="pipeline__hitl">
-      <span className="tab__meta-label">human-in-the-loop</span>
+    <div className={`pipeline__hitl ${isOpen ? "pipeline__hitl--action" : ""}`}>
+      <span className="tab__meta-label">
+        human-in-the-loop
+        {isOpen && (
+          <span className="pipeline__hitl-badge">{t("hitl_needs_you")}</span>
+        )}
+      </span>
       {isOpen && <ReviewWorkflow design={pipelineCase.design} onApplied={onApplied} />}
       {reviews.length > 0 && (
         <ul className="pipeline__hitl-log">
@@ -849,6 +854,12 @@ function CaseCard({
           <div className={`metric-card ${failed > 0 ? "metric-card--critical" : ""}`}><span className="metric-card__label">rejected</span><strong className="metric-card__value">{failed}</strong><span className="metric-card__note">failed or violated guardrails</span></div>
         </div>
 
+        {/* Directly under the status metrics, not at the bottom of the
+            card. This is the only part of a case that asks the operator
+            to *do* something; it used to sit last, after an 8,700-character
+            diagnosis, which is past the point anyone scrolls. */}
+        <HumanInTheLoopPanel pipelineCase={pipelineCase} onApplied={onApplied} />
+
         <ProcessStages pipelineCase={pipelineCase} />
         <AgentRolesLegend />
 
@@ -908,15 +919,24 @@ function CaseCard({
           </div>
         ))}
 
+        {/* Collapsed. The diagnosis is reference material — real, kept,
+            and worth reading when you need it — but sram_wrapper's runs
+            to 8,700 characters, and left open it visually outweighed
+            every actionable thing on the card. The summary line carries
+            enough to decide whether to open it. */}
         {pipelineCase.diagnosis && (
-          <div className="pipeline__diagnosis">
-            <span className="tab__meta-label">diagnosis</span>
+          <details className="pipeline__diagnosis">
+            <summary>
+              <span className="tab__meta-label">diagnosis</span>
+              <span className="pipeline__diagnosis-teaser">
+                {pipelineCase.diagnosis.slice(0, 110)}…
+                {" "}({pipelineCase.diagnosis.length.toLocaleString()} chars)
+              </span>
+            </summary>
             <p>{pipelineCase.diagnosis}</p>
             <TranslateBlock text={pipelineCase.diagnosis} />
-          </div>
+          </details>
         )}
-
-        <HumanInTheLoopPanel pipelineCase={pipelineCase} onApplied={onApplied} />
       </div>
     </div>
   );
@@ -1016,14 +1036,38 @@ export default function PipelineTab() {
       .catch((e) => setError(String(e)));
   }, []);
 
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
   useEffect(() => {
     let cancelled = false;
-    loadCases().finally(() => !cancelled && setLoading(false));
+    loadCases().finally(() => {
+      if (cancelled) return;
+      setLoading(false);
+      setLastRefresh(new Date());
+    });
     return () => {
       cancelled = true;
     };
   }, [loadCases]);
 
+  // Keep the console live rather than a snapshot of whenever the tab was
+  // opened. reference-db is written by things this browser doesn't
+  // control — an orchestrator.py run from a terminal, self_improve.py on
+  // a schedule, an MCP tool call — so without this the page silently
+  // showed stale state until someone reloaded. GET /reference-db is
+  // mtime-cached server-side, so a poll that finds nothing new costs a
+  // stat per case file rather than a re-read and re-parse.
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      loadCases().then(() => setLastRefresh(new Date()));
+    }, 15000);
+    return () => window.clearInterval(id);
+  }, [loadCases]);
+
+  const openCount = useMemo(
+    () => (cases ?? []).filter((c) => !c.winner_tag).length,
+    [cases]
+  );
   const designNames = useMemo(
     () => Array.from(new Set((cases ?? []).map((c) => c.design))).sort(),
     [cases]
@@ -1066,6 +1110,25 @@ export default function PipelineTab() {
           />
         </div>
       </div>
+
+      {/* Live strip: what needs a human right now, and when this view
+          last actually re-read reference-db. Without the timestamp an
+          auto-refreshing page is indistinguishable from a frozen one. */}
+      {!loading && !error && (cases?.length ?? 0) > 0 && (
+        <div className="pipeline__live">
+          <span className={openCount > 0 ? "pipeline__live-open" : "pipeline__live-clear"}>
+            {openCount > 0
+              ? t("live_open_cases").replace("{n}", String(openCount))
+              : t("live_all_closed")}
+          </span>
+          <span className="pipeline__live-refresh">
+            <i className="pipeline__live-dot" />
+            {lastRefresh
+              ? t("live_refreshed").replace("{t}", lastRefresh.toLocaleTimeString())
+              : "—"}
+          </span>
+        </div>
+      )}
 
       {loading && <p>{t("pipeline_loading")}</p>}
       {error && (

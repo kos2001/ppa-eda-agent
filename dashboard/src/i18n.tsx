@@ -93,6 +93,17 @@ const dict = {
   hiw_stat_closed: { en: "closed by the agent", ko: "에이전트가 완료" },
   hiw_stat_repaired: { en: "self-repaired candidates", ko: "자가복구된 후보" },
 
+  hitl_needs_you: { en: "NEEDS YOU", ko: "개입 필요" },
+  live_open_cases: {
+    en: "{n} case(s) waiting on a human decision",
+    ko: "사람의 판단을 기다리는 케이스 {n}개",
+  },
+  live_all_closed: {
+    en: "every case closed — nothing waiting on you",
+    ko: "모든 케이스 완료 — 대기 중인 항목 없음",
+  },
+  live_refreshed: { en: "live · refreshed {t}", ko: "실시간 · {t} 갱신" },
+
   phase_understand: { en: "UNDERSTAND", ko: "파악" },
   phase_understand_role: {
     en: "read the design — no candidate exists yet",
