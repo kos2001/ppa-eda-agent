@@ -182,6 +182,26 @@ export async function translateStream(
   }
 }
 
+// Streams a real second opinion on a stuck run from hermes-gateway,
+// given the review request the pipeline generated. Server-proxied only:
+// unlike diagnosis, this one has no browser-direct variant, because the
+// prompt is assembled server-side alongside the request file it reviews.
+export async function askReview(
+  requestText: string,
+  callbacks: DiagnoseCallbacks
+): Promise<void> {
+  try {
+    const res = await fetch(`${LOCAL_SERVER_URL}/review/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestText }),
+    });
+    await pipeSse(res, callbacks);
+  } catch (e) {
+    callbacks.onError(e instanceof Error ? e : new Error(String(e)));
+  }
+}
+
 export async function translateViaServer(
   text: string,
   callbacks: DiagnoseCallbacks

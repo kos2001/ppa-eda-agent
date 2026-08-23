@@ -1085,6 +1085,57 @@ then miss its target — **69s → 10s, a 6.9× saving for the identical
 verdict**. Opt-in (`--screen`), because it is a loss when everything
 passes or everything crashes early.
 
+## "Dashboard" was the wrong frame — carrying stage 8 inside the console
+
+Observation from the user: the word *dashboard* itself was constraining
+what this could be, given the goal is an end-to-end DTCO process run by
+agents. That turned out to be diagnosable rather than merely semantic.
+The name was the symptom; the constraint was real and located precisely:
+
+Stages 1–7 happen in the UI (trigger a run, watch it, read the verdict).
+Stage 8 did not. At escalation — the exact moment the process needs
+judgment — the panel rendered a shell command:
+
+    needs review — run `python3 pipeline/request_review.py request …`
+
+and stopped. There were no review endpoints on the server at all. So the
+tool watched the process and then handed it off at the hardest step,
+which is what a dashboard does and what a console must not.
+
+Closed with three endpoints, one per real step of the workflow
+`request_review.py` already defines, so the console drives that script
+rather than reimplementing it:
+
+- `POST /review/request` — generates the request from the case's real
+  diagnosis and returns the file's actual content, so the operator sees
+  exactly what a reviewer would be given.
+- `POST /review/ask` — streams a real second opinion from
+  hermes-gateway, over the same SSE path the diagnosis and translation
+  features already use.
+- `POST /review/apply` — writes the verdict back into the case. The
+  response text goes through a temp file, never a shell argument — the
+  same reason `request_review.py` exists at all, after a backtick in
+  review prose once ate part of a diagnosis through shell interpolation.
+
+`ReviewWorkflow` in `PipelineTab.tsx` renders these as three gated steps
+(step 2 unlocks only once a request exists, step 3 only once a review
+does). The verdict is recorded under `hermes-review`, not under a
+subagent's name: it came from the gateway model, and filing it as
+`feedback-optimizer` would misstate who actually reviewed it.
+
+`isSafeDesignName()` was factored out while doing this — the design-name
+validation was inline in one route, the review endpoints need the
+identical rule, and two copies of a security check is one too many.
+
+Verified against the real OPEN case (`sram_wrapper`) rather than a
+fixture: `/review/request` returned the real 9,607-character request and
+the browser rendered it; path traversal was rejected (400); `/review/ask`
+returned a substantive real review through the gateway — which notably
+*disagreed* with the earlier subagent verdict, arguing one more candidate
+was worth trying; `/review/apply` took `human_in_the_loop` from 1 entry
+to 2 with the right agent name. The apply test's entry was then reverted,
+since it was a mechanism test rather than a real review.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
