@@ -691,6 +691,32 @@ add a Pyverilog dependency this project's "no third-party packages"
 pipeline philosophy doesn't currently carry, for a payoff that needs
 more reference-db scale to justify.
 
+## Making agent ownership visible in the dashboard
+
+User asked for clearer visualization of which agent does what. Until
+this point the 8 process-stage cards named the *stage* but not its
+*owner* — a viewer had to already know that, say,
+"physical-constraint-evaluator" is the one that evaluates stage 4.
+`PipelineTab.tsx` now has a `STAGE_AGENT` map (paraphrased from each
+`.claude/agents/*.md` file's own description — not invented) that:
+
+- Adds a small owner badge (agent name) under each ProcessStages card,
+  with the full role as its tooltip.
+- Powers a collapsible `AgentRolesLegend` panel right below the process
+  row — all 7 pipeline subagents in pipeline order, plus
+  `ppa-eda-analyst` (the separate report-paste/live-simulation
+  diagnosis agent, explicitly noted as not one of the 8 stages so it
+  doesn't get miscounted as a 9th).
+- The same map backs a tooltip on human-in-the-loop review pills
+  (`AGENT_ROLE_BY_NAME`, a reverse index of `STAGE_AGENT`) — so a
+  reviewer's name there is also self-explanatory, not just a label.
+
+One source of truth (`STAGE_AGENT`) backs all three surfaces, so they
+can't drift from each other the way the badge and the legend would if
+each had its own copy of the role text. Verified rendered correctly via
+Playwright (both the per-stage badges and the expanded legend, in
+Korean, in the actual browser) rather than assumed from the diff.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

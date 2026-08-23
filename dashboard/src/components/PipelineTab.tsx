@@ -45,6 +45,110 @@ const FALLBACK_PROCESS_STAGES: { id: ProcessStageId; name: string }[] = [
   { id: "feedback", name: "AI Feedback / Repair / Optimization" },
 ];
 
+// Which real subagent (.claude/agents/*.md) owns each of the 8 pipeline
+// stages, and what it actually does — paraphrased from each agent's own
+// description/system-prompt file, not invented. Used both for the small
+// "owner" badge on each ProcessStages card and the AgentRoles legend
+// panel, so the two never drift (one source of truth).
+const STAGE_AGENT: Record<
+  ProcessStageId,
+  { agent: string; role: { en: string; ko: string } }
+> = {
+  extraction: {
+    agent: "circuit-layout-extractor",
+    role: {
+      en: "Extracts a structural summary and topology signature from RTL (and any existing LEF/DEF layout) for the rest of the pipeline to reason about.",
+      ko: "RTL(및 기존 LEF/DEF 레이아웃이 있다면 그것까지)에서 구조 요약과 토폴로지 시그니처를 추출해 나머지 파이프라인이 참고할 수 있게 합니다.",
+    },
+  },
+  topology: {
+    agent: "topology-analyst",
+    role: {
+      en: "Classifies the design's topology and surfaces similar past cases from reference-db/ before placement is proposed cold.",
+      ko: "설계의 토폴로지를 분류하고, reference-db/에서 비슷한 과거 사례를 찾아 배치 전략가가 무(無)에서 시작하지 않도록 제공합니다.",
+    },
+  },
+  placement_strategy: {
+    agent: "placement-strategist",
+    role: {
+      en: "Proposes N real OpenLane config-override candidates (utilization, die sizing, macro hints) — every candidate gets a real run, no scoring without one.",
+      ko: "실제 OpenLane 설정 오버라이드 후보(utilization, 다이 크기, 매크로 배치 힌트 등) N개를 제안합니다 — 모든 후보는 실제로 실행되며, 실행 없이 점수만 매기지 않습니다.",
+    },
+  },
+  physical_constraint: {
+    agent: "physical-constraint-evaluator",
+    role: {
+      en: "Flags real physical-constraint problems (density, legalization, PDN, congestion) before the expensive routing stage runs.",
+      ko: "비용이 큰 라우팅 단계로 넘어가기 전에 실제 물리적 제약 문제(밀도, legalization, PDN, congestion)를 점검해 걸러냅니다.",
+    },
+  },
+  routing_generation: {
+    agent: "routing-candidate-evaluator",
+    role: {
+      en: "Reads TritonRoute's real routing output (DRC violations, wirelength, via count) for candidates that survived the placement check.",
+      ko: "배치 검사를 통과한 후보의 실제 TritonRoute 라우팅 결과(DRC 위반, 배선 길이, via 개수)를 평가합니다.",
+    },
+  },
+  routing_candidate: {
+    agent: "routing-candidate-evaluator",
+    role: {
+      en: "Same agent as Routing Generation Evaluation — evaluates the detailed-routing result once a run reaches that step.",
+      ko: "Routing Generation Evaluation과 동일 에이전트 — 실행이 detailed routing 단계에 도달하면 그 결과를 평가합니다.",
+    },
+  },
+  verification_ppa: {
+    agent: "verification-ppa-evaluator",
+    role: {
+      en: "Produces the final correctness + PPA verdict from a completed run's real metrics.json (area, all timing corners, power, DRC, LVS).",
+      ko: "완료된 실행의 실제 metrics.json(면적, 전체 타이밍 코너, 파워, DRC, LVS)을 바탕으로 최종 정합성 + PPA 판정을 내립니다.",
+    },
+  },
+  feedback: {
+    agent: "feedback-optimizer",
+    role: {
+      en: "Closes the loop orchestrator.py's mechanical propose_repairs() can't: decides winner vs. next-iteration candidates, interprets each case.",
+      ko: "orchestrator.py의 기계적 propose_repairs()가 처리하지 못하는 부분을 마무리합니다 — 승자 확정 또는 다음 iteration 후보 결정, 각 케이스에 대한 해석을 담당합니다.",
+    },
+  },
+};
+
+// Reverse index of STAGE_AGENT, keyed by agent name — lets any place
+// that shows a bare agent name (e.g. a human-in-the-loop review pill)
+// look up its role for a tooltip without a second copy of the text.
+const AGENT_ROLE_BY_NAME: Record<string, { en: string; ko: string }> = Object.fromEntries(
+  Object.values(STAGE_AGENT).map((entry) => [entry.agent, entry.role])
+);
+
+// Agent legend — every subagent that touches this pipeline, in pipeline
+// order, plus ppa-eda-analyst (not one of the 8 stages; it's the
+// separate report-paste/live-simulation diagnosis agent behind the
+// sidebar's "ppa-eda-analyst" tab). Deduplicates routing-candidate-
+// evaluator (owns 2 stages) automatically via the Map below.
+function AgentRolesLegend() {
+  const { lang, t } = useLang();
+  const seen = new Set<string>();
+  const rows = (Object.values(STAGE_AGENT) as { agent: string; role: { en: string; ko: string } }[])
+    .filter((entry) => (seen.has(entry.agent) ? false : (seen.add(entry.agent), true)));
+
+  return (
+    <details className="pipeline__agent-legend">
+      <summary>{t("pipeline_agent_legend_title")}</summary>
+      <ul>
+        {rows.map((entry) => (
+          <li key={entry.agent}>
+            <code>{entry.agent}</code>
+            <span>{entry.role[lang]}</span>
+          </li>
+        ))}
+        <li className="pipeline__agent-legend-note">
+          <code>ppa-eda-analyst</code>
+          <span>{t("pipeline_agent_legend_diagnosis_note")}</span>
+        </li>
+      </ul>
+    </details>
+  );
+}
+
 function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const stages = pipelineCase.process_stages ?? FALLBACK_PROCESS_STAGES;
   const candidates = pipelineCase.iterations.flatMap((it) => it.results);
@@ -76,14 +180,16 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
       {stages.map((stage, index) => {
         const { count, note } = countFor(stage.id);
         const reached = count > 0;
+        const owner = STAGE_AGENT[stage.id];
         return (
           <div
             key={stage.id}
             className={`pipeline__process-stage ${reached ? "pipeline__process-stage--reached" : "pipeline__process-stage--empty"}`}
-            title={note}
+            title={owner ? `${owner.agent} — ${owner.role.en}` : note}
           >
             <span className="pipeline__process-stage-index">{String(index + 1).padStart(2, "0")}</span>
             <strong>{stage.name}</strong>
+            {owner && <span className="pipeline__process-stage-agent">{owner.agent}</span>}
             <span className="pipeline__process-stage-note">{note}</span>
           </div>
         );
@@ -336,6 +442,7 @@ function CandidateRow({
 // applied via `request_review.py apply`, it shows up here as real history,
 // not just buried in the diagnosis text.
 function HumanInTheLoopPanel({ pipelineCase }: { pipelineCase: PipelineCase }) {
+  const { lang } = useLang();
   const isOpen = !pipelineCase.winner_tag;
   const reviews = pipelineCase.human_in_the_loop ?? [];
   if (!isOpen && reviews.length === 0) return null;
@@ -354,7 +461,9 @@ function HumanInTheLoopPanel({ pipelineCase }: { pipelineCase: PipelineCase }) {
         <ul className="pipeline__hitl-log">
           {reviews.map((r, i) => (
             <li key={i}>
-              <span className="pill pill--good">{r.agent}</span>
+              <span className="pill pill--good" title={AGENT_ROLE_BY_NAME[r.agent]?.[lang]}>
+                {r.agent}
+              </span>
               <span className="pipeline__hitl-time">{r.reviewed_at}</span>
               <span className="pipeline__hitl-summary">
                 {r.summary}
@@ -497,6 +606,7 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
         </div>
 
         <ProcessStages pipelineCase={pipelineCase} />
+        <AgentRolesLegend />
 
         {pipelineCase.topology && <TopologySummary topology={pipelineCase.topology} />}
 
