@@ -26,6 +26,7 @@ from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import orchestrator  # noqa: E402
+import render_layout  # noqa: E402
 import request_review  # noqa: E402
 import run_stage  # noqa: E402
 import self_improve  # noqa: E402
@@ -123,6 +124,25 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "ppa_render_layout",
+        "description": "Renders a real PNG of a completed run's actual GDS layout "
+                        "via KLayout (bundled in the OpenLane Docker image already "
+                        "used, no new dependency) — view the returned file with the "
+                        "Read tool afterward. Applies arxiv.org/html/2605.06936v3's "
+                        "finding that layout images measurably improve DRC-fixing "
+                        "accuracy over text-only diagnosis.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "tag", "output"],
+            "properties": {
+                "design": {"type": "string"},
+                "tag": {"type": "string", "description": "run tag under designs/<design>/runs/"},
+                "output": {"type": "string", "description": "where to write the PNG"},
+                "size": {"type": "integer", "default": 900},
+            },
+        },
+    },
 ]
 
 
@@ -200,6 +220,13 @@ def _tool_apply_review(args: dict) -> dict:
     return {"case_file": str(case_file), "human_in_the_loop": case.get("human_in_the_loop")}
 
 
+def _tool_render_layout(args: dict) -> dict:
+    run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
+    output_path = Path(args["output"])
+    out = render_layout.render_gds_png(run_dir, output_path, args.get("size", 900))
+    return {"png_path": str(out)}
+
+
 _TOOL_IMPL = {
     "ppa_run_stage": _tool_run_stage,
     "ppa_orchestrate": _tool_orchestrate,
@@ -207,6 +234,7 @@ _TOOL_IMPL = {
     "ppa_self_improve_scan": _tool_self_improve_scan,
     "ppa_request_review": _tool_request_review,
     "ppa_apply_review": _tool_apply_review,
+    "ppa_render_layout": _tool_render_layout,
 }
 
 

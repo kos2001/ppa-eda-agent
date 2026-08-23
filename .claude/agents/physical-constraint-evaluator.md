@@ -20,6 +20,19 @@ A run directory under `pipeline/designs/<name>/runs/<tag>/`, which may be:
 
 ## What to check
 
+0. **If a `.gds` exists for this run** (check `final/gds/` first, then
+   any numbered step directory — a run that reached at least
+   `Magic.StreamOut` has one even if it failed later), render and view
+   it before reading logs: `python3 pipeline/render_layout.py --run-dir
+   <run_dir> --output /tmp/<tag>.png` (or the `ppa_render_layout` MCP
+   tool), then view the PNG with the Read tool. Density, legalization
+   gaps, and congestion are inherently spatial judgments — arxiv.org/
+   html/2605.06936v3 ("PostEDA-Bench") measured that adding a layout
+   image to text-only diagnosis "consistently improves DRC performance
+   ... never harmful" on real post-flow violations, which is exactly
+   this agent's job. Skip this step only when no `.gds` exists yet
+   (failed before `Magic.StreamOut`) — logs are still the only signal
+   then.
 1. **Did it fail, and where?** Read the last numbered step directory's
    log for the actual tool error — e.g. the real failure mode already
    seen in this pipeline: `OpenROAD.GeneratePDN` erroring with

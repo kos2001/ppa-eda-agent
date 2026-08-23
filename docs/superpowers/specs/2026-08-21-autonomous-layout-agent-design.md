@@ -717,6 +717,51 @@ each had its own copy of the role text. Verified rendered correctly via
 Playwright (both the per-stage badges and the expanded legend, in
 Korean, in the actual browser) rather than assumed from the diff.
 
+## Applying PostEDA-Bench (arxiv.org/html/2605.06936v3)
+
+User asked to read this paper and apply what's applicable. It's a
+benchmark for LLM agents on two "last-mile" chip-design tasks — DRC
+violation repair and PPA convergence — evaluated across 8 LLMs and 3
+agent scaffolds. Two findings mapped onto this pipeline for real:
+
+1. **"Vision compensates for missing geometric evidence"** — the paper
+   measured that adding layout images to text-only prompts
+   "consistently improves DRC performance... never harmful," on real
+   post-flow violations specifically (not the synthetic tier). Before
+   this, `physical-constraint-evaluator` and `routing-candidate-evaluator`
+   only ever had text (logs, `metrics.json`) to reason from, even though
+   density/legalization/congestion/routing-DRC are inherently spatial
+   judgments. Added `pipeline/render_layout.py`: renders a real PNG from
+   a completed run's actual GDS via KLayout, headless — which is already
+   bundled in the `ghcr.io/efabless/openlane2` Docker image this
+   pipeline already runs, so this is zero new project dependencies, not
+   a new tool to install. Two real integration bugs found and fixed
+   while getting this working (documented in the module's own comments,
+   not hidden): `LayoutView.load_layout()` takes a filename, not a
+   pre-loaded `pya.Layout` (raises a real `TypeError` otherwise), and
+   without `QT_QPA_PLATFORM=offscreen` KLayout segfaults with no Python
+   traceback (a raw memory-map dump) because `save_image` still goes
+   through Qt's rendering pipeline even in `-z` batch mode. Exposed as
+   `ppa_render_layout` in `mcp_server.py`, and both subagent files now
+   have an explicit "render and view this run's actual layout image via
+   the Read tool" step, citing the paper's finding directly, before
+   their existing text-based checks.
+2. **"Agents greedily optimize one PPA dimension rather than balancing
+   competing targets"** (the paper's headline PPA-Multi failure mode) —
+   checked `pareto.py`/`pick_winner()` against this and found the
+   existing constrained-Pareto-front ranking (feasibility first, then
+   true multi-objective dominance — all objectives ≤, at least one <,
+   never a single weighted score) already avoids exactly this failure
+   mode. No change needed; noted here as a validated alignment, not a
+   gap, since it would be dishonest to claim credit for a fix that
+   wasn't necessary.
+
+Validated for real: rendered a PNG from a real `counter4` run's actual
+GDS (confirmed visually — real power rings, standard-cell rows, pin
+labels, not a placeholder), then re-verified through the actual
+`ppa_render_layout` MCP tool call end to end (not just the standalone
+script).
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

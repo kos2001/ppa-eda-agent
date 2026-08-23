@@ -21,6 +21,18 @@ completed, `final/def` and `final/metrics.json`.
 
 ## What to read
 
+0. **Render and view the actual routed layout** if a `.gds` exists
+   (`final/gds/` for a completed run, otherwise the latest step that
+   produced one — this step runs after routing, so a run that reached
+   detailed routing at all should have one by `Magic.StreamOut`):
+   `python3 pipeline/render_layout.py --run-dir <run_dir> --output
+   /tmp/<tag>.png` (or the `ppa_render_layout` MCP tool), then view the
+   PNG with the Read tool. Routing-DRC violations and congestion are
+   spatial by nature — arxiv.org/html/2605.06936v3 ("PostEDA-Bench")
+   found layout images "consistently improve[d] DRC performance" over
+   text-only diagnosis on real post-flow violations, exactly this
+   agent's task. Cross-reference what the image shows against the
+   text report below, don't substitute one for the other.
 1. **Routing DRC violations**: TritonRoute's own DRC report (in its step
    directory) — a nonzero count here means real design-rule violations in
    the actual routed geometry, distinct from the signoff Magic DRC run

@@ -149,6 +149,31 @@ checking whether that one-off diagnosis should become a new
 Claude Code `/loop` — see the design spec's "Self-improvement loop"
 section.
 
+## MCP server
+
+`pipeline/mcp_server.py` — a dependency-free JSON-RPC 2.0 stdio MCP
+server (ported from
+[`strongarm-sizing-console`](https://github.com/kos2001/strongarm-sizing-console)'s
+own `mcp_server.py`) exposing this pipeline as agent-callable tools
+instead of shelled-out commands:
+
+| Tool | Does |
+|---|---|
+| `ppa_run_stage` | One real OpenLane candidate run, returns real `metrics.json` |
+| `ppa_orchestrate` | The full real candidate-generation-and-auto-repair loop (`orchestrator.orchestrate()`) for a design |
+| `ppa_get_case` | Reads the latest real reference-db case (read-only, no new run) |
+| `ppa_self_improve_scan` | Real auto-repair coverage + review-backlog scan across designs |
+| `ppa_request_review` | Generates a human-in-the-loop review request from a case's real diagnosis |
+| `ppa_apply_review` | Applies a subagent's real review response back into the case |
+| `ppa_render_layout` | Renders a real PNG of a completed run's actual GDS via KLayout (bundled in the OpenLane image already used — no new dependency) |
+
+Within a Claude Code session already working in this repo, a subagent
+can just call the underlying Python modules directly via Bash — this
+server exists for contexts that want a typed tool boundary instead (a
+future session, a non-Claude-Code agent, hermes-agent). Register it
+with Claude Code or hermes-agent's `api_server` pointed at
+`pipeline/mcp_server.py`.
+
 ## Dashboard
 
 Four report-visualization tabs (Area, Timing, Power, Trade-offs) plus a
