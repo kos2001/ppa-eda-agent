@@ -25,6 +25,7 @@ from pathlib import Path
 
 from run_stage import run_stage, read_metrics
 import def_layout
+import render_layout
 from pareto import ParetoPoint, pick_best
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -517,10 +518,68 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
     return next_candidates
 
 
+def capture_layout_image(design_name: str, design_dir: Path,
+                          result: dict | None) -> str | None:
+    """Renders one candidate's real GDS to a PNG stored *in reference-db*,
+    returning its path relative to reference-db/ (or None).
+
+    Why here and not on demand: `runs/` is gitignored and routinely
+    deleted, so every committed case's recorded GDS path is already
+    dangling — an on-demand renderer only ever works during the brief
+    window a run directory still exists. soul.md calls reference-db the
+    project's memory; a layout image is exactly the kind of real
+    evidence that belongs in it rather than being lost with the run.
+    Applies arxiv.org/html/2605.06936v3's layout-image finding to the
+    *durable* record (and so to the dashboard), not just to live runs.
+
+    One image per case (the winner, or the furthest-progressing
+    candidate that produced a GDS) rather than one per candidate: each
+    render is a real Docker/KLayout invocation, and passing candidates
+    of the same design look near-identical, so per-candidate rendering
+    would multiply run time for little added signal. Subagents needing
+    a specific failed candidate's view still have render_layout.py
+    against the live run directory.
+
+    Never raises: a missing image should leave the case without one,
+    not fail a run whose real EDA work already succeeded.
+    """
+    if result is None:
+        return None
+    tag = result.get("tag")
+    if not tag:
+        return None
+    run_dir = design_dir / "runs" / tag
+    if not run_dir.exists():
+        return None
+    rel = f"layouts/{design_name}__{date.today().isoformat()}__{tag}.png"
+    try:
+        render_layout.render_gds_png(run_dir, REFDB / rel)
+    except Exception as e:  # no GDS yet, Docker unavailable, KLayout error
+        print(f"  (no layout image for {tag}: {e})", file=sys.stderr)
+        return None
+    return rel
+
+
+def pick_layout_subject(iterations: list[dict], winner: dict | None) -> dict | None:
+    """The one candidate worth rendering: the winner if there is one,
+    else the candidate that got furthest through the flow (by
+    PROCESS_STAGES order) — for a failed case that's the most
+    informative layout available, which is precisely the case where a
+    picture helps most."""
+    if winner:
+        return winner
+    order = {s["id"]: i for i, s in enumerate(PROCESS_STAGES)}
+    all_results = [r for it in iterations for r in it["results"]]
+    if not all_results:
+        return None
+    return max(all_results, key=lambda r: order.get(r.get("stage"), -1))
+
+
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
                winner: dict | None, stop_reason: str | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
+    (REFDB / "layouts").mkdir(exist_ok=True)
     case_file = REFDB / "cases" / f"{design_name}__{date.today().isoformat()}.json"
     # outcome stays as the short human-readable summary the dashboard
     # already renders; stop_reason is the machine-readable total-guard
@@ -532,6 +591,7 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "no_repairable_failures": "no candidate met targets — no auto-repairable "
                                    "pattern matched, needs a human/subagent decision",
     }.get(stop_reason, "passed" if winner else "no candidate met targets after all iterations")
+    subject = pick_layout_subject(iterations, winner)
     case = {
         "design": design_name,
         "date": date.today().isoformat(),
@@ -541,6 +601,10 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "winner_tag": winner["tag"] if winner else None,
         "outcome": outcome,
         "stop_reason": stop_reason,
+        # Real rendered layout of this case's most informative candidate,
+        # stored under reference-db/ so it outlives the run directory.
+        "layout_image": capture_layout_image(design_name, design_dir, subject),
+        "layout_image_tag": subject["tag"] if subject else None,
     }
     case_file.write_text(json.dumps(case, indent=2))
 

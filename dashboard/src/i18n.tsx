@@ -46,6 +46,10 @@ const dict = {
   pipeline_translate_loading: { en: "translating…", ko: "번역 중…" },
   pipeline_translate_label: { en: "machine translation — original above is authoritative", ko: "기계번역 — 원문(위)이 정확한 기준입니다" },
   pipeline_translate_needs_key: { en: "needs a hermes-gateway key (see Diagnosis tab)", ko: "hermes-gateway 키가 필요합니다 (진단 탭 참고)" },
+  pipeline_layout_image_label: {
+    en: "rendered layout — real GDS via KLayout",
+    ko: "렌더링된 레이아웃 — KLayout으로 생성한 실제 GDS",
+  },
   pipeline_agent_legend_title: { en: "which agent does what — 8 subagents", ko: "어떤 에이전트가 무엇을 하는지 — 8개 서브에이전트" },
   pipeline_agent_legend_diagnosis_note: {
     en: "Separate from the 8-stage pipeline — the report-paste / live-simulation diagnosis agent behind the sidebar's own tab.",

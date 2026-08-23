@@ -810,6 +810,50 @@ than committed: it's a real run, but keeping it as that design's
 *latest* case would misrepresent a design that closes fine at its
 normal budget.
 
+## Layout images in the durable record (and the dashboard)
+
+The first pass at PostEDA-Bench's layout-image finding (above) applied
+it in the *least durable* way available: `render_layout.py` renders from
+a live `runs/<tag>/` directory, but `runs/` is gitignored and routinely
+deleted. Checking the committed cases confirmed the consequence — every
+one of them records a `data.layout.gds` path that is already dangling.
+So the tool only worked inside the brief window a run directory still
+existed, and the human looking at the dashboard got nothing at all.
+
+`soul.md` calls reference-db the project's memory. A rendered layout is
+exactly the kind of real evidence that belongs in it:
+
+- `orchestrator.py`'s `write_case()` now calls `capture_layout_image()`,
+  which renders the case's most informative candidate to
+  `reference-db/layouts/<design>__<date>__<tag>.png` and records the
+  relative path on the case. `pick_layout_subject()` picks the winner,
+  or — when there's no winner — the candidate that got furthest through
+  `PROCESS_STAGES`, which is the failure case where a picture helps
+  most.
+- One image per case, not per candidate: each render is a real
+  Docker/KLayout invocation, and same-design passing candidates look
+  near-identical, so per-candidate rendering would multiply run time for
+  little added signal. Subagents needing a specific failed candidate's
+  view still have `render_layout.py` against the live run directory.
+- It never raises: a missing image leaves the case without one rather
+  than failing a run whose real EDA work already succeeded.
+- `server/index.mjs` serves `GET /reference-db/layouts/<name>.png`,
+  filename-validated against a strict pattern so the endpoint can't be
+  used to read arbitrary files.
+- `PipelineTab.tsx`'s `CaseLayoutImage` shows it on the case card. The
+  paper's measured advantage came from giving a *diagnoser* the layout;
+  there's no reason that should stop at the agent boundary, so the
+  human gets the same evidence.
+
+Validated end to end with a real run: `counter4` orchestrated for real,
+`layout_image` populated automatically for the winner
+(`sweep-util-35`), then **the run directories were deleted** — the exact
+condition that made the previous approach useless — and the image still
+served (`http=200`, `image/png`, 103760 bytes) and rendered in the
+browser at its real 900×900 (Playwright-verified, screenshot inspected:
+real power rings, cell rows, pin labels). Path traversal against the new
+endpoint was also confirmed rejected (`http=400`).
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

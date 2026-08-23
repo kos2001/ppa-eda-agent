@@ -305,6 +305,29 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Serves the real rendered layout PNGs orchestrator.py stored under
+  // reference-db/layouts/ (see its capture_layout_image()). Read-only,
+  // and path-constrained to that one directory: the filename comes from
+  // a case JSON, but this endpoint is reachable directly, so it must
+  // not be usable to read arbitrary files.
+  if (req.method === "GET" && req.url?.startsWith("/reference-db/layouts/")) {
+    const name = decodeURIComponent(req.url.slice("/reference-db/layouts/".length));
+    if (!/^[A-Za-z0-9_.-]+\.png$/.test(name)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "invalid layout image name" }));
+      return;
+    }
+    try {
+      const png = await readFile(path.join(refDbDir, "layouts", name));
+      res.writeHead(200, { ...headers, "Content-Type": "image/png" });
+      res.end(png);
+    } catch {
+      res.writeHead(404, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: `no layout image ${name}` }));
+    }
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/pipeline/run") {
     let runBody = "";
     req.on("data", (chunk) => (runBody += chunk));

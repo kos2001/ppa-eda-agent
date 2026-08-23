@@ -129,6 +129,13 @@ export interface PipelineCase {
   // (orchestrator.py's STOP_REASONS). Optional: older cases predate this
   // field.
   stop_reason?: string | null;
+  // Path (relative to reference-db/) of a real KLayout render of this
+  // case's most informative candidate layout, stored by
+  // orchestrator.py's capture_layout_image() so it outlives the run
+  // directory. Optional: older cases predate it, and a case whose runs
+  // never reached Magic.StreamOut has no GDS to render.
+  layout_image?: string | null;
+  layout_image_tag?: string | null;
   diagnosis?: string;
   human_in_the_loop?: HumanInTheLoopEntry[];
 }
@@ -147,6 +154,13 @@ export async function fetchReferenceDb(): Promise<ReferenceDb> {
 }
 
 const LOCAL_SERVER_URL = "http://127.0.0.1:8123";
+
+// URL for a case's stored layout render — layout_image is already a
+// reference-db-relative path ("layouts/<...>.png"), and the server
+// serves exactly that directory.
+export function layoutImageUrl(relativePath: string): string {
+  return `${LOCAL_SERVER_URL}/reference-db/${relativePath}`;
+}
 
 export type PipelineRunStatus = "idle" | "running" | "done" | "error";
 
