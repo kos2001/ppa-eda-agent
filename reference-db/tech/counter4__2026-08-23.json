@@ -1,0 +1,95 @@
+{
+  "design": "counter4",
+  "date": "2026-08-23",
+  "technology_variable": "STD_CELL_LIBRARY",
+  "baseline_variant": "sky130_fd_sc_hd",
+  "design_invariants": {
+    "DESIGN_NAME": "counter4",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10,
+    "FP_CORE_UTIL": 35
+  },
+  "results": [
+    {
+      "variant": "sky130_fd_sc_hd",
+      "tag": "tech-sky130_fd_sc_hd",
+      "cells_used": {
+        "sky130_fd_sc_hd": 66
+      },
+      "verdict": {
+        "passed": true,
+        "violations": [],
+        "area_um2": 290.278,
+        "utilization": 0.604167,
+        "worst_setup_wns": 0,
+        "timing_corners": [
+          {
+            "corner": "max_ff_n40C_1v95",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_ss_100C_1v60",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_tt_025C_1v80",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ff_n40C_1v95",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ss_100C_1v60",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_tt_025C_1v80",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ff_n40C_1v95",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ss_100C_1v60",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_tt_025C_1v80",
+            "setup_wns": 0,
+            "hold_wns": 0
+          }
+        ],
+        "power": {
+          "internal_w": 8.014258492039517e-05,
+          "leakage_w": 5.345298093040185e-10,
+          "switching_w": 1.53531800606288e-05,
+          "total_w": 9.54962961259298e-05
+        },
+        "power_domain": {
+          "ir_drop_avg_v": 3e-05,
+          "ir_drop_worst_v": 9.91e-05,
+          "voltage_worst_v": 1.8
+        }
+      }
+    },
+    {
+      "variant": "sky130_fd_sc_hs",
+      "tag": "tech-sky130_fd_sc_hs",
+      "error": "OpenLane run 'tech-sky130_fd_sc_hs' exited 2 \u2014 see runs/tech-sky130_fd_sc_hs/ for logs. Tail of output:\nOAD PnR steps.                                         \n[13:01:26] WARNING  [OpenROAD.CutRows] [STA-0122] cell               flow.py:675\n                    'sky130_fd_sc_hs__lpflow_inputiso0p_1' not                  \n                    found. (and 923 similar warnings)                           \n[13:01:26] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets. (and 2 similar warnings)            \n[13:01:26] WARNING  [OpenROAD.DetailedRouting] [DRT-0349]            flow.py:675\n                    LEF58_ENCLOSURE with no CUTCLASS is not                     \n                    supported. Skipping for layer mcon (and 9                   \n                    similar warnings)                                           \n[13:01:26] WARNING  [Checker.WireLength] Threshold for               flow.py:675\n                    Threshold-surpassing long wires is not set. The             \n                    checker will be skipped.                                    \n[13:01:26] WARNING  [OpenROAD.IRDropReport] 'VSRC_LOC_FILES' was not flow.py:675\n                    given a value, which may make the results of IR             \n                    drop analysis inaccurate. If you are not                    \n                    integrating a top-level chip for manufacture,               \n                    you may ignore this warning, otherwise, see the             \n                    documentation for 'VSRC_LOC_FILES'.                         \n[13:01:26] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    One or more deferred errors were                            \n                    encountered:                                                \n                    21 Magic DRC errors found.                                  \n[13:01:26] ERROR    OpenLane will now quit.                      __main__.py:188\n"
+    }
+  ],
+  "deltas": {
+    "sky130_fd_sc_hs": null
+  }
+}

@@ -30,6 +30,7 @@ import render_layout  # noqa: E402
 import request_review  # noqa: E402
 import run_stage  # noqa: E402
 import self_improve  # noqa: E402
+import tech_compare  # noqa: E402
 import verify_diagnosis  # noqa: E402
 
 PROTOCOL_VERSION = "2024-11-05"
@@ -157,6 +158,29 @@ TOOLS = [
             "properties": {"design": {"type": "string"}},
         },
     },
+    {
+        "name": "ppa_tech_compare",
+        "description": "Runs the SAME design through two or more standard-cell "
+                        "technologies (real full OpenLane runs, one per variant, "
+                        "so expect minutes each) and returns a real PPA delta "
+                        "with the design invariants held fixed — the technology "
+                        "half of DTCO. A variant that fails to build is reported "
+                        "as a real finding, not dropped.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "variants"],
+            "properties": {
+                "design": {"type": "string"},
+                "variants": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "standard-cell libraries, e.g. "
+                                    "[\"sky130_fd_sc_hd\", \"sky130_fd_sc_hs\"]; "
+                                    "the first is the baseline",
+                },
+            },
+        },
+    },
 ]
 
 
@@ -246,6 +270,17 @@ def _tool_verify_diagnosis(args: dict) -> dict:
     return verify_diagnosis.verify_case(case)
 
 
+def _tool_tech_compare(args: dict) -> dict:
+    design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
+    run_spec_path = design_dir / "run_spec.json"
+    targets = {}
+    if run_spec_path.exists():
+        targets = json.loads(run_spec_path.read_text()).get("targets", {})
+    report = tech_compare.compare(design_dir, args["variants"], targets)
+    report["report_file"] = str(tech_compare.write_report(report))
+    return report
+
+
 _TOOL_IMPL = {
     "ppa_run_stage": _tool_run_stage,
     "ppa_orchestrate": _tool_orchestrate,
@@ -255,6 +290,7 @@ _TOOL_IMPL = {
     "ppa_apply_review": _tool_apply_review,
     "ppa_render_layout": _tool_render_layout,
     "ppa_verify_diagnosis": _tool_verify_diagnosis,
+    "ppa_tech_compare": _tool_tech_compare,
 }
 
 
