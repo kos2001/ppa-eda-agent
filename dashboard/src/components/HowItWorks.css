@@ -1,0 +1,151 @@
+.hiw {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  margin-bottom: 1.1rem;
+  overflow: hidden;
+}
+
+.hiw__summary {
+  cursor: pointer;
+  padding: 0.7rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--surface-raised);
+}
+
+.hiw__body {
+  padding: 1.1rem;
+}
+
+.hiw__lede {
+  margin: 0 0 1rem;
+  line-height: 1.65;
+  max-width: 68ch;
+}
+
+/* The four steps read left-to-right as a flow, with a connecting arrow
+   between them; on narrow screens they stack and the arrow turns down,
+   so the sequence never reads as an unordered grid of cards (the exact
+   confusion the existing 8-stage grid causes). */
+.hiw__flow {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.4rem;
+}
+
+.hiw__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+}
+
+.hiw__step::after {
+  content: "→";
+  position: absolute;
+  right: -1.05rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.hiw__step:last-child::after {
+  content: "";
+}
+
+.hiw__step-n {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--accent);
+}
+
+.hiw__step-text {
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.hiw__outcomes {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0.85rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hiw__outcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.hiw__outcome strong {
+  flex: 0 0 auto;
+  min-width: 5.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.hiw__outcome--good strong { color: var(--good); }
+.hiw__outcome--loop strong { color: var(--accent); }
+.hiw__outcome--human strong { color: var(--critical); }
+.hiw__outcome span { color: var(--text-dim); }
+
+.hiw__real {
+  margin: 0 0 0.85rem;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 72ch;
+}
+
+.hiw__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.hiw__stats span {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.hiw__stats strong {
+  font-size: 1.15rem;
+  font-family: var(--mono);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .hiw__flow { grid-template-columns: 1fr; gap: 1.5rem; }
+  .hiw__step::after {
+    right: 50%;
+    top: auto;
+    bottom: -1.15rem;
+    transform: translateX(50%);
+    content: "↓";
+  }
+}
