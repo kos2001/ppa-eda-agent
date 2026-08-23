@@ -469,7 +469,37 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
         util_override = overrides.get("FP_CORE_UTIL")
         die_area_override = overrides.get("DIE_AREA")
 
-        if PDN_STRAP_ERROR in error and isinstance(util_override, (int, float)):
+        # A candidate that completed the whole flow but missed a target
+        # this pipeline set (see score()) has no `error` at all, so every
+        # pattern below — all of which read error text — was structurally
+        # blind to it. That whole class of failure escalated straight to
+        # a human despite being the most mechanically repairable kind:
+        # the violation literally states the measured value and the
+        # target it exceeded.
+        #
+        # Only the utilization violation is handled, and only because it
+        # is not a guess: the repair is the same FP_CORE_UTIL step-down
+        # already proven for PDN_STRAP_ERROR, and "utilization above
+        # target" is definitionally addressed by asking for less of it.
+        # The step is the existing conservative constant rather than one
+        # scaled by the overshoot — requested FP_CORE_UTIL and achieved
+        # stdcell utilization are different quantities (35 -> 0.604 in
+        # counter4's real runs), so scaling by their ratio would assume a
+        # relationship this pipeline has never measured. The bounded loop
+        # re-measures instead.
+        violations = (r.get("verdict") or {}).get("violations", [])
+        overshoot = any(v.startswith("utilization ") for v in violations)
+        if overshoot and isinstance(util_override, (int, float)):
+            repaired = max(MIN_CORE_UTIL, util_override - UTIL_STEP_DOWN)
+            if repaired == util_override:
+                continue  # already at floor, no repair to propose
+            new_overrides = dict(overrides)
+            new_overrides["FP_CORE_UTIL"] = repaired
+            next_candidates.append({
+                "tag": f"{r['tag']}-iter{iteration}",
+                "overrides": new_overrides,
+            })
+        elif PDN_STRAP_ERROR in error and isinstance(util_override, (int, float)):
             repaired = max(MIN_CORE_UTIL, util_override - UTIL_STEP_DOWN)
             if repaired == util_override:
                 continue  # already at floor, no repair to propose
