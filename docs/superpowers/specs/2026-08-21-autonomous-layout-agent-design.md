@@ -1022,6 +1022,69 @@ before failing, so this is the technology failing for this design, not
 the flag being ignored again. "This technology does not work here yet" is
 a real result and is reported as one rather than dropped.
 
+## RL / linear programming, and whether OpenLane is being used fully
+
+Asked (a) how RL or linear programming could optimize this pipeline and
+(b) whether OpenLane's own features are being used fully. Answered from
+this repo's real data and real measurements rather than from what those
+techniques do in general.
+
+**The relationship isn't even a function, let alone a linear one.**
+Extracting every real (requested `FP_CORE_UTIL` → achieved utilization)
+pair from reference-db gives 4 distinct points, and the same requested
+35 produced three different achieved values on the same design:
+`AREA 0`/`AREA 2` → 0.604, `DELAY 1` → 0.565, `DELAY 4` → 0.468.
+Achieved utilization depends on `SYNTH_STRATEGY` as well, and with only
+two distinct `FP_CORE_UTIL` values ever run (25, 35) the multivariate
+version is under-determined. So an LP formulation has nothing to stand
+on here: LP needs a linear objective over decision variables, and the
+objective (area/power/timing) is only observable by running OpenLane.
+This also retroactively justifies keeping the repair step-down a
+conservative constant rather than scaling it by the overshoot — that
+scaling would have assumed exactly the relationship the data refutes.
+
+**RL** remains declined for the reason already in `soul.md`, now with a
+number attached: 28 real candidate runs exist in total, each ~1 minute.
+RL over config choices needs orders of magnitude more episodes than
+that, and manufacturing them would mean fabricating the thing this
+project refuses to fabricate.
+
+**What actually pays is using OpenLane's own features.** The audit found
+real capabilities never used: `-f/--flow` (the shipped `Optimizing` and
+`SynthesisExploration` flows — 6 and 3 steps against `Classic`'s 78,
+measured at 11s and 10s against Classic's 64s on counter4), `-j/--jobs`,
+`--from`/`--only`, and `--reproducible`. Every candidate has been paying
+for all 78 steps.
+
+**The screening step, and the wrong reasoning that preceded it.** The
+first design screened every candidate to a cheap cutoff on the argument
+that all 13 crashed candidates in reference-db died at step 13/78 or
+20/78, so an early cutoff reproduces 100% of observed failures. Measured
+end to end, it made a crash-heavy run *slower* (107s vs 95s on
+`counter4_tinydie`). The reasoning conflated two different claims: a
+crashing candidate already costs only ~10s, because OpenLane exits at
+the failure. Screening it saves nothing and adds a process launch.
+"Failures happen early" is not "failures are expensive."
+
+The expensive case is the opposite: a candidate that completes all 78
+steps and is only then rejected against a target this pipeline set.
+`screen_candidates()` was rewritten to prune on the early utilization
+metric instead of on crashes, and a candidate that crashes during
+screening is deliberately returned as a survivor so the real run records
+it through one code path.
+
+The prune is sound rather than heuristic: it fires only when the *early*
+utilization already exceeds the target, and utilization can only grow
+after that point (CTS and timing repair add cells inside a fixed die).
+Measured on counter4: 0.3646 at the cutoff, 0.6042 at signoff — the
+direction that makes a false prune impossible. The early number is a
+lower bound and is never recorded as if it were the final result.
+
+Measured on the case it is for — a candidate that would complete and
+then miss its target — **69s → 10s, a 6.9× saving for the identical
+verdict**. Opt-in (`--screen`), because it is a loss when everything
+passes or everything crashes early.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
