@@ -485,6 +485,11 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
             <span className="metric-card__label">closure status</span>
             <strong className="metric-card__value">{pipelineCase.winner_tag ? "CLOSED" : "OPEN"}</strong>
             <span className="metric-card__note">winner · {pipelineCase.winner_tag ?? "not found"}</span>
+            {pipelineCase.stop_reason && pipelineCase.stop_reason !== "winner_found" && (
+              <span className="metric-card__note" title="why orchestrator.orchestrate()'s loop stopped">
+                stop reason · {pipelineCase.stop_reason}
+              </span>
+            )}
           </div>
           <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length} candidates</span></div>
           <div className="metric-card metric-card--good"><span className="metric-card__label">passed</span><strong className="metric-card__value">{passed}</strong><span className="metric-card__note">verified candidates</span></div>

@@ -603,6 +603,47 @@ measurements rather than assumed:
    the chart still renders correctly post-change (real browser check,
    not just a successful build).
 
+## Graph engineering: total guards + a ledger for the orchestrate loop
+
+User pointed at github.com/topics/graph-engineering and asked to apply
+it actively. That topic turned out to be about structuring *agent
+workflows* as graphs (typed nodes, total guards, bounded cycles, a
+durable ledger — RonMizrahi/sdlc-graph-engineering's terms), not graph
+algorithms on circuit netlists as first assumed — genuinely applicable
+here, since `orchestrate()`'s loop already has real branching, bounded
+retries (`propose_repairs()`), and human stops (`request_review.py`),
+which is exactly the "when a graph earns its cost" case that guide
+names (a purely linear process wouldn't have warranted this).
+
+Applied two of that methodology's principles for real, without adopting
+its plugin/graph-file machinery (this pipeline has no need for an
+installed graph spec — the loop already exists in code):
+
+1. **Total guards.** `orchestrate()`'s while-loop always had exactly
+   three exits in *code* (winner found / max_iterations reached / no
+   repairable pattern), but the case JSON only ever recorded a
+   collapsed `outcome` string that couldn't distinguish reasons 2 and 3.
+   Named them explicitly as `STOP_REASONS = ("winner_found",
+   "max_iterations_reached", "no_repairable_failures")`, asserted
+   exactly one always fires (`assert stop_reason in STOP_REASONS`), and
+   `write_case()` now records it. The dashboard shows it as a "stop
+   reason" note on OPEN cases.
+2. **Derive, never duplicate.** `mcp_server.py`'s `_tool_orchestrate`
+   had silently re-implemented the same loop rather than calling
+   `orchestrator.orchestrate()` — and had already drifted: its `if
+   winner or iteration >= max_iterations: break` collapsed two guards
+   into one untagged branch, exactly the failure mode principle #1
+   above exists to catch. Refactored `orchestrate()` out of `main()`
+   into its own function in `orchestrator.py`, called from both
+   `main()` and `mcp_server.py` now — one implementation, so this can't drift
+   again.
+
+Validated for real: reran `orchestrator.py` on `counter4` end to end
+(real OpenLane, `--max-parallel 3`) after the refactor — printed `stop
+reason: winner_found`, and the written case JSON has
+`"stop_reason": "winner_found"` — confirmed via the actual output, not
+assumed from the diff.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
