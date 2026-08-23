@@ -644,6 +644,53 @@ reason: winner_found`, and the written case JSON has
 `"stop_reason": "winner_found"` — confirmed via the actual output, not
 assumed from the diff.
 
+## Investigated and declined: MCP4EDA, MasterRTL, eda-sim-ai
+
+User asked to apply these three repos to the agent service. Investigated
+each for real rather than force-fitting an integration — a documented
+decline is the honest outcome here, the same way `sram_wrapper` stays
+open rather than being papered over.
+
+- **`NellyW8/MCP4EDA`** (paper: *LLM-Powered MCP RTL-to-GDSII
+  Automation*). Validates the same idea `pipeline/mcp_server.py` already
+  implements — an MCP server exposing EDA tools to an LLM agent — but
+  its GitHub `main` branch contains only the project's marketing website
+  (`agent4eda.com`'s source), not the actual MCP server implementation.
+  Nothing concrete to port; the paper's existence is a useful signal
+  that this project's own MCP server direction (ported from
+  `strongarm-sizing-console`, see above) is a reasonable one, not a
+  source of new code.
+- **`hkust-zhiyao/MasterRTL`** (pre-synthesis PPA estimation via a
+  learned "Simple Operator Graph" representation). The repo's own
+  README says it's no longer maintained, redirecting to `RTL-Timer`.
+  More importantly, its core value is a *trained* ML model for
+  timing/power correlation — this directly contradicts `soul.md`'s
+  existing, deliberate commitment ("Not RL- or surrogate-model-driven —
+  there isn't enough reference-db data to train either honestly").
+  Adopting it would mean either fabricating a model with no real
+  training data (violates "real, or say so") or shipping an untrained/
+  mis-trained estimator presented as if it worked. Declined for the
+  same reason RL was declined at this project's outset, not a new
+  decision.
+- **`forUAi/eda-sim-ai`** (imitation learning + GNN surrogate + RL
+  fine-tuning chip placement). Same problem as MasterRTL, more acutely:
+  1 star, no evidence of being run to completion by anyone, needs GPU
+  infra and its own multi-phase training pipeline (expert data →
+  imitation learning → surrogate → RL fine-tune) this project has
+  neither the data nor the infra for. Declined.
+
+**What would change this**: if `MCP4EDA`'s actual server code gets
+published, worth a second look for concrete tool ideas. If
+`reference-db/` grows to dozens of real cases (it's 4 today), revisit
+whether a *non-ML* piece of `MasterRTL`'s pipeline — its Yosys-based
+RTL→bit-level-graph construction step, not the trained PPA model built
+on top of it — could feed `topology.json`'s already-flagged "coarse
+heuristic, not a learned embedding" limitation with real graph
+statistics instead of regex-based counts. Not attempted now: it would
+add a Pyverilog dependency this project's "no third-party packages"
+pipeline philosophy doesn't currently carry, for a payoff that needs
+more reference-db scale to justify.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
