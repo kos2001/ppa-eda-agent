@@ -30,6 +30,7 @@ import render_layout  # noqa: E402
 import request_review  # noqa: E402
 import run_stage  # noqa: E402
 import self_improve  # noqa: E402
+import verify_diagnosis  # noqa: E402
 
 PROTOCOL_VERSION = "2024-11-05"
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -143,6 +144,19 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "ppa_verify_diagnosis",
+        "description": "Cross-checks a design's latest case diagnosis prose "
+                        "against that case's own recorded data, flagging EDA "
+                        "error codes and candidate tags it cites that the run "
+                        "never actually produced. Groundedness only — it does "
+                        "NOT judge whether the diagnosis is correct.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design"],
+            "properties": {"design": {"type": "string"}},
+        },
+    },
 ]
 
 
@@ -227,6 +241,11 @@ def _tool_render_layout(args: dict) -> dict:
     return {"png_path": str(out)}
 
 
+def _tool_verify_diagnosis(args: dict) -> dict:
+    _case_file, case = request_review.latest_case(args["design"])
+    return verify_diagnosis.verify_case(case)
+
+
 _TOOL_IMPL = {
     "ppa_run_stage": _tool_run_stage,
     "ppa_orchestrate": _tool_orchestrate,
@@ -235,6 +254,7 @@ _TOOL_IMPL = {
     "ppa_request_review": _tool_request_review,
     "ppa_apply_review": _tool_apply_review,
     "ppa_render_layout": _tool_render_layout,
+    "ppa_verify_diagnosis": _tool_verify_diagnosis,
 }
 
 

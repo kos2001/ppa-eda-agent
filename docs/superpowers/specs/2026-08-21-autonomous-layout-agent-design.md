@@ -854,6 +854,70 @@ browser at its real 900×900 (Playwright-verified, screenshot inspected:
 real power rings, cell rows, pin labels). Path traversal against the new
 endpoint was also confirmed rejected (`http=400`).
 
+## A regression suite, and diagnosis grounding (from strongarm-sizing-console)
+
+Two further things borrowed from
+github.com/kos2001/strongarm-sizing-console, after its MCP server pattern
+(above).
+
+**1. A real test suite — the practice, not the framework.** That repo has
+26 regression files; this one had *zero* tests. That gap was expensive
+and provable: this session alone hit five real bugs by accident, each
+found only by a slow real OpenLane run — `override_value()` JSON-quoting
+strings (broke `SYNTH_STRATEGY`), the same function bracketing lists
+(phantom `DIE_AREA[0]`), a space in a derived run tag (phantom Verilator
+lint error), `classify_stage()` matching incidental WARNING lines
+(misfiled sram_wrapper's failure stage), and `mcp_server.py`'s duplicated
+orchestrate loop drifting from the real one. Every one is a pure
+function needing no Docker, and every one dies instantly to a unit test.
+
+`tests/` now covers exactly that layer (38 tests, milliseconds, run with
+`python3 -m unittest discover -s tests`). What was borrowed is the
+convention that each test names the real failure it guards, so a reader
+can tell a deliberate pin from an incidental assertion. What was
+deliberately *not* borrowed is pytest: this pipeline is dependency-free
+by design, so the suite uses the standard library — soul.md's "borrow the
+working part, not the whole machine" applied to the very repo that phrase
+came from.
+
+Integration behaviour is not mocked. Faking Docker/OpenLane would prove
+nothing about the tools this pipeline actually shells out to, and those
+paths already run for real on every orchestrate.
+
+The suite was validated by negative control, not just by passing:
+re-introducing the string-quoting bug and the WARNING-classification bug
+each failed exactly its own test, and restoring each turned the suite
+green again. A suite that cannot fail is not evidence.
+
+**2. Diagnosis grounding (`verify_diagnosis.py`).** The genuinely
+transferable idea in that repo's `scripts/agent_selftest.py` is its
+grading principle: judge an agent's answer by *independent
+cross-validation against what the backend really measured*, never by
+string similarity to an expected answer. This pipeline has no always-on
+agent endpoint, but it does have agent-written prose stored in
+reference-db, so the principle applies to those artifacts directly.
+
+It guards a failure that already happened here: sram_wrapper's first
+diagnosis confidently blamed the macro's `clk0`/`clk1` pins without ever
+opening the `.lib`, and had to be rewritten once the real liberty file
+was read. The check is deliberately narrow, because the honest version
+has to be — it cannot decide whether a diagnosis is *correct* (that is
+exactly the judgment `request_review.py` escalates to a human). What it
+can decide: every EDA error code and candidate tag the prose cites must
+appear in that case's own recorded data. That catches invented
+references and stale copy-paste from another design, and nothing more —
+claiming otherwise would be the kind of over-reach the check exists to
+oppose.
+
+Wired into `self_improve.py`'s scan rather than left as a standalone
+script (a check outside the loop is a check that doesn't happen) and
+exposed as the `ppa_verify_diagnosis` MCP tool. A real false positive
+surfaced on its first run against real data — the tag pattern matched the
+ordinary English word "candidate" — and is now fixed (a hyphen is
+required after the prefix) and pinned by a test, since a checker that
+cries wolf on normal prose gets switched off. Verified against every
+committed case: all cited references are grounded.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

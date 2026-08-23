@@ -154,6 +154,28 @@ checking whether that one-off diagnosis should become a new
 Claude Code `/loop` — see the design spec's "Self-improvement loop"
 section.
 
+## Tests
+
+```sh
+python3 -m unittest discover -s tests -v
+```
+
+No install step and no test dependency — the standard library's
+`unittest`, matching this repo's dependency-free pipeline. Practice
+borrowed from
+[`strongarm-sizing-console`](https://github.com/kos2001/strongarm-sizing-console)'s
+`tests/`, including its convention that every test names the real failure
+it guards against; its pytest dependency deliberately isn't borrowed (see
+`soul.md`, "borrow the working part, not the whole machine").
+
+Scope is the pipeline's *pure* decision logic — override formatting,
+sweep expansion, failure-stage classification, scoring, auto-repair
+proposal, winner selection, coverage accounting, diagnosis grounding.
+That's where every bug this project has actually shipped has lived, and
+none of it needs Docker, OpenLane, or a PDK, so the suite runs in
+milliseconds. Real EDA behaviour isn't mocked: it's exercised for real on
+every `orchestrator.py` run instead.
+
 ## MCP server
 
 `pipeline/mcp_server.py` — a dependency-free JSON-RPC 2.0 stdio MCP
@@ -171,6 +193,7 @@ instead of shelled-out commands:
 | `ppa_request_review` | Generates a human-in-the-loop review request from a case's real diagnosis |
 | `ppa_apply_review` | Applies a subagent's real review response back into the case |
 | `ppa_render_layout` | Renders a real PNG of a completed run's actual GDS via KLayout (bundled in the OpenLane image already used — no new dependency) |
+| `ppa_verify_diagnosis` | Cross-checks a case's diagnosis prose against its own recorded data (groundedness of cited error codes / candidate tags — not a correctness check) |
 
 Within a Claude Code session already working in this repo, a subagent
 can just call the underlying Python modules directly via Bash — this

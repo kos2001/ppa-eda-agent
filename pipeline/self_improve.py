@@ -65,6 +65,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import verify_diagnosis
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DESIGNS_DIR = REPO_ROOT / "pipeline" / "designs"
 REFDB = REPO_ROOT / "reference-db"
@@ -173,11 +175,21 @@ def scan_design(design: str) -> dict:
     else:
         status = "OPEN, needs review"
 
+    # Grounding of the diagnosis prose against this case's own recorded
+    # data (verify_diagnosis.py). Reported here rather than as a separate
+    # script nobody remembers to run — a check outside the loop is a
+    # check that doesn't happen. Only surfaced when something is actually
+    # ungrounded, so a clean scan stays readable.
+    grounding = verify_diagnosis.verify_case(case)
+    ungrounded = (grounding.get("ungrounded_error_codes", [])
+                  + grounding.get("ungrounded_candidate_tags", []))
+
     return {
         "design": design,
         "date": case["date"],
         "status": status,
         "stop_reason": stop_reason,
+        "ungrounded_diagnosis_references": ungrounded or None,
         "auto_repair_coverage": f"{covered}/{total}" if total else "n/a (nothing failed)",
         "patterns_matched": sorted(set(matched)),
         "review_request_generated": review_request_path,
