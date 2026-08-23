@@ -762,6 +762,54 @@ labels, not a placeholder), then re-verified through the actual
 `ppa_render_layout` MCP tool call end to end (not just the standalone
 script).
 
+## Closing the loop: self_improve.py acts on stop_reason
+
+`stop_reason` was added to the case JSON (see "Graph engineering" above)
+but its most important consumer never read it: `self_improve.py` still
+inferred everything from `winner_tag` alone, so it treated all OPEN
+cases identically and filed a human-review request for every one. That
+made the two STOP_REASONS a distinction the data recorded but nothing
+acted on — a half-applied change.
+
+The two OPEN reasons need opposite responses:
+
+- `no_repairable_failures` — `propose_repairs()` had no pattern for the
+  failure. A human/subagent is genuinely the only way forward. Review
+  request is correct.
+- `max_iterations_reached` — `propose_repairs()` was *still producing
+  new candidates* each iteration and just ran out of budget. A human
+  has nothing to add that another iteration wouldn't. Filing a review
+  here is a false alarm, and a backlog full of false alarms is one
+  people stop reading.
+
+`scan_design()` now branches on this: budget-exhausted cases get a
+distinct status, are excluded from both the review backlog and the
+pattern-promotion list (the existing patterns were still firing, so
+they say nothing about whether a *new* pattern is needed), and instead
+report a concrete re-run command with a doubled budget — grounded in
+the design's real `run_spec.json` value, not an invented number. Cases
+written before `stop_reason` existed (`None`) keep the old behaviour,
+since we genuinely can't tell which kind of OPEN they were.
+
+This is the "iteration budgeting and termination logic" point from
+arxiv.org/html/2605.06936v3 applied concretely — hard tasks benefit
+from additional budget where easy ones saturate early, so "hit the cap"
+and "genuinely stuck" must not collapse into one status.
+
+Validated with a real run, not a hand-edited fixture: `counter4_tinydie`
+genuinely needs 4 iterations to close, so re-running it with
+`--max-iterations 2` produced a real `max_iterations_reached` case from
+a real OpenLane flow. The scan then correctly reported "OPEN, iteration
+budget exhausted (not a review case)", filed **no** review request
+(verified `reference-db/reviews/` stayed empty of it), excluded it from
+pattern promotion, and emitted a `--max-iterations 8` retry command —
+while `auto_repair_coverage: 2/2` confirmed auto-repair had been
+working the whole time, which is exactly why escalating would have been
+wrong. The deliberately under-budgeted case was then deleted rather
+than committed: it's a real run, but keeping it as that design's
+*latest* case would misrepresent a design that closes fine at its
+normal budget.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
