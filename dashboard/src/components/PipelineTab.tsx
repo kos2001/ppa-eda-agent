@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import {
   fetchPipelineRunStatus,
   fetchReferenceDb,
+  layoutImageUrl,
   triggerPipelineRun,
   type CandidateDataPointers,
   type CandidateResult,
@@ -146,6 +147,32 @@ function AgentRolesLegend() {
         </li>
       </ul>
     </details>
+  );
+}
+
+// The case's real rendered GDS layout, stored in reference-db by
+// orchestrator.py so it survives the run directory being cleaned up.
+// Deliberately shown to the *human* too, not just handed to subagents:
+// arxiv.org/html/2605.06936v3 measured that a layout image improves
+// diagnosis of real post-flow violations over text alone, and there's
+// no reason that advantage should stop at the agent boundary.
+function CaseLayoutImage({ pipelineCase }: { pipelineCase: PipelineCase }) {
+  const { t } = useLang();
+  const [failed, setFailed] = useState(false);
+  if (!pipelineCase.layout_image || failed) return null;
+  return (
+    <div className="pipeline__layout-image">
+      <span className="tab__meta-label">
+        {t("pipeline_layout_image_label")}
+        {pipelineCase.layout_image_tag ? ` · ${pipelineCase.layout_image_tag}` : ""}
+      </span>
+      <img
+        src={layoutImageUrl(pipelineCase.layout_image)}
+        alt={`Rendered GDS layout for ${pipelineCase.design} ${pipelineCase.layout_image_tag ?? ""}`}
+        loading="lazy"
+        onError={() => setFailed(true)}
+      />
+    </div>
   );
 }
 
@@ -609,6 +636,8 @@ function CaseCard({ pipelineCase }: { pipelineCase: PipelineCase }) {
         <AgentRolesLegend />
 
         {pipelineCase.topology && <TopologySummary topology={pipelineCase.topology} />}
+
+        <CaseLayoutImage pipelineCase={pipelineCase} />
 
         {chartData.length > 0 && (
           <div className="pipeline__chart">

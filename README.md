@@ -52,6 +52,11 @@ reference-db/                       Case store of past pipeline runs —
                                      topology signature, candidate
                                      configs tried, real PPA/DRC/LVS
                                      results — for reuse across designs
+  cases/                              one JSON per design per day
+  layouts/                            real KLayout renders of each case's
+                                       actual GDS, kept here so they
+                                       outlive the (gitignored) run dirs
+  reviews/                            human-in-the-loop review requests
 ```
 
 ## Autonomous layout pipeline
