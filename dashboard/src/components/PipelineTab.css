@@ -93,11 +93,101 @@
    2026-08-21-autonomous-layout-agent-design.md), not a generic EDA
    flow strip — see pipeline/orchestrator.py's PROCESS_STAGES, which
    this list is driven from. */
+/* Four phases left-to-right, sized by how much work each holds (EVALUATE
+   owns 4 of the 8 stages), with an arrow between them so the row reads as
+   a flow rather than as an unordered grid of equal cards. */
 .pipeline__process {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.6rem;
-  margin: 1.1rem 0;
+  grid-template-columns: 1.6fr 1fr 3fr 1fr;
+  gap: 1.5rem;
+  margin: 1.1rem 0 0.6rem;
+}
+
+.pipeline__phase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  border-top-width: 3px;
+}
+
+/* One colour per kind of work, so a glance separates reading the design
+   from running candidates from deciding what happens next. */
+.pipeline__phase--understand { border-top-color: var(--text-dim); }
+/* Amber, not the accent teal: --accent (67,217,211) and --good
+   (52,211,153) measured too close to tell apart side by side, which
+   defeats the point of colouring phases by role at all. */
+.pipeline__phase--propose    { border-top-color: var(--warn); }
+.pipeline__phase--evaluate   { border-top-color: var(--good); }
+.pipeline__phase--decide     { border-top-color: var(--critical); }
+
+.pipeline__phase::after {
+  content: "→";
+  position: absolute;
+  right: -1.1rem;
+  top: 1.35rem;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+.pipeline__phase:last-of-type::after { content: ""; }
+
+.pipeline__phase-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-height: 3.6rem;
+}
+
+.pipeline__phase-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+}
+.pipeline__phase--understand .pipeline__phase-label { color: var(--text-dim); }
+.pipeline__phase--propose    .pipeline__phase-label { color: var(--warn); }
+.pipeline__phase--evaluate   .pipeline__phase-label { color: var(--good); }
+.pipeline__phase--decide     .pipeline__phase-label { color: var(--critical); }
+
+.pipeline__phase-role {
+  font-size: 0.66rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.pipeline__phase-stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+/* The loop that closes DECIDE back onto PROPOSE. Spans the full row and
+   sits under it, so the arrow reads as returning across the pipeline. */
+.pipeline__loop {
+  grid-column: 1 / -1;
+  margin-top: 0.2rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.pipeline__loop--fired {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.pipeline__loop--idle { color: var(--text-dim); opacity: 0.75; }
+
+@media (max-width: 1100px) {
+  .pipeline__process { grid-template-columns: 1fr; gap: 1.6rem; }
+  .pipeline__phase::after {
+    right: 50%; top: auto; bottom: -1.2rem;
+    transform: translateX(50%); content: "↓";
+  }
+  .pipeline__phase-head { min-height: 0; }
 }
 .pipeline__process-stage {
   display: flex;

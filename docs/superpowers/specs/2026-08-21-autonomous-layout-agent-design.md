@@ -1200,6 +1200,54 @@ seen while testing (0.5s on a repeat call) was **the gateway's own
 prompt caching**, not this cache — there was no cache header and no file
 on disk.
 
+## Grouping the 8 stages by role, and drawing the repair loop
+
+The 8 process stages rendered as a flat 4-column grid of identical
+cards. Three problems with that, all about what it failed to
+distinguish:
+
+- **It read as a checklist, not a pipeline.** No direction, no sense
+  that a candidate moves through it.
+- **Every stage looked like the same kind of thing.** "Reads the
+  design", "proposes configurations to try", "runs and judges a
+  candidate", and "decides what happens next" are four different kinds
+  of work, and the grid gave them identical visual weight.
+- **The repair loop was invisible** — despite being this agent's
+  defining behaviour. Stage 8 doesn't end a run; it feeds a new
+  candidate set back into stage 3. Nothing on screen said so.
+
+`ProcessStages` now groups the stages into four phases — UNDERSTAND
+(1–2), PROPOSE (3), EVALUATE (4–7), DECIDE (8) — laid out left to right
+with arrows between them, each phase carrying a one-line statement of
+what that kind of work *is*. Column widths follow the real distribution
+of work, so EVALUATE is visibly the widest at 4 of the 8 stages.
+
+The grouping follows the code rather than being tidy: stages 4–7 are
+exactly the ids `classify_stage()` can assign to a candidate (where its
+run actually got to), stage 3 is what `placement-strategist` proposes,
+and stage 8 is the only one tracked per-candidate by
+`produced_by_feedback` instead of by stage.
+
+The loop is drawn as a full-width return path beneath the row, labelled
+from this case's real numbers: "3 candidate(s) here came from DECIDE
+feeding a new configuration back into PROPOSE" when it fired, and an
+explanation of when it *would* fire when it didn't — so it reads as
+something that happened rather than diagram decoration.
+
+Verified against real data in the browser, both branches: the four
+phases render on one row at x = 299/521/717/1113 with widths
+199/171/**373**/171 and stage counts 2/1/4/1; `counter4__2026-08-23`
+shows the loop idle and `counter4_tinydie__2026-08-23` shows it fired
+with 3 — cross-checked against the case JSON
+(`produced_by_feedback` = 0 and 3 respectively).
+
+One fix came out of measuring rather than eyeballing: the first colour
+assignment gave PROPOSE `--accent` (67,217,211) next to EVALUATE
+`--good` (52,211,153), an RGB distance of ~59 — two adjacent phases that
+are nearly the same teal, which defeats the point of colouring by role.
+Moving PROPOSE to the theme's existing `--warn` amber raised the minimum
+pairwise distance across all four phases to **104**.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

@@ -15,7 +15,7 @@ import {
 } from "../api/referenceDb";
 import { askReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
-import { useLang } from "../i18n";
+import { useLang, type DictKey } from "../i18n";
 import HowItWorks from "./HowItWorks";
 import LayoutView from "./LayoutView";
 import SlackChart from "./SlackChart";
@@ -184,7 +184,36 @@ function CaseLayoutImage({ pipelineCase }: { pipelineCase: PipelineCase }) {
   );
 }
 
+// The 8 stages grouped by the *kind of work* each one does. Grouping is
+// not cosmetic: the flat grid gave a die-too-small floorplan crash, a
+// candidate proposal, and the repair decision identical visual weight,
+// so nothing on screen distinguished "reads the design" from "runs and
+// judges a candidate" from "decides what happens next".
+//
+// The boundaries follow the real code rather than being tidy: stages
+// 4-7 are exactly the ids classify_stage() can assign to a candidate
+// (where its run actually got to), stage 3 is what placement-strategist
+// proposes, and stage 8 is the only one tracked per-candidate by
+// produced_by_feedback instead of by stage. See orchestrator.py.
+const PIPELINE_PHASES: {
+  id: string;
+  labelKey: DictKey;
+  roleKey: DictKey;
+  stages: ProcessStageId[];
+}[] = [
+  { id: "understand", labelKey: "phase_understand", roleKey: "phase_understand_role",
+    stages: ["extraction", "topology"] },
+  { id: "propose", labelKey: "phase_propose", roleKey: "phase_propose_role",
+    stages: ["placement_strategy"] },
+  { id: "evaluate", labelKey: "phase_evaluate", roleKey: "phase_evaluate_role",
+    stages: ["physical_constraint", "routing_generation", "routing_candidate",
+             "verification_ppa"] },
+  { id: "decide", labelKey: "phase_decide", roleKey: "phase_decide_role",
+    stages: ["feedback"] },
+];
+
 function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
+  const { t } = useLang();
   const stages = pipelineCase.process_stages ?? FALLBACK_PROCESS_STAGES;
   const candidates = pipelineCase.iterations.flatMap((it) => it.results);
   const stageCounts: Partial<Record<ProcessStageId, number>> = {};
@@ -210,25 +239,55 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
     }
   }
 
+  const stageIndex = new Map(stages.map((s, i) => [s.id, i + 1]));
+  const byId = new Map(stages.map((s) => [s.id, s]));
+
   return (
     <div className="pipeline__process" aria-label="8-step layout agent process">
-      {stages.map((stage, index) => {
-        const { count, note } = countFor(stage.id);
-        const reached = count > 0;
-        const owner = STAGE_AGENT[stage.id];
-        return (
-          <div
-            key={stage.id}
-            className={`pipeline__process-stage ${reached ? "pipeline__process-stage--reached" : "pipeline__process-stage--empty"}`}
-            title={owner ? `${owner.agent} — ${owner.role.en}` : note}
-          >
-            <span className="pipeline__process-stage-index">{String(index + 1).padStart(2, "0")}</span>
-            <strong>{stage.name}</strong>
-            {owner && <span className="pipeline__process-stage-agent">{owner.agent}</span>}
-            <span className="pipeline__process-stage-note">{note}</span>
+      {PIPELINE_PHASES.map((phase) => (
+        <section key={phase.id} className={`pipeline__phase pipeline__phase--${phase.id}`}>
+          <header className="pipeline__phase-head">
+            <span className="pipeline__phase-label">{t(phase.labelKey)}</span>
+            <span className="pipeline__phase-role">{t(phase.roleKey)}</span>
+          </header>
+          <div className="pipeline__phase-stages">
+            {phase.stages.map((id) => {
+              const stage = byId.get(id);
+              if (!stage) return null;
+              const { count, note } = countFor(id);
+              const reached = count > 0;
+              const owner = STAGE_AGENT[id];
+              return (
+                <div
+                  key={id}
+                  className={`pipeline__process-stage ${reached ? "pipeline__process-stage--reached" : "pipeline__process-stage--empty"}`}
+                  title={owner ? `${owner.agent} — ${owner.role.en}` : note}
+                >
+                  <span className="pipeline__process-stage-index">
+                    {String(stageIndex.get(id) ?? 0).padStart(2, "0")}
+                  </span>
+                  <strong>{stage.name}</strong>
+                  {owner && <span className="pipeline__process-stage-agent">{owner.agent}</span>}
+                  <span className="pipeline__process-stage-note">{note}</span>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </section>
+      ))}
+
+      {/* The repair loop, drawn because it is this agent's defining
+          behaviour and was previously invisible: stage 8 does not end the
+          run, it feeds a new candidate set back into stage 3. Labelled
+          with the real count from this case so it reads as something
+          that happened, not a diagram decoration. */}
+      <div
+        className={`pipeline__loop ${feedbackCount > 0 ? "pipeline__loop--fired" : "pipeline__loop--idle"}`}
+      >
+        ↺ {feedbackCount > 0
+            ? t("phase_loop_fired").replace("{n}", String(feedbackCount))
+            : t("phase_loop_idle")}
+      </div>
     </div>
   );
 }

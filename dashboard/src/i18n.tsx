@@ -93,6 +93,35 @@ const dict = {
   hiw_stat_closed: { en: "closed by the agent", ko: "에이전트가 완료" },
   hiw_stat_repaired: { en: "self-repaired candidates", ko: "자가복구된 후보" },
 
+  phase_understand: { en: "UNDERSTAND", ko: "파악" },
+  phase_understand_role: {
+    en: "read the design — no candidate exists yet",
+    ko: "설계를 읽는 단계 — 아직 후보가 없음",
+  },
+  phase_propose: { en: "PROPOSE", ko: "제안" },
+  phase_propose_role: {
+    en: "turn that reading into concrete configurations to try",
+    ko: "파악한 내용을 실제로 시도할 설정 후보로 변환",
+  },
+  phase_evaluate: { en: "EVALUATE", ko: "평가" },
+  phase_evaluate_role: {
+    en: "gates each candidate passes through in a real OpenLane run — a candidate is tagged with the last gate it reached",
+    ko: "각 후보가 실제 OpenLane 실행에서 통과해야 하는 관문 — 후보에는 도달한 마지막 관문이 표시됨",
+  },
+  phase_decide: { en: "DECIDE", ko: "판단" },
+  phase_decide_role: {
+    en: "winner, repair and retry, or escalate to a human",
+    ko: "승자 확정 · 복구 후 재시도 · 사람에게 에스컬레이션 중 하나",
+  },
+  phase_loop_fired: {
+    en: "repair loop — {n} candidate(s) here came from DECIDE feeding a new configuration back into PROPOSE",
+    ko: "복구 루프 — 이 케이스의 후보 {n}개는 '판단'이 새 설정을 '제안'으로 되돌려 만들어졌습니다",
+  },
+  phase_loop_idle: {
+    en: "repair loop — not needed in this case; DECIDE can send a new configuration back to PROPOSE when a run fails a way it recognises",
+    ko: "복구 루프 — 이 케이스에선 불필요했습니다. 아는 유형으로 실패하면 '판단'이 새 설정을 '제안'으로 되돌립니다",
+  },
+
   review_step_request: { en: "1. generate review request", ko: "1. 리뷰 요청 생성" },
   review_step_ask: { en: "2. get an AI review", ko: "2. AI 리뷰 받기" },
   review_step_apply: { en: "3. apply into the case", ko: "3. 케이스에 반영" },
