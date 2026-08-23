@@ -518,10 +518,20 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
 
 
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
-               winner: dict | None) -> Path:
+               winner: dict | None, stop_reason: str | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     case_file = REFDB / "cases" / f"{design_name}__{date.today().isoformat()}.json"
+    # outcome stays as the short human-readable summary the dashboard
+    # already renders; stop_reason is the machine-readable total-guard
+    # value (STOP_REASONS) a caller (self_improve.py, the dashboard) can
+    # branch on without parsing outcome's prose.
+    outcome = {
+        "winner_found": "passed",
+        "max_iterations_reached": "no candidate met targets after all iterations",
+        "no_repairable_failures": "no candidate met targets — no auto-repairable "
+                                   "pattern matched, needs a human/subagent decision",
+    }.get(stop_reason, "passed" if winner else "no candidate met targets after all iterations")
     case = {
         "design": design_name,
         "date": date.today().isoformat(),
@@ -529,7 +539,8 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "topology": read_topology(design_dir),
         "iterations": iterations,
         "winner_tag": winner["tag"] if winner else None,
-        "outcome": "passed" if winner else "no candidate met targets after all iterations",
+        "outcome": outcome,
+        "stop_reason": stop_reason,
     }
     case_file.write_text(json.dumps(case, indent=2))
 
@@ -557,6 +568,81 @@ def print_iteration_summary(iteration: int, results: list[dict]) -> None:
                   f"util={v['utilization']}, worst_setup_wns={v['worst_setup_wns']}")
 
 
+# Every orchestrate() run stops for exactly one of these reasons — a
+# total guard (graph-engineering sense: every exit matches exactly one
+# guard, never zero — a silent fallthrough — and never two — an
+# ambiguous transition). Previously this reasoning only ever reached a
+# print() statement; write_case() now records it, so a case's
+# reference-db JSON — and the dashboard — can say *which* guard fired,
+# not just "passed" vs. a single generic failure string that collapsed
+# "ran out of iteration budget" and "no repair pattern matched" into one
+# unreadable outcome. See docs/superpowers/specs/
+# 2026-08-21-autonomous-layout-agent-design.md's "Graph engineering"
+# section (github.com/topics/graph-engineering — RonMizrahi/
+# sdlc-graph-engineering's "total guards" + "the ledger is the
+# load-bearing part" principles, applied here without adopting that
+# project's plugin/graph-file machinery this pipeline doesn't need).
+STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failures")
+
+
+def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
+                 max_parallel: int = 1) -> tuple[list[dict], dict | None, str]:
+    """Runs the full candidate-generation-and-auto-repair loop for one
+    design. Returns (all_iterations, winner, stop_reason) — stop_reason
+    is always exactly one of STOP_REASONS, never None (see above)."""
+    candidates = run_spec.get("candidates", []) + expand_sweeps(run_spec)
+    if not candidates:
+        raise ValueError("run_spec.json must have a non-empty 'candidates' "
+                          "and/or 'sweeps' list")
+    all_iterations = []
+    winner = None
+    stop_reason = None
+
+    iteration = 1
+    while True:
+        results = run_candidates(
+            design_dir,
+            {**run_spec, "candidates": candidates},
+            max_parallel=max(1, max_parallel),
+        )
+        for r in results:
+            r["stage"] = classify_stage(r)
+            # True when this candidate exists only because
+            # propose_repairs() proposed it from a prior iteration's
+            # failure — i.e. this candidate IS one firing of the
+            # feedback loop, regardless of what its own run does next.
+            r["produced_by_feedback"] = iteration > 1
+        print_iteration_summary(iteration, results)
+        all_iterations.append({"iteration": iteration, "results": results})
+
+        winner = pick_winner(results)
+        if winner:
+            print(f"\nwinner found in iteration {iteration}: {winner['tag']}")
+            stop_reason = "winner_found"
+            break
+        if iteration >= max_iterations:
+            print(f"\nreached max_iterations ({max_iterations}) with no winner")
+            stop_reason = "max_iterations_reached"
+            break
+
+        next_candidates = propose_repairs(results, iteration)
+        if not next_candidates:
+            print("\nno auto-repairable failures found — stopping "
+                  "(needs placement-strategist/feedback-optimizer to propose "
+                  "a genuinely new candidate set)")
+            stop_reason = "no_repairable_failures"
+            break
+
+        print(f"\nauto-repair proposing {len(next_candidates)} candidate(s) "
+              f"for iteration {iteration + 1}: "
+              f"{[(c['tag'], c['overrides']) for c in next_candidates]}")
+        candidates = next_candidates
+        iteration += 1
+
+    assert stop_reason in STOP_REASONS, f"ungated exit: {stop_reason!r}"
+    return all_iterations, winner, stop_reason
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--design", required=True, type=Path)
@@ -572,53 +658,13 @@ def main():
     design_name = run_spec.get("design_name", args.design.name)
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
 
-    candidates = run_spec.get("candidates", []) + expand_sweeps(run_spec)
-    if not candidates:
-        raise ValueError("run_spec.json must have a non-empty 'candidates' "
-                          "and/or 'sweeps' list")
-    all_iterations = []
-    winner = None
+    all_iterations, winner, stop_reason = orchestrate(
+        args.design, run_spec, max_iterations, args.max_parallel
+    )
 
-    iteration = 1
-    while True:
-        results = run_candidates(
-            args.design,
-            {**run_spec, "candidates": candidates},
-            max_parallel=max(1, args.max_parallel),
-        )
-        for r in results:
-            r["stage"] = classify_stage(r)
-            # True when this candidate exists only because
-            # propose_repairs() proposed it from a prior iteration's
-            # failure — i.e. this candidate IS one firing of the
-            # feedback loop, regardless of what its own run does next.
-            r["produced_by_feedback"] = iteration > 1
-        print_iteration_summary(iteration, results)
-        all_iterations.append({"iteration": iteration, "results": results})
-
-        winner = pick_winner(results)
-        if winner:
-            print(f"\nwinner found in iteration {iteration}: {winner['tag']}")
-            break
-        if iteration >= max_iterations:
-            print(f"\nreached max_iterations ({max_iterations}) with no winner")
-            break
-
-        next_candidates = propose_repairs(results, iteration)
-        if not next_candidates:
-            print("\nno auto-repairable failures found — stopping "
-                  "(needs placement-strategist/feedback-optimizer to propose "
-                  "a genuinely new candidate set)")
-            break
-
-        print(f"\nauto-repair proposing {len(next_candidates)} candidate(s) "
-              f"for iteration {iteration + 1}: "
-              f"{[(c['tag'], c['overrides']) for c in next_candidates]}")
-        candidates = next_candidates
-        iteration += 1
-
-    case_file = write_case(design_name, args.design, all_iterations, winner)
+    case_file = write_case(design_name, args.design, all_iterations, winner, stop_reason)
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
+    print(f"stop reason: {stop_reason}")
     print(f"case written to: {case_file}")
 
 

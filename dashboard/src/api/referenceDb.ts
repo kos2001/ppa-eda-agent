@@ -124,6 +124,11 @@ export interface PipelineCase {
   iterations: IterationResult[];
   winner_tag: string | null;
   outcome: string;
+  // The total-guarded reason orchestrator.orchestrate()'s loop stopped —
+  // "winner_found" | "max_iterations_reached" | "no_repairable_failures"
+  // (orchestrator.py's STOP_REASONS). Optional: older cases predate this
+  // field.
+  stop_reason?: string | null;
   diagnosis?: string;
   human_in_the_loop?: HumanInTheLoopEntry[];
 }

@@ -134,6 +134,15 @@ def _tool_run_stage(args: dict) -> dict:
 
 
 def _tool_orchestrate(args: dict) -> dict:
+    # Delegates to orchestrator.orchestrate() instead of re-implementing
+    # the iterate/repair loop here — this file used to duplicate it, and
+    # the duplicate had actually drifted: it collapsed the "winner found"
+    # and "max_iterations reached" exits into one untagged branch (`if
+    # winner or iteration >= max_iterations: break`), silently losing the
+    # distinction orchestrator.py's own loop preserves. One real
+    # total-guarded implementation, called from both places, so this
+    # can't happen again (see orchestrator.py's STOP_REASONS /
+    # "Graph engineering" doc section).
     design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
     run_spec_path = design_dir / "run_spec.json"
     run_spec = json.loads(run_spec_path.read_text())
@@ -141,29 +150,15 @@ def _tool_orchestrate(args: dict) -> dict:
     max_iterations = args.get("max_iterations") or run_spec.get("max_iterations", 3)
     max_parallel = max(1, args.get("max_parallel", 1))
 
-    candidates = run_spec.get("candidates", []) + orchestrator.expand_sweeps(run_spec)
-    all_iterations = []
-    winner = None
-    iteration = 1
-    while True:
-        results = orchestrator.run_candidates(design_dir, {**run_spec, "candidates": candidates}, max_parallel=max_parallel)
-        for r in results:
-            r["stage"] = orchestrator.classify_stage(r)
-            r["produced_by_feedback"] = iteration > 1
-        all_iterations.append({"iteration": iteration, "results": results})
-        winner = orchestrator.pick_winner(results)
-        if winner or iteration >= max_iterations:
-            break
-        next_candidates = orchestrator.propose_repairs(results, iteration)
-        if not next_candidates:
-            break
-        candidates = next_candidates
-        iteration += 1
+    all_iterations, winner, stop_reason = orchestrator.orchestrate(
+        design_dir, run_spec, max_iterations, max_parallel
+    )
 
-    case_file = orchestrator.write_case(design_name, design_dir, all_iterations, winner)
+    case_file = orchestrator.write_case(design_name, design_dir, all_iterations, winner, stop_reason)
     return {
         "winner_tag": winner["tag"] if winner else None,
         "iterations_run": len(all_iterations),
+        "stop_reason": stop_reason,
         "case_file": str(case_file),
     }
 
