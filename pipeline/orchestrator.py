@@ -375,6 +375,98 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict) -> dict:
                 "error": str(e)}
 
 
+# Cheap pre-flight cutoff, stopping just past placement/PDN. Measured on
+# counter4: 10s against the full Classic flow's 64s.
+#
+# What screening is and is NOT for, corrected by measurement after a
+# first design based on faulty reasoning. All 13 crashed candidates in
+# reference-db died at step 13/78 (Floorplan) or 20/78 (GeneratePDN), so
+# it looked as though an early cutoff would cheaply reproduce every
+# failure this pipeline has seen. Running it proved that pointless: a
+# crashing candidate ALREADY costs only ~10s, because OpenLane exits at
+# the failure. Screening them saves nothing and adds a second process
+# launch — measured end to end on counter4_tinydie, screening made a
+# crash-heavy run *slower* (107s vs 95s). "Failures happen early" is not
+# the same claim as "failures are expensive."
+#
+# The expensive case is the opposite one: a candidate that completes all
+# 78 steps and is only then rejected on a target this pipeline set. That
+# costs the full flow before revealing it was never viable. So the screen
+# prunes on the early utilization metric, not on crashes.
+#
+# Soundness: this prunes only when the EARLY utilization already exceeds
+# the target. Utilization can only grow after this point — CTS and timing
+# repair add cells inside a fixed die — so an early value above target
+# guarantees the final one is too. Measured on counter4: 0.3646 at the
+# cutoff, 0.6042 at signoff. That direction is what makes the prune safe;
+# the early number is a lower bound, never a prediction, and is never
+# recorded as if it were the real result.
+SCREEN_STEP = "OpenROAD.GeneratePDN"
+
+
+def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
+                       max_parallel: int = 1) -> tuple[list[dict], list[dict]]:
+    """Runs each candidate only as far as SCREEN_STEP and prunes the ones
+    whose early utilization already exceeds the target. Returns
+    (survivors, pruned).
+
+    A candidate that *crashes* during screening is returned as a survivor
+    on purpose: it would crash identically in the full run at the same
+    cost, and letting the real run record it keeps one code path
+    producing failure results instead of two.
+    """
+    max_util = targets.get("max_core_utilization")
+    if max_util is None:
+        return list(candidates), []
+
+    survivors, pruned = [], []
+
+    def screen_one(cand: dict) -> dict:
+        tag = f"{cand['tag']}-screen"
+        overrides = [f"{k}={override_value(v)}"
+                     for k, v in cand.get("overrides", {}).items()]
+        try:
+            run_dir = run_stage(design_dir, tag, to_step=SCREEN_STEP,
+                                 overrides=overrides)
+            metrics = read_metrics(run_dir)
+            return {"cand": cand,
+                     "early_util": metrics.get("design__instance__utilization__stdcell")}
+        except Exception:  # noqa: BLE001 — let the real run record it
+            return {"cand": cand, "early_util": None}
+
+    if max_parallel <= 1 or len(candidates) <= 1:
+        screened = [screen_one(c) for c in candidates]
+    else:
+        with ThreadPoolExecutor(max_workers=min(max_parallel, len(candidates))) as ex:
+            futures = {ex.submit(screen_one, c): c for c in candidates}
+            by_tag = {}
+            for fut in as_completed(futures):
+                by_tag[futures[fut]["tag"]] = fut.result()
+            screened = [by_tag[c["tag"]] for c in candidates]
+
+    for item in screened:
+        cand, early = item["cand"], item["early_util"]
+        if early is not None and early > max_util:
+            pruned.append({
+                "tag": cand["tag"],
+                "overrides": cand.get("overrides", {}),
+                "verdict": {
+                    "passed": False,
+                    "violations": [f"utilization {early:.3f} already > target "
+                                    f"{max_util} at {SCREEN_STEP} (pruned before "
+                                    f"signoff; utilization only grows after this "
+                                    f"point)"],
+                    "area_um2": None, "utilization": early,
+                    "worst_setup_wns": 0, "timing_corners": [],
+                    "power": None, "power_domain": None,
+                },
+                "screened_out": True,
+            })
+        else:
+            survivors.append(cand)
+    return survivors, pruned
+
+
 def run_candidates(design_dir: Path, run_spec: dict,
                    max_parallel: int = 1) -> list[dict]:
     candidates = run_spec["candidates"]
@@ -680,10 +772,15 @@ STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failure
 
 
 def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
-                 max_parallel: int = 1) -> tuple[list[dict], dict | None, str]:
+                 max_parallel: int = 1, screen: bool = False
+                 ) -> tuple[list[dict], dict | None, str]:
     """Runs the full candidate-generation-and-auto-repair loop for one
     design. Returns (all_iterations, winner, stop_reason) — stop_reason
-    is always exactly one of STOP_REASONS, never None (see above)."""
+    is always exactly one of STOP_REASONS, never None (see above).
+
+    `screen` runs each candidate to SCREEN_STEP first and only pays for
+    the full flow on survivors (see screen_candidates()).
+    """
     candidates = run_spec.get("candidates", []) + expand_sweeps(run_spec)
     if not candidates:
         raise ValueError("run_spec.json must have a non-empty 'candidates' "
@@ -694,11 +791,25 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
 
     iteration = 1
     while True:
+        screened_out = []
+        to_run = candidates
+        if screen:
+            to_run, screened_out = screen_candidates(
+                design_dir, candidates, run_spec.get("targets", {}),
+                max_parallel=max(1, max_parallel))
+            print(f"\nscreen ({SCREEN_STEP}): {len(to_run)} of "
+                  f"{len(candidates)} candidate(s) survive", file=sys.stderr)
         results = run_candidates(
             design_dir,
-            {**run_spec, "candidates": candidates},
+            {**run_spec, "candidates": to_run},
             max_parallel=max(1, max_parallel),
         )
+        # Pruned candidates are real, measured rejections and belong in
+        # the iteration's results exactly like any other — dropping them
+        # would understate what was tried and break auto-repair coverage
+        # accounting. They also stay repairable: their verdict carries a
+        # real utilization violation, which propose_repairs() acts on.
+        results = results + screened_out
         for r in results:
             r["stage"] = classify_stage(r)
             # True when this candidate exists only because
@@ -746,6 +857,10 @@ def main():
                      help="overrides run_spec.json's max_iterations, if set")
     ap.add_argument("--max-parallel", type=int, default=1,
                     help="number of independent candidates to run concurrently")
+    ap.add_argument("--screen", action="store_true",
+                     help=f"pre-flight each candidate only to {SCREEN_STEP} and "
+                          f"run the full flow only on survivors; wins when "
+                          f"failures are common (see screen_candidates())")
     args = ap.parse_args()
 
     run_spec = json.loads(args.run_spec.read_text())
@@ -753,7 +868,8 @@ def main():
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
 
     all_iterations, winner, stop_reason = orchestrate(
-        args.design, run_spec, max_iterations, args.max_parallel
+        args.design, run_spec, max_iterations, args.max_parallel,
+        screen=args.screen,
     )
 
     case_file = write_case(design_name, args.design, all_iterations, winner, stop_reason)

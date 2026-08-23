@@ -26,6 +26,7 @@ import json
 import os
 import sys
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "pipeline"))
@@ -316,6 +317,28 @@ class TestStopReasonsAreTotal(unittest.TestCase):
         ids = [s["id"] for s in orchestrator.PROCESS_STAGES]
         self.assertEqual(len(ids), len(set(ids)))
         self.assertEqual(len(ids), 8)
+
+
+class TestScreening(unittest.TestCase):
+    """Guards screen_candidates()'s decision rules. The Docker-backed run
+    itself isn't covered here (see this module's docstring), but the
+    conditions under which it prunes at all are."""
+
+    def test_no_utilization_target_means_no_screening(self):
+        """Screening exists only to prune candidates that would miss a
+        utilization target. With no such target there is nothing it could
+        decide, so it must not spend a real run per candidate finding
+        that out."""
+        cands = [{"tag": "a", "overrides": {}}, {"tag": "b", "overrides": {}}]
+        survivors, pruned = orchestrator.screen_candidates(
+            Path("/nonexistent"), cands, targets={})
+        self.assertEqual(survivors, cands)
+        self.assertEqual(pruned, [])
+
+    def test_screen_step_is_before_signoff(self):
+        """The cutoff must sit early enough to be cheap. Measured: 10s to
+        GeneratePDN vs 64s for the full flow on counter4."""
+        self.assertEqual(orchestrator.SCREEN_STEP, "OpenROAD.GeneratePDN")
 
 
 if __name__ == "__main__":
