@@ -162,6 +162,35 @@ export function layoutImageUrl(relativePath: string): string {
   return `${LOCAL_SERVER_URL}/reference-db/${relativePath}`;
 }
 
+// Stage 8's human-in-the-loop, driven from the console instead of a
+// terminal. Before these existed the UI could start and watch a run but
+// printed a shell command at the one point the process needs judgment —
+// so the end-to-end process left the tool exactly where it got hard.
+export async function requestReview(design: string): Promise<{ file: string; content: string | null }> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/review/request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ design }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  return data;
+}
+
+export async function applyReview(
+  design: string,
+  agent: string,
+  responseText: string
+): Promise<void> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/review/apply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ design, agent, responseText }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+}
+
 export type PipelineRunStatus = "idle" | "running" | "done" | "error";
 
 export interface PipelineRunState {

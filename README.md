@@ -134,7 +134,10 @@ forced past; see the design spec's "Second vertical slice" section.
 ### Human-in-the-loop review + self-improvement loop
 
 When `propose_repairs()` can't auto-repair a failure, escalate to a real
-subagent review instead of leaving it silently open:
+subagent review instead of leaving it silently open. This runs **in the
+console** — the Layout Pipeline tab shows an OPEN case as three gated
+steps (generate the request, get an AI review through hermes-gateway,
+apply the verdict into the case). The same workflow from a terminal:
 
 ```sh
 python3 pipeline/request_review.py request --design sram_wrapper

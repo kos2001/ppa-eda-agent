@@ -2,7 +2,9 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import {
   fetchPipelineRunStatus,
   fetchReferenceDb,
+  applyReview,
   layoutImageUrl,
+  requestReview,
   triggerPipelineRun,
   type CandidateDataPointers,
   type CandidateResult,
@@ -11,7 +13,7 @@ import {
   type PipelineRunState,
   type ProcessStageId,
 } from "../api/referenceDb";
-import { translateStream, translateViaServer } from "../api/gateway";
+import { askReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import { useLang } from "../i18n";
 import HowItWorks from "./HowItWorks";
@@ -474,7 +476,127 @@ function CandidateRow({
 // repairable) is flagged for review; once a subagent's verdict has been
 // applied via `request_review.py apply`, it shows up here as real history,
 // not just buried in the diagnosis text.
-function HumanInTheLoopPanel({ pipelineCase }: { pipelineCase: PipelineCase }) {
+// Stage 8, carried out in the console. Three real steps, each backed by
+// the same pipeline/request_review.py workflow a terminal would run:
+// generate the request from the case's real diagnosis, get a second
+// opinion on it, then write that verdict back into the case. Until this
+// existed the UI printed a shell command here and the end-to-end process
+// left the tool at precisely the point that needs judgment.
+function ReviewWorkflow({
+  design,
+  onApplied,
+}: {
+  design: string;
+  onApplied: () => void;
+}) {
+  const { t } = useLang();
+  const { serverConfigured } = useAgent();
+  const [requestText, setRequestText] = useState<string | null>(null);
+  const [review, setReview] = useState<string | null>(null);
+  const [busy, setBusy] = useState<null | "request" | "ask" | "apply">(null);
+  const [error, setError] = useState<string | null>(null);
+  const [showRequest, setShowRequest] = useState(false);
+
+  async function handleRequest() {
+    setBusy("request");
+    setError(null);
+    try {
+      const { content } = await requestReview(design);
+      setRequestText(content);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function handleAsk() {
+    if (!requestText) return;
+    setBusy("ask");
+    setReview("");
+    setError(null);
+    askReview(requestText, {
+      onToken: (d) => setReview((prev) => (prev ?? "") + d),
+      onDone: () => setBusy(null),
+      onError: (e) => {
+        setBusy(null);
+        setError(e.message);
+      },
+    });
+  }
+
+  async function handleApply() {
+    if (!review?.trim()) return;
+    setBusy("apply");
+    setError(null);
+    try {
+      // Recorded under the model's own name, not a subagent's: this
+      // verdict came from hermes-gateway, and attributing it to
+      // feedback-optimizer would misstate who actually reviewed it.
+      await applyReview(design, "hermes-review", review);
+      setReview(null);
+      setRequestText(null);
+      onApplied();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="pipeline__review">
+      <ol className="pipeline__review-steps">
+        <li>
+          <button onClick={handleRequest} disabled={busy !== null}>
+            {busy === "request" ? "…" : t("review_step_request")}
+          </button>
+          {requestText && (
+            <button
+              className="pipeline__review-link"
+              onClick={() => setShowRequest((v) => !v)}
+            >
+              {showRequest ? t("review_hide_request") : t("review_show_request")}
+            </button>
+          )}
+        </li>
+        <li>
+          <button
+            onClick={handleAsk}
+            disabled={busy !== null || !requestText || !serverConfigured}
+            title={!serverConfigured ? t("pipeline_translate_needs_key") : undefined}
+          >
+            {busy === "ask" ? t("review_asking") : t("review_step_ask")}
+          </button>
+        </li>
+        <li>
+          <button onClick={handleApply} disabled={busy !== null || !review?.trim()}>
+            {busy === "apply" ? "…" : t("review_step_apply")}
+          </button>
+        </li>
+      </ol>
+
+      {showRequest && requestText && (
+        <pre className="pipeline__review-pre">{requestText}</pre>
+      )}
+      {review !== null && (
+        <div className="pipeline__review-result">
+          <span className="tab__meta-label">{t("review_result_label")}</span>
+          <p>{review || "…"}</p>
+        </div>
+      )}
+      {error && <p className="tab__error">{error}</p>}
+    </div>
+  );
+}
+
+function HumanInTheLoopPanel({
+  pipelineCase,
+  onApplied,
+}: {
+  pipelineCase: PipelineCase;
+  onApplied: () => void;
+}) {
   const { lang } = useLang();
   const isOpen = !pipelineCase.winner_tag;
   const reviews = pipelineCase.human_in_the_loop ?? [];
@@ -483,13 +605,7 @@ function HumanInTheLoopPanel({ pipelineCase }: { pipelineCase: PipelineCase }) {
   return (
     <div className="pipeline__hitl">
       <span className="tab__meta-label">human-in-the-loop</span>
-      {isOpen && reviews.length === 0 && (
-        <p className="pipeline__hitl-needed">
-          needs review — run{" "}
-          <code>python3 pipeline/request_review.py request --design {pipelineCase.design}</code>{" "}
-          to dispatch a subagent
-        </p>
-      )}
+      {isOpen && <ReviewWorkflow design={pipelineCase.design} onApplied={onApplied} />}
       {reviews.length > 0 && (
         <ul className="pipeline__hitl-log">
           {reviews.map((r, i) => (
@@ -601,9 +717,11 @@ function TranslateBlock({ text }: { text: string }) {
 function CaseCard({
   pipelineCase,
   defaultOpen,
+  onApplied,
 }: {
   pipelineCase: PipelineCase;
   defaultOpen: boolean;
+  onApplied: () => void;
 }) {
   const { t } = useLang();
   // Collapsed by default for all but the newest case. Measured problem
@@ -739,7 +857,7 @@ function CaseCard({
           </div>
         )}
 
-        <HumanInTheLoopPanel pipelineCase={pipelineCase} />
+        <HumanInTheLoopPanel pipelineCase={pipelineCase} onApplied={onApplied} />
       </div>
     </div>
   );
@@ -905,6 +1023,7 @@ export default function PipelineTab() {
           key={`${c.design}__${c.date}`}
           pipelineCase={c}
           defaultOpen={i === 0}
+          onApplied={loadCases}
         />
       ))}
     </div>

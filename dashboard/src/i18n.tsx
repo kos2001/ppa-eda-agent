@@ -93,6 +93,16 @@ const dict = {
   hiw_stat_closed: { en: "closed by the agent", ko: "에이전트가 완료" },
   hiw_stat_repaired: { en: "self-repaired candidates", ko: "자가복구된 후보" },
 
+  review_step_request: { en: "1. generate review request", ko: "1. 리뷰 요청 생성" },
+  review_step_ask: { en: "2. get an AI review", ko: "2. AI 리뷰 받기" },
+  review_step_apply: { en: "3. apply into the case", ko: "3. 케이스에 반영" },
+  review_asking: { en: "reviewing…", ko: "리뷰 중…" },
+  review_show_request: { en: "show request", ko: "요청 내용 보기" },
+  review_hide_request: { en: "hide request", ko: "요청 내용 숨기기" },
+  review_result_label: {
+    en: "AI review — recorded as hermes-review when applied, not as a subagent",
+    ko: "AI 리뷰 — 반영 시 서브에이전트가 아니라 hermes-review 이름으로 기록됩니다",
+  },
   pipeline_case_candidates: { en: "candidates", ko: "후보" },
   pipeline_layout_expand: { en: "(click to enlarge)", ko: "(클릭하면 확대)" },
   pipeline_layout_collapse: { en: "(click to shrink)", ko: "(클릭하면 축소)" },

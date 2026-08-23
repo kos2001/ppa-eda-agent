@@ -130,6 +130,58 @@
   color: var(--text-dim);
 }
 
+.pipeline__review { margin-top: 0.6rem; }
+
+.pipeline__review-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pipeline__review-steps button {
+  background: var(--surface-raised);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.pipeline__review-steps button:disabled { opacity: 0.45; cursor: default; }
+.pipeline__review-link { border-color: transparent !important; }
+
+.pipeline__review-pre {
+  margin-top: 0.6rem;
+  max-height: 260px;
+  overflow: auto;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.66rem;
+  color: var(--text-dim);
+  white-space: pre-wrap;
+}
+
+.pipeline__review-result {
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.pipeline__review-result p {
+  color: var(--text-dim);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
 .pipeline__case-toggle {
   width: 100%;
   display: flex;
