@@ -1510,6 +1510,63 @@ stored result is attributable to the build that produced it instead of to
 "whatever was installed at the time" — verified on a real run. A test
 fails if any module reintroduces its own image string.
 
+## KLayout: every layout image was rendered with the wrong colours
+
+Reviewing how this project uses KLayout turned up a real defect rather
+than a stylistic one.
+
+`render_layout.py` called `load_layout()` and `save_image()` and nothing
+else. It never loaded any layer properties, so KLayout auto-assigned
+arbitrary colours to every GDS layer. The result: met1, met2, poly,
+diff, nwell and the rest all came out as an undifferentiated green/blue
+mesh. The image was *technically* a real render of the real GDS, and
+practically unreadable — you could not tell a routing layer from a
+diffusion region.
+
+That matters more here than it would elsewhere. These images exist
+specifically because arxiv.org/html/2605.06936v3 measured that a layout
+image improves diagnosis of real post-flow violations, and they are
+handed to `physical-constraint-evaluator` and
+`routing-candidate-evaluator` with instructions to look at them. An
+image whose colours carry no information cannot deliver that benefit —
+it looks authoritative while conveying nothing about layers.
+
+The PDK ships the fix and it was simply never used: `sky130A.lyp`,
+246 KB of real sky130 layer definitions, sitting at
+`pdk/sky130A/libs.tech/klayout/tech/`. Two things were needed — mounting
+the PDK into the render container at all (it previously saw only its own
+temp directory) and calling `load_layer_props()`.
+
+Verified by rendering the same GDS before and after. Before: uniform
+green/blue, layers indistinguishable. After: real sky130 colouring —
+magenta met1 including the power rails and routing grid, cyan met2 and
+port stripes, red diffusion, blue poly/contacts — with the standard-cell
+rows and the routing above them clearly separable, and port labels
+(`count[3]`, `clk`) legible.
+
+The script now reports `LYP_LOADED`, and the caller warns when it is
+false, so a fallback render is distinguishable from a correct one
+instead of both looking equally trustworthy. Tests pin that the PDK is
+mounted, that the properties are loaded, that the result is reported,
+and that the `.lyp` really exists where the container path points.
+
+Two things deliberately left alone:
+
+- **The `Fontconfig error: Cannot load default config file` on every
+  render is cosmetic and is not silenced.** Text renders correctly via
+  fallback — confirmed in both images, whose labels are legible. It can
+  be removed by setting `FONTCONFIG_FILE`, but only to a nix-store path
+  containing a build hash (`/nix/store/s2lqglzd…-fontconfig-2.15.0/…`)
+  that breaks on any image rebuild. Pinning a fragile path to hide a
+  harmless warning is a worse trade than leaving the warning explained.
+- **The two layout images already in `reference-db/layouts/` predate
+  this fix** and still have the old colours. Their run directories are
+  long deleted, so they cannot be re-rendered from the runs that
+  produced them; re-running an equivalent configuration and passing the
+  result off as the original case's layout would be worse than leaving
+  them stale. They will be replaced naturally the next time those
+  designs run.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
