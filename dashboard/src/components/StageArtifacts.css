@@ -1,0 +1,94 @@
+/* A stage's real output, opened from its card. Spans the full phase row
+   so tables and captured tool output have room — cramming this inside a
+   grid cell was the reason it wasn't shown at all. */
+.sa {
+  grid-column: 1 / -1;
+  margin-top: 0.6rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+.sa__title {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.sa__lede {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 78ch;
+}
+
+.sa__none { margin: 0; font-size: 0.74rem; color: var(--text-dim); font-style: italic; }
+.sa__none-inline { font-size: 0.7rem; color: var(--text-dim); font-style: italic; }
+
+.sa__cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.9rem;
+}
+
+.sa__files, .sa__kv { list-style: none; margin: 0.35rem 0 0; padding: 0; }
+.sa__files li, .sa__kv li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: 0.68rem;
+  padding: 0.12rem 0;
+}
+.sa__k { color: var(--text-dim); min-width: 9.5rem; }
+.sa__v { font-family: var(--mono); }
+.sa__files code {
+  font-size: 0.64rem;
+  color: var(--accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sa__kv {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0 1rem;
+}
+
+.sa__table { margin-top: 0.4rem; width: 100%; }
+.sa__table code { font-size: 0.68rem; }
+.sa__override {
+  display: inline-block;
+  margin: 0.1rem 0.3rem 0.1rem 0;
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.66rem;
+}
+.sa__viol { margin-top: 0.2rem; font-size: 0.66rem; color: var(--critical); }
+
+.sa__err { margin-bottom: 0.7rem; }
+.sa__err pre {
+  margin: 0.3rem 0 0;
+  max-height: 220px;
+  overflow: auto;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  font-size: 0.62rem;
+  line-height: 1.45;
+  color: var(--critical);
+  white-space: pre-wrap;
+}
+
+.sa__reviews { margin-top: 0.8rem; }
+.sa__reviews ul { list-style: none; margin: 0.3rem 0 0; padding: 0; font-size: 0.7rem; }
+.sa__reviews li { padding: 0.12rem 0; }
+.sa__when { color: var(--text-dim); font-size: 0.64rem; margin-left: 0.4rem; }
