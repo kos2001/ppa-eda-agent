@@ -1286,6 +1286,60 @@ to 7:32:33 across a single 18s wait, the pulse animation is running (and
 is disabled under `prefers-reduced-motion`), the HITL block renders with
 its badge, and the diagnosis renders collapsed.
 
+## Using OpenROAD directly — and overturning a recorded conclusion
+
+OpenLane already runs OpenROAD for every `OpenROAD.*` step, so in one
+sense it was applied from the start. What was never used is OpenROAD
+*as its own tool*: the `.odb` database it writes holds per-net placement
+facts that OpenLane's aggregate `metrics.json` does not expose, and this
+pipeline had no way to ask about one specific net.
+
+That gap was not hypothetical — it blocked a real conclusion.
+`physical-constraint-evaluator`, reviewing sram_wrapper's RSZ-0090
+failure, recorded one item it could not close:
+
+> "The diagnosis's adjacency claim is inferred entirely from capacitance
+> arithmetic, never from an actual placed net length — there's no
+> .odb/placement report on disk ... I can't verify this either way
+> without run artifacts, and none exist."
+
+`pipeline/odb_query.py` closes it: it runs `openroad` (already in the
+image) against a run's real `.odb` and reports per-net pin count, HPWL
+and max span in microns. sram_wrapper was re-run to
+`OpenROAD.GlobalPlacement` — the placement state `RepairDesignPostGPL`
+evaluates, i.e. exactly where RSZ-0090 fires — and queried.
+
+**The measurement contradicts the recorded diagnosis.** The case had
+concluded, with both `feedback-optimizer` and
+`physical-constraint-evaluator` concurring, that placement was "already
+near-optimal ... missing spec by a small, physically-floored margin, not
+a distance the placer hasn't tried yet", resting on the claim that
+"0.01pF is essentially just that bus's own pin capacitance ... i.e. no
+additional wire". The real `.odb` says otherwise: `addr0[*]` nets span
+170–299 µm and `addr1[*]` span 114–289 µm. The cleanest counterexample
+is `addr1[0]` — a **two-pin** net, one driver and one SRAM input pin, no
+fanout to blame — whose pins sit **249 µm apart**. That is a quarter of
+a millimetre of wire, not "no additional wire".
+
+So the macro-adjacent-placement fix the diagnosis itself proposed has
+not in fact been achieved by the placer, and therefore was never tried.
+The case stays OPEN, but for a better reason: not "physically floored,
+nothing to try" but "the proposed fix was never applied".
+
+Two things deliberately *not* claimed, recorded in the case as open:
+this does not prove fixing adjacency resolves RSZ-0090 — a 250–300 µm
+sky130 wire would contribute far more than the 0.01pF RSZ reported, so
+that figure needs reconciling with the measured length before choosing
+what to run next. And `wmask0` has no signal net at all, which is
+correct rather than a measurement gap: `sram_wrapper.v` ties it to
+`4'b1111`, so the earlier diagnosis listing it as a violating bus was
+over-broad on that one pin.
+
+Recorded through `request_review.py apply` (agent `odb-measurement`), so
+it lands in both the diagnosis and the `human_in_the_loop` history like
+any other review; the grounding check still passes. Exposed as
+`ppa_odb_query` on the MCP server.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

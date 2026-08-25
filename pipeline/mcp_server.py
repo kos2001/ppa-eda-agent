@@ -20,11 +20,13 @@ session, a non-Claude-Code agent, hermes-agent).
 """
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import odb_query  # noqa: E402
 import orchestrator  # noqa: E402
 import render_layout  # noqa: E402
 import request_review  # noqa: E402
@@ -159,6 +161,24 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_odb_query",
+        "description": "Queries a run's real OpenROAD database (.odb) directly for "
+                        "measured per-net placement facts — pin count, HPWL and max "
+                        "span in microns. Answers questions about ONE specific net "
+                        "that OpenLane's aggregate metrics.json cannot, e.g. whether "
+                        "a driver actually landed adjacent to a macro pin. Read-only "
+                        "and fast; needs a run that reached floorplan or later.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "tag"],
+            "properties": {
+                "design": {"type": "string"},
+                "tag": {"type": "string"},
+                "net_filter": {"type": "string", "description": "regex on net name"},
+            },
+        },
+    },
+    {
         "name": "ppa_tech_compare",
         "description": "Runs the SAME design through two or more standard-cell "
                         "technologies (real full OpenLane runs, one per variant, "
@@ -270,6 +290,16 @@ def _tool_verify_diagnosis(args: dict) -> dict:
     return verify_diagnosis.verify_case(case)
 
 
+def _tool_odb_query(args: dict) -> dict:
+    run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
+    data = odb_query.query(run_dir)
+    pattern = args.get("net_filter")
+    if pattern:
+        rx = re.compile(pattern)
+        data["nets"] = [n for n in data["nets"] if rx.search(n["net"])]
+    return data
+
+
 def _tool_tech_compare(args: dict) -> dict:
     design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
     run_spec_path = design_dir / "run_spec.json"
@@ -290,6 +320,7 @@ _TOOL_IMPL = {
     "ppa_apply_review": _tool_apply_review,
     "ppa_render_layout": _tool_render_layout,
     "ppa_verify_diagnosis": _tool_verify_diagnosis,
+    "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
 }
 
