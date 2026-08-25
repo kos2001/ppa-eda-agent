@@ -1,16 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  fetchPipelineRunStatus,
   fetchReferenceDb,
   applyReview,
   layoutImageUrl,
   requestReview,
-  triggerPipelineRun,
   type CandidateDataPointers,
   type CandidateResult,
   type CandidateVerdict,
   type PipelineCase,
-  type PipelineRunState,
   type ProcessStageId,
 } from "../api/referenceDb";
 import { askReview, translateStream, translateViaServer } from "../api/gateway";
@@ -982,77 +979,6 @@ function CaseCard({
 // real pipeline/orchestrator.py candidate-generation-and-auto-repair
 // loop spawns server-side against real OpenLane, and the panel polls
 // its live status until a new reference-db case shows up below.
-function RunAgentPanel({
-  design,
-  onRunFinished,
-}: {
-  design: string | null;
-  onRunFinished: () => void;
-}) {
-  const { t } = useLang();
-  const [runState, setRunState] = useState<PipelineRunState | null>(null);
-  const [launchError, setLaunchError] = useState<string | null>(null);
-  const pollRef = useRef<number | null>(null);
-
-  const stopPolling = useCallback(() => {
-    if (pollRef.current != null) {
-      window.clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => stopPolling, [stopPolling]);
-
-  async function handleRun() {
-    if (!design) return;
-    setLaunchError(null);
-    try {
-      const state = await triggerPipelineRun(design);
-      setRunState(state);
-      if (state.status === "running") {
-        stopPolling();
-        pollRef.current = window.setInterval(async () => {
-          try {
-            const polled = await fetchPipelineRunStatus(design);
-            setRunState(polled);
-            if (polled.status !== "running") {
-              stopPolling();
-              onRunFinished();
-            }
-          } catch {
-            // transient — next tick retries
-          }
-        }, 4000);
-      }
-    } catch (e) {
-      setLaunchError(String(e));
-    }
-  }
-
-  if (!design) return null;
-  const running = runState?.status === "running";
-
-  return (
-    <div className="pipeline__run-agent">
-      <button className="pipeline__run-button" disabled={running} onClick={handleRun}>
-        {running ? t("pipeline_run_running") : t("pipeline_run_button")} — {design}
-      </button>
-      {runState?.status === "done" && (
-        <span className="pill pill--good">{t("pipeline_run_done")}</span>
-      )}
-      {runState?.status === "error" && (
-        <span className="pill pill--critical" title={runState.error ?? undefined}>
-          {t("pipeline_run_failed")}
-        </span>
-      )}
-      {launchError && <p className="tab__error">{launchError}</p>}
-      {running && runState?.tail && runState.tail.length > 0 && (
-        <pre className="pipeline__run-log">{runState.tail.slice(-12).join("\n")}</pre>
-      )}
-    </div>
-  );
-}
-
 export default function PipelineTab() {
   const { t } = useLang();
   const [cases, setCases] = useState<PipelineCase[] | null>(null);
@@ -1099,10 +1025,6 @@ export default function PipelineTab() {
     return () => window.clearInterval(id);
   }, [loadCases]);
 
-  const openCount = useMemo(
-    () => (cases ?? []).filter((c) => !c.winner_tag).length,
-    [cases]
-  );
   const designNames = useMemo(
     () => Array.from(new Set((cases ?? []).map((c) => c.design))).sort(),
     [cases]
@@ -1121,6 +1043,7 @@ export default function PipelineTab() {
         <ActionCenter
           designs={designNames}
           cases={cases ?? []}
+          lastRefresh={lastRefresh}
           onOpenCase={(d) => {
             // Re-set even if unchanged, so clicking the same design twice
             // scrolls back to it instead of doing nothing.
@@ -1131,53 +1054,10 @@ export default function PipelineTab() {
         />
       )}
 
+      {/* Collapsed by default. It explains the loop well but is 587px of
+          prose — larger than the Action Center that actually tells you
+          what to do — so it sat above the answer instead of behind it. */}
       <HowItWorks cases={cases ?? []} />
-
-      <div className="panel">
-        <span className="panel__title">{t("pipeline_panel_title")}</span>
-        <div className="panel__body">
-          <p>{t("pipeline_intro")}</p>
-          {designNames.length > 1 && (
-            <label className="pipeline__filter">
-              <span className="tab__meta-label">{t("pipeline_filter_design")}</span>
-              <select
-                value={designFilter}
-                onChange={(e) => setDesignFilter(e.target.value)}
-              >
-                <option value="all">{t("pipeline_filter_all")}</option>
-                {designNames.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-          <RunAgentPanel
-            design={designFilter === "all" ? designNames[0] ?? null : designFilter}
-            onRunFinished={loadCases}
-          />
-        </div>
-      </div>
-
-      {/* Live strip: what needs a human right now, and when this view
-          last actually re-read reference-db. Without the timestamp an
-          auto-refreshing page is indistinguishable from a frozen one. */}
-      {!loading && !error && (cases?.length ?? 0) > 0 && (
-        <div className="pipeline__live">
-          <span className={openCount > 0 ? "pipeline__live-open" : "pipeline__live-clear"}>
-            {openCount > 0
-              ? t("live_open_cases").replace("{n}", String(openCount))
-              : t("live_all_closed")}
-          </span>
-          <span className="pipeline__live-refresh">
-            <i className="pipeline__live-dot" />
-            {lastRefresh
-              ? t("live_refreshed").replace("{t}", lastRefresh.toLocaleTimeString())
-              : "—"}
-          </span>
-        </div>
-      )}
 
       {loading && <p>{t("pipeline_loading")}</p>}
       {error && (
@@ -1189,11 +1069,26 @@ export default function PipelineTab() {
         <p>{t("pipeline_empty")}</p>
       )}
 
-      {visibleCases?.map((c, i) => (
+      <div className="pipeline__evidence-head">
+        <span className="pipeline__evidence-title">{t("evidence_title")}</span>
+        {designNames.length > 1 && (
+          <label className="pipeline__filter">
+            <span className="tab__meta-label">{t("pipeline_filter_design")}</span>
+            <select value={designFilter} onChange={(e) => setDesignFilter(e.target.value)}>
+              <option value="all">{t("pipeline_filter_all")}</option>
+              {designNames.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
+
+      {visibleCases?.map((c) => (
         <CaseCard
           key={`${c.design}__${c.date}`}
           pipelineCase={c}
-          defaultOpen={i === 0}
+          defaultOpen={false}
           onApplied={loadCases}
           focusDesign={focusDesign}
         />

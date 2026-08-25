@@ -51,7 +51,7 @@ export default function HowItWorks({ cases }: { cases: PipelineCase[] }) {
   const s = computeStats(cases);
 
   return (
-    <details className="hiw" open>
+    <details className="hiw">
       <summary className="hiw__summary">{t("hiw_title")}</summary>
       <div className="hiw__body">
         <p className="hiw__lede">{t("hiw_lede")}</p>

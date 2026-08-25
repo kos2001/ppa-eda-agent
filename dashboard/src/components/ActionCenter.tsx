@@ -144,11 +144,13 @@ function ActionRow({
 export default function ActionCenter({
   designs,
   cases,
+  lastRefresh,
   onOpenCase,
   onRunStarted,
 }: {
   designs: string[];
   cases: PipelineCase[];
+  lastRefresh: Date | null;
   onOpenCase: (design: string) => void;
   onRunStarted: () => void;
 }) {
@@ -176,10 +178,21 @@ export default function ActionCenter({
     <section className="ac">
       <header className="ac__head">
         <h2>{t("ac_title")}</h2>
-        <span className={needing ? "ac__count ac__count--needing" : "ac__count"}>
-          {needing
-            ? t("ac_needing").replace("{n}", String(needing))
-            : t("ac_all_clear")}
+        <span className="ac__meta">
+          <span className={needing ? "ac__count ac__count--needing" : "ac__count"}>
+            {needing
+              ? t("ac_needing").replace("{n}", String(needing))
+              : t("ac_all_clear")}
+          </span>
+          {/* Liveness lives here, not in a separate strip below: a second
+              band repeating this same count was one of three places the
+              page said the same thing. */}
+          <span className="ac__live">
+            <i className="ac__dot" />
+            {lastRefresh
+              ? t("live_refreshed").replace("{t}", lastRefresh.toLocaleTimeString())
+              : "—"}
+          </span>
         </span>
       </header>
       <ul className="ac__list">

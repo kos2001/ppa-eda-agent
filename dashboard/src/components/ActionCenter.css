@@ -29,7 +29,19 @@
   color: var(--accent);
 }
 
+.ac__meta { display: inline-flex; align-items: center; gap: 0.9rem; }
 .ac__count { font-size: 0.72rem; color: var(--text-dim); }
+.ac__live {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.66rem; color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.ac__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--good); animation: ac-pulse 2s ease-in-out infinite;
+}
+@keyframes ac-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .ac__dot { animation: none; } }
 .ac__count--needing { color: var(--critical); font-weight: 600; }
 
 .ac__list { list-style: none; margin: 0; padding: 0; }
