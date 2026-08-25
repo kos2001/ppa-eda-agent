@@ -226,6 +226,40 @@ def score(metrics: dict, targets: dict) -> dict:
     if lvs:
         violations.append(f"{lvs} LVS error(s)")
 
+    # Signoff gates OpenLane computes and this verdict was ignoring.
+    #
+    # An audit of a real completed run found OpenLane emitting 279
+    # metrics of which score() read 32 — and among the 247 discarded were
+    # these, every one a genuine pass/fail signal the pipeline claims to
+    # care about. The most consequential is klayout__drc_error__count: a
+    # SECOND, independent DRC signoff. Only Magic's was checked, so a
+    # candidate that KLayout flagged and Magic did not would have been
+    # reported PASS.
+    #
+    # Antenna violations are a real manufacturing failure, not a warning.
+    # The max_slew/max_cap/max_fanout counts are the same DRV family that
+    # produces RSZ-0090 — the failure mode this project has spent the most
+    # effort diagnosing — and they were sitting in metrics.json as
+    # structured numbers the whole time.
+    #
+    # Only hard, unambiguous failure counts are gated here. Lint
+    # *warnings* and clock skew are deliberately not: they are real
+    # signals but not pass/fail ones, and turning a warning into a
+    # failure would be overreach.
+    for key, label in (
+        ("klayout__drc_error__count", "KLayout DRC error(s)"),
+        ("route__antenna_violation__count", "routing antenna violation(s)"),
+        ("design__power_grid_violation__count", "power-grid violation(s)"),
+        ("design__max_slew_violation__count", "max-slew (DRV) violation(s)"),
+        ("design__max_cap_violation__count", "max-capacitance (DRV) violation(s)"),
+        ("design__max_fanout_violation__count", "max-fanout (DRV) violation(s)"),
+        ("synthesis__check_error__count", "synthesis check error(s)"),
+        ("design__lint_error__count", "RTL lint error(s)"),
+    ):
+        count = metrics.get(key)
+        if count:
+            violations.append(f"{count} {label}")
+
     max_util = targets.get("max_core_utilization")
     util = metrics.get("design__instance__utilization__stdcell")
     if max_util is not None and util is not None and util > max_util:

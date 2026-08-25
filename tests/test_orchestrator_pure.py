@@ -175,6 +175,46 @@ class TestScore(unittest.TestCase):
     def test_clean_metrics_pass(self):
         self.assertTrue(orchestrator.score(self._metrics(), {})["passed"])
 
+    def test_klayout_drc_is_gated_not_just_magic(self):
+        """Real hole this closes: OpenLane runs TWO independent DRC
+        signoffs and only Magic's was checked, so a candidate KLayout
+        flagged and Magic did not was reported PASS. Found by auditing a
+        real run: OpenLane emits 279 metrics, score() read 32."""
+        m = self._metrics(**{"klayout__drc_error__count": 3})
+        v = orchestrator.score(m, {})
+        self.assertFalse(v["passed"])
+        self.assertTrue(any("KLayout DRC" in s for s in v["violations"]))
+
+    def test_antenna_and_power_grid_violations_fail(self):
+        """Both are real manufacturing failures, not advisories."""
+        for key in ("route__antenna_violation__count",
+                     "design__power_grid_violation__count"):
+            v = orchestrator.score(self._metrics(**{key: 1}), {})
+            self.assertFalse(v["passed"], key)
+
+    def test_drv_counts_fail(self):
+        """max_slew/max_cap/max_fanout are the same DRV family that
+        produces RSZ-0090 — the failure this project spent the most effort
+        diagnosing — and they were in metrics.json as structured numbers
+        all along."""
+        for key in ("design__max_slew_violation__count",
+                     "design__max_cap_violation__count",
+                     "design__max_fanout_violation__count"):
+            v = orchestrator.score(self._metrics(**{key: 2}), {})
+            self.assertFalse(v["passed"], key)
+
+    def test_a_clean_design_still_passes(self):
+        """The new gates must not fail designs that are actually fine —
+        every one of these is zero on a real clean counter4 run."""
+        m = self._metrics(**{
+            "klayout__drc_error__count": 0,
+            "route__antenna_violation__count": 0,
+            "design__power_grid_violation__count": 0,
+            "design__max_slew_violation__count": 0,
+            "design__lint_error__count": 0,
+        })
+        self.assertTrue(orchestrator.score(m, {})["passed"])
+
 
 class TestProposeRepairs(unittest.TestCase):
     """Guards propose_repairs(), the bounded auto-repair loop. Its whole
