@@ -26,6 +26,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import orchestrator  # noqa: E402
 import render_layout  # noqa: E402
@@ -161,6 +162,20 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_equiv_check",
+        "description": "Proves a run's synthesized netlist is functionally "
+                        "equivalent to its RTL using Yosys SAT equivalence "
+                        "(~1s). Fills the gap DRC/LVS/timing leave open: LVS "
+                        "compares layout against netlist, nothing compared "
+                        "netlist against RTL, so a clean-but-wrong synthesis "
+                        "result would otherwise pass.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "tag"],
+            "properties": {"design": {"type": "string"}, "tag": {"type": "string"}},
+        },
+    },
+    {
         "name": "ppa_odb_query",
         "description": "Queries a run's real OpenROAD database (.odb) directly for "
                         "measured per-net placement facts — pin count, HPWL and max "
@@ -290,6 +305,12 @@ def _tool_verify_diagnosis(args: dict) -> dict:
     return verify_diagnosis.verify_case(case)
 
 
+def _tool_equiv_check(args: dict) -> dict:
+    design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
+    run_dir = design_dir / "runs" / args["tag"]
+    return equiv_check.check(design_dir, run_dir)
+
+
 def _tool_odb_query(args: dict) -> dict:
     run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
     data = odb_query.query(run_dir)
@@ -320,6 +341,7 @@ _TOOL_IMPL = {
     "ppa_apply_review": _tool_apply_review,
     "ppa_render_layout": _tool_render_layout,
     "ppa_verify_diagnosis": _tool_verify_diagnosis,
+    "ppa_equiv_check": _tool_equiv_check,
     "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
 }
