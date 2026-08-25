@@ -246,7 +246,26 @@ def score(metrics: dict, targets: dict) -> dict:
     # *warnings* and clock skew are deliberately not: they are real
     # signals but not pass/fail ones, and turning a warning into a
     # failure would be overreach.
+    # OpenLane's own metric library marks a specific set of metrics
+    # `critical=True` — its own declaration of what constitutes a fatal
+    # result. Gating on that list rather than a hand-picked one makes the
+    # verdict agree with the tool it trusts, instead of guessing which
+    # failures matter. Extracted from
+    # openlane/common/metrics/library.py in the pinned image.
     for key, label in (
+        ("design__instance_unmapped__count", "unmapped instance(s) after synthesis"),
+        ("design__xor_difference__count", "XOR difference(s) between tool GDS outputs"),
+        ("magic__illegal_overlap__count", "illegal layout overlap(s) (Magic)"),
+        ("route__drc_errors", "routing DRC error(s)"),
+        ("design__lvs_device_difference__count", "LVS device difference(s)"),
+        ("design__lvs_net_difference__count", "LVS net difference(s)"),
+        ("design__lvs_property_fail__count", "LVS property failure(s)"),
+        ("design__lvs_unmatched_device__count", "LVS unmatched device(s)"),
+        ("design__lvs_unmatched_net__count", "LVS unmatched net(s)"),
+        ("design__lvs_unmatched_pin__count", "LVS unmatched pin(s)"),
+        ("design__disconnected_pin__count", "disconnected pin(s)"),
+        ("timing__setup_vio__count", "setup timing violation(s)"),
+        ("timing__hold_vio__count", "hold timing violation(s)"),
         ("klayout__drc_error__count", "KLayout DRC error(s)"),
         ("route__antenna_violation__count", "routing antenna violation(s)"),
         ("design__power_grid_violation__count", "power-grid violation(s)"),
@@ -272,6 +291,18 @@ def score(metrics: dict, targets: dict) -> dict:
     worst_wns = min((metrics[k] for k in setup_wns_keys), default=0)
     if worst_wns < 0:
         violations.append(f"worst setup WNS {worst_wns} (timing violation)")
+
+    # Hold. This was recorded per corner and displayed on the dashboard
+    # but never gated on, so a candidate with a real hold violation was
+    # reported PASS while showing the negative slack on screen —
+    # demonstrated directly with hold_wns -0.25 and 7 hold violations
+    # scoring as a pass. Hold violations are silicon-fatal and cannot be
+    # fixed after fabrication, which makes this the worst thing the
+    # verdict could have been silent about.
+    hold_wns_keys = [k for k in metrics if k.startswith("timing__hold__wns__corner:")]
+    worst_hold = min((metrics[k] for k in hold_wns_keys), default=0)
+    if worst_hold < 0:
+        violations.append(f"worst hold WNS {worst_hold} (hold violation)")
 
     # Every real timing corner OpenLane actually analyzed (typically 9:
     # {min,nom,max} x {ff_n40C_1v95, tt_025C_1v80, ss_100C_1v60}), setup

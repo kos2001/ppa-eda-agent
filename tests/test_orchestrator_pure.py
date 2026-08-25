@@ -215,6 +215,40 @@ class TestScore(unittest.TestCase):
         })
         self.assertTrue(orchestrator.score(m, {})["passed"])
 
+    def test_hold_violations_fail_a_candidate(self):
+        """Demonstrated hole this closes: a candidate with hold_wns -0.25
+        and 7 hold violations scored as PASS, while the pipeline recorded
+        and displayed that negative slack on the dashboard. Hold
+        violations are silicon-fatal and cannot be fixed after
+        fabrication, so being silent about them was the worst thing the
+        verdict could do."""
+        m = self._metrics(**{"timing__hold__wns__corner:tt": -0.25,
+                              "timing__hold_vio__count": 7})
+        v = orchestrator.score(m, {})
+        self.assertFalse(v["passed"])
+        self.assertTrue(any("hold" in s.lower() for s in v["violations"]))
+
+    def test_hold_is_still_reported_per_corner(self):
+        """Gating must not replace the per-corner detail the dashboard
+        renders — both facts matter."""
+        m = self._metrics(**{"timing__hold__wns__corner:tt": -0.25})
+        v = orchestrator.score(m, {})
+        self.assertEqual(v["timing_corners"][0]["hold_wns"], -0.25)
+
+    def test_openlane_critical_metrics_are_gated(self):
+        """OpenLane's own metric library marks these critical=True — its
+        own declaration of what is fatal. Gating on that list rather than
+        a hand-picked one keeps the verdict agreeing with the tool it
+        trusts."""
+        for key in ("design__instance_unmapped__count",
+                     "design__xor_difference__count",
+                     "magic__illegal_overlap__count",
+                     "design__disconnected_pin__count",
+                     "route__drc_errors",
+                     "design__lvs_unmatched_pin__count"):
+            v = orchestrator.score(self._metrics(**{key: 1}), {})
+            self.assertFalse(v["passed"], f"{key} did not fail the candidate")
+
 
 class TestProposeRepairs(unittest.TestCase):
     """Guards propose_repairs(), the bounded auto-repair loop. Its whole
