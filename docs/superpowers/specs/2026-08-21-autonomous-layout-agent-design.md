@@ -1726,6 +1726,45 @@ the two closed designs fall below with their winning tags, and clicking
 through opens the sram_wrapper card, scrolls to it, and lands on the
 three-step review workflow.
 
+## Stage artifacts: showing what each stage actually produced
+
+The eight stage cards named a stage, its owning agent, and a count —
+"3/9 candidate run(s) reached this stage" — and stopped there. You could
+see that a stage *happened* but not what came out of it. Every stage's
+real output was already in the case JSON; it was either buried elsewhere
+(file pointers were only visible inside an expanded candidate row) or
+not rendered at all.
+
+Each stage card is now a button that opens its own artifacts in a
+full-width panel below the phase row. Full width because the content is
+tables and captured tool output — trying to fit that inside a grid cell
+is why it wasn't shown in the first place.
+
+What each stage shows, all read from fields the pipeline really recorded:
+
+| stage | artifact |
+|---|---|
+| 01 Extraction | the real files the run produced — netlist, powered netlist, SPICE, DEF/LEF/GDS, SDC, metrics.json, SPEF, SDF, and the actual PDK version |
+| 02 Topology | the design's structural signature from `topology.json` — what the agent knew *before* proposing anything |
+| 03 Placement Strategy | every proposed candidate with the exact config override that makes it different, and whether it came from `run_spec` or from auto-repair — the agent's real decision, not a summary |
+| 04–06 gates | the candidates that stopped there, each with its **verbatim captured OpenLane output** |
+| 07 Verification & PPA | the signoff verdicts — area, utilization, worst setup, power, and the violation list for anything that failed |
+| 08 Feedback | the stop reason, the candidates auto-repair produced with the config each was given and how it turned out, and the human-in-the-loop reviews on record |
+
+Failure output is shown verbatim rather than paraphrased: the specific
+numbers in it (`PDN-0185 Insufficient width (19.32 um)`) are exactly what
+a diagnosis gets built from, and this project has already been burned
+once by a diagnosis that reasoned from a summary instead of the source.
+A stage with no artifact says so explicitly rather than rendering an
+empty shell.
+
+Verified against real data in the browser, one type at a time: stage 01
+lists all 11 file artifacts with the real PDK hash; stage 03 lists all
+nine candidates with their real `FP_CORE_UTIL` / `SYNTH_STRATEGY`
+overrides; stage 04 shows exactly the three candidates that stopped there
+with the real `PDN-0185` text; stage 07 shows six signoff verdicts with
+real area, utilization and power.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

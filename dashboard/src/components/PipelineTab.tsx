@@ -20,6 +20,7 @@ import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
 import LayoutView from "./LayoutView";
 import SlackChart from "./SlackChart";
+import StageArtifacts from "./StageArtifacts";
 import "./Tabs.css";
 import "./PipelineTab.css";
 
@@ -215,6 +216,10 @@ const PIPELINE_PHASES: {
 
 function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const { t } = useLang();
+  // Which stage's artifacts are open. The stage cards used to be labels
+  // with a count — you could see a stage happened but not what came out
+  // of it, though every stage's real output was already in the case.
+  const [openStage, setOpenStage] = useState<ProcessStageId | null>(null);
   const stages = pipelineCase.process_stages ?? FALLBACK_PROCESS_STAGES;
   const candidates = pipelineCase.iterations.flatMap((it) => it.results);
   const stageCounts: Partial<Record<ProcessStageId, number>> = {};
@@ -259,9 +264,12 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
               const reached = count > 0;
               const owner = STAGE_AGENT[id];
               return (
-                <div
+                <button
                   key={id}
-                  className={`pipeline__process-stage ${reached ? "pipeline__process-stage--reached" : "pipeline__process-stage--empty"}`}
+                  type="button"
+                  onClick={() => setOpenStage(openStage === id ? null : id)}
+                  className={`pipeline__process-stage ${reached ? "pipeline__process-stage--reached" : "pipeline__process-stage--empty"}`
+                    + (openStage === id ? " pipeline__process-stage--open" : "")}
                   title={owner ? `${owner.agent} — ${owner.role.en}` : note}
                 >
                   <span className="pipeline__process-stage-index">
@@ -270,7 +278,10 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
                   <strong>{stage.name}</strong>
                   {owner && <span className="pipeline__process-stage-agent">{owner.agent}</span>}
                   <span className="pipeline__process-stage-note">{note}</span>
-                </div>
+                  <span className="pipeline__process-stage-more">
+                    {openStage === id ? t("sa_hide") : t("sa_show")}
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -289,6 +300,14 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
             ? t("phase_loop_fired").replace("{n}", String(feedbackCount))
             : t("phase_loop_idle")}
       </div>
+
+      {openStage && (
+        <StageArtifacts
+          stage={openStage}
+          stageName={byId.get(openStage)?.name ?? openStage}
+          pipelineCase={pipelineCase}
+        />
+      )}
     </div>
   );
 }

@@ -429,6 +429,25 @@
   margin-left: 0.5rem;
 }
 
+/* Stage cards are buttons now — they open their own artifacts. */
+.pipeline__process-stage {
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.pipeline__process-stage:hover { border-color: var(--accent); }
+.pipeline__process-stage--open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+.pipeline__process-stage-more {
+  margin-top: 0.25rem;
+  font-size: 0.62rem;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
 .pipeline__process-stage-agent {
   font-family: var(--mono);
   font-size: 0.62rem;

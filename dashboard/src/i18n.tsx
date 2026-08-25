@@ -93,6 +93,41 @@ const dict = {
   hiw_stat_closed: { en: "closed by the agent", ko: "에이전트가 완료" },
   hiw_stat_repaired: { en: "self-repaired candidates", ko: "자가복구된 후보" },
 
+  sa_show: { en: "see what it produced ▸", ko: "산출물 보기 ▸" },
+  sa_hide: { en: "hide ▾", ko: "닫기 ▾" },
+  sa_lede_extraction: {
+    en: "Real files this run produced, recorded per candidate (shown: {tag}). Paths point into runs/, which is gitignored and cleaned up — this is the record of what existed, not a live link.",
+    ko: "이 실행이 만든 실제 파일들 (후보별 기록, 표시 중: {tag}). 경로는 gitignore되어 정리되는 runs/를 가리키므로, 살아있는 링크가 아니라 무엇이 만들어졌는지의 기록입니다.",
+  },
+  sa_none_extraction: { en: "No candidate recorded file artifacts — no run got far enough.", ko: "파일 산출물을 기록한 후보가 없습니다 — 충분히 진행된 실행이 없습니다." },
+  sa_lede_topology: {
+    en: "The design's structural signature, read from topology.json — what the agent knew before proposing anything.",
+    ko: "topology.json에서 읽은 설계의 구조 시그니처 — 에이전트가 후보를 제안하기 전에 알고 있던 것입니다.",
+  },
+  sa_none_topology: { en: "This design has no topology.json.", ko: "이 설계에는 topology.json이 없습니다." },
+  sa_lede_proposals: {
+    en: "Every candidate the agent proposed, and the exact config override that makes each one different. This is the agent's actual decision, not a summary of it.",
+    ko: "에이전트가 제안한 모든 후보와, 각각을 다르게 만드는 정확한 설정 오버라이드입니다. 요약이 아니라 에이전트의 실제 결정입니다.",
+  },
+  sa_baseline: { en: "no override (baseline config)", ko: "오버라이드 없음 (기본 설정)" },
+  sa_from_repair: { en: "auto-repair", ko: "자동복구" },
+  sa_from_spec: { en: "from run_spec", ko: "run_spec에서" },
+  sa_lede_stopped: {
+    en: "{n} candidate(s) stopped at this gate. Below is the real captured OpenLane output for each — the specific numbers in it are what a diagnosis gets built from.",
+    ko: "이 관문에서 멈춘 후보 {n}개입니다. 아래는 각각의 실제 OpenLane 출력 원문이며, 그 안의 구체적 수치가 진단의 근거가 됩니다.",
+  },
+  sa_none_stopped: { en: "No candidate stopped at this gate.", ko: "이 관문에서 멈춘 후보가 없습니다." },
+  sa_lede_verdicts: {
+    en: "Signoff verdicts from OpenLane's own metrics.json — every number measured, none estimated.",
+    ko: "OpenLane이 직접 낸 metrics.json 기반 사인오프 판정 — 모든 수치가 측정값이며 추정치가 아닙니다.",
+  },
+  sa_none_verdicts: { en: "No candidate reached signoff.", ko: "사인오프에 도달한 후보가 없습니다." },
+  sa_lede_feedback: {
+    en: "The loop stopped with: {stop}. {n} candidate(s) here were produced by auto-repair feeding a new configuration back into PROPOSE.",
+    ko: "루프는 다음 이유로 종료됐습니다: {stop}. 이 중 {n}개 후보는 자동복구가 새 설정을 '제안'으로 되돌려 만들어졌습니다.",
+  },
+  sa_reviews: { en: "{n} human-in-the-loop review(s) recorded on this case", ko: "이 케이스에 기록된 human-in-the-loop 리뷰 {n}건" },
+
   ac_title: { en: "What the agent needs from you", ko: "에이전트가 당신에게 필요한 것" },
   ac_needing: { en: "{n} design(s) waiting on you", ko: "당신을 기다리는 설계 {n}개" },
   ac_all_clear: { en: "nothing waiting — every design is closed", ko: "대기 중 없음 — 모든 설계 완료" },
