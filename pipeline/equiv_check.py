@@ -38,9 +38,10 @@ import sys
 import tempfile
 from pathlib import Path
 
+from toolchain import OPENLANE_IMAGE as IMAGE
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
-IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 
 # `-ignore_miss_func` is required, not incidental: sky130's liberty has
 # cells whose `function` attribute Yosys can't parse (sequential cells

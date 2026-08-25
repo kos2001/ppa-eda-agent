@@ -28,6 +28,7 @@ import def_layout
 import equiv_check
 import render_layout
 from pareto import ParetoPoint, pick_best
+from toolchain import toolchain_info
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
@@ -761,6 +762,10 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "winner_tag": winner["tag"] if winner else None,
         "outcome": outcome,
         "stop_reason": stop_reason,
+        # Which toolchain produced these numbers. Recorded so two cases
+        # can be compared knowingly rather than on the assumption that
+        # whatever was installed at the time was the same build.
+        "toolchain": toolchain_info(),
         # Real rendered layout of this case's most informative candidate,
         # stored under reference-db/ so it outlives the run directory.
         "layout_image": capture_layout_image(design_name, design_dir, subject),

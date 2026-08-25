@@ -23,8 +23,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+from toolchain import OPENLANE_IMAGE as IMAGE
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 
 # KLayout's LayoutView.load_layout() takes a *filename*, not a pre-loaded
 # pya.Layout — passing a Layout object there raises a real TypeError
