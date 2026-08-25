@@ -1765,6 +1765,65 @@ overrides; stage 04 shows exactly the three candidates that stopped there
 with the real `PDN-0185` text; stage 07 shows six signoff verdicts with
 real area, utilization and power.
 
+## Cutting the console back: the fix was deletion, not another panel
+
+Repeated feedback that the console was scattered and it wasn't clear what
+to do. Each round I answered by *adding* a panel — an Action Center, a
+How-it-works, a live strip, stage artifacts. Each solved its local
+problem and made the page longer. Measuring it finally showed that the
+additions were the problem:
+
+| | before |
+|---|---|
+| top-level blocks stacked | 10 |
+| buttons on one page | 27 |
+| preamble before any evidence | **1,096px** |
+| newest case card | **3,763px** (five screens by itself) |
+| total | 7.1 screens |
+
+And the same fact was being stated in up to three places at once:
+
+- **run controls** in both the Action Center and a separate
+  `RunAgentPanel`
+- **how many designs are waiting** in the Action Center header *and* a
+  live strip below it
+- **what the agent does** in HowItWorks, in the phase row's role text,
+  *and* in the agent legend
+
+That is what "정보가 분산" actually meant, and no new panel could fix it.
+
+So this round deleted rather than added:
+
+- `RunAgentPanel` removed entirely (71 lines) — the Action Center already
+  runs every design, and better, since it knows *which* design needs it.
+- The live strip folded into the Action Center header, where the count it
+  duplicated already lived.
+- The wrapper panel holding a title, an intro paragraph and the design
+  filter dropped; the filter moved beside the case list, which is what it
+  actually filters.
+- `HowItWorks` collapsed by default. At 587px it was larger than the
+  Action Center that answers the actual question — an explanation sitting
+  on top of the answer.
+- Every case collapsed by default, with an explicit "the record — every
+  real run, newest first" heading so the evidence is visibly a different
+  thing from the actions above it.
+
+Result, measured the same way:
+
+| | before | after |
+|---|---|---|
+| preamble | 1,096px | **271px** |
+| buttons | 27 | **18** |
+| newest case | 3,763px | **41px row** |
+| total | 7.1 screens | **1.3 screens** |
+
+The page is now three layers in order: what needs you → what the agent
+does (collapsed) → the record. Nothing was lost — verified live that the
+Action Center still sorts `sram_wrapper` to the top as needing judgement,
+that clicking through still opens exactly that case with its three-step
+review workflow and all eight stage cards, and that both duplicate
+surfaces are gone from the DOM.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

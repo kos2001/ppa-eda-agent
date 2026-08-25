@@ -128,6 +128,7 @@ const dict = {
   },
   sa_reviews: { en: "{n} human-in-the-loop review(s) recorded on this case", ko: "이 케이스에 기록된 human-in-the-loop 리뷰 {n}건" },
 
+  evidence_title: { en: "the record — every real run, newest first", ko: "기록 — 모든 실제 실행, 최신순" },
   ac_title: { en: "What the agent needs from you", ko: "에이전트가 당신에게 필요한 것" },
   ac_needing: { en: "{n} design(s) waiting on you", ko: "당신을 기다리는 설계 {n}개" },
   ac_all_clear: { en: "nothing waiting — every design is closed", ko: "대기 중 없음 — 모든 설계 완료" },
