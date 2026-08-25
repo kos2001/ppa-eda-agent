@@ -1621,6 +1621,60 @@ there, so no regression), and each new gate was confirmed to actually
 fire when its metric is non-zero. Both directions are pinned by tests —
 a gate that cannot fail is not a gate.
 
+## sigdox's tool list, and the hold-timing hole it led to
+
+Checked sigdox.com/eda-open-source-tools. Nearly everything it names is
+already in use here — Magic, Netgen, OpenSTA, KLayout, Verilator, and
+OpenROAD's RCX covers what SPEF-Extractor does. One tool was genuinely
+new and worth evaluating properly:
+
+**CVC** (`d-m-bailey/cvc`) — a voltage-aware ERC checker for CDL
+netlists, catching a class of error nothing else in this flow does
+(floating gates, power shorts, forward-biased diodes, level-shifter
+errors). Declined, on evidence rather than reflex: it is not in the
+OpenLane image (C++ build from source), it wants **Calibre LVS CDL**
+rather than the SPICE OpenLane emits, and it requires **Python 2.7.10**,
+gcc 4.9.3 and power parameters supplied **from a Microsoft Excel file**.
+Its value is in multi-voltage and analog/mixed-signal designs; this
+pipeline runs single-voltage standard-cell digital on qualified sky130
+cells, where the errors it targets are largely prevented by
+construction. High cost, low marginal value here.
+
+**What that evaluation did lead to is much more important.** Looking for
+signoff checks the flow might be missing surfaced that OpenLane's own
+metric library marks a specific set of metrics `critical=True` — its own
+declaration of what constitutes a fatal result. There are 22. `score()`
+gated on four.
+
+The most serious gap in that list: **hold timing was never checked.**
+`score()` computed worst *setup* WNS across corners and gated on it,
+recorded hold WNS per corner, rendered it on the dashboard — and never
+gated on it. Demonstrated directly rather than inferred: a candidate
+with `hold_wns = -0.25` and 7 hold violations scored **PASS**, while the
+pipeline displayed that negative slack on screen. Hold violations are
+silicon-fatal and cannot be fixed after fabrication, which makes this
+the worst thing the verdict could have been silent about.
+
+`score()` now gates on OpenLane's own critical list rather than a
+hand-picked one — hold WNS across corners, plus
+`design__instance_unmapped__count` (synthesis left cells unmapped),
+`design__xor_difference__count` (the two tools' GDS disagree),
+`magic__illegal_overlap__count` (the exact failure that blocked the
+hs-library experiment earlier), `design__disconnected_pin__count`,
+`route__drc_errors`, the detailed LVS counts, and the setup/hold
+violation counts.
+
+Using the tool's own definition of critical is the point: it makes the
+verdict agree with the tool it already trusts, instead of guessing which
+failures matter.
+
+Verified both directions, as before. Each gate confirmed to fire when
+its metric is non-zero, and a real clean `counter4` run still passes with
+no violations — so this is a genuine tightening, not a change that
+invalidates existing results. Hold is still reported per corner as well
+as gated, since the dashboard detail and the pass/fail decision are both
+worth having.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
