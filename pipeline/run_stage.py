@@ -11,7 +11,7 @@ Usage:
         [--to <step-id>] [--override KEY=VALUE ...]
 
 Requires:
-    - Docker, with the ghcr.io/efabless/openlane2:2.3.10 image available
+    - Docker, with the image pinned in toolchain.py available
     - A sky130 PDK enabled at <repo>/pdk (see docs/superpowers/specs/
       2026-08-21-autonomous-layout-agent-design.md for how it was fetched:
       `volare enable --pdk sky130 --pdk-root <repo>/pdk <version>`)
@@ -22,9 +22,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from toolchain import OPENLANE_IMAGE as IMAGE
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
-IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 
 
 def run_stage(design_dir: Path, tag: str, to_step: str | None,

@@ -1470,6 +1470,46 @@ are a separate clock-tree problem that was mistakenly ruled out. Exposed
 as `ppa_sta_report` on MCP; tests use report text copied verbatim from
 real runs so an OpenLane format change fails loudly.
 
+## chipfoundry/openlane2: the same repository, and what that did surface
+
+Asked to apply github.com/chipfoundry/openlane2. Checked before assuming
+it was a different project, and it is not one: **the repo id is identical
+to github.com/efabless/openlane2 (589378383)** — OpenLane 2 was renamed
+from the efabless org to chipfoundry, and GitHub transparently redirects
+the old path. So there is no fork to port ideas from; it is the upstream
+this pipeline already runs.
+
+Two further facts worth having checked rather than guessed:
+
+- **2.3.10 is already the newest stable tag.** Everything above it is
+  `3.0.0.dev*`, a pre-release line. Not adopted: every number in
+  reference-db came from a real run on 2.3.10, and re-baselining all of
+  it onto a development build trades real comparability for novelty.
+- **There is no `ghcr.io/chipfoundry/openlane2` image.** The published
+  container is still under the efabless namespace. Verified by asking
+  the registry: the chipfoundry name returns not-found, the efabless one
+  resolves. So the image reference must *not* be "modernised" to match
+  the new org name, and that is now pinned by a test so a future tidy-up
+  doesn't point the pipeline at an image that does not exist.
+
+**What the investigation did legitimately turn up.** The pinned image was
+hardcoded independently in four modules — `run_stage`, `render_layout`,
+`odb_query`, `equiv_check`. Changing the pin meant editing four files,
+and missing one would not fail loudly: it would run part of the pipeline
+on a different OpenLane build while writing results into the same
+reference-db as if they were comparable. For a project whose whole claim
+is that its measurements are real and comparable, two silently different
+toolchains is a correctness hazard rather than untidiness — the same
+shape as the duplicated orchestrate loop and the duplicated design-name
+check found earlier.
+
+`pipeline/toolchain.py` is now the single definition, and it also carries
+the rename and version reasoning above so the next person doesn't have to
+re-derive it. `write_case()` records `toolchain` on every case, so a
+stored result is attributable to the build that produced it instead of to
+"whatever was installed at the time" — verified on a real run. A test
+fails if any module reintroduces its own image string.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

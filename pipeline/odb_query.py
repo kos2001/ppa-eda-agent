@@ -35,8 +35,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from toolchain import OPENLANE_IMAGE as IMAGE
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
-IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 
 # Runs inside OpenROAD's own Python interpreter against the real .odb.
 # Reports per-net: the half-perimeter bounding box of all its connected
