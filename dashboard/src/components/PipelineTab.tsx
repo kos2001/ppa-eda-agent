@@ -16,6 +16,7 @@ import {
 import { askReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import { useLang, type DictKey } from "../i18n";
+import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
 import LayoutView from "./LayoutView";
 import SlackChart from "./SlackChart";
@@ -782,10 +783,12 @@ function CaseCard({
   pipelineCase,
   defaultOpen,
   onApplied,
+  focusDesign,
 }: {
   pipelineCase: PipelineCase;
   defaultOpen: boolean;
   onApplied: () => void;
+  focusDesign: string | null;
 }) {
   const { t } = useLang();
   // Collapsed by default for all but the newest case. Measured problem
@@ -794,6 +797,18 @@ function CaseCard({
   // through all of their contents. The newest stays open so the page is
   // never just a list of closed boxes.
   const [open, setOpen] = useState(defaultOpen);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  // The Action Center's "open the review workflow" jumps here rather
+  // than telling the reader to go find the right card themselves —
+  // pointing at work without taking you to it is the scattering this
+  // whole redesign is meant to remove.
+  useEffect(() => {
+    if (focusDesign && focusDesign === pipelineCase.design) {
+      setOpen(true);
+      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [focusDesign, pipelineCase.design]);
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
   const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
@@ -813,7 +828,7 @@ function CaseCard({
 
   if (!open) {
     return (
-      <div className="panel pipeline__case--collapsed">
+      <div className="panel pipeline__case--collapsed" ref={cardRef}>
         <button className="pipeline__case-toggle" onClick={() => setOpen(true)}>
           <span className="pipeline__case-toggle-name">
             ▸ {pipelineCase.design} — {pipelineCase.date}
@@ -830,7 +845,7 @@ function CaseCard({
   }
 
   return (
-    <div className="panel">
+    <div className="panel" ref={cardRef}>
       <span className="panel__title">
         <button className="pipeline__case-collapse" onClick={() => setOpen(false)}>
           ▾
@@ -1037,6 +1052,7 @@ export default function PipelineTab() {
   }, []);
 
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [focusDesign, setFocusDesign] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -1082,6 +1098,20 @@ export default function PipelineTab() {
 
   return (
     <div className="tab">
+      {!loading && !error && (
+        <ActionCenter
+          designs={designNames}
+          cases={cases ?? []}
+          onOpenCase={(d) => {
+            // Re-set even if unchanged, so clicking the same design twice
+            // scrolls back to it instead of doing nothing.
+            setFocusDesign(null);
+            window.setTimeout(() => setFocusDesign(d), 0);
+          }}
+          onRunStarted={loadCases}
+        />
+      )}
+
       <HowItWorks cases={cases ?? []} />
 
       <div className="panel">
@@ -1146,6 +1176,7 @@ export default function PipelineTab() {
           pipelineCase={c}
           defaultOpen={i === 0}
           onApplied={loadCases}
+          focusDesign={focusDesign}
         />
       ))}
     </div>

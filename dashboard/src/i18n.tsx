@@ -93,6 +93,43 @@ const dict = {
   hiw_stat_closed: { en: "closed by the agent", ko: "에이전트가 완료" },
   hiw_stat_repaired: { en: "self-repaired candidates", ko: "자가복구된 후보" },
 
+  ac_title: { en: "What the agent needs from you", ko: "에이전트가 당신에게 필요한 것" },
+  ac_needing: { en: "{n} design(s) waiting on you", ko: "당신을 기다리는 설계 {n}개" },
+  ac_all_clear: { en: "nothing waiting — every design is closed", ko: "대기 중 없음 — 모든 설계 완료" },
+  ac_starting: { en: "starting {d}…", ko: "{d} 시작 중…" },
+
+  ac_state_review: { en: "NEEDS YOUR JUDGEMENT", ko: "당신의 판단 필요" },
+  ac_ask_review: {
+    en: "The agent hit a failure it has no repair pattern for, so it stopped instead of guessing. It needs a person (or a specialist agent) to say what to try next.",
+    ko: "에이전트가 복구 패턴이 없는 실패를 만나 추측 대신 멈췄습니다. 다음에 무엇을 시도할지 사람(또는 전문 에이전트)이 정해줘야 합니다.",
+  },
+  ac_already_reviewed: {
+    en: "A review has already been recorded — read it before adding another.",
+    ko: "이미 기록된 리뷰가 있습니다 — 추가하기 전에 먼저 읽어보세요.",
+  },
+  ac_btn_review: { en: "open the review workflow ↓", ko: "리뷰 워크플로 열기 ↓" },
+
+  ac_state_budget: { en: "NEEDS MORE BUDGET", ko: "예산 추가 필요" },
+  ac_ask_budget: {
+    en: "Auto-repair was still proposing new candidates when it hit its iteration limit. No judgement needed — it just needs more turns. Suggested: {n}.",
+    ko: "자동복구가 계속 새 후보를 제안하던 중 반복 한도에 걸렸습니다. 판단이 아니라 횟수만 더 주면 됩니다. 권장: {n}회.",
+  },
+  ac_btn_budget: { en: "re-run with {n} iterations", ko: "{n}회로 재실행" },
+
+  ac_state_run: { en: "NEVER RUN", ko: "미실행" },
+  ac_ask_run: {
+    en: "This design has no case yet. Start the agent to produce one.",
+    ko: "이 설계는 아직 케이스가 없습니다. 에이전트를 실행해 만들어보세요.",
+  },
+  ac_btn_run: { en: "run the agent", ko: "에이전트 실행" },
+
+  ac_state_done: { en: "CLOSED", ko: "완료" },
+  ac_ask_done: {
+    en: "The agent closed this one itself. Nothing is required of you.",
+    ko: "에이전트가 스스로 완료했습니다. 필요한 조치가 없습니다.",
+  },
+  ac_btn_rerun: { en: "run again", ko: "다시 실행" },
+
   hitl_needs_you: { en: "NEEDS YOU", ko: "개입 필요" },
   live_open_cases: {
     en: "{n} case(s) waiting on a human decision",

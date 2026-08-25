@@ -1,0 +1,103 @@
+/* The first thing on the page: what to do, not what happened. Styled to
+   read as a task list rather than another data panel — each row is one
+   design, one state, one control. */
+.ac {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  margin-bottom: 1.1rem;
+  overflow: hidden;
+}
+
+.ac__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.ac__head h2 {
+  margin: 0;
+  font-size: 0.82rem;
+  font-family: var(--mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ac__count { font-size: 0.72rem; color: var(--text-dim); }
+.ac__count--needing { color: var(--critical); font-weight: 600; }
+
+.ac__list { list-style: none; margin: 0; padding: 0; }
+
+.ac__row {
+  display: grid;
+  grid-template-columns: minmax(11rem, 15rem) 1fr auto;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  border-left: 3px solid transparent;
+}
+.ac__list > .ac__row:first-child { border-top: none; }
+
+/* Colour carries the same meaning as the pipeline phases: red = a
+   decision only a person can make, amber = a decision but a mechanical
+   one, dim = nothing owed. */
+.ac__row--review { border-left-color: var(--critical); background: var(--critical-soft); }
+.ac__row--budget { border-left-color: var(--warn); }
+.ac__row--run    { border-left-color: var(--accent); }
+.ac__row--done   { opacity: 0.6; }
+
+.ac__what { display: flex; flex-direction: column; gap: 0.2rem; }
+.ac__design { font-family: var(--mono); font-size: 0.82rem; }
+.ac__state {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+.ac__row--review .ac__state { color: var(--critical); }
+.ac__row--budget .ac__state { color: var(--warn); }
+.ac__row--run    .ac__state { color: var(--accent); }
+.ac__row--done   .ac__state { color: var(--text-dim); }
+
+.ac__ask {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.ac__do { display: flex; align-items: center; gap: 0.6rem; }
+
+.ac__do button {
+  background: var(--accent);
+  color: var(--surface);
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ac__row--review .ac__do button { background: var(--critical); }
+.ac__row--budget .ac__do button { background: var(--warn); color: #1a1200; }
+.ac__do button:disabled { opacity: 0.5; cursor: default; }
+
+.ac__secondary {
+  background: transparent !important;
+  color: var(--text-dim) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.ac__winner { font-family: var(--mono); font-size: 0.7rem; color: var(--good); }
+.ac__busy { margin: 0; padding: 0.5rem 1rem; font-size: 0.72rem; color: var(--text-dim); }
+
+@media (max-width: 860px) {
+  .ac__row { grid-template-columns: 1fr; gap: 0.5rem; }
+}

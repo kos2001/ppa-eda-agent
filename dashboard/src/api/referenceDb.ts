@@ -206,11 +206,17 @@ export interface PipelineRunState {
 // what turns the dashboard from a viewer of past reference-db/ cases
 // into an actual control surface for the agent: pressing this button
 // spawns a real OpenLane candidate-generation-and-auto-repair loop.
-export async function triggerPipelineRun(design: string): Promise<PipelineRunState> {
+export async function triggerPipelineRun(
+  design: string,
+  maxIterations?: number
+): Promise<PipelineRunState> {
   const res = await fetch(`${LOCAL_SERVER_URL}/pipeline/run`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ design }),
+    // maxIterations is what makes the "ran out of budget" action real
+    // rather than decorative: without it the console could only re-run
+    // with the budget that already proved insufficient.
+    body: JSON.stringify(maxIterations ? { design, maxIterations } : { design }),
   });
   const data = await res.json();
   if (!res.ok && res.status !== 409) {

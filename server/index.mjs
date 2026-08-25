@@ -180,17 +180,21 @@ async function designExists(design) {
   }
 }
 
-function startPipelineRun(design) {
+function startPipelineRun(design, { maxIterations = null } = {}) {
   const designDir = path.join(pipelineDir, "designs", design);
   const runSpecPath = path.join(designDir, "run_spec.json");
-  const state = { status: "running", startedAt: new Date().toISOString(), finishedAt: null, tail: [], error: null };
+  const state = { status: "running", startedAt: new Date().toISOString(), finishedAt: null, tail: [], error: null, maxIterations };
   pipelineRuns.set(design, state);
 
-  const proc = spawn(
-    "python3",
-    ["orchestrator.py", "--design", designDir, "--run-spec", runSpecPath],
-    { cwd: pipelineDir }
-  );
+  const args = ["orchestrator.py", "--design", designDir, "--run-spec", runSpecPath];
+  // A run that stopped at max_iterations_reached needs exactly one thing:
+  // more budget. Without this the console could only re-run it with the
+  // same budget that already proved insufficient, so the suggested
+  // action would have been decorative.
+  if (Number.isInteger(maxIterations) && maxIterations > 0) {
+    args.push("--max-iterations", String(maxIterations));
+  }
+  const proc = spawn("python3", args, { cwd: pipelineDir });
 
   const pushLine = (line) => {
     state.tail.push(line);
@@ -498,7 +502,7 @@ const server = createServer(async (req, res) => {
     req.on("data", (chunk) => (runBody += chunk));
     req.on("end", async () => {
       try {
-        const { design } = JSON.parse(runBody || "{}");
+        const { design, maxIterations } = JSON.parse(runBody || "{}");
         if (!isSafeDesignName(design)) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design (bare directory name under pipeline/designs/) required" }));
@@ -515,9 +519,9 @@ const server = createServer(async (req, res) => {
           res.end(JSON.stringify({ error: `a run for ${design} is already in progress`, ...existing }));
           return;
         }
-        startPipelineRun(design);
+        startPipelineRun(design, { maxIterations });
         res.writeHead(202, { ...headers, "Content-Type": "application/json" });
-        res.end(JSON.stringify({ design, status: "running" }));
+        res.end(JSON.stringify({ design, status: "running", maxIterations: maxIterations ?? null }));
       } catch (err) {
         console.error("[pipeline run error]", err);
         res.writeHead(500, { ...headers, "Content-Type": "application/json" });
