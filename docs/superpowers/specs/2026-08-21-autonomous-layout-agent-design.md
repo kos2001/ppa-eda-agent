@@ -1396,6 +1396,80 @@ Exposed as `ppa_equiv_check` on the MCP server. Left opt-in because
 enabling it changes what a verdict *means*, which should be a deliberate
 choice; there is otherwise no reason not to, at a second per candidate.
 
+## Reading the OpenSTA analysis that was already being thrown away
+
+OpenSTA was already used twice — the `/simulate` endpoint runs it
+directly, and OpenLane runs it for timing signoff. The gap was what
+happened to its output.
+
+Every run writes a full set of real OpenSTA reports per corner:
+`max.rpt`/`min.rpt` (the critical path, stage by stage, with fanout,
+capacitance, slew and delay at every point), `checks.rpt` (containing
+`report_check_types -max_slew -max_cap -max_fanout -violators`),
+`clock.rpt`, `power.rpt`, `tns`/`wns`/`skew`. **Nothing in this pipeline
+had ever read one of them** — `score()` takes
+`timing__setup__wns__corner:*` from metrics.json and stops. A failing
+candidate reported "worst setup WNS -0.05" and nothing else: which path,
+which cells, where the delay accumulated, all discarded.
+
+`pipeline/sta_report.py` reads them. Deliberately a reader, not a re-run:
+OpenSTA already did the analysis against the run's real parasitics and
+liberty, so recomputing it would cost minutes to reproduce what is on
+disk, and any disagreement between the two would be a bug rather than a
+feature.
+
+Two real bugs found by running it, both of the "silently wrong" kind:
+
+- **Arrival time was under-reported.** The final port line of a path has
+  no fanout/cap columns, so taking the last parsed stage gave 1.653849
+  where STA itself printed 1.655644. Only 1.8 ps, but reporting a number
+  the tool did not produce is wrong regardless of size. Now parsed from
+  STA's own `data arrival time` line.
+- **Failed runs returned an empty result, silently.** Pre- and post-PnR
+  STA write one subdirectory per corner; mid-PnR STA writes the reports
+  flat in the step directory. Only the first layout was handled, so
+  sram_wrapper — which fails before post-PnR, i.e. exactly the case worth
+  reading — produced no corners and no complaint. It now handles both and
+  *raises* rather than returning empty: no corners must never read as no
+  problems.
+
+**What it found on the open sram_wrapper case, and what that overturns.**
+The run was re-executed; it fails at step 31 `repairdesignpostgpl`, where
+RSZ-0090 fires, so step 30's mid-PnR STA is the state immediately before
+the failure. `report_check_types` reports **91 max_slew violations**,
+ranked:
+
+    u_sram/clk1      limit 0.750000  slew 1.599854  slack -0.849854
+    u_sram/clk0      limit 0.750000  slew 1.593345  slack -0.843345
+    u_sram/addr1[1]  limit 0.040000  slew 0.728622  slack -0.688622
+    u_sram/addr0[0]  limit 0.040000  slew 0.667010  slack -0.627010
+
+This settles three things the case had been arguing rather than measuring:
+
+1. **The "CORRECTED" diagnosis over-corrected.** Its first version blamed
+   the macro's clk0/clk1 pins and was rewritten as "that was wrong",
+   moving the cause entirely to the addr buses. Both are real violators,
+   and the clock pins are the *worst* by slack. The addr finding was
+   right; declaring the clock observation wrong was not.
+2. **"Physically floored, 0.043ns is the best achievable" does not
+   describe this design.** The measured slews on those pins are
+   0.504–0.729 ns against a 0.04 ns limit — twelve to eighteen times
+   over, not a 3 ps overshoot. So RSZ's "0.043ns at 0.01pF" was a floor
+   (best buffer into a bare pin), never the placed net's state. That was
+   precisely the open question the previous `odb-measurement` review
+   recorded, and it is now answered.
+3. **It independently corroborates the .odb measurement.** OpenROAD found
+   those nets spanning 170–299 µm; OpenSTA finds slews 12–18× over limit
+   on the same pins. Two different tools, two different databases,
+   agreeing — stronger than either alone.
+
+Recorded via `request_review.py apply` (agent `sta-measurement`) with an
+explicit note on what it does *not* settle: nothing here shows a 0.729 ns
+slew is reducible to 0.04 ns by placement, and the clock-pin violations
+are a separate clock-tree problem that was mistakenly ruled out. Exposed
+as `ppa_sta_report` on MCP; tests use report text copied verbatim from
+real runs so an OpenLane format change fails loudly.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

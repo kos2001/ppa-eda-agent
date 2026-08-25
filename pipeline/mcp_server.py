@@ -33,6 +33,7 @@ import render_layout  # noqa: E402
 import request_review  # noqa: E402
 import run_stage  # noqa: E402
 import self_improve  # noqa: E402
+import sta_report  # noqa: E402
 import tech_compare  # noqa: E402
 import verify_diagnosis  # noqa: E402
 
@@ -176,6 +177,22 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_sta_report",
+        "description": "Reads the OpenSTA analysis a run already produced — the "
+                        "real critical path stage by stage (which cell, how much "
+                        "delay, what share of arrival) and the max_slew/max_cap/"
+                        "max_fanout violators. Fast, read-only, no re-run: turns "
+                        "'worst setup WNS -0.05' into which path and which cell.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "tag"],
+            "properties": {
+                "design": {"type": "string"}, "tag": {"type": "string"},
+                "corner": {"type": "string", "description": "omit for all corners"},
+            },
+        },
+    },
+    {
         "name": "ppa_odb_query",
         "description": "Queries a run's real OpenROAD database (.odb) directly for "
                         "measured per-net placement facts — pin count, HPWL and max "
@@ -311,6 +328,11 @@ def _tool_equiv_check(args: dict) -> dict:
     return equiv_check.check(design_dir, run_dir)
 
 
+def _tool_sta_report(args: dict) -> dict:
+    run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
+    return sta_report.read_run(run_dir, args.get("corner"))
+
+
 def _tool_odb_query(args: dict) -> dict:
     run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
     data = odb_query.query(run_dir)
@@ -342,6 +364,7 @@ _TOOL_IMPL = {
     "ppa_render_layout": _tool_render_layout,
     "ppa_verify_diagnosis": _tool_verify_diagnosis,
     "ppa_equiv_check": _tool_equiv_check,
+    "ppa_sta_report": _tool_sta_report,
     "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
 }
