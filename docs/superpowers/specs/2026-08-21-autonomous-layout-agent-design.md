@@ -1340,6 +1340,62 @@ it lands in both the diagnosis and the `human_in_the_loop` history like
 any other review; the grounding check still passes. Exposed as
 `ppa_odb_query` on the MCP server.
 
+## Using Yosys directly: nothing was checking that the circuit is correct
+
+Same shape as the OpenROAD work above — Yosys already runs every
+`Yosys.Synthesis` step, so what was missing was using it *as its own
+tool*. Here that exposed a genuine hole rather than a convenience gap.
+
+`score()` checks DRC, LVS, utilization and timing. All real, none
+functional. LVS compares the *layout* against the *netlist*, confirming
+the physical implementation matches what was handed to placement —
+**nothing has ever compared that netlist against the RTL**. A synthesis
+result that is clean, legal, fast and functionally wrong would be
+reported as PASS.
+
+Not hypothetical: this pipeline deliberately varies `SYNTH_STRATEGY`
+(`AREA 0` / `AREA 2` / `DELAY 1` / `DELAY 4` are real candidates in
+counter4's `run_spec.json`) and `STD_CELL_LIBRARY`, both of which change
+what Yosys emits. Judging those candidates on area and timing while never
+checking they still compute the same function is exactly the gap.
+
+`pipeline/equiv_check.py` closes it with Yosys's own SAT equivalence
+checker: read the RTL as `gold`, the gate netlist plus the real liberty
+as `gate`, build a miter, discharge with `equiv_simple` + `equiv_induct`,
+and assert via `equiv_status -assert`. Measured at **~1 second** on
+counter4, so it is cheap enough per candidate. Wired into
+`run_candidate()` behind `--verify-function`; a mismatch, a *vacuous*
+pass, or an inability to run the check at all each fail the candidate
+outright — a wrong circuit that meets timing is still wrong, and "could
+not verify" must never read as "fine".
+
+**A real bug found by running it, worth recording because the first
+result looked like a finding.** Against a full flow both candidates came
+back NOT EQUIVALENT — while the identical design had proved equivalent
+minutes earlier. The tell was `unproven_points: None`: the regex had
+matched nothing, so Yosys had *errored*, not disproved. Cause:
+`final/nl` contains cells inserted after synthesis for physical reasons
+(`sky130_fd_sc_hd__fill_1`, tap, decap, antenna diodes) which carry no
+logic function, so `read_liberty -ignore_miss_func` skips them and Yosys
+aborts on a module that "is not part of the design". `find_netlist()`
+now prefers the synthesis-stage netlist — which is also the right
+artifact for the question being asked, since "did synthesis preserve the
+function?" is about synthesis output, and the later insertions are
+covered by LVS and DRC instead. What this does *not* independently
+verify is that those physical insertions were themselves harmless; that
+limit is stated in the code rather than glossed.
+
+Validated by negative control, not just by passing: corrupting the RTL
+(`count + 4'd2` against a netlist that counts by 1) produced "Found 4
+unproven $equiv cells" and exit 1, while the correct pair produced
+"Equivalence successfully proven!" with 4 proven / 0 unproven. The
+integration is separately pinned by tests covering the three ways this
+gate could silently go green — mismatch, vacuous pass, checker error.
+
+Exposed as `ppa_equiv_check` on the MCP server. Left opt-in because
+enabling it changes what a verdict *means*, which should be a deliberate
+choice; there is otherwise no reason not to, at a second per candidate.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

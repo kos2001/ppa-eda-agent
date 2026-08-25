@@ -25,6 +25,7 @@ from pathlib import Path
 
 from run_stage import run_stage, read_metrics
 import def_layout
+import equiv_check
 import render_layout
 from pareto import ParetoPoint, pick_best
 
@@ -355,7 +356,41 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
     return expanded
 
 
-def run_candidate(design_dir: Path, run_spec: dict, cand: dict) -> dict:
+def verify_function(design_dir: Path, run_dir: Path, verdict: dict) -> dict | None:
+    """Proves the candidate's netlist still computes the RTL's function,
+    and records a real violation if it doesn't.
+
+    Kept separate from score() because score() reads only metrics.json,
+    while this needs the run's actual netlist and the liberty for the SCL
+    that run really used. A functional mismatch is a hard fail regardless
+    of how clean the DRC/LVS/timing came out — a wrong circuit that meets
+    timing is still wrong.
+
+    Costs about a second (measured on counter4), so it is cheap enough to
+    run per candidate; it stays opt-in only so that enabling it is a
+    deliberate change to what a verdict means.
+    """
+    try:
+        result = equiv_check.check(design_dir, run_dir)
+    except Exception as e:  # noqa: BLE001 — inability to check is not a pass
+        verdict["violations"].append(f"function not verified: {e}")
+        verdict["passed"] = False
+        return None
+    if not result["equivalent"]:
+        verdict["violations"].append(
+            f"netlist is NOT functionally equivalent to the RTL "
+            f"({result['unproven_points']} unproven equivalence point(s))")
+        verdict["passed"] = False
+    elif result["vacuous"]:
+        # A pass that compared nothing must not read as a pass.
+        verdict["violations"].append(
+            "function check was vacuous — no equivalence points compared")
+        verdict["passed"] = False
+    return result
+
+
+def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
+                   verify_fn: bool = False) -> dict:
     """Runs and scores one independent candidate."""
     tag = cand["tag"]
     overrides = [f"{k}={override_value(v)}" for k, v in cand.get("overrides", {}).items()]
@@ -365,10 +400,12 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict) -> dict:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides)
         metrics = read_metrics(run_dir)
         verdict = score(metrics, run_spec.get("targets", {}))
+        equiv = verify_function(design_dir, run_dir, verdict) if verify_fn else None
         layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
         return {"tag": tag, "overrides": cand.get("overrides", {}),
                 "verdict": verdict, "run_dir": str(run_dir),
                 "data": data_pointers(run_dir),
+                "equivalence": equiv,
                 "layout": layout}
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         return {"tag": tag, "overrides": cand.get("overrides", {}),
@@ -468,15 +505,16 @@ def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
 
 
 def run_candidates(design_dir: Path, run_spec: dict,
-                   max_parallel: int = 1) -> list[dict]:
+                   max_parallel: int = 1, verify_fn: bool = False) -> list[dict]:
     candidates = run_spec["candidates"]
     if max_parallel <= 1 or len(candidates) <= 1:
-        return [run_candidate(design_dir, run_spec, cand) for cand in candidates]
+        return [run_candidate(design_dir, run_spec, cand, verify_fn)
+                for cand in candidates]
 
     results_by_tag = {}
     with ThreadPoolExecutor(max_workers=min(max_parallel, len(candidates))) as executor:
         futures = {
-            executor.submit(run_candidate, design_dir, run_spec, cand): cand["tag"]
+            executor.submit(run_candidate, design_dir, run_spec, cand, verify_fn): cand["tag"]
             for cand in candidates
         }
         for future in as_completed(futures):
@@ -772,8 +810,8 @@ STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failure
 
 
 def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
-                 max_parallel: int = 1, screen: bool = False
-                 ) -> tuple[list[dict], dict | None, str]:
+                 max_parallel: int = 1, screen: bool = False,
+                 verify_fn: bool = False) -> tuple[list[dict], dict | None, str]:
     """Runs the full candidate-generation-and-auto-repair loop for one
     design. Returns (all_iterations, winner, stop_reason) — stop_reason
     is always exactly one of STOP_REASONS, never None (see above).
@@ -803,6 +841,7 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
             design_dir,
             {**run_spec, "candidates": to_run},
             max_parallel=max(1, max_parallel),
+            verify_fn=verify_fn,
         )
         # Pruned candidates are real, measured rejections and belong in
         # the iteration's results exactly like any other — dropping them
@@ -857,6 +896,10 @@ def main():
                      help="overrides run_spec.json's max_iterations, if set")
     ap.add_argument("--max-parallel", type=int, default=1,
                     help="number of independent candidates to run concurrently")
+    ap.add_argument("--verify-function", action="store_true",
+                     help="prove each candidate's netlist is functionally "
+                          "equivalent to the RTL (Yosys SAT equivalence, ~1s per "
+                          "candidate); a mismatch fails the candidate outright")
     ap.add_argument("--screen", action="store_true",
                      help=f"pre-flight each candidate only to {SCREEN_STEP} and "
                           f"run the full flow only on survivors; wins when "
@@ -870,6 +913,7 @@ def main():
     all_iterations, winner, stop_reason = orchestrate(
         args.design, run_spec, max_iterations, args.max_parallel,
         screen=args.screen,
+        verify_fn=args.verify_function,
     )
 
     case_file = write_case(design_name, args.design, all_iterations, winner, stop_reason)
