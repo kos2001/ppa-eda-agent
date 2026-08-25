@@ -1567,6 +1567,60 @@ Two things deliberately left alone:
   them stale. They will be replaced naturally the next time those
   designs run.
 
+## garden-of-eda.com: what it pointed at, and the audit it prompted
+
+Asked to check garden-of-eda.com (a catalogue of 155 open-source EDA
+tools) and apply what fits. Most of it is already in use here — Yosys,
+OpenROAD, OpenLane, KLayout, Verilator, OpenSTA. Two leads were followed
+properly rather than assumed:
+
+- **CoreSmith** (`facebookexperimental/coresmith`, Meta) — "Prompt to
+  GDS Agentic Flow", the same domain at much larger scope: architecture
+  → RTL generation → cocotb verification → synthesis → backend, driven
+  by LangGraph. Its verification stage is the one thing this project
+  structurally lacks (nothing checks the *RTL's* intent; the Yosys
+  equivalence work above checks netlist-vs-RTL, not RTL-vs-spec). Not
+  adopted: generating testbenches is a different product from closing
+  layout, and this pipeline takes RTL as given input.
+- **PPABench**, cited by CoreSmith as its benchmark suite and directly
+  relevant since everything here is bottlenecked on having only three
+  designs. **It does not exist publicly** — `facebookresearch/ppabench`
+  returns 404. Recorded as checked-and-unavailable rather than left as a
+  plausible-sounding lead.
+
+**What did come out of it is the most consequential finding of the
+task.** CoreSmith's flow leans on Verilator lint, which prompted the
+question of whether this pipeline uses the lint results OpenLane already
+produces. It does not — and auditing that properly showed the problem is
+far larger than lint:
+
+> **OpenLane emits 279 metrics on a real completed run. `score()` read
+> 32. 247 were discarded.**
+
+Among the discarded were genuine pass/fail signoff gates:
+
+- `klayout__drc_error__count` — **a second, independent DRC signoff.**
+  Only Magic's was checked, so a candidate KLayout flagged and Magic did
+  not would have been reported PASS. This is the most serious of them.
+- `route__antenna_violation__count`, `antenna__violating__nets` — real
+  manufacturing failures, never checked.
+- `design__max_slew_violation__count` / `max_cap` / `max_fanout`, per
+  corner — **the same DRV family that produces RSZ-0090**, the failure
+  this project has spent the most effort diagnosing, sitting in
+  metrics.json as structured numbers the entire time.
+- `design__power_grid_violation__count`, `synthesis__check_error__count`,
+  `design__lint_error__count`, `design__violations`.
+
+`score()` now gates on those. Deliberately *not* gated: lint warnings and
+clock skew — real signals, but not pass/fail ones, and promoting a
+warning to a failure would be overreach.
+
+Verified both directions on real data rather than by inspection: a real
+clean counter4 run still passes (every new metric is genuinely zero
+there, so no regression), and each new gate was confirmed to actually
+fire when its metric is non-zero. Both directions are pinned by tests —
+a gate that cannot fail is not a gate.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
