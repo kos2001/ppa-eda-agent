@@ -1675,6 +1675,57 @@ invalidates existing results. Hold is still reported per corner as well
 as gated, since the dashboard detail and the pass/fail decision are both
 worth having.
 
+## The Action Center: organising by what needs doing, not by what happened
+
+Feedback: information is scattered and it is not clear what the user is
+supposed to do. Both true, and the cause was structural rather than
+cosmetic.
+
+**The console was organised by case — a historical record.** Every fact,
+including every point where the agent needs a human, lived *inside* a
+case card. So "what needs me right now" was distributed across N
+collapsed cards and could only be found by opening each one. The live
+strip added earlier could say "1 case waiting on a human decision", but
+not which, not why, and not what to do about it — it pointed at work
+without leading anywhere.
+
+`ActionCenter.tsx` inverts that. It is the first thing on the page and
+answers one question: what does the agent need from you. Rows are sorted
+by how much attention they need, so the top row is always the next thing
+to do.
+
+The intervention points are not invented for the UI — they are exactly
+`orchestrate()`'s three STOP_REASONS plus "never run", each mapped to one
+concrete action:
+
+| state | what it means | the control |
+|---|---|---|
+| never run | no case exists | run the agent |
+| `winner_found` | the agent closed it itself | nothing owed |
+| `max_iterations_reached` | auto-repair was still proposing candidates and ran out of turns — a decision, but a mechanical one | re-run with a doubled budget |
+| `no_repairable_failures` | no repair pattern matched; the agent stopped rather than guess — the one case needing real judgement | jump to the review workflow |
+
+Colour carries the same meaning as the pipeline phases: red for a
+decision only a person can make, amber for a mechanical one, dim for
+nothing owed.
+
+**Two things were required to make this honest rather than decorative.**
+The "more budget" action would have been theatre if the console could
+only re-run with the budget that already failed, so `POST /pipeline/run`
+now accepts `maxIterations` and passes it to `orchestrator.py`. The
+doubling rule is the same one `self_improve.py` applies, so the console
+and the CLI recommend the same number rather than two different ones.
+And "open the review workflow" *scrolls to and opens* the right case —
+pointing at work without taking you to it is the scattering this was
+meant to remove.
+
+Verified live in the browser: the header reports one design waiting,
+`sram_wrapper` sorts to the top as "needs your judgement" (correctly —
+it is the only OPEN case, and its stop reason is `no_repairable_failures`),
+the two closed designs fall below with their winning tags, and clicking
+through opens the sram_wrapper card, scrolls to it, and lands on the
+three-step review workflow.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
