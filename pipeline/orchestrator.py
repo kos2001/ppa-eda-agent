@@ -25,6 +25,7 @@ from pathlib import Path
 
 from run_stage import run_stage, read_metrics
 import def_layout
+import design_rules
 import equiv_check
 import render_layout
 from pareto import ParetoPoint, pick_best
@@ -801,6 +802,20 @@ def pick_layout_subject(iterations: list[dict], winner: dict | None) -> dict | N
     return max(all_results, key=lambda r: order.get(r.get("stage"), -1))
 
 
+def collect_constraints(design_dir: Path) -> dict | None:
+    """The rules this run was held to, or None with the reason recorded.
+
+    Deliberately non-fatal: a case that already cost real OpenLane time
+    must not be lost because a tech LEF moved. The error is kept in the
+    case rather than swallowed, so an empty constraints panel can be told
+    apart from a process that genuinely has no rules.
+    """
+    try:
+        return design_rules.collect(design_dir)
+    except Exception as e:  # noqa: BLE001 - recorded, not silenced
+        return {"error": f"{type(e).__name__}: {e}"}
+
+
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
                winner: dict | None, stop_reason: str | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
@@ -831,6 +846,13 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         # can be compared knowingly rather than on the assumption that
         # whatever was installed at the time was the same build.
         "toolchain": toolchain_info(),
+        # The rules this run was judged against — the PDK's fixed process
+        # rules and the design's own chosen constraints. Recorded because
+        # stage 4 is "Physical Constraint Evaluation" and, until this was
+        # added, a candidate could be reported as violating a constraint
+        # the reader had no way to see. Failing to collect them must not
+        # lose the case, so it degrades to None with the reason attached.
+        "constraints": collect_constraints(design_dir),
         # Real rendered layout of this case's most informative candidate,
         # stored under reference-db/ so it outlives the run directory.
         "layout_image": capture_layout_image(design_name, design_dir, subject),

@@ -1994,6 +1994,84 @@ buffer rather than the buffer's size: buf_8/12/16 give 29–33 ps at
 would put the lever upstream. Stated as the next measurement, not a
 conclusion.
 
+## Showing the rules a candidate was judged against
+
+Stage 4 is called "Physical Constraint Evaluation". It showed which
+candidates died there and the real OpenLane text for each — and never
+showed what the constraints were. A reader could see `RSZ-0090` and the
+verdict FAIL, with no way to find out what limit was missed, by how
+much, or whether it was a limit anyone could change.
+
+That gap is not only a UI one. Both conclusions this project has had to
+overturn were cases of arguing about a limit instead of reading it: a
+0.04 ns `max_transition` assumed unmeetable when the library floor is
+19.3 ps, and a 0.01 pF load assumed to be a measurement of a net that
+actually carries ~27 fF. The constraints were on disk both times.
+
+`pipeline/design_rules.py` collects them, and the split it draws is the
+substance of the feature:
+
+- **Fixed by the process** — from the PDK's tech LEF: manufacturing
+  grid, site geometry, and per-routing-layer direction, pitch, min
+  width, min spacing, min area, max density. Nothing in a config can
+  change these.
+- **Chosen by us** — from config.json and run_spec.json: die area, clock
+  period, transition limits, PPA targets, and any macro pinned at an
+  absolute location. These are the levers a repair may propose moving.
+
+A flat list would make those look alike, and they are nothing alike: a
+violation of the first kind means the candidate is impossible, a
+violation of the second means the agent has something to try. sram_wrapper
+is the case in point — its SRAM is pinned at (110, 150) µm, which
+constrains every net routed to it, and that was invisible in the console
+for the entire time the case was open.
+
+Two parsing details that would otherwise quietly produce fiction. Values
+absent from the LEF are reported as `null` and render as `—`, never 0:
+`li1` genuinely has no `PITCH`, and a 0 there reads as a real rule. And
+spacing appears either as a plain `SPACING` or as the first entry of a
+width-dependent `SPACINGTABLE`; taking the wrong row of met1's table
+gives 0.28 µm instead of 0.14 µm.
+
+It renders inside the stage-4 artifact rather than as a new top-level
+panel. The console's measured problem has been dispersion — the fix that
+worked last time was deleting blocks, not adding a tenth — so the rules
+sit next to the failures they explain, after them, since the failures
+answer "what happened" and the rules are the reference for it.
+
+Collection is non-fatal by design: a case that already cost real OpenLane
+time must not be lost because a tech LEF moved, so failure is recorded in
+the case rather than swallowed. The UI distinguishes three states that a
+single empty panel would conflate — rules present, collection failed
+(with the reason), and a case written before constraints were recorded at
+all. "Not captured" is not "there are none". All three were checked in
+the browser against real cases.
+
+**Showing which levers actually moved.** Listing a declared constraint is
+weaker than it looks: counter4_tinydie declares `DIE_AREA` 8×8 µm and its
+winning candidate ran at 64×64, which reads as a contradiction until you
+can see that a repair moved it. So each setting is cross-referenced
+against what the candidates really ran with, and renders as
+
+    die area (um)   [0, 0, 8, 8] → [0, 0, 16, 16], [0, 0, 32, 32], [0, 0, 64, 64]
+
+— the declared value struck through but kept, since it is still what the
+design asks for, followed by the repair's actual sequence. Two mistakes
+showed up only once this was on screen with real data. Array values
+comma-joined ran together as sixteen numbers with no visible boundary
+(`0, 0, 8, 8, 0, 0, 16, 16, …`), so they are bracketed. And a candidate
+that passes the declared value back verbatim — tinydie's baseline
+restates 8×8 — was being reported as a change, striking through a
+constraint nothing had touched; values equal to the declared one are now
+filtered out. Both were caught by looking at the rendered page rather
+than the code.
+
+The constraints were re-collected by actually re-running both designs
+rather than backfilling the existing cases from today's files. A
+backfill would have presented current config as if it had been recorded
+at run time, which is the same class of error as the two conclusions
+above.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

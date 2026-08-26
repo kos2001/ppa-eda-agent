@@ -1,0 +1,211 @@
+{
+  "design": "sram_wrapper",
+  "date": "2026-08-27",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 2,
+    "has_macros": true,
+    "clock_domain_count": 1,
+    "port_count": 4,
+    "sequential_element_estimate": 72,
+    "power_domain_count": 1,
+    "notes": "Top module sram_wrapper instantiates one hard macro (sky130_sram_1kbyte_1rw1r_32x256_8, blackboxed for synthesis via EXTRA_VERILOG_MODELS / MACROS config) plus an 8-bit free-running address counter and a 64-bit output register placed at the macro boundary. sequential_element_estimate = 8 (address counter) + 64 (dout0/dout1 registers) = 72 flip-flops in the wrapper's own std-cell logic; the macro's internal storage (256x32b) is not counted here since it's a blackboxed macro, not synthesized std-cell sequential logic."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "cand-baseline",
+          "overrides": {},
+          "error": "OpenLane run 'cand-baseline' exited 2 \u2014 see runs/cand-baseline/ for logs. Tail of output:\nefined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[18:45:00] WARNING  [OpenROAD.Floorplan] [STA-1140]                  flow.py:675\n                    /pdk/sky130A/libs.ref/sky130_sram_macros/lib/sky            \n                    130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib              \n                    line 1, library                                             \n                    sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C_li            \n                    b already exists. (and 9 similar warnings)                  \n[18:45:00] WARNING  [Odb.CheckMacroAntennaProperties] Cell           flow.py:675\n                    'sky130_sram_1kbyte_1rw1r_32x256_8' has (57)                \n                    input pin(s) without antenna gate information.              \n                    They might not be connected to a gate. (and 1               \n                    similar warnings)                                           \n[18:45:00] WARNING  [OpenROAD.GeneratePDN] [PDN-0231] u_sram is not  flow.py:675\n                    connected to any power/ground nets.                         \n[18:45:00] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[18:45:00] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.RepairDesignPostGPL failed with the                \n                    following errors:                                           \n                    [RSZ-0090] Max transition time from SDC is                  \n                    0.040ns. Best achievable transition time is                 \n                    0.043ns with a load of 0.01pF                               \n[18:45:00] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "max_iterations_reached",
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2"
+  },
+  "constraints": {
+    "design": {
+      "design_name": "sram_wrapper",
+      "settings": [
+        {
+          "key": "CLOCK_PORT",
+          "label": "clock port",
+          "value": "clk"
+        },
+        {
+          "key": "CLOCK_PERIOD",
+          "label": "clock period (ns)",
+          "value": 20
+        },
+        {
+          "key": "MAX_TRANSITION_CONSTRAINT",
+          "label": "max transition (ns)",
+          "value": 0.75
+        },
+        {
+          "key": "DIE_AREA",
+          "label": "die area (um)",
+          "value": [
+            0,
+            0,
+            700,
+            700
+          ]
+        },
+        {
+          "key": "FP_SIZING",
+          "label": "floorplan sizing",
+          "value": "absolute"
+        }
+      ],
+      "fixed_macros": [
+        {
+          "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+          "instance": "u_sram",
+          "location_um": [
+            110,
+            150
+          ],
+          "orientation": "N"
+        }
+      ],
+      "power_connections": [
+        "u_sram vccd1 vssd1 vccd1 vssd1"
+      ],
+      "targets": {
+        "max_core_utilization": 0.75
+      }
+    },
+    "pdk": {
+      "source": "/Users/kos2001/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+      "manufacturing_grid_um": 0.005,
+      "database_units_per_um": 1000.0,
+      "sites": [
+        {
+          "name": "unithd",
+          "width_um": 0.46,
+          "height_um": 2.72,
+          "class": "CORE"
+        },
+        {
+          "name": "unithddbl",
+          "width_um": 0.46,
+          "height_um": 5.44,
+          "class": "CORE"
+        }
+      ],
+      "routing_layers": [
+        {
+          "name": "li1",
+          "direction": "vertical",
+          "pitch_um": null,
+          "min_width_um": 0.17,
+          "min_spacing_um": 0.17,
+          "min_area_um2": 0.0561,
+          "thickness_um": 0.1,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 12.8
+        },
+        {
+          "name": "met1",
+          "direction": "horizontal",
+          "pitch_um": 0.34,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.083,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met2",
+          "direction": "vertical",
+          "pitch_um": 0.46,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.0676,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met3",
+          "direction": "horizontal",
+          "pitch_um": 0.68,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met4",
+          "direction": "vertical",
+          "pitch_um": 0.92,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met5",
+          "direction": "horizontal",
+          "pitch_um": 3.4,
+          "min_width_um": 1.6,
+          "min_spacing_um": 1.6,
+          "min_area_um2": 4.0,
+          "thickness_um": 1.2,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 0.0285
+        }
+      ]
+    }
+  },
+  "layout_image": null,
+  "layout_image_tag": "cand-baseline"
+}

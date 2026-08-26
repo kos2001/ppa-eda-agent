@@ -1,5 +1,6 @@
 import type { CandidateResult, PipelineCase, ProcessStageId } from "../api/referenceDb";
 import { useLang } from "../i18n";
+import ConstraintsView from "./Constraints";
 import "./StageArtifacts.css";
 
 // What each pipeline stage actually produced.
@@ -240,6 +241,26 @@ function Feedback({
   );
 }
 
+// Which declared constraints the candidates actually ran with different
+// values for. Deduplicated and kept in candidate order so the list reads
+// as the sequence a repair walked through (8 → 16 → 32 → 64 µm), not as
+// an unordered set.
+export function overriddenConstraints(
+  candidates: CandidateResult[]
+): Map<string, unknown[]> {
+  const out = new Map<string, unknown[]>();
+  for (const c of candidates) {
+    for (const [k, v] of Object.entries(c.overrides ?? {})) {
+      const seen = out.get(k) ?? [];
+      // Compare structurally: DIE_AREA values are arrays, so identity
+      // would keep every repeat of the same rectangle.
+      const key = JSON.stringify(v);
+      if (!seen.some((s) => JSON.stringify(s) === key)) out.set(k, [...seen, v]);
+    }
+  }
+  return out;
+}
+
 export default function StageArtifacts({
   stage,
   stageName,
@@ -256,9 +277,21 @@ export default function StageArtifacts({
       {stage === "extraction" && <Extraction candidates={candidates} />}
       {stage === "topology" && <Topology pipelineCase={pipelineCase} />}
       {stage === "placement_strategy" && <Proposals candidates={candidates} />}
-      {(stage === "physical_constraint" ||
-        stage === "routing_generation" ||
-        stage === "routing_candidate") && (
+      {/* Stage 4 evaluates the physical constraints, so this is where
+          they belong — showing which candidates died here without ever
+          showing what they were held to left the reader unable to judge
+          the verdict. The failures come first: they are the answer to
+          "what happened", and the rules are the reference for it. */}
+      {stage === "physical_constraint" && (
+        <>
+          <StoppedHere candidates={candidates} stage={stage} />
+          <ConstraintsView
+            constraints={pipelineCase.constraints}
+            overridden={overriddenConstraints(candidates)}
+          />
+        </>
+      )}
+      {(stage === "routing_generation" || stage === "routing_candidate") && (
         <StoppedHere candidates={candidates} stage={stage} />
       )}
       {stage === "verification_ppa" && <Verdicts candidates={candidates} />}

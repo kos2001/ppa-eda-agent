@@ -1,0 +1,82 @@
+/* Constraints shown inside the stage that evaluates them. Two groups,
+   visually distinguished because the distinction is the point: one set
+   is negotiable, the other is not. */
+
+.cn {
+  display: grid;
+  gap: 0.9rem;
+}
+
+@media (min-width: 900px) {
+  .cn { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+}
+
+.cn__group {
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* Ours: actionable, so it carries the accent. */
+.cn__group--ours { border-left: 3px solid var(--accent); }
+/* The PDK's: immovable, deliberately reads as inert rather than as
+   something to click. */
+.cn__group--pdk { border-left: 3px solid var(--text-dim); }
+
+.cn__group h4 {
+  margin: 0 0 0.2rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+}
+
+.cn__hint {
+  margin: 0 0 0.6rem;
+  font-size: 0.68rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 60ch;
+}
+
+.cn__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-bottom: 0.55rem;
+}
+
+.cn__facts span { display: flex; align-items: baseline; gap: 0.35rem; }
+.cn__facts code { font-size: 0.7rem; }
+
+/* Wide content scrolls inside its own box; the page body must never
+   scroll sideways. */
+.cn__scroll { overflow-x: auto; }
+
+.cn__table { font-size: 0.68rem; }
+.cn__table th, .cn__table td { white-space: nowrap; }
+.cn__table td { font-variant-numeric: tabular-nums; }
+
+.cn__macros { margin-top: 0.7rem; }
+
+.cn__src {
+  margin: 0.5rem 0 0;
+  font-size: 0.64rem;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+/* A declared value a repair moved past. Struck through rather than
+   hidden: the declared number is still what the design asks for, and
+   losing it would make the override look like the constraint. */
+.cn__superseded { text-decoration: line-through; opacity: 0.55; }
+
+.cn__ran { color: var(--accent); }
+
+.cn__ran-tag {
+  margin-left: 0.35rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
