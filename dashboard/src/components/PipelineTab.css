@@ -457,6 +457,20 @@
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent) inset;
 }
+/* Survivors vs losses at one gate, scaled to the whole candidate set so
+   bars are comparable across gates rather than each self-normalising. */
+.pipeline__flow {
+  display: flex;
+  height: 4px;
+  margin-top: 0.35rem;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--border);
+}
+.pipeline__flow i { display: block; height: 100%; }
+.pipeline__flow-survived { background: var(--good); }
+.pipeline__flow-lost { background: var(--critical); }
+
 .pipeline__process-stage-more {
   margin-top: 0.25rem;
   font-size: 0.62rem;
