@@ -1862,6 +1862,138 @@ constraint → 6 completed signoff, bar 97px/48px ≈ 6:3) and
 produced by auto-repair). The single-survivor case said "all 1 passed",
 which reads badly, so it now says "the 1 survivor passed".
 
+## sram_wrapper: the "physical floor" was a default buffer cell
+
+This case had been open since 2026-08-21 and had accumulated four
+verdicts, two of which contradicted each other. It left two questions:
+whether the SRAM's 0.04 ns `max_transition` is meetable in this PDK at
+all, and what to do about clock-pin slew. Both are answerable from
+files already on disk — the liberty models and the tech LEF — without
+running anything.
+
+**The 0.04 ns spec is meetable.** Parsing every drive cell's
+`rise_transition` table in `sky130_fd_sc_hd__tt_025C_1v80.lib`
+(units confirmed: `time_unit "1ns"`, `capacitive_load_unit(1, pf)`),
+driving the SRAM addr pin's own 0.00689 pF and nothing else:
+
+    inv_16   19.3 ps        buf_12   25.8 ps
+    inv_12   19.5 ps        buf_8    26.8 ps
+    inv_8    21.1 ps        buf_16   29.4 ps
+
+Against a 40 ps limit. The library floor is roughly half the spec, not
+above it — so "physically floored" was wrong.
+
+**Where 0.043 ns actually came from.** Evaluated at the 0.01 pF load
+RSZ reported, `sky130_fd_sc_hd__buf_4` gives 42.3 ps — matching RSZ's
+"best achievable transition time is 0.043ns" to within rounding. The
+sky130 PDK sets `RE_BUFFER_CELL "sky130_fd_sc_hd__buf_4"`
+(`libs.tech/openlane/sky130_fd_sc_hd/config.tcl:46`). RSZ was not
+reporting physics; it was reporting the one repair buffer it had been
+given. buf_8, buf_12 and buf_16 all clear 40 ps at that load.
+
+This also refutes the earlier verdict that the fix is "not something a
+generic config override can express" — `RE_BUFFER_CELL` is exactly
+such an override.
+
+**The 0.01 pF was never the net's load.** From the tech LEF, a met2
+wire is 0.0779 fF/µm, so the measured 249 µm addr1[0] net carries
+about 19.5 fF; with the 6.9 fF pin that is ~27 fF, not 10 fF. So the
+figure RSZ printed was a driver-capability probe, not a measurement of
+the placed net. That was the exact open question left by the earlier
+.odb review, and it is now closed.
+
+**Neither fix works alone.** Output transition at a degraded 0.2 ns
+input slew, against the 40 ps limit:
+
+    load:          6.9 fF (pin)   10 fF   27 fF (249 µm)
+    buf_4              37.3 ✓      44.8    87.2
+    buf_8              29.8 ✓      34.1 ✓  58.7
+    buf_12             28.5 ✓      31.7 ✓  49.0
+    buf_16             31.8 ✓      34.8 ✓  51.1
+
+At the real placed load nothing meets spec; at the bare pin even the
+default buf_4 does. Solving for the longest met2 wire each buffer can
+drive within 40 ps: buf_4 14.5 µm, buf_8 92.1 µm, buf_12 144.5 µm,
+buf_16 110.1 µm. The measured driver-to-pin distance is 249 µm. So a
+stronger repair buffer *and* a driver inside ~145 µm are both needed —
+the two proposals that had been argued as alternatives are
+complementary. (buf_16 being worse than buf_12 is not a typo: its
+larger input capacitance makes its own transition slower at light
+load.)
+
+**The clock-pin violations are a pre-CTS artifact.** The previous
+review read step 30's STA, found `u_sram/clk1` at 1.599 ns against a
+0.75 ns limit — the worst violator in the report — and concluded the
+clock slew was "a distinct problem that was mistakenly ruled out."
+Asking the tool for the flow's step order settles it:
+
+    30  OpenROAD.STAMidPNR            <- the report that was read
+    31  OpenROAD.RepairDesignPostGPL  <- where RSZ-0090 fires
+    34  OpenROAD.CTS                  <- the clock tree is built here
+
+The clock is one unbuffered net from the port to all 72 sequential
+elements at measurement time. Three independent details agree: the
+SRAM clk pins are only 0.00689 pF each yet show 1.6 ns, which is what
+a clkbuf produces at the *top* of its characterised load range
+(0.28–1.53 pF); ordinary flops (`_157_/CLK` and friends) violate in
+the same report, so it is not macro-specific; and clk0/clk1 carry no
+explicit `max_transition` at all, falling under the macro's
+`default_max_transition : 0.5`. The original diagnosis was right to
+relocate the cause to the addr buses; the correction of that
+correction was itself wrong.
+
+One real config finding fell out of this: `MAX_TRANSITION_CONSTRAINT:
+0.75` in the design's config.json is *looser* than the macro's own
+0.5 ns library default.
+
+**The experiment that looked like evidence and wasn't.** buf_4 gives
+42.3 ps at 0.01 pF, matching RSZ's 0.043 ns, and the PDK sets
+`RE_BUFFER_CELL "sky130_fd_sc_hd__buf_4"` — so three candidates were
+run with buf_4 / buf_8 / buf_12 expecting the number to move. All three
+failed identically at 0.043 ns, which reads cleanly as "stronger
+buffers don't help." They were duplicates. OpenLane had logged
+
+    WARNING  An unknown key 'RE_BUFFER_CELL' was provided.
+
+`RE_BUFFER_CELL` is an OpenLane 1 name; OpenLane 2 has no
+repair-buffer-cell variable at all (checked against the image's own
+step `config_vars`). The hypothesis is untested, not refuted.
+
+This is the second time an ignored override produced a plausible wrong
+conclusion — `STD_CELL_LIBRARY` as a config override was the first, and
+it faked a 0.00% technology delta. So `run_stage` now fails any run
+where OpenLane reports an unknown key that we passed
+(`reject_ignored_overrides`). Only keys we passed are fatal; OpenLane
+warns about unknown keys in config.json too, and failing on those would
+block designs carrying deliberate extra entries. Verified both
+directions against real OpenLane: the same `RE_BUFFER_CELL` run now
+raises, and `FP_CORE_UTIL=45` still completes with `flow__errors__count
+0`. A gate that cannot fail is not a gate; one that always fires gets
+switched off.
+
+**What this added to the pipeline.** `pipeline/lib_query.py` reads
+liberty transition tables, pin capacitances and tech-LEF wire
+capacitance, so a slew argument can be checked against the cell models
+instead of argued from the one number a tool printed. The pipeline
+could already query placement (`odb_query`), timing (`sta_report`) and
+function (`equiv_check`); the cell library was the gap, and it is why
+"physically floored" survived four reviews. `max_wire_um()` turns "keep
+the driver adjacent to the macro" — which no placer can act on — into a
+distance a floorplan can be checked against. Its tests pin the real
+claim (some sky130 cell meets 40 ps at that pin's load) and the two
+parsing traps: liberty units must be read rather than assumed, and a
+naive scan of transition tables picks up degenerate tri-state groups
+and reports a 0 ps floor that would make any limit look meetable.
+
+sram_wrapper stays OPEN — no fix was found. What changed is that the
+two questions it was parked on are answered, and "nothing to try" is
+now measured false rather than disputed. The next thing to measure is
+whether the binding constraint is the slew *arriving* at the repair
+buffer rather than the buffer's size: buf_8/12/16 give 29–33 ps at
+0.01 pF with a clean input but 41.5–43.9 ps with a 0.63 ns input, which
+would put the lever upstream. Stated as the next measurement, not a
+conclusion.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
