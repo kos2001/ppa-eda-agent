@@ -18,6 +18,7 @@ Requires:
 """
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -26,6 +27,48 @@ from toolchain import OPENLANE_IMAGE as IMAGE
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
+
+
+_UNKNOWN_KEY = re.compile(r"[Aa]n unknown key '([^']+)' was provided")
+
+
+class IgnoredOverrideError(RuntimeError):
+    """An override we passed was not a variable OpenLane recognises."""
+
+
+def reject_ignored_overrides(overrides: list[str], output: str,
+                             tag: str) -> None:
+    """Fails a run whose overrides OpenLane silently discarded.
+
+    OpenLane logs `An unknown key 'X' was provided.` at WARNING and keeps
+    going, so a candidate configured with a variable this OpenLane
+    version does not have runs as an exact duplicate of the baseline and
+    reports a perfectly plausible result. That is the worst kind of
+    failure here: the candidate looks like evidence.
+
+    It has already cost real conclusions twice. `STD_CELL_LIBRARY` as a
+    config override lands in resolved.json but changes nothing (see
+    run_stage's docstring), and `RE_BUFFER_CELL` — an OpenLane 1 name
+    with no OpenLane 2 equivalent — produced three sram_wrapper
+    candidates with byte-identical failures that briefly read as
+    "stronger buffers don't help".
+
+    Only keys we actually passed are fatal; OpenLane also warns about
+    unknown keys inside config.json that may be there deliberately.
+    """
+    unknown = set(_UNKNOWN_KEY.findall(output))
+    if not unknown:
+        return
+    passed = {kv.split("=", 1)[0] for kv in overrides}
+    ignored = sorted(unknown & passed)
+    if ignored:
+        raise IgnoredOverrideError(
+            f"OpenLane ignored {len(ignored)} override(s) in run '{tag}': "
+            f"{', '.join(ignored)}. The run would have been an unmarked "
+            f"duplicate of the un-overridden config, so it is failed "
+            f"instead of reported. Check the variable name against this "
+            f"OpenLane version."
+        )
 
 
 def run_stage(design_dir: Path, tag: str, to_step: str | None,
@@ -71,6 +114,7 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     # tail of it for propose_repairs() to pattern-match on.
     sys.stderr.write(result.stdout)
     sys.stderr.write(result.stderr)
+    reject_ignored_overrides(overrides, result.stdout + result.stderr, tag)
     if result.returncode != 0:
         tail = (result.stdout + result.stderr)[-2000:]
         raise RuntimeError(

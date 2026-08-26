@@ -1,0 +1,89 @@
+{
+  "design": "sram_wrapper",
+  "date": "2026-08-26",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 2,
+    "has_macros": true,
+    "clock_domain_count": 1,
+    "port_count": 4,
+    "sequential_element_estimate": 72,
+    "power_domain_count": 1,
+    "notes": "Top module sram_wrapper instantiates one hard macro (sky130_sram_1kbyte_1rw1r_32x256_8, blackboxed for synthesis via EXTRA_VERILOG_MODELS / MACROS config) plus an 8-bit free-running address counter and a 64-bit output register placed at the macro boundary. sequential_element_estimate = 8 (address counter) + 64 (dout0/dout1 registers) = 72 flip-flops in the wrapper's own std-cell logic; the macro's internal storage (256x32b) is not counted here since it's a blackboxed macro, not synthesized std-cell sequential logic."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "cand-baseline",
+          "overrides": {},
+          "error": "OpenLane run 'cand-baseline' exited 2 \u2014 see runs/cand-baseline/ for logs. Tail of output:\nefined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:11:21] WARNING  [OpenROAD.Floorplan] [STA-1140]                  flow.py:675\n                    /pdk/sky130A/libs.ref/sky130_sram_macros/lib/sky            \n                    130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib              \n                    line 1, library                                             \n                    sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C_li            \n                    b already exists. (and 9 similar warnings)                  \n[14:11:21] WARNING  [Odb.CheckMacroAntennaProperties] Cell           flow.py:675\n                    'sky130_sram_1kbyte_1rw1r_32x256_8' has (57)                \n                    input pin(s) without antenna gate information.              \n                    They might not be connected to a gate. (and 1               \n                    similar warnings)                                           \n[14:11:21] WARNING  [OpenROAD.GeneratePDN] [PDN-0231] u_sram is not  flow.py:675\n                    connected to any power/ground nets.                         \n[14:11:21] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[14:11:21] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.RepairDesignPostGPL failed with the                \n                    following errors:                                           \n                    [RSZ-0090] Max transition time from SDC is                  \n                    0.040ns. Best achievable transition time is                 \n                    0.043ns with a load of 0.01pF                               \n[14:11:21] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "cand-rebuf8",
+          "overrides": {
+            "RE_BUFFER_CELL": "sky130_fd_sc_hd__buf_8"
+          },
+          "error": "OpenLane run 'cand-rebuf8' exited 2 \u2014 see runs/cand-rebuf8/ for logs. Tail of output:\nefined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:11:47] WARNING  [OpenROAD.Floorplan] [STA-1140]                  flow.py:675\n                    /pdk/sky130A/libs.ref/sky130_sram_macros/lib/sky            \n                    130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib              \n                    line 1, library                                             \n                    sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C_li            \n                    b already exists. (and 9 similar warnings)                  \n[14:11:47] WARNING  [Odb.CheckMacroAntennaProperties] Cell           flow.py:675\n                    'sky130_sram_1kbyte_1rw1r_32x256_8' has (57)                \n                    input pin(s) without antenna gate information.              \n                    They might not be connected to a gate. (and 1               \n                    similar warnings)                                           \n[14:11:47] WARNING  [OpenROAD.GeneratePDN] [PDN-0231] u_sram is not  flow.py:675\n                    connected to any power/ground nets.                         \n[14:11:47] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[14:11:47] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.RepairDesignPostGPL failed with the                \n                    following errors:                                           \n                    [RSZ-0090] Max transition time from SDC is                  \n                    0.040ns. Best achievable transition time is                 \n                    0.043ns with a load of 0.01pF                               \n[14:11:47] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "cand-rebuf12",
+          "overrides": {
+            "RE_BUFFER_CELL": "sky130_fd_sc_hd__buf_12"
+          },
+          "error": "OpenLane run 'cand-rebuf12' exited 2 \u2014 see runs/cand-rebuf12/ for logs. Tail of output:\nefined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[14:12:13] WARNING  [OpenROAD.Floorplan] [STA-1140]                  flow.py:675\n                    /pdk/sky130A/libs.ref/sky130_sram_macros/lib/sky            \n                    130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib              \n                    line 1, library                                             \n                    sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C_li            \n                    b already exists. (and 9 similar warnings)                  \n[14:12:13] WARNING  [Odb.CheckMacroAntennaProperties] Cell           flow.py:675\n                    'sky130_sram_1kbyte_1rw1r_32x256_8' has (57)                \n                    input pin(s) without antenna gate information.              \n                    They might not be connected to a gate. (and 1               \n                    similar warnings)                                           \n[14:12:13] WARNING  [OpenROAD.GeneratePDN] [PDN-0231] u_sram is not  flow.py:675\n                    connected to any power/ground nets.                         \n[14:12:13] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[14:12:13] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.RepairDesignPostGPL failed with the                \n                    following errors:                                           \n                    [RSZ-0090] Max transition time from SDC is                  \n                    0.040ns. Best achievable transition time is                 \n                    0.043ns with a load of 0.01pF                               \n[14:12:13] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "max_iterations_reached",
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2"
+  },
+  "layout_image": null,
+  "layout_image_tag": "cand-baseline",
+  "diagnosis": "INVALID EXPERIMENT \u2014 kept as the record that motivated a fix, not as evidence.\n\nThe two non-baseline candidates set RE_BUFFER_CELL, which is an OpenLane 1 variable name with no OpenLane 2 equivalent. OpenLane logged \"An unknown key 'RE_BUFFER_CELL' was provided\" and ran the un-overridden config, so cand-rebuf8 and cand-rebuf12 are duplicates of cand-baseline. Their identical 0.043 ns failures are not evidence that stronger repair buffers fail to help; that hypothesis is untested.\n\nThis is the second ignored-override false conclusion in this project (the first was STD_CELL_LIBRARY as a config override, which faked a 0.00% technology delta). run_stage.reject_ignored_overrides now fails any run whose override OpenLane reports as an unknown key, so a candidate like these two can no longer be reported as a result. Re-running this spec today would raise instead of producing this case.\n\nSee the sram_wrapper 2026-08-21 case for what was actually measured."
+}
