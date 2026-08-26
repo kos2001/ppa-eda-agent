@@ -225,6 +225,29 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   }
   const feedbackCount = candidates.filter((c) => c.produced_by_feedback).length;
 
+  // The four evaluation gates in the order a candidate passes through
+  // them. Attrition is cumulative: whoever dies at 04 never reaches 05.
+  const GATE_ORDER: ProcessStageId[] = [
+    "physical_constraint", "routing_generation",
+    "routing_candidate", "verification_ppa",
+  ];
+
+  // How many candidates entered each gate and how many were lost there.
+  //
+  // Fixes a real inversion, not just a wording nit. classify_stage()
+  // tags a candidate with the stage its run *ended* at, but the label
+  // said "reached this stage" — so "0/9 reached Routing Generation" read
+  // as total failure when it actually means nobody died at routing, and
+  // "6/9 reached Verification" understated that six candidates went all
+  // the way through. The pipeline looked broken while working.
+  const gateFlow = new Map<ProcessStageId, { entered: number; lost: number }>();
+  let alive = candidates.length;
+  for (const gate of GATE_ORDER) {
+    const lost = gate === "verification_ppa" ? 0 : (stageCounts[gate] ?? 0);
+    gateFlow.set(gate, { entered: alive, lost });
+    alive -= lost;
+  }
+
   function countFor(id: ProcessStageId): { count: number; total: number; note: string } {
     switch (id) {
       case "extraction":
@@ -237,8 +260,20 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
         return { count: candidates.length, total: candidates.length, note: `${candidates.length} candidate(s) proposed` };
       case "feedback":
         return { count: feedbackCount, total: candidates.length, note: feedbackCount > 0 ? `${feedbackCount} candidate(s) from auto-repair` : "no repair needed" };
-      default:
-        return { count: stageCounts[id] ?? 0, total: candidates.length, note: `${stageCounts[id] ?? 0}/${candidates.length} candidate run(s) reached this stage` };
+      default: {
+        const flow = gateFlow.get(id);
+        if (!flow) return { count: 0, total: candidates.length, note: "" };
+        const survived = flow.entered - flow.lost;
+        const note = id === "verification_ppa"
+          ? `${survived} of ${candidates.length} completed signoff`
+          : flow.lost > 0
+            ? `${flow.lost} of ${flow.entered} stopped here`
+            // "all 1 passed" reads badly; say what actually happened.
+            : flow.entered === 1
+              ? "the 1 survivor passed"
+              : `all ${flow.entered} passed`;
+        return { count: flow.entered, total: candidates.length, note };
+      }
     }
   }
 
@@ -275,6 +310,22 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
                   <strong>{stage.name}</strong>
                   {owner && <span className="pipeline__process-stage-agent">{owner.agent}</span>}
                   <span className="pipeline__process-stage-note">{note}</span>
+                  {/* The attrition itself, drawn. A gate is only
+                      understandable relative to how many candidates
+                      entered it — a bare fraction hides whether the loss
+                      was one candidate or all of them. */}
+                  {gateFlow.has(id) && candidates.length > 0 && (() => {
+                    const f = gateFlow.get(id)!;
+                    const pct = (n: number) => `${(n / candidates.length) * 100}%`;
+                    return (
+                      <span className="pipeline__flow" aria-hidden="true">
+                        <i className="pipeline__flow-survived"
+                           style={{ width: pct(f.entered - f.lost) }} />
+                        <i className="pipeline__flow-lost"
+                           style={{ width: pct(f.lost) }} />
+                      </span>
+                    );
+                  })()}
                   <span className="pipeline__process-stage-more">
                     {openStage === id ? t("sa_hide") : t("sa_show")}
                   </span>

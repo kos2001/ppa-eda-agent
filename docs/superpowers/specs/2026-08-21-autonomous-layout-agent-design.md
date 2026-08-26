@@ -1824,6 +1824,44 @@ that clicking through still opens exactly that case with its three-step
 review workflow and all eight stage cards, and that both duplicate
 surfaces are gone from the DOM.
 
+## The stage counts were inverted — the pipeline looked broken while working
+
+Looking at the phase row for a better visualisation turned up a real
+defect in it, not a styling gap. Each evaluation gate read:
+
+    04 Physical Constraint Evaluation   3/9 candidate run(s) reached this stage
+    05 Routing Generation Evaluation    0/9 candidate run(s) reached this stage
+    06 Routing Candidate Generation     0/9 candidate run(s) reached this stage
+    07 Verification & PPA Evaluation    6/9 candidate run(s) reached this stage
+
+Which reads as: almost nothing got through, and *nothing at all* reached
+routing. The opposite is true. `classify_stage()` tags a candidate with
+the stage its run **ended** at, so those numbers are candidates that
+*stopped* there — "0 at routing" means nobody failed at routing, and "6
+at verification" means six candidates went all the way through signoff.
+The label said "reached" and inverted the meaning of every gate.
+
+Fixed by showing the flow as what it actually is — a funnel with
+cumulative attrition, since whoever dies at gate 04 never enters 05:
+
+    04 Physical Constraint Evaluation   3 of 9 stopped here
+    05 Routing Generation Evaluation    all 6 passed
+    06 Routing Candidate Generation     all 6 passed
+    07 Verification & PPA Evaluation    6 of 9 completed signoff
+
+Each gate also carries a two-segment bar — survivors against losses,
+scaled to the whole candidate set rather than self-normalised, so the
+bars are comparable across gates and the funnel is visible narrowing
+once at 04 and then holding. A bare fraction hides whether a loss was
+one candidate or all of them; the bar does not.
+
+Verified against two cases with different shapes, both matching their
+real recorded verdicts: `counter4` (9 candidates → 3 stopped at physical
+constraint → 6 completed signoff, bar 97px/48px ≈ 6:3) and
+`counter4_tinydie` (4 → 3 stopped → 1 completed, 3 of its candidates
+produced by auto-repair). The single-survivor case said "all 1 passed",
+which reads badly, so it now says "the 1 survivor passed".
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
