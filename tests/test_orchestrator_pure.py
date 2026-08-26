@@ -145,18 +145,64 @@ class TestScore(unittest.TestCase):
     """Guards score(), which turns a real metrics.json into a verdict."""
 
     def _metrics(self, **over):
-        base = {"magic__drc_error__count": 0, "design__lvs_error__count": 0,
-                "timing__setup__wns__corner:tt": 0.0}
+        """A completed, clean signoff.
+
+        Every signoff metric must be present and zero, because that is
+        what a real completed run produces — audited against a full
+        counter4_tinydie signoff, which emitted 281 metrics including all
+        23 of these at 0. Building the fixture from the same list score()
+        reads keeps the two from drifting apart.
+        """
+        base = {k: 0 for k, _ in orchestrator.SIGNOFF_METRICS}
+        base["timing__setup__wns__corner:tt"] = 0.0
         base.update(over)
         return base
 
-    def test_missing_drc_result_is_a_violation_not_a_pass(self):
-        """A run that never reached signoff has no DRC key. Treating
-        absent as zero would report an incomplete run as PASS — the
-        single most dangerous failure mode in this whole pipeline."""
+    def test_no_metrics_at_all_is_not_a_pass(self):
         v = orchestrator.score({}, {})
         self.assertFalse(v["passed"])
-        self.assertTrue(any("no DRC result" in s for s in v["violations"]))
+
+    def test_absent_check_is_unverified_not_a_violation(self):
+        """"Never checked" and "checked, found 3 errors" both block a
+        pass, but they are different facts and must not be conflated —
+        the same distinction this pipeline draws everywhere else between
+        a measured limit and an assumed one."""
+        m = self._metrics()
+        del m["klayout__drc_error__count"]
+        v = orchestrator.score(m, {})
+        self.assertFalse(v["passed"])
+        self.assertIn("KLayout DRC error(s)", v["unverified"])
+        self.assertEqual(v["violations"], [])
+
+    def test_a_skipped_signoff_no_longer_reads_as_clean(self):
+        """The real hole this closes, reproduced from an actual run.
+
+        Stopping a real OpenLane flow at OpenROAD.STAPostPNR — one step
+        before the DRC/LVS/XOR block — produces 255 metrics with 11 of
+        the 23 signoff checks absent, including BOTH DRC signoffs and all
+        seven LVS checks. The old `if count:` test treated every absent
+        one as clean and scored that run PASS.
+        """
+        m = self._metrics()
+        for k in ("magic__drc_error__count", "klayout__drc_error__count",
+                  "design__lvs_error__count", "design__xor_difference__count",
+                  "magic__illegal_overlap__count",
+                  "design__lvs_device_difference__count",
+                  "design__lvs_net_difference__count",
+                  "design__lvs_property_fail__count",
+                  "design__lvs_unmatched_device__count",
+                  "design__lvs_unmatched_net__count",
+                  "design__lvs_unmatched_pin__count"):
+            del m[k]
+        v = orchestrator.score(m, {})
+        self.assertFalse(v["passed"])
+        self.assertEqual(len(v["unverified"]), 11)
+        self.assertEqual(v["violations"], [])
+
+    def test_unverified_is_empty_on_a_complete_run(self):
+        """A gate that always fires is as useless as one that never
+        does — a real completed signoff must report nothing unverified."""
+        self.assertEqual(orchestrator.score(self._metrics(), {})["unverified"], [])
 
     def test_negative_setup_wns_on_any_corner_fails(self):
         """OpenLane emits one WNS key per PVT corner; a violation on any

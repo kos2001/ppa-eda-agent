@@ -207,6 +207,42 @@ def data_pointers(run_dir: Path) -> dict:
     }
 
 
+# The signoff checks a verdict is built from, paired with the label used
+# both when the count is nonzero ("3 KLayout DRC error(s)") and when the
+# metric is absent entirely ("KLayout DRC error(s) — never checked").
+#
+# Every entry is a metric OpenLane's own library marks critical=True, so
+# the verdict agrees with the tool it trusts rather than a hand-picked
+# list. Deliberately excludes lint *warnings* and clock skew: real
+# signals, but not pass/fail ones, and promoting a warning to a failure
+# would be overreach.
+SIGNOFF_METRICS = (
+    ("magic__drc_error__count", "Magic DRC error(s)"),
+    ("klayout__drc_error__count", "KLayout DRC error(s)"),
+    ("design__lvs_error__count", "LVS error(s)"),
+    ("design__instance_unmapped__count", "unmapped instance(s) after synthesis"),
+    ("design__xor_difference__count", "XOR difference(s) between tool GDS outputs"),
+    ("magic__illegal_overlap__count", "illegal layout overlap(s) (Magic)"),
+    ("route__drc_errors", "routing DRC error(s)"),
+    ("design__lvs_device_difference__count", "LVS device difference(s)"),
+    ("design__lvs_net_difference__count", "LVS net difference(s)"),
+    ("design__lvs_property_fail__count", "LVS property failure(s)"),
+    ("design__lvs_unmatched_device__count", "LVS unmatched device(s)"),
+    ("design__lvs_unmatched_net__count", "LVS unmatched net(s)"),
+    ("design__lvs_unmatched_pin__count", "LVS unmatched pin(s)"),
+    ("design__disconnected_pin__count", "disconnected pin(s)"),
+    ("timing__setup_vio__count", "setup timing violation(s)"),
+    ("timing__hold_vio__count", "hold timing violation(s)"),
+    ("route__antenna_violation__count", "routing antenna violation(s)"),
+    ("design__power_grid_violation__count", "power-grid violation(s)"),
+    ("design__max_slew_violation__count", "max-slew (DRV) violation(s)"),
+    ("design__max_cap_violation__count", "max-capacitance (DRV) violation(s)"),
+    ("design__max_fanout_violation__count", "max-fanout (DRV) violation(s)"),
+    ("synthesis__check_error__count", "synthesis check error(s)"),
+    ("design__lint_error__count", "RTL lint error(s)"),
+)
+
+
 def score(metrics: dict, targets: dict) -> dict:
     """Checks a real metrics.json against run_spec targets.
 
@@ -216,16 +252,7 @@ def score(metrics: dict, targets: dict) -> dict:
     for why we trust metrics.json rather than re-deriving PPA ourselves.
     """
     violations = []
-
-    drc = metrics.get("magic__drc_error__count", None)
-    if drc is None:
-        violations.append("no DRC result in metrics.json (run incomplete?)")
-    elif drc > 0:
-        violations.append(f"{drc} DRC error(s)")
-
-    lvs = metrics.get("design__lvs_error__count", 0)
-    if lvs:
-        violations.append(f"{lvs} LVS error(s)")
+    unverified = []
 
     # Signoff gates OpenLane computes and this verdict was ignoring.
     #
@@ -253,31 +280,32 @@ def score(metrics: dict, targets: dict) -> dict:
     # verdict agree with the tool it trusts, instead of guessing which
     # failures matter. Extracted from
     # openlane/common/metrics/library.py in the pinned image.
-    for key, label in (
-        ("design__instance_unmapped__count", "unmapped instance(s) after synthesis"),
-        ("design__xor_difference__count", "XOR difference(s) between tool GDS outputs"),
-        ("magic__illegal_overlap__count", "illegal layout overlap(s) (Magic)"),
-        ("route__drc_errors", "routing DRC error(s)"),
-        ("design__lvs_device_difference__count", "LVS device difference(s)"),
-        ("design__lvs_net_difference__count", "LVS net difference(s)"),
-        ("design__lvs_property_fail__count", "LVS property failure(s)"),
-        ("design__lvs_unmatched_device__count", "LVS unmatched device(s)"),
-        ("design__lvs_unmatched_net__count", "LVS unmatched net(s)"),
-        ("design__lvs_unmatched_pin__count", "LVS unmatched pin(s)"),
-        ("design__disconnected_pin__count", "disconnected pin(s)"),
-        ("timing__setup_vio__count", "setup timing violation(s)"),
-        ("timing__hold_vio__count", "hold timing violation(s)"),
-        ("klayout__drc_error__count", "KLayout DRC error(s)"),
-        ("route__antenna_violation__count", "routing antenna violation(s)"),
-        ("design__power_grid_violation__count", "power-grid violation(s)"),
-        ("design__max_slew_violation__count", "max-slew (DRV) violation(s)"),
-        ("design__max_cap_violation__count", "max-capacitance (DRV) violation(s)"),
-        ("design__max_fanout_violation__count", "max-fanout (DRV) violation(s)"),
-        ("synthesis__check_error__count", "synthesis check error(s)"),
-        ("design__lint_error__count", "RTL lint error(s)"),
-    ):
+    # A missing metric used to read as a pass.
+    #
+    # The loop below was `count = metrics.get(key); if count:` — so a
+    # check that never ran scored identically to a check that ran clean.
+    # That is reachable, not hypothetical: OpenLane 2 skips steps via the
+    # flow CLI (`--skip`, `--to`), and this project has already done it
+    # deliberately (`--skip OpenROAD.RepairAntennas` while chasing
+    # sram_wrapper). Demonstrated directly by stopping a real run at
+    # OpenROAD.STAPostPNR, one step before the DRC/LVS/XOR block: none of
+    # those metrics exist, and the old code called it PASS.
+    #
+    # A completed run really does emit all of these — audited against a
+    # full counter4_tinydie signoff, which produced 281 metrics including
+    # every key below with value 0. So absence means the step did not
+    # run, and requiring presence cannot false-alarm on a good run.
+    #
+    # Absence is tracked separately from a nonzero count rather than
+    # folded into violations. "Found 3 DRC errors" and "never checked
+    # DRC" both block a pass, but they are different facts and a reader
+    # needs to tell them apart — the same distinction this pipeline draws
+    # between a measured limit and an assumed one.
+    for key, label in SIGNOFF_METRICS:
         count = metrics.get(key)
-        if count:
+        if count is None:
+            unverified.append(label)
+        elif count:
             violations.append(f"{count} {label}")
 
     max_util = targets.get("max_core_utilization")
@@ -342,8 +370,12 @@ def score(metrics: dict, targets: dict) -> dict:
         }
 
     return {
-        "passed": len(violations) == 0,
+        # An unverified check blocks a pass as firmly as a failed one:
+        # "we did not look" is not evidence of clean silicon. Kept as a
+        # separate field so the console can say which it was.
+        "passed": not violations and not unverified,
         "violations": violations,
+        "unverified": unverified,
         "area_um2": metrics.get("design__instance__area"),
         "utilization": util,
         "worst_setup_wns": worst_wns,

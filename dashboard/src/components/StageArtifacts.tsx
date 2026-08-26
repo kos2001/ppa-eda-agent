@@ -1,6 +1,7 @@
 import type { CandidateResult, PipelineCase, ProcessStageId } from "../api/referenceDb";
 import { useLang } from "../i18n";
 import ConstraintsView from "./Constraints";
+import { verdictPill } from "./PipelineTab";
 import "./StageArtifacts.css";
 
 // What each pipeline stage actually produced.
@@ -158,11 +159,19 @@ function Verdicts({ candidates }: { candidates: CandidateResult[] }) {
               <tr key={c.tag}>
                 <td><code>{c.tag}</code></td>
                 <td>
-                  <span className={`pill ${v.passed ? "pill--good" : "pill--critical"}`}>
-                    {v.passed ? "PASS" : "FAIL"}
+                  <span className={`pill ${verdictPill(v).cls}`}>
+                    {verdictPill(v).text}
                   </span>
                   {!v.passed && v.violations.length > 0 && (
                     <div className="sa__viol">{v.violations.join("; ")}</div>
+                  )}
+                  {(v.unverified?.length ?? 0) > 0 && (
+                    <div className="sa__unverified">
+                      {t("sa_unverified").replace("{n}", String(v.unverified!.length))}
+                      <div className="sa__unverified-list">
+                        {v.unverified!.join("; ")}
+                      </div>
+                    </div>
                   )}
                 </td>
                 <td>{v.area_um2 ?? "—"}</td>

@@ -117,6 +117,11 @@ const dict = {
     ko: "이 관문에서 멈춘 후보 {n}개입니다. 아래는 각각의 실제 OpenLane 출력 원문이며, 그 안의 구체적 수치가 진단의 근거가 됩니다.",
   },
   sa_none_stopped: { en: "No candidate stopped at this gate.", ko: "이 관문에서 멈춘 후보가 없습니다." },
+  verdict_never_ran: { en: "never checked", ko: "검사되지 않음" },
+  sa_unverified: {
+    en: "{n} signoff check(s) never ran for this candidate, so it cannot be called clean — absent is not the same as zero.",
+    ko: "이 후보는 사인오프 검사 {n}개가 아예 실행되지 않아 깨끗하다고 판정할 수 없습니다 — 부재는 0이 아닙니다.",
+  },
   cn_title: { en: "Rules this run was judged against", ko: "이 실행이 판정된 기준 규칙" },
   cn_ours: { en: "Chosen by us — a repair may change these", ko: "우리가 정한 값 — 복구가 바꿀 수 있음" },
   cn_ours_hint: {

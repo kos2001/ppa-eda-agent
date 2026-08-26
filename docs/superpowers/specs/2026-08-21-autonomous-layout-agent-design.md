@@ -2072,6 +2072,63 @@ backfill would have presented current config as if it had been recorded
 at run time, which is the same class of error as the two conclusions
 above.
 
+## A signoff check that never ran was scoring as clean
+
+`score()` gated on 23 signoff metrics, each one OpenLane marks
+`critical=True`. The loop was:
+
+    count = metrics.get(key)
+    if count:
+        violations.append(...)
+
+An absent metric is `None`, `None` is falsy, so **a check that never ran
+scored identically to a check that ran clean**. Only Magic's DRC had an
+explicit "is it missing?" test; the other 22 did not.
+
+This is reachable, not hypothetical. OpenLane 2 skips steps from the
+flow CLI (`--skip`, `--to`), and this project has already done it
+deliberately — `--skip OpenROAD.RepairAntennas` while chasing
+sram_wrapper's hs-library path.
+
+Demonstrated against a real run rather than argued. Stopping a real
+counter4_tinydie flow at `OpenROAD.STAPostPNR` — one step before the
+DRC/LVS/XOR block at 59–78 — produces 255 metrics with 11 of the 23
+signoff checks absent:
+
+    magic__drc_error__count            design__lvs_net_difference__count
+    klayout__drc_error__count          design__lvs_property_fail__count
+    design__lvs_error__count           design__lvs_unmatched_device__count
+    design__xor_difference__count      design__lvs_unmatched_net__count
+    magic__illegal_overlap__count      design__lvs_unmatched_pin__count
+    design__lvs_device_difference__count
+
+Both DRC signoffs and all seven LVS checks. The old code scored that run
+**PASS** — not one manufacturing-correctness check had run, and the
+verdict called the candidate clean.
+
+Requiring presence is safe: a full signoff was audited first and emits
+281 metrics including every one of the 23 at 0, so absence really does
+mean the step did not run.
+
+**Absence is tracked apart from a nonzero count.** The verdict gains an
+`unverified` list beside `violations`, and `passed` requires both empty.
+"Found 3 DRC errors" and "never checked DRC" both block a pass, but they
+are different facts — the same distinction this pipeline draws between a
+measured limit and an assumed one, and the reason the sram_wrapper case
+stayed wrong for five days.
+
+The console therefore has three verdicts, not two: PASS, FAIL, and
+UNVERIFIED — the last in the warn colour, deliberately not red, because
+it is not a design defect and colouring it as one sends the reader
+hunting a bug that does not exist. The case summary follows: a card
+reading "REJECTED 1 · 0 rejected · 1 never checked" contradicted itself,
+so the label becomes "not passed" whenever anything is unverified.
+
+Verified in both directions against the two real runs — the complete one
+scores `passed=True` with nothing unverified, the truncated one
+`passed=False` with 11 unverified and 0 violations — and in the browser
+on both. Cases written before this field render exactly as before.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
