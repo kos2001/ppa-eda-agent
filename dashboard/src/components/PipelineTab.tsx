@@ -122,6 +122,20 @@ const AGENT_ROLE_BY_NAME: Record<string, { en: string; ko: string }> = Object.fr
   Object.values(STAGE_AGENT).map((entry) => [entry.agent, entry.role])
 );
 
+// A verdict has three outcomes, not two: passed, rejected by the tools,
+// or blocked because a signoff step never ran. The third was previously
+// impossible to express — an absent DRC metric scored as clean, so it
+// rendered as PASS.
+export function verdictPill(
+  v: CandidateVerdict | undefined
+): { cls: string; text: string } {
+  if (!v) return { cls: "pill--critical", text: "FAIL TO RUN" };
+  if (v.passed) return { cls: "pill--good", text: "PASS" };
+  if (v.violations.length === 0 && (v.unverified?.length ?? 0) > 0)
+    return { cls: "pill--warn", text: "UNVERIFIED" };
+  return { cls: "pill--critical", text: "FAIL" };
+}
+
 // Agent legend — every subagent that touches this pipeline, in pipeline
 // order, plus ppa-eda-analyst (not one of the 8 stages; it's the
 // separate report-paste/live-simulation diagnosis agent behind the
@@ -521,6 +535,7 @@ function CandidateRow({
   expanded: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useLang();
   const stageBadge = candidate.stage && (
     <span className="pipeline__stage-badge" title={STAGE_SHORT_LABEL[candidate.stage].full}>
       {STAGE_SHORT_LABEL[candidate.stage].short}
@@ -561,18 +576,22 @@ function CandidateRow({
           {candidate.tag}
         </td>
         <td>
-          <span className={`pill ${v?.passed ? "pill--good" : "pill--critical"}`}>
-            {v?.passed ? "PASS" : "FAIL"}
-          </span>
+          {/* Three states, not two. A candidate blocked only because a
+              signoff step never ran is not the same as one the tools
+              rejected, and calling both FAIL sends a reader looking for
+              a design bug that isn't there. */}
+          <span className={`pill ${verdictPill(v).cls}`}>{verdictPill(v).text}</span>
         </td>
         <td>{v?.area_um2 != null ? `${v.area_um2} µm²` : "—"}</td>
         <td>{v?.utilization != null ? v.utilization.toFixed(3) : "—"}</td>
         <td>
           {v && !v.passed && v.violations.length > 0
             ? v.violations.join("; ")
-            : v?.worst_setup_wns != null
-              ? `WNS ${v.worst_setup_wns}`
-              : "—"}
+            : v && (v.unverified?.length ?? 0) > 0
+              ? `${t("verdict_never_ran")}: ${v.unverified!.join("; ")}`
+              : v?.worst_setup_wns != null
+                ? `WNS ${v.worst_setup_wns}`
+                : "—"}
         </td>
         <td>
           {stageBadge}
@@ -880,6 +899,17 @@ function CaseCard({
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
   const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
   const failed = candidates.length - passed;
+  // Candidates blocked only because a signoff step never ran. They are
+  // inside `failed`, but calling them "violated guardrails" is wrong —
+  // nothing rejected them, nothing checked them. Counted so the note can
+  // say which it was.
+  const unverified = candidates.filter(
+    (candidate) =>
+      candidate.verdict &&
+      !candidate.verdict.passed &&
+      candidate.verdict.violations.length === 0 &&
+      (candidate.verdict.unverified?.length ?? 0) > 0
+  ).length;
   const chartData = candidates
     .filter((candidate) => candidate.verdict?.area_um2 != null)
     .map((candidate) => ({ name: candidate.tag, area: candidate.verdict?.area_um2 ?? 0, passed: Boolean(candidate.verdict?.passed) }));
@@ -933,7 +963,7 @@ function CaseCard({
           </div>
           <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length} candidates</span></div>
           <div className="metric-card metric-card--good"><span className="metric-card__label">passed</span><strong className="metric-card__value">{passed}</strong><span className="metric-card__note">verified candidates</span></div>
-          <div className={`metric-card ${failed > 0 ? "metric-card--critical" : ""}`}><span className="metric-card__label">rejected</span><strong className="metric-card__value">{failed}</strong><span className="metric-card__note">failed or violated guardrails</span></div>
+          <div className={`metric-card ${failed > 0 ? "metric-card--critical" : ""}`}><span className="metric-card__label">{unverified ? "not passed" : "rejected"}</span><strong className="metric-card__value">{failed}</strong><span className="metric-card__note">{unverified ? `${failed - unverified} rejected · ${unverified} never checked` : "failed or violated guardrails"}</span></div>
         </div>
 
         {/* Directly under the status metrics, not at the bottom of the

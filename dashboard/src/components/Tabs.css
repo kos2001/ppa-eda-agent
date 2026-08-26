@@ -142,6 +142,14 @@
   color: var(--critical);
 }
 
+/* Blocked, but not by anything the tools found — a signoff step never
+   ran. Deliberately not red: it is not a design defect, and colouring it
+   as one sends the reader hunting for a bug that isn't there. */
+.pill--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
 .area-floorplan__caption {
   margin: 0.6rem 0 0;
   font-size: 0.75rem;

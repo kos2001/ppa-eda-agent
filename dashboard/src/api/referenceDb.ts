@@ -22,6 +22,12 @@ export interface PowerDomain {
 export interface CandidateVerdict {
   passed: boolean;
   violations: string[];
+  // Signoff checks whose metric was absent from metrics.json — the step
+  // did not run. These block a pass just as firmly as a violation, but
+  // are kept apart because "never checked" and "checked, found errors"
+  // are different facts. Optional: cases written before this was
+  // recorded have none.
+  unverified?: string[];
   area_um2: number | null;
   utilization: number | null;
   worst_setup_wns: number;
