@@ -93,6 +93,69 @@ export interface Topology {
   notes: string;
 }
 
+// The rules a run was judged against, recorded by orchestrator.py's
+// collect_constraints(). Two kinds, and the split is the point: PDK
+// rules are fixed by the process and nothing in a config can change
+// them, while design constraints are ours and are therefore what a
+// repair may propose changing.
+export interface RoutingLayerRule {
+  name: string;
+  direction: string | null;
+  pitch_um: number | null;
+  min_width_um: number | null;
+  min_spacing_um: number | null;
+  min_area_um2: number | null;
+  thickness_um: number | null;
+  max_density_pct: number | null;
+  resistance_ohm_per_sq: number | null;
+}
+
+export interface SiteRule {
+  name: string;
+  width_um: number;
+  height_um: number;
+  class: string | null;
+}
+
+export interface PdkRules {
+  source: string;
+  manufacturing_grid_um: number | null;
+  database_units_per_um: number | null;
+  sites: SiteRule[];
+  routing_layers: RoutingLayerRule[];
+}
+
+export interface DesignConstraintSetting {
+  key: string;
+  label: string;
+  value: unknown;
+}
+
+export interface FixedMacro {
+  macro: string;
+  instance: string;
+  location_um: [number, number] | null;
+  orientation: string | null;
+}
+
+export interface DesignConstraints {
+  design_name: string | null;
+  settings: DesignConstraintSetting[];
+  fixed_macros: FixedMacro[];
+  power_connections: string[];
+  targets: Record<string, number>;
+}
+
+export interface Constraints {
+  design?: DesignConstraints;
+  pdk?: PdkRules | null;
+  pdk_error?: string;
+  // Set instead of the above when collection failed outright. Kept
+  // rather than swallowed so an empty panel can be told apart from a
+  // process that genuinely has no rules.
+  error?: string;
+}
+
 export interface CandidateResult {
   tag: string;
   overrides: Record<string, unknown>;
@@ -136,6 +199,9 @@ export interface PipelineCase {
   // never reached Magic.StreamOut has no GDS to render.
   layout_image?: string | null;
   layout_image_tag?: string | null;
+  // The PDK rules and design constraints this run was held to.
+  // Optional: cases written before constraints were recorded have none.
+  constraints?: Constraints | null;
   diagnosis?: string;
   human_in_the_loop?: HumanInTheLoopEntry[];
 }
