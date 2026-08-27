@@ -6,7 +6,7 @@
 import { createServer } from "node:http";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdtemp, readFile, writeFile, rm, cp, access, stat } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, writeFile, rm, cp, access, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -220,8 +220,21 @@ function trackProgress(state, rawLine) {
   const current = state.progress?.at(-1);
   if (!current) return;
 
+  // The progress bar only reaches us when the run is over.
+  //
+  // OpenLane draws it with Rich, which checks isatty() and disables the
+  // live bar entirely when its output is a pipe — so a piped run emits
+  // exactly one "Stage" line, at the end, no matter how it is split.
+  // Verified twice: from the server's own stream and from a plain shell
+  // redirect, both showed a single line at 78/78.
+  //
+  // So this parses it only for the finishing totals, and live progress
+  // comes from watching the run directory instead (pollRunDir below):
+  // OpenLane creates one NN-tool-step/ directory per step as it goes,
+  // which is ground truth and observable while it happens.
   const stage = line.match(STAGE_LINE);
   if (stage) {
+    state.expectedSteps = Number(stage[5]) || state.expectedSteps || null;
     current.flow = stage[1];
     current.stepName = stage[3].trim();
     current.step = Number(stage[4]);
@@ -239,10 +252,69 @@ function trackProgress(state, rawLine) {
   }
 }
 
+// Live progress from the run directory.
+//
+// OpenLane materialises one directory per step — 13-openroad-floorplan,
+// 31-openroad-repairdesignpostgpl — as it reaches them, so the highest
+// number present is where the run is now. Unlike the progress bar this
+// survives being piped, because it is on disk rather than on a terminal.
+//
+// The total is not invented: it comes from a previous completed run of
+// the same design if there is one, and is left null otherwise, so the
+// view shows "step 31" rather than a denominator nobody measured.
+const STEP_DIR = /^(\d+)-(.+)$/;
+
+async function pollRunDir(design, state) {
+  const current = state.progress?.at(-1);
+  if (!current || current.status !== "running") return;
+  const runDir = path.join(pipelineDir, "designs", design, "runs", current.tag);
+  let entries;
+  try {
+    entries = await readdir(runDir, { withFileTypes: true });
+  } catch {
+    return; // not created yet
+  }
+  let best = null;
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const m = e.name.match(STEP_DIR);
+    if (!m) continue;
+    const n = Number(m[1]);
+    if (!best || n > best.n) best = { n, name: m[2] };
+  }
+  if (!best) return;
+  current.step = best.n;
+  current.stepName = best.name.replace(/^[a-z]+-/, "").replace(/-/g, " ");
+  current.total = state.expectedSteps ?? null;
+  const started = Date.parse(current.startedAt);
+  if (Number.isFinite(started)) {
+    const secs = Math.max(0, Math.round((Date.now() - started) / 1000));
+    current.elapsed = `0:${String(Math.floor(secs / 60)).padStart(2, "0")}:${String(secs % 60).padStart(2, "0")}`;
+  }
+}
+
+// The last candidate has no successor to close it out, so a finished run
+// would otherwise show its final candidate stuck at "running" forever.
+function finishProgress(state) {
+  const last = state.progress?.at(-1);
+  if (last && last.status === "running") {
+    last.status = state.status === "error" ? "failed" : "done";
+  }
+}
+
 function startPipelineRun(design, { maxIterations = null } = {}) {
   const designDir = path.join(pipelineDir, "designs", design);
   const runSpecPath = path.join(designDir, "run_spec.json");
-  const state = { status: "running", startedAt: new Date().toISOString(), finishedAt: null, tail: [], progress: [], error: null, maxIterations };
+  // Carry forward the step count a previous run of this design actually
+  // reached, so the bar has a denominator that was observed rather than
+  // assumed. The first run of a design shows "step 31" with no total —
+  // honest about not knowing yet.
+  const previous = pipelineRuns.get(design);
+  const state = {
+    status: "running", startedAt: new Date().toISOString(), finishedAt: null,
+    tail: [], progress: [], error: null, maxIterations,
+    expectedSteps: previous?.expectedSteps ?? null,
+  };
   pipelineRuns.set(design, state);
 
   const args = ["orchestrator.py", "--design", designDir, "--run-spec", runSpecPath];
@@ -258,20 +330,38 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
   const pushLine = (line) => {
     state.tail.push(line);
     if (state.tail.length > MAX_TAIL_LINES) state.tail.shift();
-    trackProgress(state, line);
   };
   const onChunk = (chunk) => {
-    for (const line of chunk.toString("utf-8").split("\n")) {
-      if (line.trim()) pushLine(line);
+    // Split on carriage returns as well as newlines. OpenLane redraws
+    // its progress bar in place with \r and only emits \n when the bar
+    // is finished, so splitting on \n alone accumulates every
+    // intermediate update into one enormous line and the live view sees
+    // exactly one step — the last. Measured: a full 78-step run produced
+    // a single parseable "Stage" line, at 78/78.
+    for (const line of chunk.toString("utf-8").split(/\r\n|\r|\n/)) {
+      if (!line.trim()) continue;
+      trackProgress(state, line);
+      // Progress-bar redraws are the point of the above and pure noise
+      // in a readable tail — hundreds of near-identical lines would
+      // evict everything else from a 200-line buffer.
+      if (!STAGE_LINE.test(line)) pushLine(line);
     }
   };
   proc.stdout.on("data", onChunk);
   proc.stderr.on("data", onChunk);
 
+  // Poll the run directory while the process lives. 1.5 s is well under
+  // the time any OpenLane step takes, and it is a directory listing.
+  const dirTimer = setInterval(() => {
+    pollRunDir(design, state).catch(() => {});
+  }, 1500);
+
   proc.on("error", (err) => {
     state.status = "error";
     state.error = `failed to start orchestrator.py: ${err.message ?? err}`;
     state.finishedAt = new Date().toISOString();
+    clearInterval(dirTimer);
+    finishProgress(state);
   });
   proc.on("close", (code) => {
     if (state.status === "running") {
@@ -279,6 +369,8 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
       if (code !== 0) state.error = `orchestrator.py exited with code ${code}`;
     }
     state.finishedAt = new Date().toISOString();
+    clearInterval(dirTimer);
+    finishProgress(state);
   });
 }
 

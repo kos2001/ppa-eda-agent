@@ -4,6 +4,7 @@ import {
   type PipelineCase,
 } from "../api/referenceDb";
 import { useLang, type DictKey } from "../i18n";
+import LiveRun from "./LiveRun";
 import "./ActionCenter.css";
 
 // What the agent needs from a human, in one place.
@@ -157,6 +158,9 @@ export default function ActionCenter({
   const { t } = useLang();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  // The design whose run to follow. Set when we start one here, so the
+  // step-by-step view appears exactly where the button was pressed.
+  const [watching, setWatching] = useState<string | null>(null);
 
   const actions = deriveActions(designs, cases);
   const needing = actions.filter((a) => a.kind !== "done").length;
@@ -166,6 +170,7 @@ export default function ActionCenter({
     setError(null);
     try {
       await triggerPipelineRun(design, maxIterations);
+      setWatching(design);
       onRunStarted();
     } catch (e) {
       setError(String(e));
@@ -206,6 +211,7 @@ export default function ActionCenter({
         ))}
       </ul>
       {busy && <p className="ac__busy">{t("ac_starting").replace("{d}", busy)}</p>}
+      <LiveRun design={watching} onFinished={onRunStarted} />
       {error && <p className="tab__error">{error}</p>}
     </section>
   );

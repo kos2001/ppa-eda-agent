@@ -696,3 +696,47 @@
   .pipeline__process { grid-template-columns: 1fr 1fr; }
   .pipeline__iteration .tab__summary { min-width: 780px; }
 }
+
+/* The human's own input. The panel was called human-in-the-loop while
+   offering three buttons and no way to say anything; this is the box
+   that was missing. */
+.pipeline__review-input {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.pipeline__review-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.pipeline__review-author {
+  margin-left: 0.45rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--text-dim);
+}
+
+.pipeline__review-optional,
+.pipeline__review-hint {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}
+
+.pipeline__review-optional { margin-left: 0.4rem; }
+.pipeline__review-hint { display: block; margin: 0.3rem 0 0; line-height: 1.5; }

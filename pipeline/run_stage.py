@@ -108,18 +108,38 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     cmd.append("/design/config.json")
 
     print(f"$ {' '.join(cmd)}", file=sys.stderr)
-    result = subprocess.run(cmd, cwd=design_dir, capture_output=True, text=True)
-    # Stream what OpenLane printed even though we captured it, so a live
-    # run is still visible — only the *raised error message* needs the
-    # tail of it for propose_repairs() to pattern-match on.
-    sys.stderr.write(result.stdout)
-    sys.stderr.write(result.stderr)
-    reject_ignored_overrides(overrides, result.stdout + result.stderr, tag)
-    if result.returncode != 0:
-        tail = (result.stdout + result.stderr)[-2000:]
+    # Streamed, not captured-then-printed.
+    #
+    # This used to be subprocess.run(capture_output=True), which holds
+    # everything until the process exits and only then writes it out. The
+    # text was identical either way, so nothing looked wrong — but
+    # nothing downstream could see a run *in progress*. The console's
+    # live view showed one step per candidate (the last), and a human
+    # watching a terminal saw a multi-minute silence followed by the
+    # whole log at once.
+    #
+    # Output is still accumulated, because the error tail and the
+    # ignored-override check both need the full text.
+    captured: list[str] = []
+    proc = subprocess.Popen(
+        cmd, cwd=design_dir, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, text=True, bufsize=1,
+    )
+    assert proc.stdout is not None
+    for line in proc.stdout:
+        captured.append(line)
+        sys.stderr.write(line)
+        # OpenLane redraws its progress bar with \r and flushes rarely;
+        # without this a reader sees the buffer, not the run.
+        sys.stderr.flush()
+    returncode = proc.wait()
+    output = "".join(captured)
+
+    reject_ignored_overrides(overrides, output, tag)
+    if returncode != 0:
         raise RuntimeError(
-            f"OpenLane run '{tag}' exited {result.returncode} — "
-            f"see runs/{tag}/ for logs. Tail of output:\n{tail}"
+            f"OpenLane run '{tag}' exited {returncode} — "
+            f"see runs/{tag}/ for logs. Tail of output:\n{output[-2000:]}"
         )
     return design_dir / "runs" / tag
 
