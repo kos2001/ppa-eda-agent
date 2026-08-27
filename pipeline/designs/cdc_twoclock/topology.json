@@ -1,0 +1,9 @@
+{
+  "module_count": 1,
+  "has_macros": false,
+  "clock_domain_count": 2,
+  "port_count": 4,
+  "sequential_element_estimate": 16,
+  "power_domain_count": 1,
+  "notes": "Deliberately unsafe negative control for the CDC signoff gate: two independent clock ports (clk_a, clk_b) with an 8-bit data path crossing from the clk_a counter into a single clk_b flop, with no synchronizer. Exists to prove the gate can fail — OpenLane's base.sdc constrains only the first CLOCK_PORT, so the clk_b domain and this crossing are never analysed, and the run still reports zero timing violations. Not a design anyone should copy."
+}

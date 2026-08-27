@@ -2129,6 +2129,169 @@ scores `passed=True` with nothing unverified, the truncated one
 `passed=False` with 11 unverified and 0 violations — and in the browser
 on both. Cases written before this field render exactly as before.
 
+## An entire clock domain was passing signoff unanalysed
+
+OpenLane's default SDC says what it does, in its own source
+(`openlane/scripts/base.sdc`):
+
+    } elseif { $port_count != "1" } {
+        puts "\[WARNING] Multi-clock files are not currently supported by
+              the base SDC file. Only the first clock will be constrained."
+    }
+    set ::clock_port [lindex $::env(CLOCK_PORT) 0]
+
+A design declaring two clock ports gets exactly one `create_clock`.
+Every path in the second domain is analysed by nobody, and STA then
+reports zero setup and zero hold violations — truthfully, because it was
+never asked. `score()` read those zeros and passed the candidate.
+
+Proven rather than argued. `pipeline/designs/cdc_twoclock` is a
+deliberate negative control: two independent clocks with an 8-bit path
+crossing from the `clk_a` counter into a single `clk_b` flop, no
+synchronizer — the textbook metastability bug. Run through the full
+flow it produced 279 metrics, `timing__setup_vio__count 0`,
+`timing__hold_vio__count 0`, and scored **PASS**. Its logs carry the
+warning above and `[INFO] Using clock clk_a…`, nothing more.
+
+`pipeline/cdc_check.py` compares what the design declared against what
+the run's own logs say it constrained. `clk_b` is reported as
+*unverified*, not as a violation — nothing found it broken, nothing
+looked, and that is the same distinction the absent-signoff-metric fix
+turned on.
+
+The gate-level netlist corroborates it independently: 8 flops clocked by
+`clk_a` and 8 by `clk_b`, two real domains in silicon while one was
+constrained. Two different artifacts, same conclusion.
+
+Deliberately narrow about what it claims. This is constraint coverage,
+not structural CDC analysis — nothing here looks for two-flop
+synchronizers, gray coding or metastability, and a quiet result must
+never be read as "CDC clean". The check says so in its own output rather
+than leaving that to a reader's assumption.
+
+Verified both ways end-to-end through the orchestrator: `cdc_twoclock`
+blocks with one unverified domain; `counter4_tinydie` (single clock)
+passes with none.
+
+## Power domains: per-rail IR drop, not one number
+
+`score()` recorded `ir__drop__worst` — a single global figure — while
+OpenLane emits `design_powergrid__drop__worst__net:<net>` for every
+supply it analysed. That per-net breakdown *is* the power-domain view: a
+healthy core rail beside a drooping macro domain looked identical to a
+design where everything was fine.
+
+`supply_rails()` now reads each rail, deriving nominal from the pair
+(worst voltage + worst drop = 1.79991 + 0.0000902 = 1.8 V) rather than
+assuming it. Two details it refuses to guess at: the
+`drop__average__net:VPWR` key holds 1.79999 on a 1.8 V rail — a voltage,
+not a drop — so it is ignored rather than gated on; and ground rails get
+no percentage, because a percentage of a 0 V nominal is meaningless, so
+the absolute bounce is reported instead.
+
+Gated only when `run_spec` sets `max_ir_drop_pct`. How much droop is
+acceptable is a design decision, and a threshold invented here would be
+a fabricated spec wearing a measurement's clothes.
+
+## Fmax and Vmin were one unread metric away
+
+`score()` read `timing__setup__wns` — worst *negative* slack, which
+OpenSTA clamps at 0. A design with 6.85 ns of margin and one with 0.01 ns
+both reported exactly 0. The margin was in `timing__setup__ws`, which
+nothing in this pipeline had ever read.
+
+With it, per corner, on a counter constrained at 100 MHz:
+
+    corner              V      setup ws   min period   Fmax
+    max_ff_n40C_1v95    1.95   +7.145 ns   2.855 ns    350.2 MHz
+    max_tt_025C_1v80    1.80   +6.846 ns   3.154 ns    317.0 MHz
+    max_ss_100C_1v60    1.60   +6.073 ns   3.927 ns    254.7 MHz
+
+Signoff Fmax is the worst corner, not the best — 255 MHz, on a part
+constrained at 100. Vmin comes from the corner names themselves
+(`_1v60`, `_1v80`, `_1v95`): the lowest voltage where setup *and* hold
+both still pass. Hold is judged separately because a hold failure does
+not improve by slowing the clock, so such a corner is unusable at any
+frequency.
+
+Both numbers carry their limits in the output. Fmax describes *this*
+placed netlist's critical path; it does not predict what re-closing the
+design at 3.15 ns would produce, since a tighter constraint changes
+synthesis, sizing and CTS. And when every corner passes, Vmin is the
+floor of what the PDK characterises, not a swept minimum — stating
+"1.6 V" flatly would claim a sweep nobody ran, so the flag
+`vmin_is_lowest_analysed` says which case it is.
+
+## Seeing the circuit, not just the layout
+
+Stage 1 is called "Circuit & Layout Extraction" and listed file paths
+for both while showing neither. The layout had a rendered view early on;
+the circuit it implements had none — even though Yosys writes
+`<design>.nl.v.json` during synthesis and the pipeline recorded its
+path, into `runs/`, which is deleted.
+
+`pipeline/netlist_graph.py` extracts a directed gate-level graph and
+stores it in the case (9.3 KB for a 42-cell design). The file is 470 KB
+because Yosys emits a blackbox module for every cell in the standard-cell
+library — and that half is what makes the graph possible: it states each
+cell type's port directions. Direction is read from there, never guessed
+from pin names. X/Y/Q are outputs on sky130 by convention, not by rule,
+and a wrong guess silently reverses an edge, producing a schematic that
+looks right and is not. An unknown cell type's pins default to inputs:
+better a node with no driver than an invented connection.
+
+`SchematicView` lays it out by logic depth, inputs left, outputs right,
+with sequential cells terminating a path — which is what stops a
+counter's feedback from recursing forever, and makes register-to-register
+logic depth visible at a glance.
+
+One bug worth recording because it was invisible in the code and obvious
+in the output: net names came out as `$abc$272$auto$rtlil.cc:2739:
+MuxGate$241` where `ctr_a[0]` belonged. Yosys keeps both the RTL name and
+its own aliases for the same net, and the preference for the human one
+was written as `if bit not in net_names` against a dict keyed by
+`str(bit)` — an int compared to string keys, so the condition was always
+true and last-write-won.
+
+## What OpenLane offers that this pipeline does not use
+
+Surveyed against the pinned image rather than from memory.
+
+**`SynthesisExploration` flow.** Its own description: "tries multiple
+synthesis strategies (in the form of different scripts for the ABC
+utility) to try and find which strategy is better by either minimizing
+area or maximizing slack (and thus frequency)." Run on counter4 it
+produced this in **8 seconds**:
+
+    SYNTH_STRATEGY   Gates   Area (µm²)   Worst Setup Slack (ns)
+    AREA 0           14      171.41       6.570
+    AREA 3           24      255.24       6.483
+    DELAY 3          16      195.19       6.676
+    DELAY 4          19      242.73       6.154
+
+This pipeline explores `SYNTH_STRATEGY` by running a *full* OpenLane
+flow per candidate — 60–100 s each, so counter4's nine candidates cost
+roughly nine minutes for a table this flow builds in eight seconds. It
+is also exactly an area-versus-Fmax tradeoff, the pairing the operating
+point work above is about.
+
+**Steps present but unused.** `KLayout.Render` renders a layout image —
+`render_layout.py` was written by hand to do that. `OpenROAD.BasicMacroPlacement`
+places macros automatically, while `sram_wrapper` pins its SRAM at a
+hand-chosen (110, 150) µm; given that the measured driver-to-pin distance
+of 249 µm is the open problem in that case, letting the tool place it is
+worth trying. `Yosys.Resynthesis`, `Odb.FuzzyDiodePlacement` and
+`Odb.PortDiodePlacement` (antenna strategies) are also unused.
+
+**Already-generated artifacts thrown away.** Synthesis writes
+`hierarchy.dot` and `primitive_techmap.dot` next to the JSON netlist;
+`Yosys.EQY` (step 73) is a formal equivalence check inside the Classic
+flow, while this project wrote its own `equiv_check.py`.
+
+None of these are broken as they stand — but each is work the toolchain
+already does, and the netlist view above is what happens when one of
+them gets picked up.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

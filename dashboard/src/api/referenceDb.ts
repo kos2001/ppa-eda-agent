@@ -13,10 +13,67 @@ export interface Power {
   total_w: number | null;
 }
 
+// One entry per supply net OpenLane's power-grid analysis covered — the
+// actual power-domain view. A single global worst-drop number cannot
+// tell a healthy core rail with a drooping macro domain apart from a
+// design where everything is fine.
+export interface SupplyRail {
+  net: string;
+  drop_worst_v: number | null;
+  voltage_worst_v: number | null;
+  nominal_v: number | null;
+  // null for ground nets, where a percentage of a 0 V nominal would be
+  // meaningless — the absolute bounce is still in drop_worst_v.
+  drop_pct: number | null;
+}
+
 export interface PowerDomain {
   ir_drop_avg_v: number | null;
   ir_drop_worst_v: number | null;
   voltage_worst_v: number | null;
+  supplies?: SupplyRail[];
+}
+
+// Which declared clocks the run really constrained. OpenLane's default
+// SDC constrains only the first CLOCK_PORT, so a multi-clock design can
+// complete signoff with an entire domain never analysed.
+export interface ClockCoverage {
+  declared_clocks: string[];
+  constrained_clocks: string[];
+  unconstrained_clocks: string[];
+  custom_sdc: boolean;
+  warnings: string[];
+  note: string;
+}
+
+// Fmax and Vmin, derived from per-corner slack the run already measured.
+// Both were previously unobtainable from the case: score() read
+// timing__setup__wns, which OpenSTA clamps at 0, so all positive margin
+// was discarded before it reached the verdict.
+export interface CornerPoint {
+  corner: string;
+  voltage_v: number | null;
+  setup_ws_ns: number | null;
+  hold_ws_ns: number | null;
+  setup_ok: boolean;
+  hold_ok: boolean;
+  min_period_ns: number | null;
+  fmax_mhz: number | null;
+}
+
+export interface OperatingPoint {
+  clock_period_ns: number | null;
+  corners: CornerPoint[];
+  // The worst corner, not the best — the part must work everywhere it
+  // is specified to work.
+  fmax_mhz: number | null;
+  fmax_limiting_corner: string | null;
+  vmin_v: number | null;
+  // True when every corner passed, i.e. Vmin is the floor of what the
+  // PDK characterises rather than a limit this design imposes.
+  vmin_is_lowest_analysed: boolean;
+  failing_corners: string[];
+  note: string;
 }
 
 export interface CandidateVerdict {
@@ -34,6 +91,8 @@ export interface CandidateVerdict {
   timing_corners: TimingCorner[];
   power: Power | null;
   power_domain: PowerDomain | null;
+  // Optional: cases written before these were derived have none.
+  operating_point?: OperatingPoint | null;
 }
 
 export interface LayoutCell {
@@ -162,6 +221,37 @@ export interface Constraints {
   error?: string;
 }
 
+// The gate-level circuit, extracted from Yosys' JSON netlist by
+// pipeline/netlist_graph.py. Stored in the case because the file it came
+// from lives in runs/, which is deleted.
+export interface NetlistPort {
+  name: string;
+  direction: string;
+  bits: number[];
+}
+
+export interface NetlistCell {
+  name: string;
+  label: string;
+  type: string;
+  inputs: Record<string, number[]>;
+  outputs: Record<string, number[]>;
+}
+
+export interface NetlistGraph {
+  top: string;
+  source?: string;
+  ports: NetlistPort[];
+  cells: NetlistCell[];
+  net_names?: Record<string, string>;
+  cell_count: number;
+  truncated: boolean;
+  cell_types?: { type: string; count: number }[];
+  // Set instead of the above when extraction failed — recorded rather
+  // than swallowed so an empty view is distinguishable from no netlist.
+  error?: string;
+}
+
 export interface CandidateResult {
   tag: string;
   overrides: Record<string, unknown>;
@@ -171,6 +261,8 @@ export interface CandidateResult {
   data?: CandidateDataPointers;
   layout?: LayoutSummary | null;
   stage?: ProcessStageId;
+  clocks?: ClockCoverage;
+  netlist?: NetlistGraph | null;
   produced_by_feedback?: boolean;
 }
 
