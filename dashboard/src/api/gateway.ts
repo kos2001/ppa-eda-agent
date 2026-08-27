@@ -1,3 +1,4 @@
+import type { Lang } from "../i18n";
 const STORAGE_KEY = "ppa-eda-agent-dashboard:gateway-key";
 export const GATEWAY_BASE_URL = "http://127.0.0.1:8700";
 export const MODEL = "ppa-eda-analyst";
@@ -29,6 +30,26 @@ export async function checkGatewayStatus(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// Asked of the model directly rather than translating its answer
+// afterwards: a Korean diagnosis written as Korean is not a translation
+// of an English one, and it saves the user a second step.
+//
+// Identifiers are pinned explicitly because a model told to answer in
+// Korean will otherwise localise the things that must not change —
+// metric keys, error codes, signal and file names.
+export function languageInstruction(lang: Lang): string {
+  const keep =
+    " Keep every number, unit, signal name, file path, metric key, tool " +
+    "name and error code exactly as written — translate the prose around " +
+    "them, never the identifiers.";
+  // English is stated explicitly, not left blank: measured, this
+  // gateway's model answers in Korean when given no instruction at all,
+  // so an empty English case would make the toggle do nothing.
+  return lang === "ko"
+    ? "\n\nRespond in Korean (한국어)." + keep
+    : "\n\nRespond in English." + keep;
 }
 
 export interface DiagnoseCallbacks {
@@ -95,7 +116,8 @@ async function pipeSse(
 export async function diagnoseStream(
   key: string,
   reportText: string,
-  callbacks: DiagnoseCallbacks
+  callbacks: DiagnoseCallbacks,
+  lang: Lang = "en"
 ): Promise<void> {
   try {
     const res = await fetch(`${GATEWAY_BASE_URL}/v1/chat/completions`, {
@@ -110,7 +132,9 @@ export async function diagnoseStream(
         messages: [
           {
             role: "user",
-            content: `Diagnose this OpenSTA simulation output:\n\n${reportText}`,
+            content:
+              `Diagnose this OpenSTA simulation output:\n\n${reportText}` +
+              languageInstruction(lang),
           },
         ],
       }),
@@ -128,13 +152,14 @@ export async function diagnoseStream(
 // which function to call.
 export async function diagnoseViaServer(
   reportText: string,
-  callbacks: DiagnoseCallbacks
+  callbacks: DiagnoseCallbacks,
+  lang: Lang = "en"
 ): Promise<void> {
   try {
     const res = await fetch(`${LOCAL_SERVER_URL}/diagnose`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reportText }),
+      body: JSON.stringify({ reportText, lang }),
     });
     await pipeSse(res, callbacks);
   } catch (e) {
@@ -188,13 +213,14 @@ export async function translateStream(
 // prompt is assembled server-side alongside the request file it reviews.
 export async function askReview(
   requestText: string,
-  callbacks: DiagnoseCallbacks
+  callbacks: DiagnoseCallbacks,
+  lang: Lang = "en"
 ): Promise<void> {
   try {
     const res = await fetch(`${LOCAL_SERVER_URL}/review/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestText }),
+      body: JSON.stringify({ requestText, lang }),
     });
     await pipeSse(res, callbacks);
   } catch (e) {

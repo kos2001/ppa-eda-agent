@@ -2513,6 +2513,46 @@ every candidate unverified forever — a gate that always fires gets
 switched off rather than obeyed — and the claim it would guard is
 already covered by a check that runs and passes.
 
+## The language toggle now changes what the agent says, not just the labels
+
+Selecting Korean translated the UI chrome and nothing else. The agent's
+own answers — the OpenSTA diagnosis, the human-in-the-loop second
+opinion — came back in whatever the model felt like, and the user's
+recourse was a "translate (machine)" button: two steps, and a
+translation of an answer rather than an answer.
+
+The three generating paths (`/diagnose` browser-direct, `/diagnose`
+server-proxied, `/review/ask`) now carry the selected language and ask
+the model to write in it. `AgentProvider` is nested inside `LangProvider`
+in App.tsx, so the language is available there rather than needing to be
+threaded through every caller.
+
+The instruction pins identifiers explicitly:
+
+    Respond in Korean (한국어). Keep every number, unit, signal name,
+    file path, metric key, tool name and error code exactly as written —
+    translate the prose around them, never the identifiers.
+
+Without that a model asked for Korean localises the things that must not
+change. Verified in both directions against the real gateway: the Korean
+answer keeps `timing__setup__ws = -0.35`, `reg_a/Q -> reg_b/D`, `WNS`
+and `OpenSTA` intact, and the English one contains no Hangul.
+
+**English had to be stated explicitly too.** It was first left blank on
+the assumption that English is the model's default. Measuring that
+assumption killed it: sent with no language field at all, this gateway's
+model answered in Korean — so an empty English case would have made
+selecting English do nothing. `withLanguage()` now falls back to the
+explicit English instruction rather than to no instruction, because "no
+instruction" is not neutral here.
+
+Deliberately unchanged: stored reference-db diagnosis text. That is a
+record of what real subagents found, and re-rendering a measured
+transition time or capacitance through a model would misrepresent a
+finding — it keeps its separate, explicitly-labelled machine-translation
+button. The distinction is between generating an answer in a language
+and translating evidence out of one.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
