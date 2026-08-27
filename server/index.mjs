@@ -236,10 +236,19 @@ function trackProgress(state, rawLine) {
   if (stage) {
     state.expectedSteps = Number(stage[5]) || state.expectedSteps || null;
     current.flow = stage[1];
-    current.stepName = stage[3].trim();
-    current.step = Number(stage[4]);
     current.total = Number(stage[5]);
     current.elapsed = stage[6];
+    // Only ever forward. When a run ends, its buffered output arrives at
+    // once and the last Stage line parsed is not necessarily the highest
+    // — observed a run finish at "62/78 KLayout vs. Magic XOR" after the
+    // directory poll had already seen step 74. A progress bar that jumps
+    // backwards at the finish line is a visible wrong, and within one
+    // candidate the step count only rises.
+    const n = Number(stage[4]);
+    if (n >= current.step) {
+      current.step = n;
+      current.stepName = stage[3].trim();
+    }
     return;
   }
 
@@ -282,7 +291,7 @@ async function pollRunDir(design, state) {
     const n = Number(m[1]);
     if (!best || n > best.n) best = { n, name: m[2] };
   }
-  if (!best) return;
+  if (!best || best.n < current.step) return;
   current.step = best.n;
   current.stepName = best.name.replace(/^[a-z]+-/, "").replace(/-/g, " ");
   current.total = state.expectedSteps ?? null;
