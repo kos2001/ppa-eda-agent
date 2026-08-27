@@ -635,7 +635,7 @@ function ReviewWorkflow({
   design: string;
   onApplied: () => void;
 }) {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const { serverConfigured } = useAgent();
   const [requestText, setRequestText] = useState<string | null>(null);
   const [review, setReview] = useState<string | null>(null);
@@ -675,6 +675,8 @@ function ReviewWorkflow({
     setError(null);
     setAiDrafted(true);
     setHumanEdited(false);
+    // The agent answers in the language the console is set to, rather
+    // than answering in English and leaving the user to press translate.
     askReview(requestText, {
       onToken: (d) => setReview((prev) => (prev ?? "") + d),
       onDone: () => setBusy(null),
@@ -682,7 +684,7 @@ function ReviewWorkflow({
         setBusy(null);
         setError(e.message);
       },
-    });
+    }, lang);
   }
 
   async function handleApply() {

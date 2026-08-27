@@ -14,6 +14,7 @@ import {
   diagnoseViaServer,
   checkGatewayStatus,
 } from "./api/gateway";
+import { useLang } from "./i18n";
 
 interface AgentState {
   key: string | null;
@@ -47,6 +48,7 @@ function notifyBrowser() {
 }
 
 export function AgentProvider({ children }: { children: ReactNode }) {
+  const { lang } = useLang();
   const [key, setKey] = useState<string | null>(getStoredKey());
   const [serverConfigured, setServerConfigured] = useState(false);
   const [diagnosing, setDiagnosing] = useState(false);
@@ -128,10 +130,13 @@ export function AgentProvider({ children }: { children: ReactNode }) {
       },
     };
 
+    // AgentProvider is nested inside LangProvider (App.tsx), so the
+    // current language is available here rather than having to be
+    // threaded through every caller.
     if (serverConfigured) {
-      diagnoseViaServer(reportText, callbacks);
+      diagnoseViaServer(reportText, callbacks, lang);
     } else if (key) {
-      diagnoseStream(key, reportText, callbacks);
+      diagnoseStream(key, reportText, callbacks, lang);
     }
   }
 
