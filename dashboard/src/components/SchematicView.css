@@ -1,0 +1,67 @@
+/* Gate-level connectivity, drawn from Yosys' netlist. Deliberately not
+   presented as a draughted schematic — it is a dependency view. */
+
+.nl { margin-top: 0.6rem; }
+
+.nl__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.nl__stats { font-size: 0.66rem; color: var(--text-dim); }
+
+.nl__hist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.7rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.64rem;
+}
+.nl__hist span { display: inline-flex; gap: 0.25rem; align-items: baseline; }
+.nl__hist b { color: var(--accent); }
+
+/* Wide graphs scroll inside their own box; the page must not. */
+.nl__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0.3rem;
+}
+
+.nl__edge {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.1;
+}
+.nl__edge--dim { opacity: 0.12; }
+
+.nl__node rect {
+  fill: var(--surface-raised);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.nl__node text {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  fill: var(--text);
+}
+.nl__node .nl__sub { fill: var(--text-dim); font-size: 7.5px; }
+.nl__node--dim { opacity: 0.22; }
+
+/* Ports read as terminals, sequential cells as boundaries — the two
+   things you actually look for in a netlist. */
+.nl__node--input rect { stroke: var(--good); }
+.nl__node--output rect { stroke: var(--accent); }
+.nl__node--seq rect { stroke: var(--warn); stroke-width: 1.6; }
+
+.nl__caveat {
+  margin: 0.4rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-width: 76ch;
+}

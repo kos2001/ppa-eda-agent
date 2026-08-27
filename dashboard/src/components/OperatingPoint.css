@@ -1,0 +1,73 @@
+/* Fmax / Vmin / supply rails / clock coverage, shown inside the
+   verification stage's artifact where the verdict is explained. */
+
+.op { display: grid; gap: 0.85rem; margin-top: 0.85rem; }
+
+.op__block {
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+/* A domain nobody constrained. Warn, not critical: nothing is broken,
+   nothing was checked. */
+.op__block--warn { border-left-color: var(--warn); }
+
+.op__block h5 {
+  margin: 0 0 0.55rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.op__headline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.op__headline > span { display: flex; flex-direction: column; gap: 0.1rem; }
+.op__headline strong { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.op__headline em {
+  font-style: normal;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}
+
+.op__scroll { overflow-x: auto; }
+.op__table { font-size: 0.68rem; }
+.op__table th, .op__table td { white-space: nowrap; }
+.op__table td { font-variant-numeric: tabular-nums; }
+
+.op__row--bad { background: var(--critical-soft); }
+.op__bad { color: var(--critical); font-weight: 700; }
+
+.op__clock {
+  display: inline-block;
+  margin-right: 0.3rem;
+  font-size: 0.68rem;
+}
+.op__clock--bad { color: var(--warn); text-decoration: underline dotted; }
+
+.op__warning {
+  margin: 0.4rem 0 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font-size: 0.66rem;
+  line-height: 1.5;
+}
+
+/* What the number does not mean. Kept next to it rather than in a doc,
+   because an Fmax quoted without its conditions travels. */
+.op__caveat {
+  margin: 0.45rem 0 0;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-width: 72ch;
+}

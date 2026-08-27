@@ -24,9 +24,12 @@ from datetime import date
 from pathlib import Path
 
 from run_stage import run_stage, read_metrics
+import cdc_check
 import def_layout
 import design_rules
 import equiv_check
+import netlist_graph
+import operating_point
 import render_layout
 from pareto import ParetoPoint, pick_best
 from toolchain import toolchain_info
@@ -243,6 +246,49 @@ SIGNOFF_METRICS = (
 )
 
 
+def supply_rails(metrics: dict) -> list[dict]:
+    """Per-supply-net IR drop, from OpenLane's own power-grid analysis.
+
+    Reads `design_powergrid__drop__worst__net:<net>` and the matching
+    `..._voltage__worst__net:<net>`, deliberately ignoring the
+    `drop__average__net:` keys — for VPWR that key holds 1.79999 on a
+    1.8 V rail, i.e. a voltage rather than a drop, and building a gate on
+    a metric whose meaning has to be guessed is how fabricated numbers
+    get into a verdict.
+
+    Nominal is derived from the pair rather than assumed: worst voltage
+    plus worst drop is the rail's nominal (1.79991 + 0.0000902 = 1.8 on a
+    real run). Ground nets sit at 0 V nominal, where a percentage is
+    meaningless, so drop_pct is left None and the absolute bounce is
+    still reported.
+    """
+    prefix = "design_powergrid__drop__worst__net:"
+    rails = []
+    for key in sorted(metrics):
+        if not key.startswith(prefix) or "__corner:" in key:
+            continue
+        net = key[len(prefix):]
+        drop = metrics[key]
+        volt = metrics.get(f"design_powergrid__voltage__worst__net:{net}")
+        nominal = None
+        pct = None
+        if isinstance(drop, (int, float)) and isinstance(volt, (int, float)):
+            nominal = volt + drop
+            # A ground rail reports its bounce as both drop and voltage,
+            # so nominal comes out at twice the bounce — near zero, not a
+            # supply. Percentages against it would be nonsense.
+            if nominal > 0.1:
+                pct = 100.0 * drop / nominal
+        rails.append({
+            "net": net,
+            "drop_worst_v": drop,
+            "voltage_worst_v": volt,
+            "nominal_v": nominal,
+            "drop_pct": pct,
+        })
+    return rails
+
+
 def score(metrics: dict, targets: dict) -> dict:
     """Checks a real metrics.json against run_spec targets.
 
@@ -367,7 +413,29 @@ def score(metrics: dict, targets: dict) -> dict:
             "ir_drop_avg_v": metrics.get("ir__drop__avg"),
             "ir_drop_worst_v": metrics.get("ir__drop__worst"),
             "voltage_worst_v": metrics.get("ir__voltage__worst"),
+            # Per supply net, which is the actual power-domain view and
+            # was being thrown away: OpenLane emits
+            # design_powergrid__drop__worst__net:<net> for each net it
+            # analysed (VPWR, VGND, and a macro's own vccd1/vssd1 once it
+            # is hooked into the grid), and score() collapsed all of them
+            # into one global worst number. A design whose macro domain
+            # droops badly while the core domain is fine looked identical
+            # to one where everything was fine.
+            "supplies": supply_rails(metrics),
         }
+    # IR drop is a real signoff criterion — enough droop and the cells
+    # miss the timing the corner libraries promise — but what counts as
+    # too much is a design decision, not a universal constant. So it is
+    # gated only when the spec says so, rather than against a number this
+    # pipeline invented.
+    max_ir_pct = targets.get("max_ir_drop_pct")
+    if max_ir_pct is not None:
+        for rail in (power_domain or {}).get("supplies", []):
+            if rail["drop_pct"] is not None and rail["drop_pct"] > max_ir_pct:
+                violations.append(
+                    f"IR drop {rail['drop_pct']:.2f}% on {rail['net']} "
+                    f"> target {max_ir_pct}%"
+                )
 
     return {
         # An unverified check blocks a pass as firmly as a failed one:
@@ -499,11 +567,31 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides)
         metrics = read_metrics(run_dir)
         verdict = score(metrics, run_spec.get("targets", {}))
+        # Clock-domain coverage needs the run's logs, which score() never
+        # sees — it reads metrics.json only. Folded into the same
+        # `unverified` list because an unconstrained domain is exactly
+        # that: not a failure anyone found, a check nobody ran.
+        clocks = cdc_check.check(design_dir, run_dir)
+        verdict["unverified"] = (verdict.get("unverified", [])
+                                 + cdc_check.unverified_domains(clocks))
+        verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
+        # Fmax/Vmin, derived from per-corner slack the run already
+        # measured. Needs the clock period, which lives in config.json
+        # and never reaches score().
+        verdict["operating_point"] = operating_point.operating_point(
+            metrics, clock_period(design_dir))
         equiv = verify_function(design_dir, run_dir, verdict) if verify_fn else None
         layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
+        # The gate-level circuit itself. Yosys wrote this during
+        # synthesis and the pipeline recorded only its path, into runs/,
+        # which is deleted — so the console could say a netlist had
+        # existed without ever showing one.
+        netlist = netlist_graph.summary(run_dir, run_spec.get("design_name"))
         return {"tag": tag, "overrides": cand.get("overrides", {}),
                 "verdict": verdict, "run_dir": str(run_dir),
                 "data": data_pointers(run_dir),
+                "clocks": clocks,
+                "netlist": netlist,
                 "equivalence": equiv,
                 "layout": layout}
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
@@ -832,6 +920,20 @@ def pick_layout_subject(iterations: list[dict], winner: dict | None) -> dict | N
     if not all_results:
         return None
     return max(all_results, key=lambda r: order.get(r.get("stage"), -1))
+
+
+def clock_period(design_dir: Path) -> float | None:
+    """The design's declared CLOCK_PERIOD, in ns.
+
+    Returns None rather than a default when absent: Fmax is computed from
+    this number, and a made-up period would produce a made-up frequency
+    that looks exactly like a measured one.
+    """
+    cfg = design_dir / "config.json"
+    if not cfg.exists():
+        return None
+    value = json.loads(cfg.read_text()).get("CLOCK_PERIOD")
+    return float(value) if isinstance(value, (int, float, str)) and str(value).strip() else None
 
 
 def collect_constraints(design_dir: Path) -> dict | None:

@@ -1,6 +1,8 @@
 import type { CandidateResult, PipelineCase, ProcessStageId } from "../api/referenceDb";
 import { useLang } from "../i18n";
 import ConstraintsView from "./Constraints";
+import OperatingPointView from "./OperatingPoint";
+import SchematicView from "./SchematicView";
 import { verdictPill } from "./PipelineTab";
 import "./StageArtifacts.css";
 
@@ -283,7 +285,18 @@ export default function StageArtifacts({
   return (
     <div className="sa">
       <span className="sa__title">{stageName}</span>
-      {stage === "extraction" && <Extraction candidates={candidates} />}
+      {stage === "extraction" && (
+        <>
+          <Extraction candidates={candidates} />
+          {/* The circuit itself. This stage is called "Circuit & Layout
+              Extraction" and listed file paths for both while showing
+              neither — the layout got a rendered view long ago, the
+              circuit never did. */}
+          <SchematicView
+            graph={candidates.find((c) => c.netlist?.cells?.length)?.netlist}
+          />
+        </>
+      )}
       {stage === "topology" && <Topology pipelineCase={pipelineCase} />}
       {stage === "placement_strategy" && <Proposals candidates={candidates} />}
       {/* Stage 4 evaluates the physical constraints, so this is where
@@ -303,7 +316,27 @@ export default function StageArtifacts({
       {(stage === "routing_generation" || stage === "routing_candidate") && (
         <StoppedHere candidates={candidates} stage={stage} />
       )}
-      {stage === "verification_ppa" && <Verdicts candidates={candidates} />}
+      {stage === "verification_ppa" && (
+        <>
+          <Verdicts candidates={candidates} />
+          {/* Fmax/Vmin/rails/clocks for the candidate that got furthest —
+              the signoff facts a DTCO decision is made on, none of which
+              a PASS/FAIL pill can carry. */}
+          {(() => {
+            const best =
+              candidates.find((c) => c.verdict?.passed) ??
+              candidates.find((c) => c.verdict);
+            if (!best?.verdict) return null;
+            return (
+              <OperatingPointView
+                op={best.verdict.operating_point}
+                supplies={best.verdict.power_domain?.supplies}
+                clocks={best.clocks}
+              />
+            );
+          })()}
+        </>
+      )}
       {stage === "feedback" && (
         <Feedback pipelineCase={pipelineCase} candidates={candidates} />
       )}

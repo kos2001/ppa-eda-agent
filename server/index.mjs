@@ -180,10 +180,69 @@ async function designExists(design) {
   }
 }
 
+// Turning the run's own output into live per-step progress.
+//
+// The console could start a run and show a scrolling tail of it, which
+// answers "is it alive" and nothing else. A full flow is 78 steps and
+// several minutes; from a tail you cannot tell whether a candidate is at
+// floorplan or at signoff, which candidate of nine is running, or where
+// the last one died. All of that is already in the stream:
+//
+//   === candidate 'sweep-util-25' — overrides: {...} ===
+//   Classic - Stage 31 - Repair Design (Post-Global Placement) ━╸ 30/78 0:00:24
+//   [ERROR] [RSZ-0090] Max transition time from SDC is 0.040ns...
+//
+// so this parses it rather than adding a second channel that could
+// disagree with the log. The progress bar OpenLane draws uses a carriage
+// return and box-drawing characters; only the numbers are taken.
+const CANDIDATE_LINE = /^=== candidate '([^']+)'/;
+const STAGE_LINE = /(\w+) - Stage (\d+) - (.+?)\s+[─-▟\s]*?(\d+)\/(\d+)\s+(\d+:\d{2}:\d{2})/;
+const ERROR_LINE = /\[ERROR\]\s*(.+?)\s*$/;
+
+function trackProgress(state, rawLine) {
+  // Strip ANSI colour so the regexes match what a person sees.
+  const line = rawLine.replace(/\x1b\[[0-9;]*m/g, "");
+
+  const cand = line.match(CANDIDATE_LINE);
+  if (cand) {
+    // A new candidate starting means the previous one is finished; if it
+    // never reported an error it got all the way through.
+    const prev = state.progress?.at(-1);
+    if (prev && prev.status === "running") prev.status = "done";
+    (state.progress ??= []).push({
+      tag: cand[1], step: 0, total: null, stepName: null,
+      elapsed: null, status: "running", error: null,
+      startedAt: new Date().toISOString(),
+    });
+    return;
+  }
+
+  const current = state.progress?.at(-1);
+  if (!current) return;
+
+  const stage = line.match(STAGE_LINE);
+  if (stage) {
+    current.flow = stage[1];
+    current.stepName = stage[3].trim();
+    current.step = Number(stage[4]);
+    current.total = Number(stage[5]);
+    current.elapsed = stage[6];
+    return;
+  }
+
+  const err = line.match(ERROR_LINE);
+  // Keep the first error, not the last: OpenLane repeats the failure in
+  // its summary, and the first occurrence is the one with the context.
+  if (err && !current.error) {
+    current.error = err[1].slice(0, 300);
+    current.status = "failed";
+  }
+}
+
 function startPipelineRun(design, { maxIterations = null } = {}) {
   const designDir = path.join(pipelineDir, "designs", design);
   const runSpecPath = path.join(designDir, "run_spec.json");
-  const state = { status: "running", startedAt: new Date().toISOString(), finishedAt: null, tail: [], error: null, maxIterations };
+  const state = { status: "running", startedAt: new Date().toISOString(), finishedAt: null, tail: [], progress: [], error: null, maxIterations };
   pipelineRuns.set(design, state);
 
   const args = ["orchestrator.py", "--design", designDir, "--run-spec", runSpecPath];
@@ -199,6 +258,7 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
   const pushLine = (line) => {
     state.tail.push(line);
     if (state.tail.length > MAX_TAIL_LINES) state.tail.shift();
+    trackProgress(state, line);
   };
   const onChunk = (chunk) => {
     for (const line of chunk.toString("utf-8").split("\n")) {

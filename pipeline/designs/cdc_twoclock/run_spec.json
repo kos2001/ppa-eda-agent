@@ -1,0 +1,11 @@
+{
+  "design_name": "cdc_twoclock",
+  "targets": {
+    "max_core_utilization": 0.75,
+    "max_ir_drop_pct": 5.0
+  },
+  "candidates": [
+    { "tag": "cand-baseline", "overrides": {} }
+  ],
+  "max_iterations": 1
+}
