@@ -31,9 +31,10 @@ import equiv_check
 import netlist_graph
 import operating_point
 import render_layout
+import step_coverage
 import synth_explore
 from pareto import ParetoPoint, pick_best
-from toolchain import toolchain_info
+from toolchain import classic_steps, toolchain_info
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
@@ -640,11 +641,24 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         # which is deleted — so the console could say a netlist had
         # existed without ever showing one.
         netlist = netlist_graph.summary(run_dir, run_spec.get("design_name"))
+        # Which declared flow steps this run silently skipped.
+        #
+        # Deliberately recorded rather than folded into the verdict's
+        # `unverified` list. RUN_EQY is False by default and enabling it
+        # aborts inside EQY itself ("This should not happen. Please
+        # report this bug."), so gating on it would mark every candidate
+        # unverified forever — a gate that always fires gets switched
+        # off rather than obeyed. The equivalence claim is covered by
+        # this project's own equiv_check, which proves the same design
+        # (4 points, 0 unproven) where EQY crashes.
+        declared = classic_steps()
+        coverage = step_coverage.check(run_dir, declared) if declared else None
         return {"tag": tag, "overrides": cand.get("overrides", {}),
                 "verdict": verdict, "run_dir": str(run_dir),
                 "data": data_pointers(run_dir),
                 "clocks": clocks,
                 "netlist": netlist,
+                "step_coverage": coverage,
                 "equivalence": equiv,
                 "layout": layout}
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others

@@ -2447,29 +2447,71 @@ cheap *measurement* rather than prediction: screening to SCREEN_STEP
 Those return real numbers at surrogate-like cost, which beats a model
 fitted to 17 samples.
 
-## Automatic macro placement: not a config flag
+## Trying the unused features, and two things I had written down wrong
 
-`OpenROAD.BasicMacroPlacement` looked like the obvious fix for
-sram_wrapper, whose SRAM is pinned by hand at (110, 150) µm and whose
-measured 249 µm driver-to-pin distance is the case's open problem. It is
-not reachable that way. Checked against the pinned image:
+**`OpenROAD.BasicMacroPlacement` is a stub.** It was the most promising
+of the unused steps — sram_wrapper pins its SRAM by hand at (110, 150) µm
+and the measured 249 µm driver-to-pin distance is that case's open
+problem. It is not in Classic, and `openlane -f` only accepts built-in
+flow names, so `pipeline/flows/macro_autoplace.py` defines the flow
+through OpenLane's Python API: Classic's own step list with the macro
+placer inserted before `OpenROAD.GlobalPlacement`, built by *inserting
+into* `Flow.factory.get("Classic").Steps` so it cannot drift from
+Classic on the next version bump. That produced a valid 79-step flow and
+ran it.
 
-    Odb.ManualMacroPlacement       in Classic: True
-    OpenROAD.BasicMacroPlacement   in Classic: False
+The step then raised `NotImplementedError`. Its source is:
 
-Its knobs (`PL_MACRO_HALO`, `PL_MACRO_CHANNEL`) belong to a step the
-Classic flow does not run, so using it means defining a custom flow —
-a real integration with its own risk, since every calibration in this
-project (the 78-step totals, the stage classifications, the screening
-cutoff) is against Classic. What Classic does offer is
-`MACRO_PLACEMENT_CFG` via `Odb.ManualMacroPlacement`, which is another
-way to specify a placement by hand, not to derive one.
+    def get_script_path(self):
+        raise NotImplementedError()
 
-Left undone deliberately rather than half-built, and recorded here as
-the concrete next step for sram_wrapper: a custom flow inserting
-`OpenROAD.BasicMacroPlacement`, with the resulting driver-to-pin
-distance measured by `odb_query` against the 249 µm baseline and the
-144.5 µm that `lib_query` says buf_12 can drive.
+It declares `PL_MACRO_HALO` and `PL_MACRO_CHANNEL` and has no
+implementation behind them. Of eleven non-Classic steps checked this way
+it is the only stub, and it is the one that mattered. Automatic macro
+placement is unavailable in 2.3.10 — not "needs a custom flow", as this
+document previously said. The harness is kept because it is how that was
+established, and because it is the way to add any real step later.
+
+**A Classic run silently executes 74 of the 78 steps it declares.** No
+log line names the four, the flow reports success, and metrics.json has
+no key for a check that never happened. They are:
+
+    OpenROAD.RepairDesignPostGRT     RUN_POST_GRT_DESIGN_REPAIR = False
+    OpenROAD.ResizerTimingPostGRT    RUN_POST_GRT_RESIZER_TIMING = False
+    Odb.HeuristicDiodeInsertion      RUN_HEURISTIC_DIODE_INSERTION = False
+    Yosys.EQY                        RUN_EQY = False
+
+Which corrects the second thing: this document said "OpenLane 2 skips
+steps via the flow CLI, not config flags." There are `RUN_*` config
+flags. An earlier grep missed them because they are flow-level variables
+and it only searched step-level `config_vars`.
+
+`pipeline/step_coverage.py` compares the declared list against the run's
+own directories and attributes each gap to the switch that caused it,
+reading the run's `resolved.json` rather than defaults. It separates
+signoff steps from optimisation ones: three of the four missing steps
+make a design slower, not unverified, and reporting them alike would
+bury the one that matters.
+
+**`RUN_EQY=true` does not work, and that vindicates `equiv_check.py`.**
+This document previously listed `Yosys.EQY` as an unused feature the
+project had duplicated. Enabling it on counter4 gets as far as running
+the step and then aborts inside EQY itself:
+
+    combine: ERROR: Unmatched module exists in gold that does not exist
+    in gate. This should not happen. Please report this bug.
+
+On the same design and the same run, this project's `equiv_check.py`
+returns `equivalent: True, proven_points: 4, unproven_points: 0,
+vacuous: False`. It is not a duplicate of OpenLane's check; it is the
+one that works.
+
+That is also why the missing EQY step is *recorded* on each candidate
+rather than folded into the verdict's `unverified` list. `RUN_EQY` is
+False by default and cannot be turned on, so gating on it would mark
+every candidate unverified forever — a gate that always fires gets
+switched off rather than obeyed — and the claim it would guard is
+already covered by a check that runs and passes.
 
 ## Known limitations / explicit non-goals
 
