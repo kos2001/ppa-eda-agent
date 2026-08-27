@@ -2357,6 +2357,110 @@ watching a terminal saw a multi-minute silence then the whole log at
 once. It now streams while still accumulating, since the error tail and
 the ignored-override check both need the full text.
 
+## Choosing synthesis strategies by measuring instead of guessing
+
+counter4's run_spec swept four hand-picked `SYNTH_STRATEGY` values, each
+through the full 78-step flow, to produce what is in the end an
+area-versus-slack table. OpenLane ships a flow that produces that table
+directly, for all nine strategies, and it is not close:
+
+    SynthesisExploration, all 9 strategies:   9 s   (measured)
+    one full Classic flow, one candidate:    64-69 s (measured)
+
+`pipeline/synth_explore.py` runs it and reads each strategy's own
+`state_out.json` — 76 real metrics apiece — rather than scraping the
+table the flow prints, so a formatting change cannot silently produce
+wrong numbers. Fmax comes from the same `operating_point` code the full
+pipeline uses, so the two cannot disagree about what a slack means.
+
+On counter4 the ends of the tradeoff are genuinely different strategies:
+
+    AREA 0    171.4 um^2   291.6 MHz    <- smallest
+    DELAY 3   195.2 um^2   300.9 MHz    <- most slack
+
+`run_spec`'s new `explore_synthesis` block replaces the hand-written
+sweep: explore all nine in 9 s, then spend full flows on the best area,
+the best slack, and one more. Nine full flows (~10 min) become an
+exploration plus three (~3.6 min), and the three are *chosen* rather than
+guessed.
+
+It deliberately does not replace the full runs. Synthesis area is not
+post-route area, and a strategy that wins pre-PnR can lose after
+placement — which is exactly why the picks still get real flows. The
+exploration record goes into the case, including the strategies that
+were rejected, so the choice can be audited instead of taken on trust.
+
+## Can a surrogate model replace the runs? Not on this data, and it says so
+
+The idea is sound and standard: a full flow costs 60-100 s, so a model
+predicting the outcome from the config would let the agent rank
+candidates for free. The question is whether the data supports one.
+
+Measured, not assumed. reference-db holds 50 candidate runs which
+collapse to **17 distinct (design, overrides) pairs** across four
+designs — the rest are re-runs of identical configs, and counting them
+as independent samples would inflate any accuracy figure roughly
+threefold. Per design: counter4 9, counter4_tinydie 4, sram_wrapper 3,
+cdc_twoclock 1. Worse, within counter4 the area is 290.278 um^2 at
+`FP_CORE_UTIL` 25 *and* at 35: the parameter most swept does not move
+the target at all. A model trained on that would be fitting noise, and
+quoting an accuracy for it would be inventing a result — the exact thing
+the rest of this document is about not doing.
+
+So `pipeline/surrogate.py` is built to be able to answer "no". It
+extracts and deduplicates the dataset, implements k-nearest-neighbour
+over normalized features, and scores it by leave-one-out
+cross-validation **against a predict-the-mean baseline**, because a
+surrogate is only worth having if it beats doing nothing. `predict()`
+refuses outright below 8 samples for a design, and never borrows
+neighbours from another design — a counter's area says nothing about an
+SRAM wrapper's. Run today it reports `trainable: []` and
+`"insufficient data — not enough distinct configurations to evaluate a
+surrogate at all"`.
+
+kNN rather than a network is the honest choice at this size, not a
+lesser one: it can only repeat outcomes actually observed, its errors
+trace to specific neighbours, and it cannot manufacture a confident
+answer for a region nobody has run. A neural network on 17 points would
+produce smoother numbers and no more knowledge.
+
+A refusal is worthless unless the machinery would have worked, so that
+is tested both ways: on synthetic data carrying a real relationship it
+predicts within 6 um^2 and beats the baseline; on flat data — counter4's
+actual behaviour — it reports "no better than predicting the mean"
+rather than claiming skill. The refusal is about the dataset, not the
+code, and it will stop refusing on its own as cases accumulate.
+
+Meanwhile what already fills the surrogate's role in this pipeline is
+cheap *measurement* rather than prediction: screening to SCREEN_STEP
+(10 s vs 95 s) and the synthesis exploration above (9 s vs ~10 min).
+Those return real numbers at surrogate-like cost, which beats a model
+fitted to 17 samples.
+
+## Automatic macro placement: not a config flag
+
+`OpenROAD.BasicMacroPlacement` looked like the obvious fix for
+sram_wrapper, whose SRAM is pinned by hand at (110, 150) µm and whose
+measured 249 µm driver-to-pin distance is the case's open problem. It is
+not reachable that way. Checked against the pinned image:
+
+    Odb.ManualMacroPlacement       in Classic: True
+    OpenROAD.BasicMacroPlacement   in Classic: False
+
+Its knobs (`PL_MACRO_HALO`, `PL_MACRO_CHANNEL`) belong to a step the
+Classic flow does not run, so using it means defining a custom flow —
+a real integration with its own risk, since every calibration in this
+project (the 78-step totals, the stage classifications, the screening
+cutoff) is against Classic. What Classic does offer is
+`MACRO_PLACEMENT_CFG` via `Odb.ManualMacroPlacement`, which is another
+way to specify a placement by hand, not to derive one.
+
+Left undone deliberately rather than half-built, and recorded here as
+the concrete next step for sram_wrapper: a custom flow inserting
+`OpenROAD.BasicMacroPlacement`, with the resulting driver-to-pin
+distance measured by `odb_query` against the 249 µm baseline and the
+144.5 µm that `lib_query` says buf_12 can drive.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

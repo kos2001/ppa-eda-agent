@@ -31,6 +31,7 @@ import equiv_check
 import netlist_graph
 import operating_point
 import render_layout
+import synth_explore
 from pareto import ParetoPoint, pick_best
 from toolchain import toolchain_info
 
@@ -474,6 +475,58 @@ def override_value(v) -> str:
     if isinstance(v, str):
         return v
     return json.dumps(v)
+
+
+def expand_synthesis_exploration(design_dir: Path, run_spec: dict) -> tuple[list[dict], dict | None]:
+    """Chooses SYNTH_STRATEGY candidates by measuring, not by guessing.
+
+    run_spec's `explore_synthesis` block replaces a hand-written strategy
+    sweep. Hand-picking four of nine strategies and running each through
+    the full 78-step flow costs about a minute apiece to produce an
+    area-versus-slack table; OpenLane's own SynthesisExploration flow
+    produces that table for all nine in 9 seconds, measured. This runs
+    it, then spends the expensive full-flow runs on the ends of the
+    tradeoff plus a middle.
+
+    It does not replace the full runs. Synthesis area is not post-route
+    area and a strategy that wins here can still lose after placement —
+    which is why the picks still get real flows. What it replaces is
+    running nine of them to discover which three were worth running.
+
+    Returns (candidates, exploration_record). The record goes into the
+    case so the choice can be audited later rather than taken on trust;
+    on failure it carries the reason and the candidate list is empty, so
+    a broken exploration cannot silently shrink the candidate set to
+    nothing without saying why.
+    """
+    spec = run_spec.get("explore_synthesis")
+    if not spec:
+        return [], None
+    count = int(spec.get("count", 3))
+    base_overrides = spec.get("overrides", {})
+    try:
+        results = synth_explore.explore(
+            design_dir, tag="synth-explore", clock_period_ns=clock_period(design_dir))
+    except Exception as e:  # noqa: BLE001 - recorded, not silenced
+        return [], {"error": f"{type(e).__name__}: {e}"}
+
+    picks = synth_explore.suggest_candidates(results, count)
+    candidates = [{
+        "tag": p["tag"],
+        "overrides": {**base_overrides, **p["overrides"]},
+        # Why this strategy and not the other eight, kept with the
+        # candidate rather than only in a log.
+        "chosen_because": p["why"],
+    } for p in picks]
+    return candidates, {
+        "results": results,
+        "chosen": [p["overrides"]["SYNTH_STRATEGY"] for p in picks],
+        "best_area": synth_explore.rank(results, "area")[0]["strategy"],
+        "best_slack": synth_explore.rank(results, "fmax")[0]["strategy"],
+        "note": ("pre-PnR synthesis metrics only — post-route area and "
+                 "timing can rank strategies differently, which is why "
+                 "the picks still get full flows"),
+    }
 
 
 def expand_sweeps(run_spec: dict) -> list[dict]:
@@ -951,7 +1004,8 @@ def collect_constraints(design_dir: Path) -> dict | None:
 
 
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
-               winner: dict | None, stop_reason: str | None = None) -> Path:
+               winner: dict | None, stop_reason: str | None = None,
+               exploration: dict | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     (REFDB / "layouts").mkdir(exist_ok=True)
@@ -987,6 +1041,11 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         # the reader had no way to see. Failing to collect them must not
         # lose the case, so it degrades to None with the reason attached.
         "constraints": collect_constraints(design_dir),
+        # How the SYNTH_STRATEGY candidates were chosen, when they came
+        # from OpenLane's SynthesisExploration rather than a hand-written
+        # sweep. Recorded so the choice is auditable instead of taken on
+        # trust — including which strategies were rejected.
+        "synthesis_exploration": exploration,
         # Real rendered layout of this case's most informative candidate,
         # stored under reference-db/ so it outlives the run directory.
         "layout_image": capture_layout_image(design_name, design_dir, subject),
@@ -1045,10 +1104,16 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
     `screen` runs each candidate to SCREEN_STEP first and only pays for
     the full flow on survivors (see screen_candidates()).
     """
-    candidates = run_spec.get("candidates", []) + expand_sweeps(run_spec)
+    explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
+    # Kept on the function so main() can write it into the case without
+    # changing orchestrate()'s 3-tuple return, which several callers and
+    # tests already depend on.
+    orchestrate.last_exploration = exploration
+    candidates = (run_spec.get("candidates", []) + expand_sweeps(run_spec)
+                  + explored_candidates)
     if not candidates:
-        raise ValueError("run_spec.json must have a non-empty 'candidates' "
-                          "and/or 'sweeps' list")
+        raise ValueError("run_spec.json must have a non-empty 'candidates', "
+                          "'sweeps' or 'explore_synthesis' entry")
     all_iterations = []
     winner = None
     stop_reason = None
@@ -1142,7 +1207,9 @@ def main():
         verify_fn=args.verify_function,
     )
 
-    case_file = write_case(design_name, args.design, all_iterations, winner, stop_reason)
+    case_file = write_case(design_name, args.design, all_iterations, winner,
+                            stop_reason,
+                            exploration=getattr(orchestrate, "last_exploration", None))
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
     print(f"stop reason: {stop_reason}")
     print(f"case written to: {case_file}")

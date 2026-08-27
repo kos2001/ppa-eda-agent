@@ -109,3 +109,10 @@
   color: var(--text-dim);
   overflow-wrap: anywhere;
 }
+
+/* Strategies the exploration measured but did not promote to a full
+   flow stay visible — the rejected rows are why the chosen ones were
+   chosen. */
+.sa__explore { margin-top: 0.8rem; }
+.sa__row--chosen { background: var(--good-soft); }
+.sa__caveat { margin-top: 0.4rem; font-size: 0.64rem; }

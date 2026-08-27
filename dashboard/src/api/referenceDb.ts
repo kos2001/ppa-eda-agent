@@ -277,6 +277,27 @@ export interface HumanInTheLoopEntry {
   summary: string;
 }
 
+// How SYNTH_STRATEGY candidates were chosen, when they came from
+// OpenLane's SynthesisExploration rather than a hand-written sweep.
+// Recorded so the choice is auditable — including the strategies that
+// were explored and rejected.
+export interface SynthesisExplorationRow {
+  strategy: string;
+  gates: number | null;
+  area_um2: number | null;
+  setup_ws_ns: number | null;
+  fmax_mhz: number | null;
+}
+
+export interface SynthesisExploration {
+  results?: SynthesisExplorationRow[];
+  chosen?: string[];
+  best_area?: string;
+  best_slack?: string;
+  note?: string;
+  error?: string;
+}
+
 export interface PipelineCase {
   design: string;
   date: string;
@@ -300,6 +321,7 @@ export interface PipelineCase {
   // The PDK rules and design constraints this run was held to.
   // Optional: cases written before constraints were recorded have none.
   constraints?: Constraints | null;
+  synthesis_exploration?: SynthesisExploration | null;
   diagnosis?: string;
   human_in_the_loop?: HumanInTheLoopEntry[];
 }

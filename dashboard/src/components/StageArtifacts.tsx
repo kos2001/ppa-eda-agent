@@ -115,6 +115,53 @@ function Proposals({ candidates }: { candidates: CandidateResult[] }) {
   );
 }
 
+function Exploration({ pipelineCase }: { pipelineCase: PipelineCase }) {
+  const { t } = useLang();
+  const ex = pipelineCase.synthesis_exploration;
+  if (!ex) return null;
+  if (ex.error) return <p className="sa__none">{t("se_failed")}: {ex.error}</p>;
+  const rows = ex.results ?? [];
+  if (!rows.length) return null;
+  const chosen = new Set(ex.chosen ?? []);
+  return (
+    <div className="sa__explore">
+      <p className="sa__lede">
+        {t("se_lede")
+          .replace("{n}", String(rows.length))
+          .replace("{k}", String(chosen.size))}
+      </p>
+      <table className="tab__summary sa__table">
+        <thead>
+          <tr>
+            <th>{t("se_strategy")}</th><th>{t("se_gates")}</th>
+            <th>{t("se_area")}</th><th>{t("se_slack")}</th>
+            <th>{t("se_fmax")}</th><th>{t("se_picked")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.strategy} className={chosen.has(r.strategy) ? "sa__row--chosen" : undefined}>
+              <td><code>{r.strategy}</code></td>
+              <td>{r.gates ?? "—"}</td>
+              <td>{r.area_um2 != null ? r.area_um2.toFixed(1) : "—"}</td>
+              <td>{r.setup_ws_ns != null ? `${r.setup_ws_ns.toFixed(3)} ns` : "—"}</td>
+              <td>{r.fmax_mhz != null ? `${r.fmax_mhz.toFixed(1)} MHz` : "—"}</td>
+              <td>
+                {chosen.has(r.strategy)
+                  ? <span className="pill pill--good">{t("se_ran")}</span>
+                  : <span className="sa__none-inline">{t("se_skipped")}</span>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* What the pre-PnR numbers do and do not settle — the reason the
+          picks still get real full flows. */}
+      {ex.note && <p className="sa__lede sa__caveat">{ex.note}</p>}
+    </div>
+  );
+}
+
 function StoppedHere({
   candidates,
   stage,
@@ -298,7 +345,14 @@ export default function StageArtifacts({
         </>
       )}
       {stage === "topology" && <Topology pipelineCase={pipelineCase} />}
-      {stage === "placement_strategy" && <Proposals candidates={candidates} />}
+      {stage === "placement_strategy" && (
+        <>
+          <Proposals candidates={candidates} />
+          {/* Where the strategy candidates came from, when they were
+              measured rather than hand-picked. */}
+          <Exploration pipelineCase={pipelineCase} />
+        </>
+      )}
       {/* Stage 4 evaluates the physical constraints, so this is where
           they belong — showing which candidates died here without ever
           showing what they were held to left the reader unable to judge
