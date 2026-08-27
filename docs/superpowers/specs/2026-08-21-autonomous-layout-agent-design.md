@@ -2414,9 +2414,19 @@ cross-validation **against a predict-the-mean baseline**, because a
 surrogate is only worth having if it beats doing nothing. `predict()`
 refuses outright below 8 samples for a design, and never borrows
 neighbours from another design — a counter's area says nothing about an
-SRAM wrapper's. Run today it reports `trainable: []` and
+SRAM wrapper's. Run today it reports
 `"insufficient data — not enough distinct configurations to evaluate a
-surrogate at all"`.
+surrogate at all"`, with 0 of 10 folds scored.
+
+The threshold caught a bug in itself within the session. counter4
+crossed 8 samples when the synthesis-exploration run above added two
+configurations, and `dataset_report` duly called it trainable — while
+`evaluate` still scored zero folds, because leave-one-out holds a sample
+back and drops it under the threshold again. Claiming a design is
+trainable when its model cannot be validated is the same overstatement
+this module exists to avoid, so `trainable` now requires
+MIN_SAMPLES + 1. The test that failed was asserting the measured state
+of the real dataset, which is exactly what it was written to do.
 
 kNN rather than a network is the honest choice at this size, not a
 lesser one: it can only repeat outcomes actually observed, its errors

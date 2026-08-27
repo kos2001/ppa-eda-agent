@@ -11,26 +11,30 @@ that the answer can be "no": `evaluate()` scores any predictor against a
 do-nothing baseline with leave-one-out cross-validation, and `predict()`
 refuses to return a number when the evidence does not support one.
 
-The measurement as of writing: reference-db holds 50 candidate runs that
-collapse to **17 distinct (design, overrides) pairs** across 4 designs —
-the rest are re-runs of identical configs. Within counter4, area is
-290.278 um^2 at FP_CORE_UTIL 25 and at 35: the parameter most swept does
-not move the target at all. A model trained on that would be fitting
-noise, and reporting an accuracy for it would be inventing a result.
+The measurement moves as cases accumulate, which is the point of keeping
+it in code rather than in a comment. It began at 17 distinct
+(design, overrides) pairs across 4 designs — from 50 recorded runs, the
+rest being re-runs of identical configs — and reached 19 within the same
+session when a synthesis-exploration run added two. Nothing is yet
+evaluable. Within counter4, area is 290.278 um^2 at FP_CORE_UTIL 25 and
+at 35: the parameter most swept does not move the target at all. A model
+trained on that would be fitting noise, and reporting an accuracy for it
+would be inventing a result.
 
 So the deliberate choice here is a k-nearest-neighbour predictor over
 normalized features rather than anything deeper. Not because kNN is
 clever, but because with a dataset this size it is honest: it can only
 repeat outcomes that were actually observed, its errors are traceable to
 specific neighbours, and it cannot manufacture a confident answer for a
-region nobody has run. A neural network on 17 points would produce
-smoother numbers and no more knowledge.
+region nobody has run. A neural network on this many points would
+produce smoother numbers and no more knowledge.
 
 What already substitutes for a surrogate in this pipeline, and works
 today, is cheap *measurement* rather than prediction: screening to
 SCREEN_STEP (10 s vs 95 s) and OpenLane's SynthesisExploration (9 s for
 nine strategies vs ~10 min of full flows). Those return real numbers at
-surrogate-like cost, which beats a model fitted to 17 samples.
+surrogate-like cost, which beats a model fitted to a couple of dozen
+samples.
 
 Stdlib only, per soul.md — no numpy, no sklearn.
 """
@@ -271,7 +275,16 @@ def dataset_report(dataset: list[dict]) -> dict:
         "distinct_configs": len(dataset),
         "designs": len(per),
         "per_design": per,
-        "trainable": [name for name, d in per.items() if d["with_area"] >= MIN_SAMPLES],
+        # Needs MIN_SAMPLES + 1, not MIN_SAMPLES: leave-one-out holds a
+        # sample back, so a design sitting exactly on the threshold has
+        # MIN_SAMPLES - 1 left in every fold and predict() refuses all of
+        # them. Reporting such a design as "trainable" claimed a
+        # capability that could not be demonstrated — caught when
+        # counter4 reached exactly 8 and the evaluation still scored 0 of
+        # 10 folds. A model that cannot be validated is not one to use.
+        "trainable": [name for name, d in per.items()
+                      if d["with_area"] > MIN_SAMPLES],
+        "evaluable_at": MIN_SAMPLES + 1,
     }
 
 
