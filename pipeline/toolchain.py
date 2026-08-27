@@ -41,3 +41,35 @@ def toolchain_info() -> dict:
         "openlane_image": OPENLANE_IMAGE,
         "openlane_upstream": OPENLANE_UPSTREAM,
     }
+
+
+# The Classic flow's declared step list, asked of the image itself.
+#
+# Needed because a run's directory listing shows what *executed*, and
+# the interesting question is what was declared and did not. Cached for
+# the process: it costs a container start, and it cannot change while
+# the pinned image does not.
+_CLASSIC_STEPS: list[str] | None = None
+
+
+def classic_steps() -> list[str]:
+    """Step ids in OpenLane's Classic flow, or [] if they can't be read.
+
+    Non-fatal by design: this feeds a reporting field, and a case that
+    cost real OpenLane time must not be lost because Docker was busy.
+    """
+    global _CLASSIC_STEPS
+    if _CLASSIC_STEPS is not None:
+        return _CLASSIC_STEPS
+    import subprocess
+    try:
+        out = subprocess.run(
+            ["docker", "run", "--rm", OPENLANE_IMAGE, "python3", "-c",
+             "from openlane.flows import Flow\n"
+             "print('\\n'.join(s.id for s in Flow.factory.get('Classic').Steps))"],
+            capture_output=True, text=True, timeout=300,
+        )
+        _CLASSIC_STEPS = [l.strip() for l in out.stdout.splitlines() if l.strip()]
+    except Exception:  # noqa: BLE001 - reporting field, not a gate
+        _CLASSIC_STEPS = []
+    return _CLASSIC_STEPS
