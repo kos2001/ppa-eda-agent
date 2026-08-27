@@ -357,11 +357,28 @@ export async function applyReview(
 
 export type PipelineRunStatus = "idle" | "running" | "done" | "error";
 
+// Per-candidate step progress, parsed by the server from the run's own
+// output. A 78-step flow shown as a scrolling tail answers "is it alive"
+// and nothing else — not which candidate of nine is running, not whether
+// it is at floorplan or signoff, not where the last one died.
+export interface CandidateProgress {
+  tag: string;
+  flow?: string;
+  step: number;
+  total: number | null;
+  stepName: string | null;
+  elapsed: string | null;
+  status: "running" | "done" | "failed";
+  error: string | null;
+  startedAt: string;
+}
+
 export interface PipelineRunState {
   status: PipelineRunStatus;
   startedAt?: string | null;
   finishedAt?: string | null;
   tail?: string[];
+  progress?: CandidateProgress[];
   error?: string | null;
 }
 

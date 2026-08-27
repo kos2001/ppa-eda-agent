@@ -2292,6 +2292,71 @@ None of these are broken as they stand — but each is work the toolchain
 already does, and the netlist view above is what happens when one of
 them gets picked up.
 
+## Human-in-the-loop with no way for a human to say anything
+
+The panel was labelled human-in-the-loop and offered three buttons:
+generate a review request, get an AI review, apply it to the case. There
+was no text input anywhere. The `review` state could only ever be set by
+the model's stream, so the *only* verdict that could reach a case was one
+written by an LLM — and step 2 was disabled without a gateway key, so on
+a machine without one the workflow dead-ended with no alternative path.
+
+Fixed by making the human's own text the primary route: the review is an
+editable textarea, apply works on typed text with the model never
+involved, and step 2 is marked optional. The model's answer lands in the
+same box as a draft to correct rather than a result to accept.
+
+Attribution follows who actually wrote it — `human-review`,
+`hermes-review`, or `hermes-review+human` when a person edited the
+draft. Recording a human verdict under the model's name would misstate
+the record in exactly the way this project refuses to elsewhere, and
+filing an untouched model answer as human judgement is worse.
+
+Verified end-to-end with no AI involved: typed a verdict, applied it,
+and it landed in `cdc_twoclock`'s case as `agent: human-review`.
+
+On the gateway key itself: it is not a requirement this project added
+and it was not what blocked the button. `/gateway-status` already
+reported `configured: true` from the server's own `.env`, and the
+disabled state observed was step 2 correctly waiting on step 1. What was
+genuinely broken was having no path at all when a key is absent — which
+is now fixed, because the human path needs no key.
+
+## Watching a run happen, step by step
+
+`fetchPipelineRunStatus` had been in the API module since the run
+trigger was built, and no component ever called it. So a triggered run
+showed a scrolling tail: enough to know it was alive, not enough to know
+which of nine candidates was running, whether it was at floorplan or
+signoff, or where the last one died.
+
+The obvious source was OpenLane's own progress bar, and it does not
+work. Rich checks `isatty()` and draws nothing when its output is a
+pipe, so a piped run emits exactly one `Stage` line — at 78/78, after
+everything is over. Measured twice, from the server's stream and from a
+plain shell redirect, before abandoning it.
+
+What does survive a pipe is the filesystem: OpenLane materialises one
+`NN-tool-step/` directory per step as it reaches it. The server polls
+that instead, giving real live progress —
+`ioplacement → cts → detailedrouting → streamout → drc` with elapsed
+time, verified against a real run.
+
+The step *total* is not invented. A design's first run shows "step 34"
+with no denominator and an indeterminate bar, because no run of that
+design has been observed reaching the end; once one has, the observed
+count carries forward and later runs show `34/78`. A 0%-wide bar reads
+as stuck, which is why the unknown case animates rather than claiming a
+position.
+
+One real fix fell out of this: `run_stage` used
+`subprocess.run(capture_output=True)`, which holds all output until the
+process exits. The text was identical either way so nothing looked
+wrong, but nothing downstream could observe a run in progress — a human
+watching a terminal saw a multi-minute silence then the whole log at
+once. It now streams while still accumulating, since the error tail and
+the ignored-override check both need the full text.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

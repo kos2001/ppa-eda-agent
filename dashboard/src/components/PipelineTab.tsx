@@ -642,6 +642,18 @@ function ReviewWorkflow({
   const [busy, setBusy] = useState<null | "request" | "ask" | "apply">(null);
   const [error, setError] = useState<string | null>(null);
   const [showRequest, setShowRequest] = useState(false);
+  // Whether the text in the box came from the model, and whether a
+  // person has since touched it. This is the whole point of the panel:
+  // it was called human-in-the-loop while offering the human three
+  // buttons and no way to say anything.
+  const [aiDrafted, setAiDrafted] = useState(false);
+  const [humanEdited, setHumanEdited] = useState(false);
+
+  const reviewAuthor = !aiDrafted
+    ? "human-review"
+    : humanEdited
+      ? "hermes-review+human"
+      : "hermes-review";
 
   async function handleRequest() {
     setBusy("request");
@@ -661,6 +673,8 @@ function ReviewWorkflow({
     setBusy("ask");
     setReview("");
     setError(null);
+    setAiDrafted(true);
+    setHumanEdited(false);
     askReview(requestText, {
       onToken: (d) => setReview((prev) => (prev ?? "") + d),
       onDone: () => setBusy(null),
@@ -676,12 +690,16 @@ function ReviewWorkflow({
     setBusy("apply");
     setError(null);
     try {
-      // Recorded under the model's own name, not a subagent's: this
-      // verdict came from hermes-gateway, and attributing it to
-      // feedback-optimizer would misstate who actually reviewed it.
-      await applyReview(design, "hermes-review", review);
+      // Attribution follows who actually wrote the text. A human
+      // verdict recorded as "hermes-review" would misstate the record in
+      // exactly the way this project refuses to elsewhere — and the
+      // reverse, an untouched model answer filed as human judgement, is
+      // worse.
+      await applyReview(design, reviewAuthor, review);
       setReview(null);
       setRequestText(null);
+      setAiDrafted(false);
+      setHumanEdited(false);
       onApplied();
     } catch (e) {
       setError(String(e));
@@ -707,6 +725,10 @@ function ReviewWorkflow({
           )}
         </li>
         <li>
+          {/* Optional. The workflow used to dead-end here without a
+              gateway key: the button was disabled and there was no other
+              way to produce review text, so the entire panel was unusable
+              on a machine with no key. */}
           <button
             onClick={handleAsk}
             disabled={busy !== null || !requestText || !serverConfigured}
@@ -714,6 +736,7 @@ function ReviewWorkflow({
           >
             {busy === "ask" ? t("review_asking") : t("review_step_ask")}
           </button>
+          <span className="pipeline__review-optional">{t("review_ai_optional")}</span>
         </li>
         <li>
           <button onClick={handleApply} disabled={busy !== null || !review?.trim()}>
@@ -725,12 +748,27 @@ function ReviewWorkflow({
       {showRequest && requestText && (
         <pre className="pipeline__review-pre">{requestText}</pre>
       )}
-      {review !== null && (
-        <div className="pipeline__review-result">
-          <span className="tab__meta-label">{t("review_result_label")}</span>
-          <p>{review || "…"}</p>
-        </div>
-      )}
+      <div className="pipeline__review-result">
+        <span className="tab__meta-label">
+          {t("review_your_verdict")}
+          <span className="pipeline__review-author">{reviewAuthor}</span>
+        </span>
+        {/* Editable, and usable with nothing in it but what a person
+            types. The model's answer is a draft to correct, not a
+            result to accept. */}
+        <textarea
+          className="pipeline__review-input"
+          value={review ?? ""}
+          placeholder={t("review_placeholder")}
+          rows={6}
+          disabled={busy === "ask"}
+          onChange={(e) => {
+            setReview(e.target.value);
+            if (aiDrafted) setHumanEdited(true);
+          }}
+        />
+        <p className="pipeline__review-hint">{t("review_hint")}</p>
+      </div>
       {error && <p className="tab__error">{error}</p>}
     </div>
   );
