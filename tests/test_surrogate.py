@@ -102,16 +102,35 @@ class RefusalTests(unittest.TestCase):
         self.assertTrue(got["refused"])
         self.assertEqual(got["n_samples"], 0)
 
-    def test_the_real_reference_db_is_reported_as_insufficient(self):
+    def test_the_real_reference_db_is_still_too_small_to_evaluate(self):
+        """The measured state of the actual dataset, not a stale claim.
+
+        This is deliberately an assertion about reality that will fail
+        when reality changes — it already has once. counter4 crossed
+        MIN_SAMPLES mid-session when a synthesis-exploration run added
+        two configurations, and the failure exposed a real bug: a design
+        sitting exactly on the threshold was reported trainable while
+        leave-one-out refused every fold, because holding one sample back
+        drops it below. When this fails again, re-measure and update it
+        rather than loosening it.
+        """
         refdb = Path(__file__).resolve().parent.parent / "reference-db"
         if not (refdb / "cases").is_dir():
             self.skipTest("no reference-db")
-        report = dataset_report(load_dataset(refdb))
-        result = evaluate(load_dataset(refdb))
-        # If this ever starts passing, the dataset grew and the honest
-        # answer changed — which is the point of keeping it measured.
-        self.assertEqual(report["trainable"], [], report)
+        data = load_dataset(refdb)
+        result = evaluate(data)
+        # Nothing has been scored yet, so no accuracy can be quoted.
+        self.assertEqual(result["n_scored"], 0, result)
         self.assertIn("insufficient data", result["verdict"])
+
+    def test_trainable_requires_enough_to_survive_leave_one_out(self):
+        # Exactly MIN_SAMPLES is not enough: LOO leaves MIN_SAMPLES - 1.
+        at_threshold = linear_dataset(n=MIN_SAMPLES, design="edge")
+        self.assertEqual(dataset_report(at_threshold)["trainable"], [])
+        self.assertEqual(evaluate(at_threshold)["n_scored"], 0)
+        one_more = linear_dataset(n=MIN_SAMPLES + 1, design="edge")
+        self.assertEqual(dataset_report(one_more)["trainable"], ["edge"])
+        self.assertGreater(evaluate(one_more)["n_scored"], 0)
 
 
 class WorkingPredictorTests(unittest.TestCase):
