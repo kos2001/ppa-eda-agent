@@ -2719,7 +2719,38 @@ the report tabs below them analyse material a user brings in.
 The collapse went with the move. A fold is right for a block competing
 for space on a page you came to for something else, and wrong for a page
 you navigated to deliberately, so `standalone` renders it open and
-without the box. Colour marks that there is work to do, not that
+without the box.
+
+**Then it had to be made readable as a page.** Measured rather than
+eyeballed: every element was 10–11px, the value was the same size as its
+label, and nine rows sat in one 1030px-wide column — sizes tuned to
+survive inside a crowded page, unreadable on one with room to spare.
+
+What changed, and why each:
+
+- A headline answering "is there anything for me right now" before any
+  detail. Previously that answer could only be derived by reading all
+  nine rows.
+- Three cards side by side instead of one column: the loop, retrieval
+  and learning data are independent subjects, and the eye was being
+  asked to segment them itself.
+- Value 18px against a 12px label. The number is the content; it was
+  competing with its own caption.
+- The twelve failure signatures became chips. As running prose they were
+  a wall; as discrete identifiers, one each, the eye can find the one it
+  wants.
+
+Deliberately still monospace. The whole console sets `--mono` on body —
+a terminal aesthetic, not an oversight — so switching this page to a
+proportional face would make it off-brand rather than refined. A mono
+design has to live on spacing, weight and grouping instead, which is
+what the above does.
+
+One real bug surfaced while doing it: a later `@media (min-width:
+1000px)` block set `align-items: start` and silently cancelled the
+`stretch` in an earlier block of the same specificity, leaving three
+ragged card bottoms with the verdict box hanging off the tallest. The
+two blocks are merged so it cannot recur. Colour marks that there is work to do, not that
 something is bad: an actionable retry and a judgment call get different
 colours because they need different people.
 
