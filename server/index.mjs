@@ -739,6 +739,32 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Where to improve next, as data rather than terminal output.
+  //
+  // self_improve.py has always computed this — auto-repair coverage,
+  // review backlog, whether the case store can support a surrogate yet,
+  // what retrieval can find precedent for — and printed it. The console
+  // showed individual cases and never the state of the system that
+  // produces them.
+  if (req.method === "GET" && req.url === "/self-improve") {
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); import self_improve; " +
+         "print(json.dumps(self_improve.scan_all()))"],
+        { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
+      );
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[self-improve error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/gateway-status") {
     res.writeHead(200, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify({

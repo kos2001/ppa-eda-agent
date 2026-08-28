@@ -65,6 +65,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import case_retrieval
 import surrogate
 import verify_diagnosis
 
@@ -254,6 +255,70 @@ def ungrounded_reviews(designs: list[str]) -> list[dict]:
                 out.append({"design": design, "agent": review.get("agent"),
                             "ungrounded": bad})
     return out
+
+
+def scan_all(designs: list[str] | None = None) -> dict:
+    """The whole self-improvement scan as data, not printed text.
+
+    main() has always produced this and thrown it away as terminal
+    output, so the one view that says *where to improve next* was
+    invisible to the console. Same code path, so the report a person
+    reads and the panel the dashboard renders cannot disagree.
+    """
+    if designs is None:
+        designs = sorted(d.name for d in DESIGNS_DIR.iterdir() if d.is_dir())
+    reports = [scan_design(d) for d in designs]
+    return {
+        "designs": reports,
+        "budget_retries": [
+            {"design": r["design"], "command": r["retry_with_more_budget"]}
+            for r in reports if r.get("retry_with_more_budget")
+        ],
+        "pattern_promotion_candidates": [
+            r["design"] for r in reports if r.get("pattern_promotion_candidate")
+        ],
+        "learning_data": dataset_status(),
+        "ungrounded_reviews": ungrounded_reviews(designs),
+        "retrieval": retrieval_status(),
+    }
+
+
+def retrieval_status() -> dict:
+    """What the case store can currently retrieve precedent from.
+
+    Reported because retrieval quietly degrades: a corpus where most
+    cases share no failure signature returns nothing useful, and the
+    review request just says "this appears to be new" every time. The
+    number worth watching is how many cases have a signature at all.
+    """
+    try:
+        corpus = case_retrieval.load_cases()
+    except Exception as e:  # noqa: BLE001 - reporting, never fatal
+        return {"error": str(e)}
+    with_sig, all_sigs = 0, set()
+    for case in corpus:
+        sigs = case_retrieval.case_signatures(case)
+        if sigs:
+            with_sig += 1
+            all_sigs |= sigs
+    coverage = []
+    for case in corpus:
+        hits = case_retrieval.similar(case, corpus, top=3)
+        coverage.append({
+            "design": case.get("design"),
+            "date": case.get("date"),
+            "signatures": sorted(case_retrieval.case_signatures(case)),
+            "precedent_found": len(hits),
+        })
+    return {
+        "cases": len(corpus),
+        "cases_with_failure_signature": with_sig,
+        "distinct_signatures": sorted(all_sigs),
+        "per_case": coverage,
+        "cases_without_precedent": [
+            c for c in coverage if c["precedent_found"] == 0
+        ],
+    }
 
 
 def main() -> None:
