@@ -1,0 +1,9 @@
+{
+  "module_count": 2,
+  "has_macros": true,
+  "clock_domain_count": 1,
+  "port_count": 4,
+  "sequential_element_estimate": 72,
+  "power_domain_count": 1,
+  "notes": "Same RTL as sram_wrapper. The only difference is the macro position: (10.35, 15.79) um orientation MY, chosen by OpenROAD's Hier-RTLMP (rtl_macro_placer) rather than by hand at (110, 150) N. Exists to test whether automatic placement shortens the addr nets that cause sram_wrapper's RSZ-0090 failure \u2014 measured driver-to-pin distance on addr1[0] was 249 um by hand."
+}

@@ -1,0 +1,44 @@
+{
+  "DESIGN_NAME": "sram_wrapper",
+  "VERILOG_FILES": "dir::src/sram_wrapper.v",
+  "EXTRA_VERILOG_MODELS": [
+    "dir::src/sky130_sram_1kbyte_1rw1r_32x256_8.blackbox.v"
+  ],
+  "MACROS": {
+    "sky130_sram_1kbyte_1rw1r_32x256_8": {
+      "gds": [
+        "/pdk/sky130A/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds"
+      ],
+      "lef": [
+        "/pdk/sky130A/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef"
+      ],
+      "lib": {
+        "*": [
+          "/pdk/sky130A/libs.ref/sky130_sram_macros/lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib"
+        ]
+      },
+      "instances": {
+        "u_sram": {
+          "location": [
+            10.35,
+            15.79
+          ],
+          "orientation": "MY"
+        }
+      }
+    }
+  },
+  "PDN_MACRO_CONNECTIONS": [
+    "u_sram vccd1 vssd1 vccd1 vssd1"
+  ],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 20,
+  "MAX_TRANSITION_CONSTRAINT": 0.75,
+  "FP_SIZING": "absolute",
+  "DIE_AREA": [
+    0,
+    0,
+    700,
+    700
+  ]
+}
