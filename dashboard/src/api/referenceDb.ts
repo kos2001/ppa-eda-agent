@@ -440,6 +440,8 @@ export async function fetchPipelineRunStatus(design: string): Promise<PipelineRu
 // the panel cannot disagree.
 export interface LearningTarget {
   field: string;
+  best_k?: number | null;
+  current_k?: number | null;
   n_scored: number;
   n_total: number;
   accuracy: number | null;
