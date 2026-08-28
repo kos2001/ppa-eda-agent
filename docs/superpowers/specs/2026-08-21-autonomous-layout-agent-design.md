@@ -2677,6 +2677,46 @@ predict-the-mean baseline by leave-one-out and reports "no better than
 predicting the mean" when that is the truth. Growing the dataset changes
 what it is allowed to conclude, not what it is willing to claim.
 
+## A panel for the system, not the runs
+
+Every other view in this console answers "what happened in this run".
+Nothing answered "where should this be improved next" — although
+`self_improve.py` has computed exactly that from the beginning and
+printed it to a terminal nobody was looking at.
+
+`scan_all()` returns what `main()` printed, `GET /self-improve` serves
+it, and `SystemHealth` renders it. Same code path deliberately: a report
+and a panel that compute the same thing separately eventually disagree,
+and then neither can be trusted.
+
+Three things it shows that were invisible:
+
+**The loop.** Which designs are stuck for a reason a machine can act on
+(ran out of iteration budget — just re-run with more) versus one needing
+judgment (reviewed, still OPEN, and the fix might generalise into a
+repair pattern). Those are different kinds of work and the console
+treated them alike.
+
+**Retrieval.** Whether the case store can still find precedent. This
+degrades quietly: a corpus whose cases share no failure signature
+answers "this appears to be new" every time and nothing complains.
+Currently 10 of 12 cases carry a signature, across 12 distinct ones, and
+every case finds at least one precedent.
+
+**Learning data.** Distinct configurations, which designs are short of
+the evaluable threshold, and the current verdict in full — because its
+wording is the point. "Marginally better on average but wins only 64% of
+folds on 11 samples — too weak to rely on" is a different instruction
+from "2.73 vs 3.07", and a panel showing only the second would read as
+success.
+
+Collapsed by default. This console's recurring failure has been
+dispersion — the fix that worked was deleting panels — so a block that
+is not the answer to "what do I do now" stays folded until asked for.
+Colour marks that there is work to do, not that something is bad: an
+actionable retry and a judgment call get different colours because they
+need different people.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

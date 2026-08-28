@@ -433,3 +433,60 @@ export async function fetchPipelineRunStatus(design: string): Promise<PipelineRu
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return res.json();
 }
+
+
+// The self-improvement scan, as data. Produced by the same
+// self_improve.scan_all() a person runs in a terminal, so the report and
+// the panel cannot disagree.
+export interface LearningDataStatus {
+  distinct_configs?: number;
+  trainable_designs?: string[];
+  needs_more_runs?: Record<string, number>;
+  evaluable_at?: number;
+  verdict?: string;
+  model_mae?: number | null;
+  baseline_mae?: number | null;
+  error?: string;
+}
+
+export interface RetrievalCaseStatus {
+  design: string;
+  date: string;
+  signatures: string[];
+  precedent_found: number;
+}
+
+export interface RetrievalStatus {
+  cases?: number;
+  cases_with_failure_signature?: number;
+  distinct_signatures?: string[];
+  per_case?: RetrievalCaseStatus[];
+  cases_without_precedent?: RetrievalCaseStatus[];
+  error?: string;
+}
+
+export interface DesignScan {
+  design: string;
+  status?: string;
+  auto_repair_coverage?: string;
+  open_reason?: string;
+  retry_with_more_budget?: string | null;
+  pattern_promotion_candidate?: boolean;
+  [k: string]: unknown;
+}
+
+export interface SelfImproveReport {
+  designs: DesignScan[];
+  budget_retries: { design: string; command: string }[];
+  pattern_promotion_candidates: string[];
+  learning_data: LearningDataStatus;
+  ungrounded_reviews: { design: string; agent: string; ungrounded: string[] }[];
+  retrieval: RetrievalStatus;
+}
+
+export async function fetchSelfImprove(): Promise<SelfImproveReport> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/self-improve`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  return data;
+}

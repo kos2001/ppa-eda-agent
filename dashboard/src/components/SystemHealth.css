@@ -1,0 +1,83 @@
+/* State of the system that produces the cases. Collapsed by default:
+   the console's recurring failure has been dispersion, so a panel that
+   is not the answer to "what do I do now" stays folded until asked. */
+
+.sh {
+  margin-bottom: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.sh__summary {
+  cursor: pointer;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  list-style: none;
+}
+.sh__summary::-webkit-details-marker { display: none; }
+.sh__summary::before { content: "▸ "; color: var(--text-dim); }
+.sh[open] .sh__summary::before { content: "▾ "; }
+
+.sh__busy { font-weight: 400; color: var(--text-dim); }
+.sh__empty { margin: 0; padding: 0 0.8rem 0.7rem; font-size: 0.7rem; color: var(--text-dim); }
+
+.sh__body { padding: 0 0.8rem 0.8rem; }
+
+.sh__lede {
+  margin: 0 0 0.7rem;
+  font-size: 0.68rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 78ch;
+}
+
+.sh__block { margin-bottom: 0.8rem; }
+
+.sh__block h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.sh__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.3rem; }
+
+.sh__row {
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) auto 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.25rem 0.4rem;
+  border-radius: 6px;
+  border-left: 2px solid transparent;
+  font-size: 0.68rem;
+}
+
+/* Colour means "there is something to do", not "this is bad" — an
+   actionable retry and a judgment call are different kinds of work. */
+.sh__row--act   { border-left-color: var(--accent);   background: var(--surface-raised); }
+.sh__row--judge { border-left-color: var(--warn);     background: var(--surface-raised); }
+.sh__row--warn  { border-left-color: var(--critical); background: var(--surface-raised); }
+
+.sh__label { color: var(--text-dim); }
+.sh__value { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.sh__note {
+  color: var(--text-dim);
+  font-size: 0.64rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.sh__verdict {
+  margin: 0.45rem 0 0;
+  padding: 0.4rem 0.55rem;
+  border-radius: 6px;
+  background: var(--surface-raised);
+  font-size: 0.66rem;
+  line-height: 1.55;
+  max-width: 78ch;
+}
+
+.sh__refresh { font-size: 0.68rem; }
