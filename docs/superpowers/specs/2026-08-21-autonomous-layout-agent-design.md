@@ -2613,6 +2613,70 @@ dependency-free stdlib pipeline — and `cdc_check` already states in its
 own output that it does constraint coverage, not structural analysis,
 so the gap is declared rather than hidden.
 
+## Retrieval over reference-db — the RAG that is actually worth building
+
+The human-in-the-loop review request contained the stuck design's own
+case and nothing else. So every review started cold: judge an `RSZ-0090`
+failure with no sight of the other times this pipeline hit `RSZ-0090`,
+what was tried, and what the measurement showed. The evidence was in
+reference-db the whole time; it just never reached the prompt.
+
+`pipeline/case_retrieval.py` fixes that, and deliberately *not* with
+embeddings and a vector store. The corpus is about ten structured JSON
+cases whose failures are labelled by the tools themselves — `RSZ-0090`,
+`PDN-0185`, `GRT-0097`. Exact matching on those codes is more precise
+than a similarity score over prose, needs no model and no index to
+rebuild, and — the part that matters for a review — it can *state why*
+a case was retrieved so the reader can discount it. An embedding index
+here would be more machinery and worse at the one job: finding the case
+that failed the same way.
+
+Ranking is shared error code first, topology second, because two runs
+that produced the same tool error are related in a way two
+similarly-shaped designs are not. Verified on the real store:
+
+    sram_wrapper 2026-08-27   -> 2 prior sram_wrapper cases,
+                                 sharing RSZ-0090, GRT-0097, PDN-0231, STA-1140
+    counter4_tinydie          -> its own priors, then **counter4** across
+                                 designs on PDN-0185 / pdn-strap-width
+    cdc_twoclock              -> no error signature at all (it passed), so
+                                 topology fallback: counter4 at distance 0.208,
+                                 labelled as a topology match, not an error one
+
+What it puts in the prompt is concrete rather than decorative. The
+sram_wrapper review request now opens with the precedent that the prior
+case's `RE_BUFFER_CELL` experiment was **invalid** — an OpenLane 1
+variable name that OpenLane 2 ignored, so its three candidates were
+duplicates. That is exactly the finding a fresh reviewer would otherwise
+re-derive, or worse, re-run.
+
+Two refusals kept deliberately: it never returns the target case itself,
+and it returns nothing rather than a weak match when no case shares a
+signature or sits within topology distance 0.35. A review grounded in an
+irrelevant precedent is a review pointed the wrong way with extra
+confidence, so "this appears to be new — treat it as such" is the right
+answer when it is.
+
+## Collecting more training data: what it can and cannot fix
+
+The surrogate is blocked on data, so the obvious move is to run more
+configurations. The trap is which ones. counter4's area is 290.278 µm²
+at `FP_CORE_UTIL` 25 *and* at 35 — sweeping utilization harder produces
+more samples of a flat function, and a model fitted to it would learn
+nothing while looking better-supported.
+
+The synthesis exploration showed which axis does carry signal:
+`SYNTH_STRATEGY` moves area across 171.4 / 195.2 / 203.9 / 242.7 /
+255.2 µm². So the collection run sweeps that, at fixed utilization —
+nine full flows, roughly ten minutes, along the one dimension where the
+target actually moves.
+
+This does not make a surrogate worth using, and the point is that
+`surrogate.py` will say so either way: it scores against a
+predict-the-mean baseline by leave-one-out and reports "no better than
+predicting the mean" when that is the truth. Growing the dataset changes
+what it is allowed to conclude, not what it is willing to claim.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

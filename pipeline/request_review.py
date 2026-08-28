@@ -29,6 +29,8 @@ Usage:
         --agent feedback-optimizer --response-file /path/to/response.txt
 """
 import argparse
+
+import case_retrieval
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -87,6 +89,17 @@ def cmd_request(args: argparse.Namespace) -> None:
         agent_file = AGENTS_DIR / f"{name}.md"
         lines.append(f"- `{name}` — {agent_file.relative_to(REPO_ROOT)}"
                       f"{'' if agent_file.exists() else '  (WARNING: file not found)'}")
+    # Precedent from the rest of reference-db. Without this a review
+    # starts cold: judging an RSZ-0090 with no sight of the other times
+    # this pipeline hit RSZ-0090 and what measurement showed. Retrieved
+    # by shared tool error code, so the match reason is stateable and
+    # can be discounted when it does not actually apply.
+    try:
+        corpus = case_retrieval.load_cases()
+        lines += ["", case_retrieval.precedent_block(case, corpus, top=3)]
+    except Exception as e:  # noqa: BLE001 - recorded, never fatal
+        lines += ["", f"## Precedent from reference-db\n\n(retrieval failed: {e})"]
+
     lines += [
         "",
         "## Existing diagnosis (read before dispatching — don't re-derive"
