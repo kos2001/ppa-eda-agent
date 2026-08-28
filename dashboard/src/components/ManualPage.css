@@ -1,0 +1,142 @@
+/* Operating instructions, then somewhere to say they did not help.
+   Reading text, so it gets a measure and a rhythm the metric pages do
+   not need — the console is monospace throughout, so a mono design has
+   to earn readability from line length, spacing and weight. */
+
+.man { max-width: 90ch; }
+
+.man__title { margin: 0 0 0.2rem; font-size: 1.15rem; }
+
+.man__lede {
+  margin: 0 0 1.2rem;
+  font-size: 0.74rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-width: 68ch;
+}
+
+.man__block { margin-bottom: 1.4rem; }
+
+.man__block h3 {
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.man__list { margin: 0; }
+
+.man__item {
+  padding: 0.55rem 0 0.55rem 0.7rem;
+  border-left: 2px solid var(--border);
+}
+.man__item + .man__item { margin-top: 0.4rem; }
+
+.man__item dt {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.man__item dd {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.75;
+  color: var(--text-dim);
+  max-width: 76ch;
+}
+
+/* Where the control is. An answer that explains a concept without
+   naming the button has answered half a question. */
+.man__where {
+  display: block;
+  margin-top: 0.3rem;
+  padding-left: 0.55rem;
+  border-left: 2px solid var(--accent);
+  font-size: 0.68rem;
+  color: var(--text);
+}
+
+/* ---- feedback ------------------------------------------------------ */
+.man__feedback {
+  margin-top: 1.8rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.man__feedback h3 { margin: 0 0 0.3rem; font-size: 0.88rem; }
+
+.man__kinds { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
+
+.man__kind {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.man__kind--on {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.man__input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+.man__input:focus { outline: none; border-color: var(--accent); }
+
+.man__send {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.man__send button { font-size: 0.74rem; }
+
+/* Names the destination. "Thanks for your feedback" with nowhere stated
+   is how these forms earn their reputation. */
+.man__dest { font-size: 0.66rem; color: var(--text-dim); }
+
+.man__ok { margin: 0.5rem 0 0; font-size: 0.7rem; color: var(--good); }
+
+.man__log { margin-top: 0.8rem; font-size: 0.7rem; }
+.man__log summary { cursor: pointer; color: var(--text-dim); }
+.man__log ul { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.45rem; }
+
+.man__log li {
+  padding-left: 0.55rem;
+  border-left: 2px solid var(--border);
+}
+
+.man__log-meta {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}
+
+.man__log-msg {
+  display: block;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}

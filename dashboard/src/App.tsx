@@ -11,10 +11,12 @@ const SimulateTab = lazy(() => import("./components/SimulateTab"));
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
+const ManualPage = lazy(() => import("./components/ManualPage"));
 
 type TabId =
   | "pipeline"
   | "health"
+  | "manual"
   | "simulate"
   | "area"
   | "timing"
@@ -48,6 +50,10 @@ function AppInner() {
   // user brings in. It was previously a collapsed block inside the
   // pipeline page, which put system-wide state in among per-case cards.
   const HEALTH_TAB: { id: TabId; label: string } = { id: "health", label: t("tab_health") };
+  // Sits with the other two rather than in the reports group: all three
+  // are about operating this system, where the report tabs analyse
+  // material the user brings in.
+  const MANUAL_TAB: { id: TabId; label: string } = { id: "manual", label: t("tab_manual") };
   const REPORT_TABS: { id: TabId; label: string }[] = [
     { id: "simulate", label: t("tab_simulate") },
     { id: "area", label: t("tab_area") },
@@ -90,6 +96,17 @@ function AppInner() {
             onClick={() => setActive(HEALTH_TAB.id)}
           >
             {HEALTH_TAB.label}
+          </button>
+
+          <button
+            className={
+              active === MANUAL_TAB.id
+                ? "app__nav-item app__nav-item--primary app__nav-item--active"
+                : "app__nav-item app__nav-item--primary"
+            }
+            onClick={() => setActive(MANUAL_TAB.id)}
+          >
+            {MANUAL_TAB.label}
           </button>
 
           <span className="app__nav-label">{t("nav_reports_label")}</span>
@@ -156,6 +173,7 @@ function AppInner() {
             {active === "tradeoffs" && <TradeoffsTab />}
             {active === "pipeline" && <PipelineTab />}
             {active === "health" && <SystemHealth standalone />}
+            {active === "manual" && <ManualPage />}
             {active === "diagnosis" && <DiagnosisPage />}
           </Suspense>
         </main>
