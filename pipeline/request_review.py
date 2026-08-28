@@ -31,6 +31,7 @@ Usage:
 import argparse
 
 import case_retrieval
+import verify_diagnosis
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -146,9 +147,38 @@ def cmd_apply(args: argparse.Namespace) -> None:
         "summary": response_text[:280] + ("…" if len(response_text) > 280 else ""),
     })
 
+    # The reviewer node, run where a verdict actually enters the case.
+    #
+    # verify_diagnosis has existed for a while and was reachable only
+    # from self_improve.py and the MCP server — an optional side tool
+    # rather than part of the flow. So a review could be applied, become
+    # the case's diagnosis, and be read by every later reviewer without
+    # anything having checked that the error codes and candidate tags it
+    # cites are in this case's own data. That is precisely the failure
+    # it was written for: sram_wrapper's first diagnosis blamed pins
+    # nobody had looked at.
+    #
+    # Recorded, not enforced. A human may legitimately cite something
+    # new — a liberty file, another design — and blocking that would
+    # push people to edit the JSON by hand. What it must not do is enter
+    # unnoticed.
+    grounding = verify_diagnosis.verify_case(
+        {**case, "diagnosis": response_text,
+         "iterations": case.get("iterations", [])})
+    reviews[-1]["grounding"] = grounding
+
     case_file.write_text(json.dumps(case, indent=2))
     print(f"applied {args.agent}'s response to {case_file.relative_to(REPO_ROOT)} "
           f"(diagnosis field, human_in_the_loop[{len(reviews) - 1}])")
+    if grounding.get("checked"):
+        bad = (grounding.get("ungrounded_error_codes", [])
+               + grounding.get("ungrounded_candidate_tags", []))
+        if bad:
+            print(f"  NOTE: this review cites {len(bad)} reference(s) not in "
+                  f"the case's own recorded data: {', '.join(bad)}")
+        else:
+            print("  grounding check: every cited error code and candidate "
+                  "tag appears in this case's recorded data")
 
 
 def main() -> None:
