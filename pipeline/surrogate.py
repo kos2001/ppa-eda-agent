@@ -262,6 +262,59 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
     }
 
 
+def already_recorded(design: str, overrides: dict,
+                     dataset: list[dict] | None = None) -> dict | None:
+    """The recorded result for this exact configuration, if there is one.
+
+    Matching is on the serialized overrides, the same key load_dataset()
+    deduplicates by, so "already collected" means the same thing in both
+    places.
+    """
+    if dataset is None:
+        dataset = load_dataset()
+    key = json.dumps(overrides or {}, sort_keys=True)
+    for row in dataset:
+        if row["design"] == design and json.dumps(
+                row["overrides"] or {}, sort_keys=True) == key:
+            return row
+    return None
+
+
+def missing_configs(design: str, candidates: list[dict],
+                    dataset: list[dict] | None = None) -> dict:
+    """Split a candidate list into what would be new and what is a repeat.
+
+    Written after a nine-run collection sweep spent roughly two thirds of
+    its time re-running configurations already in reference-db: of nine
+    SYNTH_STRATEGY values, six had been run by an earlier sweep and only
+    three were new. Nothing in the pipeline noticed, because a candidate
+    list says what to run and the case store says what was run, and the
+    two had never been compared.
+
+    Reports rather than filters. Deciding to re-run a configuration is
+    legitimate — a toolchain bump makes every stored result stale — so
+    this makes the repeat visible and leaves the choice to the caller.
+    """
+    if dataset is None:
+        dataset = load_dataset()
+    new, repeats = [], []
+    for cand in candidates:
+        overrides = cand.get("overrides", {})
+        prior = already_recorded(design, overrides, dataset)
+        (repeats if prior else new).append({
+            "tag": cand.get("tag"),
+            "overrides": overrides,
+            "recorded": prior,
+        })
+    return {
+        "design": design,
+        "new": new,
+        "repeats": repeats,
+        "n_new": len(new),
+        "n_repeat": len(repeats),
+    }
+
+
 def dataset_report(dataset: list[dict]) -> dict:
     """What the dataset actually contains, per design."""
     per: dict[str, dict] = {}

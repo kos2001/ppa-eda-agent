@@ -65,6 +65,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import surrogate
 import verify_diagnosis
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -201,6 +202,60 @@ def scan_design(design: str) -> dict:
     }
 
 
+def dataset_status() -> dict:
+    """Whether reference-db can yet support a surrogate, and what it
+    would take.
+
+    Part of the loop rather than a separate errand because "collect more
+    data" is only useful when it is aimed. counter4's area does not move
+    with FP_CORE_UTIL at all, so more points on that axis add samples of
+    a flat function; the loop should say which designs are short and let
+    the answer stay "not yet" until the numbers change it.
+    """
+    try:
+        data = surrogate.load_dataset()
+    except Exception as e:  # noqa: BLE001 - reporting, never fatal
+        return {"error": str(e)}
+    report = surrogate.dataset_report(data)
+    evaluation = surrogate.evaluate(data)
+    short = {
+        name: d["with_area"]
+        for name, d in report["per_design"].items()
+        if d["with_area"] <= surrogate.MIN_SAMPLES
+    }
+    return {
+        "distinct_configs": report["distinct_configs"],
+        "trainable_designs": report["trainable"],
+        "needs_more_runs": short,
+        "evaluable_at": report["evaluable_at"],
+        "verdict": evaluation["verdict"],
+        "model_mae": evaluation["model_mae"],
+        "baseline_mae": evaluation["baseline_mae"],
+    }
+
+
+def ungrounded_reviews(designs: list[str]) -> list[dict]:
+    """Reviews already in the store whose citations are not in their own
+    case. Recorded at apply time now, but earlier reviews predate that
+    gate, so the loop re-checks the whole store each pass."""
+    out = []
+    for design in designs:
+        case = latest_case(design)
+        if not case:
+            continue
+        for review in case.get("human_in_the_loop", []) or []:
+            grounding = verify_diagnosis.verify_case(
+                {**case, "diagnosis": review.get("summary", "")})
+            if not grounding.get("checked"):
+                continue
+            bad = (grounding.get("ungrounded_error_codes", [])
+                   + grounding.get("ungrounded_candidate_tags", []))
+            if bad:
+                out.append({"design": design, "agent": review.get("agent"),
+                            "ungrounded": bad})
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -236,6 +291,40 @@ def main() -> None:
         print("needed, just more budget:")
         for design, cmd in budget_retries:
             print(f"  - {design}:\n      {cmd}")
+        print()
+
+    # Is the store yet able to support a learned model? Kept in the loop
+    # so the answer is re-measured every pass rather than asserted once.
+    status = dataset_status()
+    print("=== learning-data status ===")
+    if "error" in status:
+        print(f"  could not read the dataset: {status['error']}")
+    else:
+        print(f"  distinct configurations: {status['distinct_configs']}"
+              f"  (a design becomes evaluable at {status['evaluable_at']})")
+        print(f"  verdict: {status['verdict']}")
+        if status["model_mae"] is not None:
+            print(f"  surrogate MAE {status['model_mae']:.3f} vs "
+                  f"predict-the-mean {status['baseline_mae']:.3f}")
+        if status["needs_more_runs"]:
+            print("  designs short of the threshold "
+                  "(runs with a recorded area):")
+            for name, n in sorted(status["needs_more_runs"].items()):
+                print(f"    - {name}: {n}")
+            print("  Aim collection at parameters that move the target — "
+                  "sweeping one that does not just adds flat samples.")
+    print()
+
+    stale = ungrounded_reviews(designs)
+    if stale:
+        print("=== reviews citing things not in their own case ===")
+        print("Each of these names an error code or candidate tag that does")
+        print("not appear in that case's recorded data — invented, or copied")
+        print("from another design. Not proof of a wrong conclusion; proof")
+        print("that a reference cannot be checked.")
+        for item in stale:
+            print(f"  - {item['design']} / {item['agent']}: "
+                  f"{', '.join(item['ungrounded'])}")
         print()
 
     if promotion_candidates:
