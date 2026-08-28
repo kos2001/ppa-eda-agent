@@ -218,7 +218,13 @@ def dataset_status() -> dict:
     except Exception as e:  # noqa: BLE001 - reporting, never fatal
         return {"error": str(e)}
     report = surrogate.dataset_report(data)
-    evaluation = surrogate.evaluate(data)
+    # Both targets, because they answer different questions and draw on
+    # different amounts of data. Predicting area needs a run that reached
+    # signoff; predicting whether it will get there at all uses every
+    # configuration ever attempted — including the designs that always
+    # crash and therefore contribute nothing to the first.
+    evaluations = {t: surrogate.evaluate(data, t) for t in surrogate.TARGETS}
+    evaluation = evaluations["area_um2"]
     short = {
         name: d["with_area"]
         for name, d in report["per_design"].items()
@@ -232,6 +238,19 @@ def dataset_status() -> dict:
         "verdict": evaluation["verdict"],
         "model_mae": evaluation["model_mae"],
         "baseline_mae": evaluation["baseline_mae"],
+        "targets": [
+            {
+                "field": name,
+                "n_scored": ev["n_scored"],
+                "n_total": ev["n_total"],
+                "accuracy": ev["accuracy"],
+                "baseline_accuracy": ev["baseline_accuracy"],
+                "model_mae": ev["model_mae"],
+                "baseline_mae": ev["baseline_mae"],
+                "verdict": ev["verdict"],
+            }
+            for name, ev in evaluations.items()
+        ],
     }
 
 

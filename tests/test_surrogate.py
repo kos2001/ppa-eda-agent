@@ -15,8 +15,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (  # noqa: E402
-    MIN_SAMPLES, MIN_WIN_RATE, dataset_report, distance, evaluate, featurize,
-    load_dataset, predict,
+    MIN_SAMPLES, MIN_WIN_RATE, TARGETS, dataset_report, distance, evaluate,
+    featurize, load_dataset, predict,
 )
 
 
@@ -36,6 +36,19 @@ class FeatureTests(unittest.TestCase):
     def test_die_area_becomes_an_area(self):
         f = featurize(row("d", {"DIE_AREA": [0, 0, 64, 64]}))
         self.assertEqual(f["die_area_um2"], 4096)
+
+    def test_die_area_is_a_float_so_the_range_check_keeps_it(self):
+        # Integer DIE_AREA computed correctly and was then dropped by an
+        # isinstance(x, float) check, making the feature invisible: every
+        # design here writes [0, 0, 64, 64], so no config differing only
+        # by die size had a neighbour. Found via the completion target.
+        f = featurize(row("d", {"DIE_AREA": [0, 0, 64, 64]}))
+        self.assertIsInstance(f["die_area_um2"], float)
+
+    def test_die_area_participates_in_distance(self):
+        from surrogate import _ranges
+        rows = [row("d", {"DIE_AREA": [0, 0, s, s]}) for s in (8, 64, 128)]
+        self.assertIn("die_area_um2", _ranges(rows))
 
     def test_missing_value_stays_missing_not_zero(self):
         # Zero would place an unspecified parameter at one end of its own
@@ -196,6 +209,69 @@ class WorkingPredictorTests(unittest.TestCase):
         got = evaluate(linear_dataset(n=20))
         self.assertEqual(got["n_total"], 20)
         self.assertGreater(got["n_scored"], 0)
+
+
+class CompletionTargetTests(unittest.TestCase):
+    """Predicting whether a run will finish, not what area it lands on.
+
+    This target was sitting unused. Every configuration ever attempted
+    carries a completed flag; only those that reached signoff carry an
+    area — 22 rows against 13 in the real store. The designs with nothing
+    to offer an area model are exactly the ones with the most failures to
+    learn from: all three sram_wrapper configurations are crashes.
+
+    It is also the more useful of the two. Knowing a config will crash
+    saves the whole 60-100 s run; knowing its area to 3 um^2 saves
+    nothing, because you ran it to find that out.
+    """
+
+    def _rows(self, n_ok=8, n_bad=8):
+        # Small dies crash, large ones complete — the real
+        # counter4_tinydie pattern.
+        rows = [row("d", {"DIE_AREA": [0, 0, s, s]}, None, completed=False)
+                for s in range(8, 8 + n_bad)]
+        rows += [row("d", {"DIE_AREA": [0, 0, s, s]}, None, completed=True)
+                 for s in range(60, 60 + n_ok)]
+        for r in rows:
+            r["completed"] = bool(r["completed"])
+        return rows
+
+    def test_completed_is_a_declared_target(self):
+        self.assertIn("completed", TARGETS)
+
+    def test_learns_a_real_crash_pattern(self):
+        got = evaluate(self._rows(), "completed")
+        self.assertGreater(got["n_scored"], 0, got)
+        self.assertIsNotNone(got["accuracy"])
+        self.assertGreater(got["accuracy"], got["baseline_accuracy"], got)
+
+    def test_verdict_is_stated_as_accuracy_not_error(self):
+        # "MAE 0.21" is a real score for a 0/1 target and an unreadable
+        # one; a person wants to know how often it would have been right.
+        got = evaluate(self._rows(), "completed")
+        self.assertIn("accurate", got["verdict"])
+        self.assertIn("commoner outcome", got["verdict"])
+
+    def test_no_better_than_the_majority_class_is_said_plainly(self):
+        # An unlearnable target where one outcome dominates: always
+        # guessing it is hard to beat, and beating it is what matters.
+        rows = [row("d", {"FP_CORE_UTIL": u}, None, completed=True)
+                for u in range(20, 38)]
+        rows[0]["completed"] = False
+        for r in rows:
+            r["completed"] = bool(r["completed"])
+        got = evaluate(rows, "completed")
+        if got["accuracy"] is not None and got["baseline_accuracy"] is not None:
+            if got["accuracy"] <= got["baseline_accuracy"]:
+                self.assertIn("no better", got["verdict"])
+
+    def test_uses_more_rows_than_the_area_target_can(self):
+        # The point of the second target: rows a crashed run contributes.
+        rows = self._rows()
+        self.assertEqual(
+            evaluate(rows, "area_um2")["n_total"], 0,
+            "crashed runs have no area and must not be scored on it")
+        self.assertGreater(evaluate(rows, "completed")["n_total"], 0)
 
 
 class DatasetTests(unittest.TestCase):

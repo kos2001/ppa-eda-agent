@@ -220,13 +220,25 @@ export default function SystemHealth({
                 note={t("sh_configs_note").replace(
                   "{n}", String(learning?.evaluable_at ?? "?"))}
               />
-              {learning?.model_mae != null && learning?.baseline_mae != null && (
+              {/* Two targets, because they need different amounts of
+                  data and answer different questions. Predicting area
+                  needs a run that reached signoff; predicting whether it
+                  gets there uses every configuration attempted, which is
+                  why it has more samples. */}
+              {(learning?.targets ?? []).map((tgt) => (
                 <Row
-                  label={t("sh_mae")}
-                  value={`${learning.model_mae.toFixed(2)} vs ${learning.baseline_mae.toFixed(2)}`}
-                  note={t("sh_mae_note")}
+                  key={tgt.field}
+                  label={t(tgt.field === "completed" ? "sh_t_completed" : "sh_t_area")}
+                  value={
+                    tgt.accuracy != null && tgt.baseline_accuracy != null
+                      ? `${Math.round(tgt.accuracy * 100)}% vs ${Math.round(tgt.baseline_accuracy * 100)}%`
+                      : tgt.model_mae != null && tgt.baseline_mae != null
+                        ? `${tgt.model_mae.toFixed(2)} vs ${tgt.baseline_mae.toFixed(2)}`
+                        : "—"
+                  }
+                  note={`${tgt.n_scored}/${tgt.n_total} ${t("sh_t_scored")} · ${tgt.verdict}`}
                 />
-              )}
+              ))}
               {short.length > 0 && (
                 <Row
                   label={t("sh_short")}
@@ -237,11 +249,13 @@ export default function SystemHealth({
                 />
               )}
             </ul>
-            {/* The verdict in full, because its wording carries the
-                caveat: a small average edge is not a usable model. */}
-            {learning?.verdict && (
-              <p className="sh__verdict">{learning.verdict}</p>
-            )}
+            {/* Kept only when no target could be evaluated at all —
+                otherwise each target carries its own verdict above and
+                repeating one of them here would imply it covered both. */}
+            {(learning?.targets ?? []).every((x) => x.n_scored === 0) &&
+              learning?.verdict && (
+                <p className="sh__verdict">{learning.verdict}</p>
+              )}
           </section>
 
           </div>

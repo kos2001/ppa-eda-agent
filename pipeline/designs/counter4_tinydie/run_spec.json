@@ -4,18 +4,68 @@
     "max_core_utilization": 0.75,
     "max_ir_drop_pct": 5.0
   },
-  "candidates": [
+  "candidates": [],
+  "max_iterations": 1,
+  "sweeps": [
     {
-      "tag": "cand-die8",
-      "overrides": {
-        "DIE_AREA": [
+      "param": "DIE_AREA",
+      "values": [
+        [
           0,
           0,
-          8,
-          8
+          40,
+          40
+        ],
+        [
+          0,
+          0,
+          48,
+          48
+        ],
+        [
+          0,
+          0,
+          56,
+          56
+        ],
+        [
+          0,
+          0,
+          64,
+          64
+        ],
+        [
+          0,
+          0,
+          72,
+          72
+        ],
+        [
+          0,
+          0,
+          80,
+          80
+        ],
+        [
+          0,
+          0,
+          96,
+          96
+        ],
+        [
+          0,
+          0,
+          112,
+          112
+        ],
+        [
+          0,
+          0,
+          128,
+          128
         ]
-      }
+      ],
+      "tag_prefix": "data-die"
     }
-  ],
-  "max_iterations": 4
+  ]
 }
