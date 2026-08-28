@@ -145,7 +145,16 @@ def similar(target: dict, corpus: list[dict], top: int = 3) -> list[dict]:
             "stop_reason": case.get("stop_reason"),
             "diagnosis": case.get("diagnosis"),
             "reviews": [r.get("agent") for r in case.get("human_in_the_loop", []) or []],
-            "_rank": (-len(shared), topo if topo is not None else 1.0),
+            # Among cases that failed the same way, one that was
+            # afterwards resolved is worth more than one still open: it
+            # carries what actually worked, where the open one carries
+            # only what was tried. Signature count still dominates —
+            # a resolved case that failed differently is not precedent.
+            "_rank": (
+                -len(shared),
+                0 if case.get("winner_tag") else 1,
+                topo if topo is not None else 1.0,
+            ),
         })
     scored.sort(key=lambda c: c["_rank"])
     for c in scored:
@@ -177,6 +186,10 @@ def precedent_block(target: dict, corpus: list[dict], top: int = 3) -> str:
         why = (f"shares {', '.join(hit['shared_signatures'])}"
                if hit["shared_signatures"]
                else f"similar topology (distance {hit['topology_distance']})")
+        # Stated because it changes how the precedent should be read: a
+        # resolved case shows what worked, an open one only what was
+        # tried and did not.
+        why += (" — RESOLVED" if hit["winner_tag"] else " — still open")
         lines += [
             f"### {hit['design']} — {hit['date']}  ({why})",
             "",
