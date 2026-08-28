@@ -2553,6 +2553,66 @@ finding — it keeps its separate, explicitly-labelled machine-translation
 button. The distinction is between generating an answer in a language
 and translating evidence out of one.
 
+## Searching open-source EDA, and what it actually settled
+
+Searched against this project's open problems rather than as a survey.
+The one that paid off: OpenROAD's macro placers.
+
+**Hier-RTLMP is in the image we already run.** The previous section
+concluded automatic macro placement was unavailable in 2.3.10 because
+`OpenROAD.BasicMacroPlacement` is a stub. That was right about OpenLane
+and wrong about the toolchain. Asking the OpenROAD binary inside the
+same image what commands it has:
+
+    rtl_macro_placer        Hier-RTLMP (OpenROAD src/mpl2)
+    macro_placement         simulated-annealing placer
+    place_macro
+    write_macro_placement
+
+`pipeline/macro_place.py` drives it directly, the way `odb_query.py`
+already drives OpenROAD for measurement — same image, same .odb, no
+custom flow and no new dependency.
+
+**Both placers agree, and both make sram_wrapper worse.** From the hand
+position (110, 150) N, Hier-RTLMP chooses (10.35, 15.79) MY and the
+annealing placer chooses (10.20, 15.64) — within 0.2 µm of each other,
+so the corner is not one algorithm's quirk. Applying that location and
+re-running to global placement, then measuring with `odb_query`:
+
+    net        hand(110,150)N   auto(10.35,15.79)MY
+    addr1[1]        288.9              507.4
+    addr1[3]        246.2              505.7
+    addr1[0]        249.2              322.3
+    addr0[5]        295.7              215.4   (improved)
+    addr0[1]        196.1              153.4   (improved)
+
+    worst span       298.6              507.4   -> 70% worse
+
+The write-port bus improves, the read-port bus roughly doubles, and the
+worst case — which is what a `max_transition` limit is judged on — goes
+from 298.6 µm to 507.4 µm.
+
+Not a tool bug. Both placers minimise *total* wirelength, and this
+macro's total is dominated by its 96 bits of data bus rather than its
+two 8-bit address buses. Trading address length for data length is
+correct for their objective and wrong for ours, because the macro's
+0.04 ns `max_transition` sits on addr0/addr1 and nothing else. No
+available knob expresses that: `-wirelength_weight` scales the whole
+objective, not one bus.
+
+So the hand placement wins and this line of attack closes. That is a
+better outcome than leaving it open on a guess, and it moves the case's
+next step: keeping addr drivers inside ~145 µm is a per-net placement
+or repeater question about eight nets, not a question about where the
+macro sits.
+
+**Nothing was adopted from outside the toolchain.** The searches for a
+structural CDC checker and a multi-clock SDC generator turned up
+research and commercial tools, not something droppable into a
+dependency-free stdlib pipeline — and `cdc_check` already states in its
+own output that it does constraint coverage, not structural analysis,
+so the gap is declared rather than hidden.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
