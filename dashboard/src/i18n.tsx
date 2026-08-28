@@ -170,6 +170,8 @@ const dict = {
   sh_configs_note: { en: "a design becomes evaluable at {n} runs with a recorded area", ko: "면적이 기록된 실행이 {n}개가 되면 그 설계는 평가 가능해집니다" },
   sh_t_area: { en: "area (needs a completed run)", ko: "면적 (완주한 실행 필요)" },
   sh_t_completed: { en: "will it complete? (uses every run)", ko: "완주할까? (모든 실행 사용)" },
+  sh_k_ok: { en: "(best for this data)", ko: "(현 데이터에 최적)" },
+  sh_k_drift: { en: "— data now supports k={n}, re-measure", ko: "— 현재 데이터는 k={n}을 지지함, 재측정 필요" },
   sh_t_scored: { en: "scored", ko: "채점됨" },
   sh_mae: { en: "surrogate vs predict-the-mean", ko: "surrogate vs 평균예측" },
   sh_mae_note: { en: "mean absolute error, leave-one-out", ko: "평균절대오차, leave-one-out" },

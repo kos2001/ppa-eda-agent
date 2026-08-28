@@ -236,7 +236,19 @@ export default function SystemHealth({
                         ? `${tgt.model_mae.toFixed(2)} vs ${tgt.baseline_mae.toFixed(2)}`
                         : "—"
                   }
-                  note={`${tgt.n_scored}/${tgt.n_total} ${t("sh_t_scored")} · ${tgt.verdict}`}
+                  note={
+                    // k is re-derived from the data every scan, so a
+                    // default left behind by a smaller dataset shows up
+                    // here rather than silently costing accuracy.
+                    `${tgt.n_scored}/${tgt.n_total} ${t("sh_t_scored")}` +
+                    (tgt.best_k != null && tgt.current_k != null
+                      ? ` · k=${tgt.current_k}` +
+                        (tgt.best_k !== tgt.current_k
+                          ? ` ${t("sh_k_drift").replace("{n}", String(tgt.best_k))}`
+                          : ` ${t("sh_k_ok")}`)
+                      : "") +
+                    ` · ${tgt.verdict}`
+                  }
                 />
               ))}
               {short.length > 0 && (

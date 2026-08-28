@@ -13,22 +13,22 @@ Stages the real run outcomes hit: verification_ppa
 
 3 prior case(s) matched. Each is real recorded output; the match reason is stated so it can be discounted if it does not actually apply.
 
-### cdc_twoclock — 2026-08-27  (similar topology (distance 0.0))
-
-- outcome: no candidate met targets after all iterations
-- stop reason: max_iterations_reached
-- winner: none
-
-### counter4 — 2026-08-21  (similar topology (distance 0.208))
+### counter4 — 2026-08-21  (similar topology (distance 0.208) — RESOLVED)
 
 - outcome: passed
 - stop reason: None
 - winner: sweep-util-25
 
-### counter4 — 2026-08-22  (similar topology (distance 0.208))
+### counter4 — 2026-08-22  (similar topology (distance 0.208) — RESOLVED)
 
 - outcome: passed
 - stop reason: None
+- winner: sweep-util-35
+
+### counter4 — 2026-08-23  (similar topology (distance 0.208) — RESOLVED)
+
+- outcome: passed
+- stop reason: winner_found
 - winner: sweep-util-35
 
 
