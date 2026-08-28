@@ -81,3 +81,9 @@
 }
 
 .sh__refresh { font-size: 0.68rem; }
+
+/* As its own page: no fold, no border box — it is the content, not a
+   block competing with case cards. */
+.sh--page { border: none; background: transparent; }
+.sh--page .sh__body { padding: 0; }
+.sh__page-title { margin: 0 0 0.6rem; font-size: 0.95rem; }

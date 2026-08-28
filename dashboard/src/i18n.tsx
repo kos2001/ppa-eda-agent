@@ -136,6 +136,7 @@ const dict = {
   se_ran: { en: "RAN", ko: "실행됨" },
   se_skipped: { en: "not run", ko: "미실행" },
   se_failed: { en: "Synthesis exploration failed", ko: "합성 탐색 실패" },
+  tab_health: { en: "System Health", ko: "시스템 상태" },
   sh_title: { en: "System health — where to improve next", ko: "시스템 상태 — 다음에 개선할 곳" },
   sh_scanning: { en: "scanning…", ko: "스캔 중…" },
   sh_rescan: { en: "re-scan", ko: "다시 스캔" },

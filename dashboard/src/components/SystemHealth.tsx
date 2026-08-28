@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { fetchSelfImprove, type SelfImproveReport } from "../api/referenceDb";
 import { useLang } from "../i18n";
 import "./SystemHealth.css";
@@ -44,7 +44,14 @@ function Row({
   );
 }
 
-export default function SystemHealth() {
+export default function SystemHealth({
+  standalone = false,
+}: {
+  // As its own page the collapse is wrong — you navigated here to read
+  // it. The prop exists because the component was first a foldable block
+  // inside the pipeline page, and both framings are still reachable.
+  standalone?: boolean;
+} = {}) {
   const { t } = useLang();
   const [report, setReport] = useState<SelfImproveReport | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,26 +73,36 @@ export default function SystemHealth() {
     void load();
   }, [load]);
 
-  if (error) {
-    return (
+  // A plain function, not a component defined during render: React
+  // treats a freshly-created component type as a different type each
+  // pass and remounts its children, so the panel would flash on every
+  // busy-state change.
+  const shell = (children: ReactNode) =>
+    standalone ? (
+      <section className="sh sh--page">
+        <h2 className="sh__page-title">{t("sh_title")}</h2>
+        {children}
+      </section>
+    ) : (
       <details className="sh">
-        <summary className="sh__summary">{t("sh_title")}</summary>
-        <p className="tab__error">{error}</p>
+        <summary className="sh__summary">
+          {t("sh_title")}
+          {busy && <span className="sh__busy"> · {t("sh_scanning")}</span>}
+        </summary>
+        {children}
       </details>
     );
+
+  if (error) {
+    return shell(<p className="tab__error">{error}</p>);
   }
 
   const learning = report?.learning_data;
   const retrieval = report?.retrieval;
   const short = Object.entries(learning?.needs_more_runs ?? {});
 
-  return (
-    <details className="sh">
-      <summary className="sh__summary">
-        {t("sh_title")}
-        {busy && <span className="sh__busy"> · {t("sh_scanning")}</span>}
-      </summary>
-
+  return shell(
+    <>
       {!report ? (
         <p className="sh__empty">{t("sh_scanning")}</p>
       ) : (
@@ -189,6 +206,6 @@ export default function SystemHealth() {
           </button>
         </div>
       )}
-    </details>
+    </>
   );
 }

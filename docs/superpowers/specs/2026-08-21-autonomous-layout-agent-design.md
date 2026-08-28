@@ -2710,12 +2710,18 @@ folds on 11 samples — too weak to rely on" is a different instruction
 from "2.73 vs 3.07", and a panel showing only the second would read as
 success.
 
-Collapsed by default. This console's recurring failure has been
-dispersion — the fix that worked was deleting panels — so a block that
-is not the answer to "what do I do now" stays folded until asked for.
-Colour marks that there is work to do, not that something is bad: an
-actionable retry and a judgment call get different colours because they
-need different people.
+It is its own page, reached from the sidebar next to Layout Pipeline.
+It began as a collapsed block inside the pipeline page, which put
+system-wide state in among per-case cards — the right information in the
+wrong place. The two are peers: both are about the agent system, where
+the report tabs below them analyse material a user brings in.
+
+The collapse went with the move. A fold is right for a block competing
+for space on a page you came to for something else, and wrong for a page
+you navigated to deliberately, so `standalone` renders it open and
+without the box. Colour marks that there is work to do, not that
+something is bad: an actionable retry and a judgment call get different
+colours because they need different people.
 
 ## Known limitations / explicit non-goals
 
