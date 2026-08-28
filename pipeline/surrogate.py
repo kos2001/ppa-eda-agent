@@ -99,6 +99,21 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
                 # versions under one key would be worse than either.
                 seen[key] = {
                     "design": design,
+                    # Carried so a feature can relate a configuration to
+                    # the circuit it configures. Without it every row is
+                    # just "some numbers for some design", and the model
+                    # has no choice but to stay inside one design.
+                    "topology": case.get("topology") or {},
+                    # The design's own declared settings, so a feature
+                    # can see a DIE_AREA a candidate did not override.
+                    # sram_wrapper fixes its die in config.json rather
+                    # than per-candidate, and without this it looked
+                    # like a design with no die area at all.
+                    "declared": {
+                        st["key"]: st["value"]
+                        for st in ((case.get("constraints") or {})
+                                   .get("design") or {}).get("settings", [])
+                    },
                     "overrides": overrides,
                     "completed": verdict is not None,
                     "passed": bool(verdict and verdict.get("passed")),
@@ -124,7 +139,9 @@ def featurize(row: dict) -> dict:
     for key in _NUMERIC:
         value = ov.get(key)
         feats[key] = float(value) if isinstance(value, (int, float)) else None
-    die = ov.get("DIE_AREA")
+    # An override wins; otherwise the design's own declared die area.
+    # Both are known before the run, so neither leaks an outcome.
+    die = ov.get("DIE_AREA") or (row.get("declared") or {}).get("DIE_AREA")
     if isinstance(die, (list, tuple)) and len(die) == 4:
         try:
             # float(), like the numeric features above. Left as an int it
@@ -139,6 +156,17 @@ def featurize(row: dict) -> dict:
     else:
         feats["die_area_um2"] = None
     feats["SYNTH_STRATEGY"] = ov.get("SYNTH_STRATEGY")
+
+    # A density feature (sequential cells per um^2) was tried here and
+    # removed. The reasoning was sound — what decides whether a floorplan
+    # survives is how much circuit is being asked to fit, not how many
+    # microns there are — and the measurement did not support it. Within
+    # a design the cell count is constant, so the ratio is a monotonic
+    # transform of die area and adds no discrimination where the model
+    # actually operates; across designs it scored 50% against a 64%
+    # majority baseline, worse than guessing. Carrying a feature that
+    # earns nothing is the kind of unearned complexity this pipeline
+    # avoids, so it is a comment rather than code.
     return feats
 
 

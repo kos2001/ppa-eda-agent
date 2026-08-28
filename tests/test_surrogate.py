@@ -45,6 +45,30 @@ class FeatureTests(unittest.TestCase):
         f = featurize(row("d", {"DIE_AREA": [0, 0, 64, 64]}))
         self.assertIsInstance(f["die_area_um2"], float)
 
+    def test_declared_die_area_is_used_when_not_overridden(self):
+        """sram_wrapper fixes its die in config.json rather than
+        per-candidate, so featurize saw no DIE_AREA at all and the design
+        looked like one with no die area. Both sources are known before
+        the run, so neither leaks an outcome."""
+        r = row("d", {})
+        r["declared"] = {"DIE_AREA": [0, 0, 700, 700]}
+        self.assertEqual(featurize(r)["die_area_um2"], 490000.0)
+
+    def test_an_override_wins_over_the_declared_value(self):
+        r = row("d", {"DIE_AREA": [0, 0, 64, 64]})
+        r["declared"] = {"DIE_AREA": [0, 0, 700, 700]}
+        self.assertEqual(featurize(r)["die_area_um2"], 4096.0)
+
+    def test_no_density_feature_is_produced(self):
+        # Tried and removed: within a design the cell count is constant,
+        # so cells-per-um2 is a monotonic transform of die area and adds
+        # nothing where the model operates; across designs it scored 50%
+        # against a 64% majority baseline. The comment in featurize
+        # records why, and this pins that it stays out.
+        r = row("d", {"DIE_AREA": [0, 0, 64, 64]})
+        r["topology"] = {"sequential_element_estimate": 4}
+        self.assertNotIn("cells_per_um2", featurize(r))
+
     def test_die_area_participates_in_distance(self):
         from surrogate import _ranges
         rows = [row("d", {"DIE_AREA": [0, 0, s, s]}) for s in (8, 64, 128)]
