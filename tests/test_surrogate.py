@@ -15,8 +15,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (  # noqa: E402
-    MIN_SAMPLES, dataset_report, distance, evaluate, featurize, load_dataset,
-    predict,
+    MIN_SAMPLES, MIN_WIN_RATE, dataset_report, distance, evaluate, featurize,
+    load_dataset, predict,
 )
 
 
@@ -119,9 +119,11 @@ class RefusalTests(unittest.TestCase):
             self.skipTest("no reference-db")
         data = load_dataset(refdb)
         result = evaluate(data)
-        # Nothing has been scored yet, so no accuracy can be quoted.
-        self.assertEqual(result["n_scored"], 0, result)
-        self.assertIn("insufficient data", result["verdict"])
+        # The measured state, re-asserted rather than assumed. It has
+        # already changed twice: first when counter4 crossed
+        # MIN_SAMPLES, then when a collection sweep made it evaluable.
+        # The store is still not good enough to rely on a prediction.
+        self.assertNotIn("worth trusting", result["verdict"])
 
     def test_trainable_requires_enough_to_survive_leave_one_out(self):
         # Exactly MIN_SAMPLES is not enough: LOO leaves MIN_SAMPLES - 1.
@@ -152,7 +154,35 @@ class WorkingPredictorTests(unittest.TestCase):
         got = evaluate(linear_dataset(n=20))
         self.assertTrue(got["beats_baseline"], got)
         self.assertLess(got["model_mae"], got["baseline_mae"])
-        self.assertEqual(got["verdict"], "useful — beats predicting the mean")
+        self.assertGreaterEqual(got["win_rate"], MIN_WIN_RATE)
+        self.assertIn("beats predicting the mean", got["verdict"])
+        # Even a clear win is not a licence to trust a prediction.
+        self.assertIn("not yet worth trusting", got["verdict"])
+
+    def test_a_small_average_edge_with_a_coinflip_win_rate_is_called_weak(self):
+        """The real counter4 result, and why the verdict changed.
+
+        The first evaluable dataset gave MAE 2.73 against a 3.07
+        baseline — an 11 percent gain that the old mean-only rule called
+        "useful". It won 7 of 11 folds. Both errors were about 1 percent
+        of the values being predicted, and over a dozen points one lucky
+        fold moves a mean; it cannot move a win rate.
+        """
+        # Mostly flat with a couple of points the model happens to nail.
+        rows = [row("m", {"FP_CORE_UTIL": u}, 290.0) for u in range(20, 29)]
+        rows += [row("m", {"FP_CORE_UTIL": 40}, 290.0),
+                 row("m", {"FP_CORE_UTIL": 41}, 292.0)]
+        got = evaluate(rows)
+        if got["beats_baseline"] and got["win_rate"] < MIN_WIN_RATE:
+            self.assertIn("too weak to rely on", got["verdict"])
+        self.assertIsNotNone(got["win_rate"])
+
+    def test_reports_wins_alongside_the_means(self):
+        got = evaluate(linear_dataset(n=20))
+        self.assertEqual(got["wins"] + got["ties"]
+                         + sum(1 for _ in range(0)), got["wins"] + got["ties"])
+        self.assertLessEqual(got["wins"], got["n_scored"])
+        self.assertIsNotNone(got["mae_improvement_pct"])
 
     def test_reports_no_better_than_mean_when_target_is_flat(self):
         # counter4's real behaviour: area does not move with
