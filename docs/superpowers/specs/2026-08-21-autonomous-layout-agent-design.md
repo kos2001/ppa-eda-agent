@@ -2835,7 +2835,12 @@ against anything convenient. Reintroducing either bug makes it fail.
 
 ## More designs, and a measured k
 
-**SPM.** The 32-bit serial-parallel multiplier from OpenLane's own
+**SPM.** Ten configurations swept over `FP_CORE_UTIL` 25–70: nine pass,
+and the tenth fails on this pipeline's own 0.75 utilization target at a
+measured 0.778 rather than on anything OpenLane rejected. Cell area
+barely moves across the sweep (3757 → 3618 µm², about 4%), the same
+flatness counter4 shows — utilization is the knob that moves, from 0.287
+to 0.778. The 32-bit serial-parallel multiplier from OpenLane's own
 examples — the first design here not written for this repo, and a real
 one the toolchain is tested against. 421 instances and 64 flops at
 3689.79 µm² against counter4's 290 µm², two modules, an asynchronous
@@ -2854,10 +2859,23 @@ Larger k degrades monotonically — the area win rate falls from 64% to
 the neighbourhood holds eight to eleven points. `DEFAULT_K` is 1 now,
 and completion reads 92% against a 73% majority-class baseline.
 
-That is a property of the dataset's size, not a permanent fact, so
-`best_k()` re-derives it and the loop reports `current_k` beside
-`best_k` every scan. The test asserts the two have not drifted apart
-rather than pinning a number that will change.
+That is a property of the dataset's size, not a permanent fact — and it
+moved within the hour. Collecting SPM's ten configurations took the
+store from 30 rows to 40, and the area target's best k from 1 to 3,
+while completion stayed at 1. The drift test fired exactly as intended,
+naming the target and the k the data now supports.
+
+So k is per target rather than one constant serving both. There was
+never a reason the same neighbourhood should suit a continuous target
+with 21 samples and a boolean one with 36; a single default only looked
+reasonable while there was too little data to tell them apart.
+
+    area_um2     k=3   21/30 scored   mae 13.046 vs 21.813   67% of folds
+    completed    k=1   36/40 scored   94% accurate vs 81%    67% of folds
+
+`best_k()` re-derives both, the loop reports current beside best every
+scan, and the page says "k=1 (best for this data)" or "k=1 — data now
+supports k=3, re-measure".
 
 **Retrieval prefers resolved precedent.** Among cases that failed the
 same way, one that was afterwards resolved carries what actually

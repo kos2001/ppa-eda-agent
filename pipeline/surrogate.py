@@ -61,9 +61,25 @@ MIN_SAMPLES = 8
 # monotonically — the area win rate falls to 27% at k=5, which is what
 # over-averaging a small neighbourhood looks like.
 #
-# This is a property of the dataset's size, not a permanent fact, so
-# best_k() exists to re-derive it and the loop reports it every scan.
+# This is a property of the dataset's size, not a permanent fact, and it
+# has already moved once: adding SPM took the store from 30 rows to 40
+# and the area target's best k from 1 to 3, while completion stayed at 1.
+# So k is per target rather than one constant serving both — there was
+# never a reason the same neighbourhood should suit a continuous target
+# with 21 samples and a boolean one with 36.
+#
+# best_k() re-derives these, the loop reports current beside best every
+# scan, and a test fails when they drift apart rather than letting a
+# stale default quietly cost accuracy.
+DEFAULT_K_BY_TARGET = {
+    "area_um2": 3,
+    "completed": 1,
+}
 DEFAULT_K = 1
+
+
+def default_k(field: str) -> int:
+    return DEFAULT_K_BY_TARGET.get(field, DEFAULT_K)
 
 
 class SurrogateError(RuntimeError):
@@ -206,7 +222,7 @@ def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]]) -> float 
 
 
 def predict(target: dict, dataset: list[dict], field: str = "area_um2",
-            k: int = DEFAULT_K) -> dict:
+            k: int | None = None) -> dict:
     """k-NN prediction, or a refusal with the reason.
 
     Only ever compares within the same design. Area for a 14-gate counter
@@ -217,6 +233,7 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
     same = [r for r in dataset
             if r["design"] == target.get("design")
             and isinstance(r.get(field), (int, float))]
+    k = default_k(field) if k is None else k
     if len(same) < MIN_SAMPLES:
         return {
             "value": None,
@@ -278,7 +295,7 @@ def _is_boolean_target(field: str) -> bool:
 
 
 def evaluate(dataset: list[dict], field: str = "area_um2",
-             k: int = DEFAULT_K) -> dict:
+             k: int | None = None) -> dict:
     """Leave-one-out cross-validation against a predict-the-mean baseline.
 
     A surrogate is only worth having if it beats doing nothing. This
@@ -286,6 +303,7 @@ def evaluate(dataset: list[dict], field: str = "area_um2",
     and reports the sample count alongside so a flattering number on tiny
     data cannot be quoted without its context.
     """
+    k = default_k(field) if k is None else k
     usable = [r for r in dataset if isinstance(r.get(field), (int, float))]
     errors, baseline_errors, refusals = [], [], 0
     predictions, truths = [], []
@@ -519,7 +537,8 @@ def main():
     import argparse
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--field", default="area_um2")
-    ap.add_argument("--k", type=int, default=DEFAULT_K)
+    ap.add_argument("--k", type=int, default=None,
+                    help="neighbours; default is per-target (see DEFAULT_K_BY_TARGET)")
     args = ap.parse_args()
 
     data = load_dataset()
