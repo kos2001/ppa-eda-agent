@@ -24,6 +24,10 @@ import "./SystemHealth.css";
 // stated next action, because a health panel that only reports is one
 // more thing to read.
 
+// A metric with its number given the weight the number deserves. As a
+// collapsed block every element was 10-11px and the value was the same
+// size as its label, so nothing could be read at a glance — which is
+// the only thing a health page is for.
 function Row({
   label,
   value,
@@ -37,10 +41,36 @@ function Row({
 }) {
   return (
     <li className={`sh__row ${tone ? `sh__row--${tone}` : ""}`}>
-      <span className="sh__label">{label}</span>
-      <span className="sh__value">{value}</span>
+      <div className="sh__row-head">
+        <span className="sh__label">{label}</span>
+        <span className="sh__value">{value}</span>
+      </div>
       {note && <span className="sh__note">{note}</span>}
     </li>
+  );
+}
+
+// One line at the top answering "is there anything for me right now",
+// so the page can be closed without reading it when the answer is no.
+function Headline({ report }: { report: SelfImproveReport }) {
+  const { t } = useLang();
+  const act = report.budget_retries.length;
+  const judge = report.pattern_promotion_candidates.length;
+  const warn = report.ungrounded_reviews.length;
+  const total = act + judge + warn;
+
+  const parts: string[] = [];
+  if (act) parts.push(t("sh_hl_act").replace("{n}", String(act)));
+  if (judge) parts.push(t("sh_hl_judge").replace("{n}", String(judge)));
+  if (warn) parts.push(t("sh_hl_warn").replace("{n}", String(warn)));
+
+  return (
+    <div className={`sh__headline ${total ? "sh__headline--work" : "sh__headline--clear"}`}>
+      <span className="sh__headline-count">{total}</span>
+      <span className="sh__headline-text">
+        {total ? parts.join(" · ") : t("sh_hl_clear")}
+      </span>
+    </div>
   );
 }
 
@@ -107,9 +137,11 @@ export default function SystemHealth({
         <p className="sh__empty">{t("sh_scanning")}</p>
       ) : (
         <div className="sh__body">
+          <Headline report={report} />
           <p className="sh__lede">{t("sh_lede")}</p>
+          <div className="sh__cards">
 
-          <section className="sh__block">
+          <section className="sh__block sh__block--loop">
             <h4>{t("sh_loop")}</h4>
             <ul className="sh__list">
               <Row
@@ -144,7 +176,7 @@ export default function SystemHealth({
             </ul>
           </section>
 
-          <section className="sh__block">
+          <section className="sh__block sh__block--rag">
             <h4>{t("sh_retrieval")}</h4>
             <ul className="sh__list">
               <Row
@@ -152,11 +184,22 @@ export default function SystemHealth({
                 value={`${retrieval?.cases_with_failure_signature ?? 0} / ${retrieval?.cases ?? 0}`}
                 note={t("sh_corpus_note")}
               />
-              <Row
-                label={t("sh_signatures")}
-                value={String(retrieval?.distinct_signatures?.length ?? 0)}
-                note={(retrieval?.distinct_signatures ?? []).join(", ")}
-              />
+              <li className="sh__row">
+                <div className="sh__row-head">
+                  <span className="sh__label">{t("sh_signatures")}</span>
+                  <span className="sh__value">
+                    {retrieval?.distinct_signatures?.length ?? 0}
+                  </span>
+                </div>
+                {/* Twelve error codes set as a paragraph read as a wall.
+                    They are discrete identifiers — one chip each lets
+                    the eye pick out the one it is looking for. */}
+                <ul className="sh__chips">
+                  {(retrieval?.distinct_signatures ?? []).map((sig) => (
+                    <li key={sig}>{sig}</li>
+                  ))}
+                </ul>
+              </li>
               <Row
                 label={t("sh_no_precedent")}
                 value={String(retrieval?.cases_without_precedent?.length ?? 0)}
@@ -168,7 +211,7 @@ export default function SystemHealth({
             </ul>
           </section>
 
-          <section className="sh__block">
+          <section className="sh__block sh__block--learn">
             <h4>{t("sh_learning")}</h4>
             <ul className="sh__list">
               <Row
@@ -200,6 +243,8 @@ export default function SystemHealth({
               <p className="sh__verdict">{learning.verdict}</p>
             )}
           </section>
+
+          </div>
 
           <button className="sh__refresh" onClick={() => void load()} disabled={busy}>
             {busy ? t("sh_scanning") : t("sh_rescan")}
