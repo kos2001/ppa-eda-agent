@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (  # noqa: E402
-    DEFAULT_K, MIN_SAMPLES, MIN_WIN_RATE, TARGETS, best_k, dataset_report,
+    MIN_SAMPLES, MIN_WIN_RATE, TARGETS, best_k, dataset_report, default_k,
     distance, evaluate, featurize, load_dataset, predict,
 )
 
@@ -309,6 +309,12 @@ class NeighbourhoodSizeTests(unittest.TestCase):
     inherited from when it was set.
     """
 
+    def test_each_target_has_its_own_k(self):
+        # Adding SPM moved the area target from k=1 to k=3 while
+        # completion stayed at 1. One constant cannot serve a continuous
+        # target with 21 samples and a boolean one with 36.
+        self.assertEqual(len({default_k(f) for f in TARGETS}), 2)
+
     def test_tries_every_candidate_and_names_a_winner(self):
         got = best_k(linear_dataset(n=20))
         self.assertEqual(got["tried"], [1, 2, 3, 4, 5])
@@ -343,9 +349,10 @@ class NeighbourhoodSizeTests(unittest.TestCase):
             # Asserting the default has not drifted away from it, which
             # is the failure worth catching.
             self.assertEqual(
-                DEFAULT_K, got["best"]["k"],
-                f"{field}: DEFAULT_K={DEFAULT_K} but the data now supports "
-                f"k={got['best']['k']} — re-measure and update the default")
+                default_k(field), got["best"]["k"],
+                f"{field}: default k={default_k(field)} but the data now "
+                f"supports k={got['best']['k']} — re-measure and update "
+                f"DEFAULT_K_BY_TARGET")
 
 
 class DatasetTests(unittest.TestCase):

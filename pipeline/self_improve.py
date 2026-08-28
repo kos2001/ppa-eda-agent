@@ -253,7 +253,7 @@ def dataset_status() -> dict:
                 "baseline_mae": ev["baseline_mae"],
                 "verdict": ev["verdict"],
                 "best_k": (tuning[name].get("best") or {}).get("k"),
-                "current_k": surrogate.DEFAULT_K,
+                "current_k": surrogate.default_k(name),
             }
             for name, ev in evaluations.items()
         ],
