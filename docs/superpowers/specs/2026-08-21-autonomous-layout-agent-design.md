@@ -2797,6 +2797,76 @@ land on a continuous axis.
 That is the pattern worth noting: the page's numbers did not just say
 where to work, they surfaced a defect in the thing doing the measuring.
 
+## A tag broke a collection run, and nearly a conclusion with it
+
+Nine counter4_tinydie runs came back as failures and read as a clean
+learnable pattern — small dies crash. Every one was an artifact.
+
+`expand_sweeps` sanitised only spaces. A `DIE_AREA` sweep value
+stringifies to `[0, 0, 64, 64]`, so the tag became
+`data-die-[0,_0,_64,_64]` with brackets and commas intact — and a tag is
+both a run directory name and an OpenLane `--run-tag`. Every size from
+48 µm up then failed with `ODB-0307`, including 64 µm, which had passed
+minutes earlier under the tag `cand-die8-iter1-iter2-iter3`. Same
+design, same size, same config; only the tag differed.
+
+What caught it was noticing that 64 µm had just passed — not the tests,
+and not the data, which looked entirely plausible. Re-running with
+correct tags gives the opposite answer and real signal: 8 of 9 pass,
+area rising monotonically 297.8 → 493.0 µm² with die size, and only
+40 µm failing on a genuine `PDN-0185`.
+
+The corrupted case was deleted rather than kept. It is not data.
+
+`safe_tag()` now allows exactly one alphabet — alphanumerics, dash,
+underscore, dot — rather than removing the characters that have bitten
+so far. Spaces still map to underscore, deliberately: tags are recorded
+in reference-db, and remapping an existing value would make a rerun of
+the same sweep produce a different tag from the historical one.
+
+**The tests could not have caught it, and that is the more useful
+finding.** The same had just happened with `_ranges`, where a bug
+survived nineteen passing tests of its own module because every fixture
+was float-valued while every real design writes integer `DIE_AREA`. The
+fixtures and the bug shared an author, and therefore a blind spot. So
+`tests/test_real_design_configs.py` runs the pure helpers against
+`pipeline/designs/*/config.json` as actually written, rather than
+against anything convenient. Reintroducing either bug makes it fail.
+
+## More designs, and a measured k
+
+**SPM.** The 32-bit serial-parallel multiplier from OpenLane's own
+examples — the first design here not written for this repo, and a real
+one the toolchain is tested against. 421 instances and 64 flops at
+3689.79 µm² against counter4's 290 µm², two modules, an asynchronous
+reset where everything else here is synchronous, and the first custom
+`PNR_SDC_FILE` in the store — which is the case `cdc_check` treats as
+trusted rather than flagging. Smoke run passes at Fmax 260.2 MHz.
+
+**k was a guess, and the guess cost accuracy.** `k=3` was written when
+the module was. Leave-one-out across k=1…5 on the real store:
+
+    area_um2     k=1 mae 2.389    k=3 mae 2.730    k=5 win rate 27%
+    completed    k=1 acc 92%      k=3 acc 88%
+
+Larger k degrades monotonically — the area win rate falls from 64% to
+27% between k=1 and k=5, which is what over-averaging looks like when
+the neighbourhood holds eight to eleven points. `DEFAULT_K` is 1 now,
+and completion reads 92% against a 73% majority-class baseline.
+
+That is a property of the dataset's size, not a permanent fact, so
+`best_k()` re-derives it and the loop reports `current_k` beside
+`best_k` every scan. The test asserts the two have not drifted apart
+rather than pinning a number that will change.
+
+**Retrieval prefers resolved precedent.** Among cases that failed the
+same way, one that was afterwards resolved carries what actually
+worked; an open one carries only what was tried and did not. Resolution
+breaks ties and does not create matches — shared signature count still
+dominates, so a resolved case that failed differently is still not
+precedent. Each hit is now labelled RESOLVED or "still open", because
+it changes how the excerpt should be read.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
