@@ -19,6 +19,7 @@ score them consistently, not to invent optimization strategy itself.
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -530,6 +531,35 @@ def expand_synthesis_exploration(design_dir: Path, run_spec: dict) -> tuple[list
     }
 
 
+def safe_tag(raw: str) -> str:
+    """A sweep value turned into a name safe as a directory and a CLI arg.
+
+    Replacing spaces was not enough, and the gap cost a whole collection
+    run. A list value stringifies to "[0, 0, 64, 64]", which became
+    "[0,_0,_64,_64]" — brackets and commas intact. Every die size from
+    48 µm up then failed with ODB-0307 ("guides file could not be read"),
+    including 64 µm, which had passed minutes earlier under the tag
+    `cand-die8-iter1-iter2-iter3`. Same design, same size, different tag,
+    different outcome.
+
+    Nine runs of apparently real failure data were produced that way, and
+    they were not data at all. So this allows exactly one alphabet —
+    alphanumerics, dash, underscore, dot — rather than removing the
+    characters that have bitten so far, and collapses runs of anything
+    else into a single dash.
+    """
+    # Every unsafe run becomes a single underscore. Underscore rather
+    # than dash because that is what spaces already mapped to, and tags
+    # are recorded in reference-db: remapping an existing value would
+    # make a rerun of the same sweep produce a different tag from the
+    # historical one and quietly break comparison against it.
+    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", str(raw))
+    # "data-die-" + "[0, 0, 64, 64]" leaves "-_" where the bracket was;
+    # harmless but it reads as a typo in a directory listing.
+    cleaned = re.sub(r"[-_]{2,}", "_", cleaned)
+    return cleaned.strip("-_") or "tag"
+
+
 def expand_sweeps(run_spec: dict) -> list[dict]:
     """Expands run_spec.json's optional "sweeps" into concrete candidates.
 
@@ -569,7 +599,7 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
             # of a space-free string — confirmed by rerunning with only
             # the tag changed. Sanitize here rather than assume every
             # sweep value is filesystem/CLI-safe.
-            tag = f"{sweep.get('tag_prefix', sweep['param'])}-{value}".replace(" ", "_")
+            tag = safe_tag(f"{sweep.get('tag_prefix', sweep['param'])}-{value}")
             expanded.append({
                 "tag": tag,
                 "overrides": {**base_overrides, sweep["param"]: value},

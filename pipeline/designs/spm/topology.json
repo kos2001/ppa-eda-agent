@@ -1,0 +1,9 @@
+{
+  "module_count": 2,
+  "has_macros": false,
+  "clock_domain_count": 1,
+  "port_count": 5,
+  "sequential_element_estimate": 64,
+  "power_domain_count": 1,
+  "notes": "32-bit serial-parallel multiplier, taken from OpenLane's own examples (openlane/examples/spm) rather than written for this repo \u2014 a real design the toolchain is tested against. Structurally the opposite of counter4: a top module that instantiates a parameterised delayed_serial_adder 32 times, giving 64 flip-flops measured from a real synthesis run (design__instance__count__class:sequential_cell) against counter4's 4, and 421 instances at 3689.79 um2 against counter4's 290 um2, and an asynchronous reset (negedge rst) where every other design here is synchronous. It also ships its own PNR_SDC_FILE and SIGNOFF_SDC_FILE, making it the first design in this store with a custom SDC \u2014 which is the case cdc_check treats as trusted rather than flagging."
+}

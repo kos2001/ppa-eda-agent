@@ -141,6 +141,59 @@ class TestClassifyStage(unittest.TestCase):
                           "verification_ppa")
 
 
+class TestSafeTag(unittest.TestCase):
+    """Run tags become directory names and CLI arguments.
+
+    Sanitizing only spaces was not enough and it cost a whole collection
+    run. A DIE_AREA sweep value stringifies to "[0, 0, 64, 64]", which
+    became the tag "data-die-[0,_0,_64,_64]" — brackets and commas
+    intact. Every die size from 48 um up then failed with ODB-0307,
+    including 64 um, which had passed minutes earlier under a different
+    tag. Same design, same size, same config; only the tag differed.
+    Nine runs of what looked like real failure data were artifacts.
+    """
+
+    def test_list_values_produce_a_safe_tag(self):
+        got = orchestrator.safe_tag("data-die-[0, 0, 64, 64]")
+        self.assertEqual(got, "data-die_0_0_64_64")
+
+    def test_no_shell_or_glob_metacharacters_survive(self):
+        for raw in ("a[0]b", "x,y", "p q", "v{1}", "s*t", "u?v", "a'b", 'c"d',
+                    "e;f", "g|h", "i&j", "k$l", "m`n", "o(p)"):
+            got = orchestrator.safe_tag(raw)
+            self.assertRegex(got, r"^[A-Za-z0-9._-]+$", raw)
+
+    def test_ordinary_tags_are_left_recognisable(self):
+        self.assertEqual(orchestrator.safe_tag("sweep-util-45"), "sweep-util-45")
+        self.assertEqual(orchestrator.safe_tag("cand-baseline"), "cand-baseline")
+
+    def test_spaces_still_become_underscores(self):
+        # Unchanged on purpose: tags are recorded in reference-db, so
+        # remapping an existing value would make a rerun of the same
+        # sweep produce a different tag from the historical one.
+        self.assertEqual(orchestrator.safe_tag("sweep-synth-AREA 0"),
+                         "sweep-synth-AREA_0")
+
+    def test_distinct_values_stay_distinct(self):
+        # Collapsing everything to one character would make two
+        # candidates share a run directory and overwrite each other.
+        tags = {orchestrator.safe_tag(f"d-{v}")
+                for v in ([0, 0, 64, 64], [0, 0, 128, 128], "AREA 0", "AREA 1")}
+        self.assertEqual(len(tags), 4, tags)
+
+    def test_never_empty(self):
+        self.assertTrue(orchestrator.safe_tag("[]"))
+        self.assertTrue(orchestrator.safe_tag(""))
+
+    def test_expand_sweeps_applies_it(self):
+        spec = {"sweeps": [{"param": "DIE_AREA", "tag_prefix": "data-die",
+                            "values": [[0, 0, 64, 64]]}]}
+        cand = orchestrator.expand_sweeps(spec)[0]
+        self.assertRegex(cand["tag"], r"^[A-Za-z0-9._-]+$")
+        # The override itself must keep the real list, untouched.
+        self.assertEqual(cand["overrides"]["DIE_AREA"], [0, 0, 64, 64])
+
+
 class TestScore(unittest.TestCase):
     """Guards score(), which turns a real metrics.json into a verdict."""
 

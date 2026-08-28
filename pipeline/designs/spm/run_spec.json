@@ -1,0 +1,16 @@
+{
+  "design_name": "spm",
+  "targets": {
+    "max_core_utilization": 0.75,
+    "max_ir_drop_pct": 5.0
+  },
+  "sweeps": [
+    {
+      "param": "FP_CORE_UTIL",
+      "values": [25, 30, 35, 40, 45, 50, 55, 60, 65, 70],
+      "tag_prefix": "sweep-util"
+    }
+  ],
+  "candidates": [],
+  "max_iterations": 1
+}
