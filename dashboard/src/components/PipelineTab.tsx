@@ -18,7 +18,6 @@ import HowItWorks from "./HowItWorks";
 import LayoutView from "./LayoutView";
 import SlackChart from "./SlackChart";
 import StageArtifacts from "./StageArtifacts";
-import SystemHealth from "./SystemHealth";
 import "./Tabs.css";
 import "./PipelineTab.css";
 
@@ -1180,9 +1179,6 @@ export default function PipelineTab() {
           prose — larger than the Action Center that actually tells you
           what to do — so it sat above the answer instead of behind it. */}
       <HowItWorks cases={cases ?? []} />
-      {/* State of the system, next to the explanation of what it does —
-          both are orientation, and both stay collapsed by default. */}
-      <SystemHealth />
 
       {loading && <p>{t("pipeline_loading")}</p>}
       {error && (
