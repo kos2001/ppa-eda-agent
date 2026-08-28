@@ -131,6 +131,40 @@ class SimilarityTests(unittest.TestCase):
         got = similar(tgt, [tgt, other])
         self.assertEqual(got[0]["design"], "counter4")
 
+    def test_a_resolved_case_outranks_an_open_one(self):
+        """Among cases that failed the same way, the resolved one shows
+        what actually worked; the open one shows only what was tried and
+        did not. counter4_tinydie's PDN-0185 should reach counter4's
+        resolved PDN-0185 cases, not sit on its own open ones."""
+        tgt = case("t", "2026-08-28", error="[PDN-0185] strap", topo=TOPO_SMALL)
+        still_open = case("a", "2026-08-20", error="[PDN-0185] strap",
+                          topo=TOPO_SMALL)
+        resolved = case("b", "2026-08-19", error="[PDN-0185] strap",
+                        topo=TOPO_SMALL, winner="cand-x")
+        got = similar(tgt, [tgt, still_open, resolved])
+        self.assertEqual(got[0]["design"], "b")
+
+    def test_signature_count_still_beats_resolution(self):
+        """A resolved case that failed differently is not precedent —
+        resolution breaks ties, it does not create matches."""
+        tgt = case("t", "2026-08-28",
+                   error="[PDN-0185] strap [RSZ-0090] transition",
+                   topo=TOPO_SMALL)
+        two_shared_open = case("a", "2026-08-20",
+                               error="[PDN-0185] x [RSZ-0090] y",
+                               topo=TOPO_SMALL)
+        one_shared_resolved = case("b", "2026-08-19", error="[PDN-0185] x",
+                                   topo=TOPO_SMALL, winner="cand-x")
+        got = similar(tgt, [tgt, two_shared_open, one_shared_resolved])
+        self.assertEqual(got[0]["design"], "a")
+
+    def test_precedent_block_says_whether_it_was_resolved(self):
+        tgt = case("t", "2026-08-28", error="[PDN-0185] x", topo=TOPO_SMALL)
+        resolved = case("b", "2026-08-19", error="[PDN-0185] x",
+                        topo=TOPO_SMALL, winner="cand-x", diagnosis="how it was fixed")
+        text = precedent_block(tgt, [tgt, resolved])
+        self.assertIn("RESOLVED", text)
+
     def test_respects_the_top_limit(self):
         corpus = [self.target] + [
             case("d%d" % i, "2026-08-%02d" % (i + 1), error="[RSZ-0090] x",
