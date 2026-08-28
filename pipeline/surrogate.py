@@ -236,6 +236,18 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
         return sum(xs) / len(xs) if xs else None
 
     model_mae, base_mae = mae(errors), mae(baseline_errors)
+
+    # How often the model actually won, not just by how much on average.
+    #
+    # Added when the first evaluable dataset arrived and the mean-based
+    # verdict called an 11 percent MAE improvement on 11 samples of one
+    # design "useful". Both errors were about 1 percent of the values
+    # being predicted, and a single lucky fold can move a mean over that
+    # few points. A win *rate* cannot be carried by one fold, so a small
+    # average gain with a coin-flip win rate now reads as what it is.
+    wins = sum(1 for m, b in zip(errors, baseline_errors) if m < b)
+    ties = sum(1 for m, b in zip(errors, baseline_errors) if m == b)
+    win_rate = wins / len(errors) if errors else None
     return {
         "field": field,
         "k": k,
@@ -244,21 +256,19 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
         "n_refused": refusals,
         "model_mae": model_mae,
         "baseline_mae": base_mae,
+        "wins": wins,
+        "ties": ties,
+        "win_rate": win_rate,
+        "mae_improvement_pct": (
+            None if not base_mae else round(100 * (base_mae - model_mae) / base_mae, 1)
+        ),
         "beats_baseline": (
             None if model_mae is None or base_mae is None
             else model_mae < base_mae
         ),
         # The honest headline. A model evaluated on a handful of points
         # has no accuracy worth quoting, whichever way the numbers fell.
-        "verdict": (
-            "insufficient data — not enough distinct configurations to "
-            "evaluate a surrogate at all"
-            if len(errors) < MIN_SAMPLES
-            else ("useful — beats predicting the mean"
-                  if model_mae is not None and base_mae is not None
-                  and model_mae < base_mae
-                  else "no better than predicting the mean")
-        ),
+        "verdict": _verdict(errors, model_mae, base_mae, win_rate),
     }
 
 
@@ -313,6 +323,31 @@ def missing_configs(design: str, candidates: list[dict],
         "n_new": len(new),
         "n_repeat": len(repeats),
     }
+
+
+# A win rate this far from a coin flip on a small sample is what
+# separates "the model is doing something" from "one fold went well".
+# Not a significance test — with a dozen points there is nothing to be
+# significant about — just a floor low enough to be reachable and high
+# enough that a single fold cannot carry it.
+MIN_WIN_RATE = 0.7
+
+
+def _verdict(errors, model_mae, base_mae, win_rate) -> str:
+    if len(errors) < MIN_SAMPLES:
+        return ("insufficient data — not enough distinct configurations to "
+                "evaluate a surrogate at all")
+    if model_mae is None or base_mae is None:
+        return "not evaluated"
+    if model_mae >= base_mae:
+        return "no better than predicting the mean"
+    if win_rate is not None and win_rate < MIN_WIN_RATE:
+        return (f"marginally better on average but wins only "
+                f"{win_rate:.0%} of folds on {len(errors)} samples — "
+                f"too weak to rely on")
+    return (f"beats predicting the mean on {len(errors)} samples "
+            f"({win_rate:.0%} of folds) — worth re-checking as the "
+            f"dataset grows, not yet worth trusting a prediction to")
 
 
 def dataset_report(dataset: list[dict]) -> dict:

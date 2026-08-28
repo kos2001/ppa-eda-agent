@@ -260,7 +260,7 @@ def _tool_orchestrate(args: dict) -> dict:
     max_iterations = args.get("max_iterations") or run_spec.get("max_iterations", 3)
     max_parallel = max(1, args.get("max_parallel", 1))
 
-    all_iterations, winner, stop_reason = orchestrator.orchestrate(
+    all_iterations, winner, stop_reason, _exploration = orchestrator.orchestrate(
         design_dir, run_spec, max_iterations, max_parallel
     )
 

@@ -1110,19 +1110,24 @@ STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failure
 
 def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
                  max_parallel: int = 1, screen: bool = False,
-                 verify_fn: bool = False) -> tuple[list[dict], dict | None, str]:
+                 verify_fn: bool = False) -> tuple[list[dict], dict | None, str, dict | None]:
     """Runs the full candidate-generation-and-auto-repair loop for one
-    design. Returns (all_iterations, winner, stop_reason) — stop_reason
-    is always exactly one of STOP_REASONS, never None (see above).
+    design. Returns (all_iterations, winner, stop_reason, exploration) —
+    stop_reason is always exactly one of STOP_REASONS, never None (see
+    above), and exploration is the synthesis-exploration record when
+    run_spec asked for one.
+
+    The exploration record travels in the return value rather than on the
+    function object. It was briefly stashed as `orchestrate.last_exploration`
+    to avoid widening this tuple, which is module-global mutable state
+    surviving between calls — the "state drift" failure mode, and a real
+    bug waiting for the first caller that runs two designs in one
+    process.
 
     `screen` runs each candidate to SCREEN_STEP first and only pays for
     the full flow on survivors (see screen_candidates()).
     """
     explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
-    # Kept on the function so main() can write it into the case without
-    # changing orchestrate()'s 3-tuple return, which several callers and
-    # tests already depend on.
-    orchestrate.last_exploration = exploration
     candidates = (run_spec.get("candidates", []) + expand_sweeps(run_spec)
                   + explored_candidates)
     if not candidates:
@@ -1189,7 +1194,7 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
         iteration += 1
 
     assert stop_reason in STOP_REASONS, f"ungated exit: {stop_reason!r}"
-    return all_iterations, winner, stop_reason
+    return all_iterations, winner, stop_reason, exploration
 
 
 def main():
@@ -1215,7 +1220,7 @@ def main():
     design_name = run_spec.get("design_name", args.design.name)
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
 
-    all_iterations, winner, stop_reason = orchestrate(
+    all_iterations, winner, stop_reason, exploration = orchestrate(
         args.design, run_spec, max_iterations, args.max_parallel,
         screen=args.screen,
         verify_fn=args.verify_function,
@@ -1223,7 +1228,7 @@ def main():
 
     case_file = write_case(design_name, args.design, all_iterations, winner,
                             stop_reason,
-                            exploration=getattr(orchestrate, "last_exploration", None))
+                            exploration=exploration)
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
     print(f"stop reason: {stop_reason}")
     print(f"case written to: {case_file}")
