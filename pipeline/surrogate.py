@@ -54,6 +54,17 @@ REFDB = REPO_ROOT / "reference-db"
 # runs, and presenting that as a model output overstates it.
 MIN_SAMPLES = 8
 
+# Neighbours to average. Measured, not assumed: k=3 was a guess and it
+# was costing accuracy on both targets. Leave-one-out across k=1..5 on
+# the real store gives area MAE 2.389 at k=1 against 2.730 at k=3, and
+# completion 92% accurate at k=1 against 88%. Larger k degrades
+# monotonically — the area win rate falls to 27% at k=5, which is what
+# over-averaging a small neighbourhood looks like.
+#
+# This is a property of the dataset's size, not a permanent fact, so
+# best_k() exists to re-derive it and the loop reports it every scan.
+DEFAULT_K = 1
+
 
 class SurrogateError(RuntimeError):
     pass
@@ -167,7 +178,7 @@ def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]]) -> float 
 
 
 def predict(target: dict, dataset: list[dict], field: str = "area_um2",
-            k: int = 3) -> dict:
+            k: int = DEFAULT_K) -> dict:
     """k-NN prediction, or a refusal with the reason.
 
     Only ever compares within the same design. Area for a 14-gate counter
@@ -238,7 +249,8 @@ def _is_boolean_target(field: str) -> bool:
     return field == "completed"
 
 
-def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
+def evaluate(dataset: list[dict], field: str = "area_um2",
+             k: int = DEFAULT_K) -> dict:
     """Leave-one-out cross-validation against a predict-the-mean baseline.
 
     A surrogate is only worth having if it beats doing nothing. This
@@ -411,6 +423,44 @@ def _verdict(errors, model_mae, base_mae, win_rate,
             f"dataset grows, not yet worth trusting a prediction to")
 
 
+def best_k(dataset: list[dict], field: str = "area_um2",
+           candidates: tuple[int, ...] = (1, 2, 3, 4, 5)) -> dict:
+    """Which k the data actually supports, rather than the one assumed.
+
+    k=3 was a guess. With eight to eleven samples per design that is a
+    third of the neighbourhood, which may be averaging away the signal it
+    is meant to find — or may be the only thing keeping it from fitting
+    noise. Both are plausible, so it is measured.
+
+    Chooses on win rate first and mean error second: a k that wins more
+    folds is more trustworthy on this little data than one that happens
+    to have a lower average, which a single fold can move.
+    """
+    scored = []
+    for k in candidates:
+        ev = evaluate(dataset, field, k)
+        if ev["n_scored"] == 0:
+            continue
+        scored.append({
+            "k": k,
+            "n_scored": ev["n_scored"],
+            "win_rate": ev["win_rate"],
+            "model_mae": ev["model_mae"],
+            "baseline_mae": ev["baseline_mae"],
+            "accuracy": ev["accuracy"],
+            "verdict": ev["verdict"],
+        })
+    if not scored:
+        return {"field": field, "tried": list(candidates), "best": None,
+                "reason": "no k produced a scored fold"}
+    ranked = sorted(
+        scored,
+        key=lambda r: (-(r["win_rate"] or 0), r["model_mae"] if r["model_mae"] is not None else 1e18),
+    )
+    return {"field": field, "tried": list(candidates), "results": scored,
+            "best": ranked[0]}
+
+
 def dataset_report(dataset: list[dict]) -> dict:
     """What the dataset actually contains, per design."""
     per: dict[str, dict] = {}
@@ -441,7 +491,7 @@ def main():
     import argparse
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--field", default="area_um2")
-    ap.add_argument("--k", type=int, default=3)
+    ap.add_argument("--k", type=int, default=DEFAULT_K)
     args = ap.parse_args()
 
     data = load_dataset()
