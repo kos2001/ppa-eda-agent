@@ -15,8 +15,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (  # noqa: E402
-    MIN_SAMPLES, MIN_WIN_RATE, TARGETS, dataset_report, distance, evaluate,
-    featurize, load_dataset, predict,
+    DEFAULT_K, MIN_SAMPLES, MIN_WIN_RATE, TARGETS, best_k, dataset_report,
+    distance, evaluate, featurize, load_dataset, predict,
 )
 
 
@@ -272,6 +272,56 @@ class CompletionTargetTests(unittest.TestCase):
             evaluate(rows, "area_um2")["n_total"], 0,
             "crashed runs have no area and must not be scored on it")
         self.assertGreater(evaluate(rows, "completed")["n_total"], 0)
+
+
+class NeighbourhoodSizeTests(unittest.TestCase):
+    """k was a guess, and the guess was costing accuracy.
+
+    Leave-one-out across k=1..5 on the real store: area MAE 2.389 at k=1
+    against 2.730 at k=3, completion 92% accurate at k=1 against 88%,
+    and the area win rate falling to 27% at k=5 — over-averaging a
+    neighbourhood that only holds eight to eleven points. best_k()
+    exists so the number is re-derived as the dataset grows rather than
+    inherited from when it was set.
+    """
+
+    def test_tries_every_candidate_and_names_a_winner(self):
+        got = best_k(linear_dataset(n=20))
+        self.assertEqual(got["tried"], [1, 2, 3, 4, 5])
+        self.assertIn(got["best"]["k"], got["tried"])
+
+    def test_prefers_win_rate_over_a_lower_mean(self):
+        # On this little data a single fold moves a mean but cannot move
+        # a win rate, so the win rate is the safer criterion.
+        got = best_k(linear_dataset(n=20))
+        best = got["best"]
+        for other in got["results"]:
+            if other["k"] == best["k"]:
+                continue
+            self.assertGreaterEqual(best["win_rate"] or 0, other["win_rate"] or 0)
+
+    def test_refuses_rather_than_inventing_a_k(self):
+        # Too little data to score any fold: no k is "best".
+        got = best_k(linear_dataset(n=3))
+        self.assertIsNone(got["best"])
+        self.assertIn("reason", got)
+
+    def test_default_matches_what_the_real_store_supports(self):
+        refdb = Path(__file__).resolve().parent.parent / "reference-db"
+        if not (refdb / "cases").is_dir():
+            self.skipTest("no reference-db")
+        data = load_dataset(refdb)
+        for field in TARGETS:
+            got = best_k(data, field)
+            if got["best"] is None:
+                continue
+            # Not asserting a specific k — that changes with the data.
+            # Asserting the default has not drifted away from it, which
+            # is the failure worth catching.
+            self.assertEqual(
+                DEFAULT_K, got["best"]["k"],
+                f"{field}: DEFAULT_K={DEFAULT_K} but the data now supports "
+                f"k={got['best']['k']} — re-measure and update the default")
 
 
 class DatasetTests(unittest.TestCase):

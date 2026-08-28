@@ -224,6 +224,10 @@ def dataset_status() -> dict:
     # configuration ever attempted — including the designs that always
     # crash and therefore contribute nothing to the first.
     evaluations = {t: surrogate.evaluate(data, t) for t in surrogate.TARGETS}
+    # Re-derived every scan rather than trusted from when it was set:
+    # the best neighbourhood size is a property of how much data there
+    # is, and that changes underneath it.
+    tuning = {t: surrogate.best_k(data, t) for t in surrogate.TARGETS}
     evaluation = evaluations["area_um2"]
     short = {
         name: d["with_area"]
@@ -248,6 +252,8 @@ def dataset_status() -> dict:
                 "model_mae": ev["model_mae"],
                 "baseline_mae": ev["baseline_mae"],
                 "verdict": ev["verdict"],
+                "best_k": (tuning[name].get("best") or {}).get("k"),
+                "current_k": surrogate.DEFAULT_K,
             }
             for name, ev in evaluations.items()
         ],
