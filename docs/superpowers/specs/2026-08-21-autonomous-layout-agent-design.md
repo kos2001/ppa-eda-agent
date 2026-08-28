@@ -2754,6 +2754,49 @@ two blocks are merged so it cannot recur. Colour marks that there is work to do,
 something is bad: an actionable retry and a judgment call get different
 colours because they need different people.
 
+## Working the health page's own levers
+
+The page lists what to improve next, so the test of whether it is worth
+having is what happens when its items are acted on. Both were.
+
+**"cdc_twoclock — machine-actionable, just more budget."** Re-run with
+double the budget, as the page said. It moved from
+`max_iterations_reached` to `no_repairable_failures` — more budget was
+not the answer, and the item promoted itself from "just re-run" to
+"needs judgment". That is the retry earning its keep: it settled a
+question rather than confirming a guess.
+
+**"sram_wrapper: 0."** The most informative number on the page. That
+design has never produced a run with a recorded area, because it always
+dies at step 31, so it can never contribute to the learning data at all.
+Which exposes an asymmetry worth naming: retrieval learns from failures,
+the surrogate only from successes.
+
+Every configuration ever attempted does carry a completed/crashed label
+though — 22 rows against 13 with an area. So `completed` became a second
+target, and it is the more useful of the two: knowing a config will
+crash saves the whole 60–100 s run, where knowing its area to 3 µm²
+saves nothing, because you ran it to find that out. It scores 86% on 14
+samples against a 79% majority-class baseline — reported with the same
+caution as the area target, because beating "always guess the commoner
+outcome" by seven points on fourteen samples is not a validated model.
+
+Scored as accuracy rather than mean absolute error: MAE on a 0/1 target
+is a real number and an unreadable one, and what a person wants to know
+is how often it would have been right.
+
+**The new target found a real bug.** `featurize()` computed
+`die_area_um2` as an int (64 × 64 = 4096) and `_ranges()` kept only
+values passing `isinstance(x, float)` — so `DIE_AREA`, written
+`[0, 0, 64, 64]` in every design here, was silently invisible to the
+distance function, and no configuration differing only by die size had
+any neighbour at all. Cast like the other numeric features now, with a
+`_numeric()` helper that admits ints and excludes bool so a flag cannot
+land on a continuous axis.
+
+That is the pattern worth noting: the page's numbers did not just say
+where to work, they surfaced a defect in the thing doing the measuring.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
