@@ -116,7 +116,13 @@ def featurize(row: dict) -> dict:
     die = ov.get("DIE_AREA")
     if isinstance(die, (list, tuple)) and len(die) == 4:
         try:
-            feats["die_area_um2"] = abs((die[2] - die[0]) * (die[3] - die[1]))
+            # float(), like the numeric features above. Left as an int it
+            # computed correctly and was then dropped by _ranges' float
+            # check — so DIE_AREA, written [0, 0, 64, 64] in every design
+            # here, was silently invisible to the distance function and
+            # no config differing only by die size had any neighbour.
+            feats["die_area_um2"] = float(
+                abs((die[2] - die[0]) * (die[3] - die[1])))
         except TypeError:
             feats["die_area_um2"] = None
     else:
@@ -125,11 +131,17 @@ def featurize(row: dict) -> dict:
     return feats
 
 
+def _numeric(value) -> bool:
+    """int or float, but not bool — True would otherwise pass as 1 and
+    put a flag on a continuous axis."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def _ranges(rows: list[dict]) -> dict[str, tuple[float, float]]:
     out: dict[str, tuple[float, float]] = {}
     for key in (*_NUMERIC, "die_area_um2"):
         vals = [f[key] for f in (featurize(r) for r in rows)
-                if isinstance(f.get(key), float)]
+                if _numeric(f.get(key))]
         if len(vals) >= 2 and max(vals) > min(vals):
             out[key] = (min(vals), max(vals))
     return out
@@ -144,7 +156,7 @@ def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]]) -> float 
     compared = 0
     for key, (lo, hi) in ranges.items():
         va, vb = fa.get(key), fb.get(key)
-        if isinstance(va, float) and isinstance(vb, float):
+        if _numeric(va) and _numeric(vb):
             total += ((va - vb) / (hi - lo)) ** 2
             compared += 1
     sa, sb = fa.get("SYNTH_STRATEGY"), fb.get("SYNTH_STRATEGY")
@@ -207,6 +219,25 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
     }
 
 
+# Targets worth predicting, and what each is for.
+#
+# "completed" was sitting unused. Every configuration ever run carries
+# it, where only the ones that reached signoff carry an area — 22 rows
+# against 13 in the current store. The designs that contribute nothing to
+# an area model are precisely the ones with the most failures to learn
+# from: sram_wrapper's three configurations are all crashes, invisible to
+# the area target and pure signal for this one.
+#
+# It is also the more useful prediction. Knowing a config will crash
+# saves the whole 60-100 s run; knowing its area to within 3 um^2 saves
+# nothing, because you ran it to find out anyway.
+TARGETS = ("area_um2", "completed")
+
+
+def _is_boolean_target(field: str) -> bool:
+    return field == "completed"
+
+
 def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
     """Leave-one-out cross-validation against a predict-the-mean baseline.
 
@@ -217,6 +248,7 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
     """
     usable = [r for r in dataset if isinstance(r.get(field), (int, float))]
     errors, baseline_errors, refusals = [], [], 0
+    predictions, truths = [], []
 
     for i, held_out in enumerate(usable):
         rest = usable[:i] + usable[i + 1:]
@@ -229,6 +261,8 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
             refusals += 1
             continue
         errors.append(abs(got["value"] - held_out[field]))
+        predictions.append(got["value"])
+        truths.append(held_out[field])
         mean = sum(r[field] for r in same) / len(same)
         baseline_errors.append(abs(mean - held_out[field]))
 
@@ -248,6 +282,18 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
     wins = sum(1 for m, b in zip(errors, baseline_errors) if m < b)
     ties = sum(1 for m, b in zip(errors, baseline_errors) if m == b)
     win_rate = wins / len(errors) if errors else None
+
+    # For a 0/1 target a mean absolute error is a real score but an
+    # unreadable one. Accuracy at the obvious threshold says the thing a
+    # person actually wants to know: how often would it have called this
+    # run right?
+    accuracy = base_accuracy = None
+    if _is_boolean_target(field) and truths:
+        accuracy = sum(1 for p, a in zip(predictions, truths)
+                       if (p >= 0.5) == bool(a)) / len(truths)
+        rate = sum(1 for a in truths if a) / len(truths)
+        majority = rate >= 0.5
+        base_accuracy = sum(1 for a in truths if bool(a) == majority) / len(truths)
     return {
         "field": field,
         "k": k,
@@ -256,6 +302,8 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
         "n_refused": refusals,
         "model_mae": model_mae,
         "baseline_mae": base_mae,
+        "accuracy": accuracy,
+        "baseline_accuracy": base_accuracy,
         "wins": wins,
         "ties": ties,
         "win_rate": win_rate,
@@ -268,7 +316,8 @@ def evaluate(dataset: list[dict], field: str = "area_um2", k: int = 3) -> dict:
         ),
         # The honest headline. A model evaluated on a handful of points
         # has no accuracy worth quoting, whichever way the numbers fell.
-        "verdict": _verdict(errors, model_mae, base_mae, win_rate),
+        "verdict": _verdict(errors, model_mae, base_mae, win_rate,
+                            field, accuracy, base_accuracy),
     }
 
 
@@ -333,12 +382,24 @@ def missing_configs(design: str, candidates: list[dict],
 MIN_WIN_RATE = 0.7
 
 
-def _verdict(errors, model_mae, base_mae, win_rate) -> str:
+def _verdict(errors, model_mae, base_mae, win_rate,
+             field="area_um2", accuracy=None, base_accuracy=None) -> str:
     if len(errors) < MIN_SAMPLES:
         return ("insufficient data — not enough distinct configurations to "
                 "evaluate a surrogate at all")
     if model_mae is None or base_mae is None:
         return "not evaluated"
+    # A classifier is judged on how often it is right, against always
+    # guessing the commoner outcome — a baseline that is hard to beat
+    # precisely when it matters least.
+    if accuracy is not None and base_accuracy is not None:
+        if accuracy <= base_accuracy:
+            return (f"{accuracy:.0%} accurate on {len(errors)} samples, no "
+                    f"better than always guessing the commoner outcome "
+                    f"({base_accuracy:.0%})")
+        return (f"{accuracy:.0%} accurate on {len(errors)} samples against "
+                f"{base_accuracy:.0%} for always guessing the commoner "
+                f"outcome — re-check as the dataset grows")
     if model_mae >= base_mae:
         return "no better than predicting the mean"
     if win_rate is not None and win_rate < MIN_WIN_RATE:

@@ -438,7 +438,19 @@ export async function fetchPipelineRunStatus(design: string): Promise<PipelineRu
 // The self-improvement scan, as data. Produced by the same
 // self_improve.scan_all() a person runs in a terminal, so the report and
 // the panel cannot disagree.
+export interface LearningTarget {
+  field: string;
+  n_scored: number;
+  n_total: number;
+  accuracy: number | null;
+  baseline_accuracy: number | null;
+  model_mae: number | null;
+  baseline_mae: number | null;
+  verdict: string;
+}
+
 export interface LearningDataStatus {
+  targets?: LearningTarget[];
   distinct_configs?: number;
   trainable_designs?: string[];
   needs_more_runs?: Record<string, number>;
