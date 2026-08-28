@@ -5,23 +5,24 @@
   },
   "sweeps": [
     {
-      "param": "FP_CORE_UTIL",
+      "param": "SYNTH_STRATEGY",
       "values": [
-        25,
-        35,
-        45,
-        55,
-        65
+        "AREA 0",
+        "AREA 1",
+        "AREA 2",
+        "AREA 3",
+        "DELAY 0",
+        "DELAY 1",
+        "DELAY 2",
+        "DELAY 3",
+        "DELAY 4"
       ],
-      "tag_prefix": "sweep-util"
+      "tag_prefix": "data-synth",
+      "overrides": {
+        "FP_CORE_UTIL": 35
+      }
     }
   ],
   "candidates": [],
-  "max_iterations": 1,
-  "explore_synthesis": {
-    "count": 3,
-    "overrides": {
-      "FP_CORE_UTIL": 35
-    }
-  }
+  "max_iterations": 1
 }
