@@ -2885,6 +2885,47 @@ dominates, so a resolved case that failed differently is still not
 precedent. Each hit is now labelled RESOLVED or "still open", because
 it changes how the excerpt should be read.
 
+## A manual, and the first thing it was told
+
+Every page in this console showed what the tools produced. None said
+what a person is supposed to *do*. The closest was the pipeline page's
+"how it works" block, which explains the concept and not the operation —
+so a newcomer could see nine candidate runs and a FAIL pill without
+knowing which button starts a run, what an OPEN case is waiting for, or
+what to type into a review.
+
+The manual is task-shaped rather than feature-shaped: thirteen questions
+in the order someone arrives with them, grouped as starting, reading a
+result, when it gets stuck, and improving it. A tour of the buttons
+would have been easier to write and would have answered none of them.
+Nine of the answers name the control they refer to, because an answer
+that explains a concept without saying where the control is has answered
+half a question.
+
+**The feedback form is on the same page, at the bottom.** A reader who
+had to look something up has just found a gap, and that is the moment
+they can describe it; asking on a separate page asks everyone except the
+people with something to say. Entries append to
+`reference-db/feedback.jsonl` — JSONL because entries only ever get
+appended and an append cannot corrupt what is already there the way
+rewriting a whole array can, and beside the cases so it is versioned
+with them. The form names that destination on screen, since "thanks for
+your feedback" with no stated destination is how these forms earn their
+reputation.
+
+It is also the one kind of evidence this pipeline had never collected.
+Everything in reference-db records what a tool said; nothing recorded
+what the operator said.
+
+**The loop closed on its first entry.** The round-trip test left a real
+observation: the manual explains where every control is and never says
+what a run costs. That was true, and the numbers were already measured —
+1:04–1:06 per candidate for counter4 at 14 instances, 1:12–1:14 for SPM
+at 421, so a ten-candidate sweep is ten to twelve minutes. Design size
+moves that less than the step count does, since every candidate pays for
+all 78 steps, which is the argument for the 9-second exploration flow
+when only a strategy comparison is needed. The manual now says so.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

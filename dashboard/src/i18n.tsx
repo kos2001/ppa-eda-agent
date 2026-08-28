@@ -136,6 +136,117 @@ const dict = {
   se_ran: { en: "RAN", ko: "실행됨" },
   se_skipped: { en: "not run", ko: "미실행" },
   se_failed: { en: "Synthesis exploration failed", ko: "합성 탐색 실패" },
+  tab_manual: { en: "Manual", ko: "사용 안내" },
+  man_title: { en: "How to use this console", ko: "이 콘솔 사용법" },
+  man_lede: {
+    en: "Questions in the order people arrive with them. Every answer names the control it refers to, so it can be acted on without hunting.",
+    ko: "사람들이 실제로 마주치는 순서대로 정리했습니다. 각 답변은 어느 화면의 어느 버튼인지까지 밝혀, 찾아 헤매지 않고 바로 실행할 수 있게 했습니다.",
+  },
+
+  man_s_start: { en: "Starting", ko: "시작하기" },
+  man_q_what: { en: "What does this actually do?", ko: "이게 실제로 무엇을 하나요?" },
+  man_a_what: {
+    en: "You give it RTL and PPA targets. It proposes physical-design configurations, runs each through a real OpenLane2 flow on the sky130 PDK, and judges the result against your targets. When a run fails in a way it recognises it edits the configuration and retries by itself; when it does not recognise the failure it stops and asks you.",
+    ko: "RTL과 PPA 목표를 주면, 물리 설계 설정을 제안하고 각각을 sky130 PDK 위에서 실제 OpenLane2 플로우로 돌린 뒤 목표와 대조해 판정합니다. 아는 유형으로 실패하면 스스로 설정을 고쳐 재시도하고, 모르는 실패면 멈춰서 사람에게 묻습니다.",
+  },
+  man_q_run: { en: "How do I start a run?", ko: "실행은 어떻게 시작하나요?" },
+  man_a_run: {
+    en: "Press the button on the design's row in the Action Center. It spawns a real OpenLane flow — minutes, not seconds — and each candidate is a full 78-step flow.",
+    ko: "Action Center에서 해당 설계 행의 버튼을 누르면 됩니다. 실제 OpenLane 플로우가 시작되며, 후보 하나가 78단계 전체 플로우라 초 단위가 아니라 분 단위가 걸립니다.",
+  },
+  man_w_run: { en: "Layout Pipeline → Action Center, top of the page", ko: "레이아웃 파이프라인 → 맨 위 Action Center" },
+  man_q_howlong: { en: "How long does a run take?", ko: "실행은 얼마나 걸리나요?" },
+  man_a_howlong: {
+    en: "Measured, per candidate: about 1:04-1:06 for counter4 (14 instances) and 1:12-1:14 for SPM (421 instances), so a ten-candidate sweep is roughly ten to twelve minutes. Design size moves this less than the step count does — every candidate pays for all 78 steps. If you only need an area-versus-slack comparison across synthesis strategies, the exploration flow gives all nine in about 9 seconds and only the chosen few get full runs.",
+    ko: "후보 하나당 실측: counter4(인스턴스 14개)는 약 1:04~1:06, SPM(421개)은 1:12~1:14입니다. 따라서 후보 10개 스윕은 대략 10~12분입니다. 설계 크기보다 단계 수가 더 지배적입니다 — 후보마다 78단계를 전부 치릅니다. 합성 전략별 면적·슬랙 비교만 필요하다면 탐색 플로우가 9개 전부를 약 9초에 내놓고, 선택된 몇 개만 전체 실행합니다.",
+  },
+  man_q_watch: { en: "Can I see it running?", ko: "실행 중인 걸 볼 수 있나요?" },
+  man_a_watch: {
+    en: "Yes. A live panel appears under the button showing the current candidate and which of the 78 steps it is on, with elapsed time. On a design's first run there is no denominator yet — no earlier run has been observed reaching the end — so it shows the step number and a moving bar instead of a percentage nobody measured.",
+    ko: "네. 버튼 아래에 실시간 패널이 나타나 현재 후보와 78단계 중 몇 번째인지, 경과 시간을 보여줍니다. 그 설계의 첫 실행에는 분모가 없으므로(끝까지 간 실행이 아직 없음) 아무도 측정하지 않은 퍼센트 대신 단계 번호와 움직이는 막대를 표시합니다.",
+  },
+  man_w_watch: { en: "appears in place after you press run", ko: "실행 버튼을 누르면 그 자리에 나타납니다" },
+
+  man_s_read: { en: "Reading a result", ko: "결과 읽기" },
+  man_q_verdict: { en: "PASS, FAIL, UNVERIFIED — what is the third one?", ko: "PASS, FAIL, UNVERIFIED — 세 번째는 뭔가요?" },
+  man_a_verdict: {
+    en: "UNVERIFIED means nothing rejected the candidate; a signoff check simply never ran, so there is no evidence either way. It is deliberately not red, because it is not a design defect and colouring it as one sends you hunting a bug that does not exist.",
+    ko: "무엇도 후보를 거부하지 않았지만 사인오프 검사가 아예 실행되지 않아 판단할 근거가 없다는 뜻입니다. 일부러 빨강이 아닙니다 — 설계 결함이 아닌데 빨강으로 칠하면 없는 버그를 찾게 만들기 때문입니다.",
+  },
+  man_w_verdict: { en: "the pill on each candidate row", ko: "각 후보 행의 배지" },
+  man_q_unverified: { en: "Why would a check not run?", ko: "검사가 왜 실행되지 않나요?" },
+  man_a_unverified: {
+    en: "Because a flow step was switched off, or the run stopped before reaching it. A missing metric used to score the same as a clean one, which meant a run with no DRC and no LVS could report PASS. It now blocks the pass and says which check was skipped.",
+    ko: "플로우 단계가 꺼져 있거나 실행이 거기까지 가지 못했기 때문입니다. 예전에는 누락된 메트릭이 깨끗한 것과 똑같이 채점되어, DRC도 LVS도 안 돈 실행이 PASS로 보고될 수 있었습니다. 이제는 통과를 막고 어느 검사가 빠졌는지 명시합니다.",
+  },
+  man_q_stage: { en: "What did each stage actually produce?", ko: "각 단계가 실제로 만든 산출물은?" },
+  man_a_stage: {
+    en: "Open a case and use the link on any stage card. You get that stage's real artifacts — the gate-level netlist, the design rules it was judged against, the captured tool output for candidates that died there, the signoff verdicts with Fmax and Vmin.",
+    ko: "케이스를 펼친 뒤 각 단계 카드의 링크를 누르세요. 그 단계의 실제 산출물이 나옵니다 — 게이트 레벨 네트리스트, 판정 기준이 된 설계 규칙, 거기서 멈춘 후보의 실제 툴 출력, Fmax·Vmin이 포함된 사인오프 판정.",
+  },
+  man_w_stage: { en: "Layout Pipeline → a case → \"see what it produced\"", ko: "레이아웃 파이프라인 → 케이스 → \"산출물 보기\"" },
+
+  man_s_stuck: { en: "When it gets stuck", ko: "막혔을 때" },
+  man_q_open: { en: "A case says OPEN. What now?", ko: "케이스가 OPEN입니다. 이제 뭘 하나요?" },
+  man_a_open: {
+    en: "It depends why, and the two reasons need opposite responses. Ran out of iteration budget means auto-repair was still making progress and just needs more — no decision from you. No repairable failure means the agent has no pattern for it, and that genuinely needs your judgment.",
+    ko: "이유에 따라 정반대로 대응해야 합니다. 반복 예산 소진은 자동복구가 아직 진전 중이었다는 뜻이라 예산만 더 주면 되고 판단이 필요 없습니다. 복구 가능한 실패 없음은 에이전트에게 해당 패턴이 없다는 뜻이라 사람의 판단이 정말로 필요합니다.",
+  },
+  man_w_open: { en: "System Health → Self-improvement loop splits these two", ko: "시스템 상태 → 자기개선 루프가 이 둘을 나눠 보여줍니다" },
+  man_q_review: { en: "How do I write a review?", ko: "리뷰는 어떻게 쓰나요?" },
+  man_a_review: {
+    en: "Press 1 to generate the request, then type your verdict into the box and press 3. Step 2 asks a model for a draft and is optional — you can apply text you wrote with no model involved. What you write is recorded under human-review; a model's untouched answer under hermes-review; an edited draft under both.",
+    ko: "1번으로 요청을 생성하고, 상자에 판단을 직접 입력한 뒤 3번을 누르면 됩니다. 2번은 모델에게 초안을 받는 선택 사항이며, 모델 없이 직접 쓴 글만으로도 반영됩니다. 직접 쓴 것은 human-review로, 모델 답변 그대로는 hermes-review로, 초안을 수정한 것은 둘 다로 기록됩니다.",
+  },
+  man_w_review: { en: "Layout Pipeline → an OPEN case → human-in-the-loop", ko: "레이아웃 파이프라인 → OPEN 케이스 → human-in-the-loop" },
+  man_q_budget: { en: "How do I give it more budget?", ko: "예산은 어떻게 더 주나요?" },
+  man_a_budget: {
+    en: "The Action Center offers the retry directly, at double the budget that already proved insufficient. Re-running is worth doing even when it fails again: it settles whether budget was the problem.",
+    ko: "Action Center가 이미 부족했던 예산의 두 배로 재실행을 바로 제안합니다. 다시 실패하더라도 재실행할 값어치가 있습니다 — 예산이 문제였는지가 정리되기 때문입니다.",
+  },
+  man_w_budget: { en: "Layout Pipeline → Action Center", ko: "레이아웃 파이프라인 → Action Center" },
+
+  man_s_improve: { en: "Improving it", ko: "개선하기" },
+  man_q_next: { en: "Where should I improve this next?", ko: "다음으로 어디를 개선해야 하나요?" },
+  man_a_next: {
+    en: "The System Health page is that question. It separates work a machine can do from work needing a decision, shows whether the case store can still find precedent for a failure, and reports whether there is enough data to evaluate a surrogate at all.",
+    ko: "시스템 상태 페이지가 그 질문 자체입니다. 기계가 할 수 있는 일과 판단이 필요한 일을 나누고, 케이스 저장소가 아직 선례를 찾을 수 있는지 보여주며, surrogate를 평가할 만한 데이터가 있는지 보고합니다.",
+  },
+  man_w_next: { en: "System Health, in the sidebar", ko: "사이드바의 시스템 상태" },
+  man_q_data: { en: "How do I collect useful training data?", ko: "쓸모 있는 학습 데이터는 어떻게 모으나요?" },
+  man_a_data: {
+    en: "Sweep a parameter that actually moves the target. counter4's area is identical at FP_CORE_UTIL 25 and 35, so sweeping that axis adds samples of a flat function and teaches nothing. Synthesis strategy and die area do move it.",
+    ko: "목표를 실제로 움직이는 파라미터를 쓸어야 합니다. counter4의 면적은 FP_CORE_UTIL 25와 35에서 동일하므로 그 축을 쓸면 평평한 함수의 표본만 늘어나 아무것도 배우지 못합니다. 합성 전략과 다이 면적은 실제로 움직입니다.",
+  },
+  man_q_lang: { en: "Does the language toggle change the agent's answers?", ko: "언어 전환이 에이전트 답변도 바꾸나요?" },
+  man_a_lang: {
+    en: "Yes. Diagnoses and reviews are written in the language you selected, with numbers, signal names, metric keys and error codes left exactly as they are. Stored case text is not re-translated — it is a record of what was found — so it keeps a separate, explicitly labelled machine-translation button.",
+    ko: "네. 진단과 리뷰가 선택한 언어로 작성되며, 숫자·신호명·메트릭 키·에러 코드는 그대로 유지됩니다. 저장된 케이스 본문은 발견 사실의 기록이므로 다시 번역하지 않고, 별도의 기계번역 버튼을 그대로 둡니다.",
+  },
+  man_w_lang: { en: "the language control in the sidebar footer", ko: "사이드바 하단의 언어 전환" },
+
+  man_fb_title: { en: "Something missing or confusing?", ko: "빠졌거나 헷갈리는 것이 있나요?" },
+  man_fb_lede: {
+    en: "This console records what the tools said. It has never recorded what the person using it said, and you have just been reading a manual — which is exactly when a gap is easiest to describe.",
+    ko: "이 콘솔은 도구가 한 말은 기록해 왔지만 사용하는 사람이 한 말은 기록한 적이 없습니다. 방금 설명서를 읽으셨다면 지금이 부족한 점을 가장 정확히 말할 수 있는 순간입니다.",
+  },
+  man_fb_placeholder: {
+    en: "What were you trying to do, and what happened instead?",
+    ko: "무엇을 하려 했고, 대신 무슨 일이 일어났나요?",
+  },
+  man_k_bug: { en: "something broke", ko: "고장남" },
+  man_k_confusing: { en: "confusing", ko: "헷갈림" },
+  man_k_missing: { en: "missing", ko: "없음" },
+  man_k_note: { en: "note", ko: "메모" },
+  man_fb_send: { en: "send", ko: "보내기" },
+  man_fb_sending: { en: "sending…", ko: "보내는 중…" },
+  man_fb_dest: {
+    en: "appended to reference-db/feedback.jsonl — local, versioned with the cases",
+    ko: "reference-db/feedback.jsonl에 추가됩니다 — 로컬 파일이며 케이스와 함께 버전 관리됩니다",
+  },
+  man_fb_ok: { en: "recorded at {t}", ko: "{t}에 기록되었습니다" },
+  man_fb_log: { en: "everything recorded so far ({n})", ko: "지금까지 기록된 내용 ({n}건)" },
+
   tab_health: { en: "System Health", ko: "시스템 상태" },
   sh_title: { en: "System health — where to improve next", ko: "시스템 상태 — 다음에 개선할 곳" },
   sh_scanning: { en: "scanning…", ko: "스캔 중…" },

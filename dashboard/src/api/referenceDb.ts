@@ -504,3 +504,38 @@ export async function fetchSelfImprove(): Promise<SelfImproveReport> {
   if (!res.ok) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
   return data;
 }
+
+// Operator feedback. Everything else in this console records what the
+// tools said; this records what the person using it said — appended to
+// reference-db/feedback.jsonl so it is versioned with the cases.
+export interface FeedbackEntry {
+  at: string;
+  kind: string;
+  page: string | null;
+  message: string;
+}
+
+export async function sendFeedback(
+  message: string,
+  kind: string,
+  page: string
+): Promise<{ ok: boolean; at: string }> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, kind, page }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  return data;
+}
+
+export async function fetchFeedback(): Promise<{
+  entries: FeedbackEntry[];
+  file: string;
+}> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/feedback`);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  return data;
+}

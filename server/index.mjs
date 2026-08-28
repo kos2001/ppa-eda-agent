@@ -6,7 +6,7 @@
 import { createServer } from "node:http";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdtemp, readFile, readdir, writeFile, rm, cp, access, stat } from "node:fs/promises";
+import { appendFile, mkdtemp, readFile, readdir, writeFile, rm, cp, access, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,6 +17,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const simDir = path.resolve(__dirname, "..", "sim");
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const pipelineDir = path.resolve(__dirname, "..", "pipeline");
+const feedbackFile = path.join(refDbDir, "feedback.jsonl");
 const PORT = 8123;
 
 // Auto-loads a real .env file at the repo root, if present — same
@@ -736,6 +737,75 @@ const server = createServer(async (req, res) => {
     const state = pipelineRuns.get(design);
     res.writeHead(200, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify(state ?? { status: "idle" }));
+    return;
+  }
+
+  // Operator feedback, appended to a real file.
+  //
+  // Everything else in this console records what the *tools* said. This
+  // records what the person using it said, which is the one kind of
+  // evidence the pipeline has never collected — and the manual page is
+  // the natural place to ask, because a reader who had to look
+  // something up has just discovered a gap.
+  //
+  // JSONL rather than JSON: entries only ever get appended, and an
+  // append cannot corrupt what is already there the way a rewrite of a
+  // whole array can. Stored beside the cases so it is backed up and
+  // versioned with them.
+  if (req.method === "POST" && req.url === "/feedback") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      try {
+        const { message, kind, page } = JSON.parse(body || "{}");
+        if (typeof message !== "string" || !message.trim()) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "message (non-empty string) required" }));
+          return;
+        }
+        const entry = {
+          at: new Date().toISOString(),
+          // Free text is the point; the rest is optional context so a
+          // reader can tell a bug report from a feature request without
+          // the writer having to say so twice.
+          kind: typeof kind === "string" ? kind.slice(0, 40) : "note",
+          page: typeof page === "string" ? page.slice(0, 60) : null,
+          message: message.slice(0, 4000),
+        };
+        await appendFile(feedbackFile, JSON.stringify(entry) + "\n", "utf-8");
+        res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, at: entry.at }));
+      } catch (err) {
+        console.error("[feedback error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/feedback") {
+    try {
+      const raw = await readFile(feedbackFile, "utf-8").catch(() => "");
+      // One bad line must not hide every good one, so parse per line.
+      const entries = raw
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line) => {
+          try {
+            return JSON.parse(line);
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .reverse();
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ entries, file: "reference-db/feedback.jsonl" }));
+    } catch (err) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
     return;
   }
 
