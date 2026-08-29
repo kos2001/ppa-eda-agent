@@ -16,6 +16,7 @@ import { useLang, type DictKey } from "../i18n";
 import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
 import LayoutView from "./LayoutView";
+import MarkdownDoc from "./Markdown";
 import SlackChart from "./SlackChart";
 import StageArtifacts from "./StageArtifacts";
 import "./Tabs.css";
@@ -748,7 +749,9 @@ function ReviewWorkflow({
       </ol>
 
       {showRequest && requestText && (
-        <pre className="pipeline__review-pre">{requestText}</pre>
+        <div className="pipeline__review-doc">
+          <MarkdownDoc source={requestText} />
+        </div>
       )}
       <div className="pipeline__review-result">
         <span className="tab__meta-label">

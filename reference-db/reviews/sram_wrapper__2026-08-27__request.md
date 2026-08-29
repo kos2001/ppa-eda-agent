@@ -11,9 +11,22 @@ Stages the real run outcomes hit: physical_constraint
 
 ## Precedent from reference-db (retrieved, not assumed)
 
-2 prior case(s) matched. Each is real recorded output; the match reason is stated so it can be discounted if it does not actually apply.
+3 prior case(s) matched. Each is real recorded output; the match reason is stated so it can be discounted if it does not actually apply.
 
-### sram_wrapper — 2026-08-26  (shares GRT-0097, PDN-0231, RSZ-0090, STA-1140)
+### sram_wrapper — 2026-08-21  (shares GRT-0097, PDN-0231, RSZ-0090, macro-power-unconnected — still open)
+
+- outcome: no candidate met targets after all iterations
+- stop reason: None
+- winner: none
+- reviewed by: physical-constraint-evaluator, odb-measurement, sta-measurement, liberty-measurement
+
+```
+CORRECTED after checking the macro's own liberty file directly (an earlier version of this diagnosis speculatively blamed the clk0/clk1 pins without verifying against the .lib — that was wrong; always check the actual source before committing a diagnosis). Confirmed root cause: sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib defines an explicit max_transition of 0.04ns (both units confirmed: time_unit=1ns, capacitive_load_unit=1pF) on its addr0, wmask0, and addr1 input buses (lines 188, 225, 427 of the lib). RSZ-0090's reported "best achievable transition time is 0.043ns with a load of 0.01pF" matches this almost exactly — 0.01pF is essentially just that bus's own pin capacitance (0.00689pF from the lib, i.e. no additional wire), meaning even the strongest resizer-available buffer driving directly into the pin with zero wire cannot quite meet the macro's 0.04ns spec. This is NOT fixabl
+
+[...truncated; full text in reference-db/cases/sram_wrapper__2026-08-21.json]
+```
+
+### sram_wrapper — 2026-08-26  (shares GRT-0097, PDN-0231, RSZ-0090, STA-1140 — still open)
 
 - outcome: no candidate met targets after all iterations
 - stop reason: max_iterations_reached
@@ -31,18 +44,11 @@ See the
 [...truncated; full text in reference-db/cases/sram_wrapper__2026-08-26.json]
 ```
 
-### sram_wrapper — 2026-08-21  (shares GRT-0097, PDN-0231, RSZ-0090)
+### spm — 2026-08-29  (similar topology (distance 0.219) — RESOLVED)
 
-- outcome: no candidate met targets after all iterations
-- stop reason: None
-- winner: none
-- reviewed by: physical-constraint-evaluator, odb-measurement, sta-measurement, liberty-measurement
-
-```
-CORRECTED after checking the macro's own liberty file directly (an earlier version of this diagnosis speculatively blamed the clk0/clk1 pins without verifying against the .lib — that was wrong; always check the actual source before committing a diagnosis). Confirmed root cause: sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib defines an explicit max_transition of 0.04ns (both units confirmed: time_unit=1ns, capacitive_load_unit=1pF) on its addr0, wmask0, and addr1 input buses (lines 188, 225, 427 of the lib). RSZ-0090's reported "best achievable transition time is 0.043ns with a load of 0.01pF" matches this almost exactly — 0.01pF is essentially just that bus's own pin capacitance (0.00689pF from the lib, i.e. no additional wire), meaning even the strongest resizer-available buffer driving directly into the pin with zero wire cannot quite meet the macro's 0.04ns spec. This is NOT fixabl
-
-[...truncated; full text in reference-db/cases/sram_wrapper__2026-08-21.json]
-```
+- outcome: passed
+- stop reason: winner_found
+- winner: sweep-util-55
 
 
 ## Existing diagnosis (read before dispatching — don't re-derive what's already known)
@@ -98,6 +104,71 @@ selects, and this line of attack is closed. sram_wrapper stays OPEN. What the nu
 now point at is per-net control rather than macro position: keeping the addr drivers
 within ~145 um (lib_query's limit for buf_12) is a placement-region or repeater question
 about eight nets, not a question about where the macro sits.
+
+[2026-08-29T09:20:00Z] web-research + measurement pass. Three things were wrong,
+two of them ours.
+
+1. PDN_MACRO_CONNECTIONS had its fields swapped. The documented format is
+   `<instance_rx> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>`, net before pin. Ours
+   read `u_sram vccd1 vssd1 vccd1 vssd1` - the macro's pin names in the net slots,
+   naming nets this design does not have (its rails are VPWR/VGND, per VDD_PIN /
+   GND_PIN). OpenLane said so and only at WARNING level:
+   `[PDN-0231] u_sram is not connected to any power/ground nets`. Corrected to
+   `u_sram VPWR VGND vccd1 vssd1`; the warning count goes 1 -> 0. The macro had
+   no power connection in the generated PDN for the life of this case.
+
+2. The max_transition limit is on the ADDRESS INPUTS, not the data outputs.
+   Parsing the .lib's bus blocks: `max_transition : 0.04` appears on addr0,
+   addr1 and wmask0, all direction:input. dout0 and dout1 carry none. This case
+   and the RTL comment both recorded it as a dout0/dout1 constraint, which is
+   what sent the previous session after data-bus wirelength and macro position.
+
+3. The 0.04 ns is a characterisation ceiling, not an electrical requirement.
+   Every timing table in that .lib is indexed `index_1("0.00125, 0.005, 0.04")`.
+   The constraint is where the sweep stopped. The standard cell library, for
+   comparison, is characterised to 1.5 ns.
+
+WHAT RSZ-0090 ACTUALLY IS. A feasibility precheck, not a violation report. It
+compares the tightest max_transition in the design against the best any
+available buffer can do at 0.01 pF and aborts before doing any work - whether or
+not a single net violates. That is why no amount of placement or repair tuning
+moved it.
+
+RESULT OF RELAXING IT (0.04 -> 0.05 on those three pins, in a derived lib kept at
+designs/sram_wrapper/lib/*.relaxed.lib with its justification in the file):
+the flow goes from aborting at step 31 of 78 to reaching step 58 - through
+placement, CTS, detailed routing and post-PnR STA across nine corners. Setup and
+hold come back clean: WNS +9.39 ns, 0 setup violations, 0 hold violations, 0
+max-cap violations. It then fails in Magic on unrelated sky130 SRAM GDS layer
+mapping (layer 33 datatype 42/43, layer 22/21), which is a separate problem.
+
+WHY THAT IS NOT A FIX. The addr pins settle at 0.3-0.9 ns, up to 22x past where
+the model stops. Every delay STA reports on those paths is extrapolated off the
+end of the table and looks exactly like a measurement. The clean WNS is not
+trustworthy for them. pipeline/model_validity.py now detects exactly this and
+marks such a run `unverified` rather than passed.
+
+THE REMAINING PROBLEM IS DRIVE, NOT DISTANCE - which also retires the previous
+next step. Measured spans on the routed design: addr1[7] is 138.6 um, addr0[3]
+is 3.5 um. A buf_12 meets 0.05 ns at 138.6 um (0.0372 ns computed from the
+liberty). The pins are instead driven directly by xnor2_2 / nand2_1 / inv_2 with
+no buffer at all - xnor2_2 into that load is 0.27 ns. So "keep addr drivers
+within ~145 um" was aiming at a constraint that is already satisfied.
+
+FIVE LEVERS TRIED, ALL NULL: DESIGN_REPAIR_MAX_SLEW_PCT=0,
+GRT_DESIGN_REPAIR_MAX_SLEW_PCT=0, DESIGN_REPAIR_MAX_WIRE_LENGTH=145,
+GRT_DESIGN_REPAIR_MAX_WIRE_LENGTH=145, MAX_TRANSITION_CONSTRAINT=0.10 and 0.5,
+SYNTH_CLK_DRIVING_CELL=clkbuf_16/X. The last produced byte-identical results.
+The resizer inserts buf_1/buf_2 elsewhere and never touches the addr nets.
+
+STILL OPEN, with the question sharpened: why does repair_design leave a macro
+input pin driven by an unbuffered xnor2_2 when a buf_12 would meet the limit at
+the measured span? A related observation not yet chased: the generated SDC
+assumes the clock input port is driven by inv_2 across a 557 um net
+(`set_driving_cell -lib_cell sky130_fd_sc_hd__inv_2 [get_ports {clk}]`), and clk
+slew is 0.834 ns - past even the design-wide 0.75 ns limit. Flop Q transitions
+are indexed by clock slew, so that degradation propagates into every addr net.
+
 
 ## What to do
 

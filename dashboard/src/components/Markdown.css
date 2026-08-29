@@ -1,0 +1,204 @@
+/* Rendered markdown for generated documents (review requests, case
+   diagnoses). Every colour is a theme token, so the block inherits both
+   palettes rather than carrying a third one of its own. */
+
+.md {
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.md__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.4rem;
+}
+
+.md__toolbar-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.md__toolbar-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* --- sections ----------------------------------------------------- */
+
+.md__section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  margin: 0 0 0.5rem;
+  overflow: hidden;
+}
+
+.md__section-head {
+  align-items: baseline;
+  background: var(--surface-raised);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-weight: 650;
+  gap: 0.45rem;
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  width: 100%;
+}
+
+.md__section-head[aria-expanded="true"] {
+  border-bottom-color: var(--border);
+}
+
+.md__section-head:hover {
+  color: var(--accent);
+}
+
+/* A heading's level should be visible without counting hashes. */
+.md__section--h1 > .md__section-head {
+  font-size: 0.95rem;
+}
+.md__section--h2 > .md__section-head {
+  font-size: 0.84rem;
+}
+
+.md__chevron {
+  color: var(--text-dim);
+  flex: none;
+  font-size: 0.7em;
+  line-height: 1.6;
+}
+
+.md__section-title {
+  flex: 1;
+  /* Long generated titles carry the design name and date; wrapping
+     beats truncating them, since that is what identifies the case. */
+  overflow-wrap: anywhere;
+}
+
+.md__section-count {
+  color: var(--text-dim);
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+
+.md__section-body {
+  padding: 0.15rem 0.85rem 0.6rem;
+}
+
+/* --- blocks ------------------------------------------------------- */
+
+.md p {
+  margin: 0.5rem 0;
+  overflow-wrap: anywhere;
+}
+
+.md h3,
+.md h4,
+.md h5,
+.md h6 {
+  color: var(--text);
+  line-height: 1.35;
+  margin: 0.9rem 0 0.35rem;
+}
+
+.md h3 {
+  font-size: 0.82rem;
+}
+.md h4,
+.md h5,
+.md h6 {
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+.md ul,
+.md ol {
+  margin: 0.4rem 0;
+  padding-left: 1.15rem;
+}
+
+.md li {
+  margin: 0.2rem 0;
+  overflow-wrap: anywhere;
+}
+
+.md li::marker {
+  color: var(--text-dim);
+}
+
+.md hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 0.8rem 0;
+}
+
+.md a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.md strong {
+  font-weight: 680;
+}
+
+/* Inline code sits inside running prose, so it needs to separate from
+   it without becoming another colour to decode — a tinted panel and the
+   mono face do that, and the text keeps --text's full contrast. */
+.md :not(pre) > code {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.9em;
+  padding: 0.05em 0.3em;
+}
+
+/* Fenced blocks hold raw tool output: preserved exactly, scrolled on
+   their own axis so a long log cannot widen the page, and capped so one
+   150-line excerpt does not bury the section after it. */
+.md__code {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  max-height: 22rem;
+  overflow: auto;
+  padding: 0.55rem 0.7rem;
+}
+
+/* index.css styles every bare <code> with an accent background and
+   padding, which is right for a word inside a sentence and wrong for a
+   200-line log — it would tint the whole block and inject padding on
+   every line. Reset here rather than there, so inline code keeps it. */
+.md__code code {
+  background: none;
+  border: 0;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.55;
+  padding: 0;
+  white-space: pre;
+}
+
+@media (max-width: 640px) {
+  .md {
+    font-size: 0.78rem;
+  }
+  .md__section-body {
+    padding: 0.15rem 0.6rem 0.5rem;
+  }
+}
