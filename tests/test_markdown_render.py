@@ -157,6 +157,54 @@ class ContrastTests(unittest.TestCase):
         self.assertIn("prefers-color-scheme: dark", css)
 
 
+# Words that name an actual failure. --critical is the colour for those
+# and for nothing else.
+FAILURE_WORDS = ("error", "err", "viol", "bad", "critical", "lost", "neg",
+                 "fail", "missing")
+
+
+class CriticalColourTests(unittest.TestCase):
+    """--critical must mean broken, not busy.
+
+    The dashboard had a documented colour language in which red meant "a
+    decision only a person can make" — so the human-in-the-loop panel,
+    the action-centre review rows, the DECIDE phase, an OPEN case and an
+    unseen-tab dot were all red. Those are the most ordinary states in
+    the app, which left the page looking like a list of failures and
+    left red with nothing to say on the rows that are failures.
+
+    It also contradicted the pipeline's own rule. score() separates
+    `violations` from `unverified` because "nobody proved this is bad"
+    is not "this is bad"; a case awaiting judgement is the second kind,
+    and painting it red makes in the UI the exact conflation the verdict
+    logic refuses to make.
+    """
+
+    def _uses(self):
+        out = []
+        for path in (ROOT / "dashboard" / "src").rglob("*.css"):
+            selector = ""
+            for i, line in enumerate(path.read_text().splitlines(), 1):
+                stripped = line.strip()
+                if stripped and stripped[0] in ".#a-zA-Z" and "{" in stripped:
+                    selector = stripped.split("{")[0].strip()
+                if "var(--critical" in line:
+                    out.append((f"{path.name}:{i}", selector))
+        return out
+
+    def test_red_is_reserved_for_failure(self):
+        offenders = [
+            f"{where}  {sel}" for where, sel in self._uses()
+            if not any(w in sel.lower() for w in FAILURE_WORDS)
+        ]
+        self.assertEqual(offenders, [], "\n".join(["--critical on non-failure:"] + offenders))
+
+    def test_it_is_still_used_somewhere(self):
+        # A rule satisfied by deleting the colour would be no rule. Real
+        # failures must still be red.
+        self.assertGreater(len(self._uses()), 5)
+
+
 class TokenReferenceTests(unittest.TestCase):
     def test_every_var_reference_resolves(self):
         # A typo'd token name is not an error anywhere — the property

@@ -122,7 +122,7 @@
    defeats the point of colouring phases by role at all. */
 .pipeline__phase--propose    { border-top-color: var(--warn); }
 .pipeline__phase--evaluate   { border-top-color: var(--good); }
-.pipeline__phase--decide     { border-top-color: var(--critical); }
+.pipeline__phase--decide     { border-top-color: var(--accent); }
 
 .pipeline__phase::after {
   content: "→";
@@ -149,7 +149,7 @@
 .pipeline__phase--understand .pipeline__phase-label { color: var(--text-dim); }
 .pipeline__phase--propose    .pipeline__phase-label { color: var(--warn); }
 .pipeline__phase--evaluate   .pipeline__phase-label { color: var(--good); }
-.pipeline__phase--decide     .pipeline__phase-label { color: var(--critical); }
+.pipeline__phase--decide     .pipeline__phase-label { color: var(--accent); }
 
 .pipeline__phase-role {
   font-size: 0.66rem;
@@ -223,20 +223,40 @@
 /* An OPEN case is the one thing on the page that asks for a decision,
    so it gets a real border and a badge instead of reading like another
    subsection. */
+/* An OPEN case waiting for review is not a failure.
+ *
+ * This was --critical text on a full --critical-soft wash, in both
+ * themes, on a panel that appears on every open case — i.e. the routine
+ * state. Two things wrong with that.
+ *
+ * It contradicts the distinction this pipeline is built on. score()
+ * separates `violations` from `unverified` precisely because "nobody
+ * proved this is bad" is not "this is bad", and a case awaiting
+ * judgement is the second kind. Painting it red makes in the UI exactly
+ * the conflation the verdict logic refuses to make.
+ *
+ * And red spent on something routine has nothing left to say when it is
+ * needed: the FAIL pill sits inside this same view.
+ *
+ * A card with an accent edge instead — the shape comes from the border,
+ * not from a fill. No --accent-soft either: at 1.03:1 against the page
+ * it is not a background in the light theme at all, and a colour that
+ * only works in one theme is how this panel got here.
+ */
 .pipeline__hitl--action {
   margin: 0 0 1.1rem;
   padding: 0.75rem 0.85rem;
-  border: 1px solid var(--critical);
-  border-left-width: 3px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
   border-radius: 8px;
-  background: var(--critical-soft);
+  background: var(--surface);
 }
 
 .pipeline__hitl-badge {
   margin-left: 0.55rem;
   padding: 0.05rem 0.45rem;
   border-radius: 999px;
-  background: var(--critical);
+  background: var(--accent);
   color: var(--surface);
   font-size: 0.6rem;
   letter-spacing: 0.08em;
@@ -257,7 +277,8 @@
   font-size: 0.72rem;
 }
 
-.pipeline__live-open { color: var(--critical); font-weight: 600; }
+/* OPEN is a state, not a verdict — it means nobody has decided yet. */
+.pipeline__live-open { color: var(--accent); font-weight: 600; }
 .pipeline__live-clear { color: var(--good); }
 
 .pipeline__live-refresh {
