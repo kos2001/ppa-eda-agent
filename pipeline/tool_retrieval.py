@@ -67,6 +67,22 @@ MEASUREMENTS: list[dict] = [
                     "variables had been tried and all were null.",
     },
     {
+        "id": "which-pins-violate",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090", "max_cap_violation"],
+        "tool": "ppa_sta_report",
+        "cli": "python3 pipeline/sta_report.py --design D --tag T",
+        "answers": "Which pins violate max_slew / max_cap / max_fanout, per "
+                   "corner, from the reports the run already wrote.",
+        "trap": "Read it before ppa_sta_path, not after — the path trace needs "
+                "an endpoint, and this is where the endpoint comes from. Also "
+                "read the worst corner: sram_wrapper's worst pin was 0.545 ns "
+                "at nom_tt and 0.880 ns at max_ss.",
+        "evidence": "sram_wrapper: its max-slew violator list is what named "
+                    "addr1[7] and addr0[3], the pins whose path trace then "
+                    "found delay cells inserted as slew repair.",
+    },
+    {
         "id": "liberty-ceiling",
         "design": "sram_wrapper",
         "when": ["RSZ-0090"],
@@ -142,6 +158,54 @@ MEASUREMENTS: list[dict] = [
                     "Init and then hit PDN-0185 with no FP_CORE_UTIL override "
                     "present; orchestrator.propose_repairs grows DIE_AREA for "
                     "exactly this signature.",
+    },
+    {
+        "id": "netlist-still-the-rtl",
+        "design": "sram_wrapper",
+        "when": ["equivalence_doubt", "resizer_changed_netlist"],
+        "tool": "ppa_equiv_check",
+        "cli": "python3 pipeline/equiv_check.py --design D --tag T",
+        "answers": "Whether the netlist after resizing and repair still "
+                   "implements the RTL.",
+        "trap": "Do not reach for OpenLane's RUN_EQY instead. It is False by "
+                "default and enabling it aborts inside EQY itself (\"This "
+                "should not happen. Please report this bug.\"), so gating on it "
+                "marks every candidate unverified forever.",
+        "evidence": "sram_wrapper: this proves the same design at 4 points with "
+                    "0 unproven, on the design where EQY crashes.",
+    },
+    {
+        "id": "see-the-layout",
+        "design": "sram_wrapper",
+        "when": ["macro_present", "placement_suspected"],
+        "tool": "ppa_render_layout",
+        "cli": "python3 pipeline/render_layout.py --design D --tag T",
+        "answers": "The run's real rendered GDS, for a question about where "
+                   "things physically ended up.",
+        "trap": "An image is not a measurement — use it to form the question, "
+                "then answer it with ppa_odb_query's numbers rather than by "
+                "eye.",
+        "evidence": "arxiv.org/html/2605.06936v3 measured that a layout image "
+                    "improves diagnosis of real post-flow violations over text "
+                    "alone; this pipeline stores the render in reference-db so "
+                    "it survives the run directory being cleaned up.",
+    },
+    {
+        "id": "library-comparison",
+        "design": "counter4_tinydie",
+        "when": ["technology_question"],
+        "tool": "ppa_tech_compare",
+        "cli": "python3 pipeline/tech_compare.py --design D",
+        "answers": "The same design through two or more standard-cell "
+                   "libraries, run for real.",
+        "trap": "Do not compare libraries with --override-config "
+                "STD_CELL_LIBRARY. OpenLane accepts it into resolved.json and "
+                "ignores it, so the netlist keeps the default library's cells "
+                "and the comparison reports a perfectly plausible 0.00% delta. "
+                "The library is chosen by --scl.",
+        "evidence": "run_stage.py's docstring records this as one of two "
+                    "ignored-override false conclusions this project has "
+                    "actually published.",
     },
     {
         "id": "timing-trustworthy",
