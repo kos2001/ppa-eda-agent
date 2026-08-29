@@ -71,12 +71,14 @@ MIN_SAMPLES = 8
 # best_k() re-derives these, the loop reports current beside best every
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
-# Re-measured, not chosen. area_um2 moved from 3 to 4 when the
-# technology sweep added five completed runs: at k=4 it wins 96% of
-# leave-one-out folds (23 scored, MAE 19.1 against a 128.5 baseline)
-# where k=3 wins 91%. completed stays at 1.
+# Re-measured whenever the corpus changes, never assumed. area_um2 has
+# moved 3 -> 4 -> 5 as the technology axis filled in: at k=5 it wins 97%
+# of leave-one-out folds on 31 scored samples. completed stays at 1.
+#
+# A test asserts this against best_k() on the real store, so the constant
+# cannot quietly go stale while the data moves under it.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 4,
+    "area_um2": 5,
     "completed": 1,
 }
 DEFAULT_K = 1
