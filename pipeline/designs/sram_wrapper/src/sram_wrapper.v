@@ -25,7 +25,26 @@ module sram_wrapper (
   end
 
   wire [7:0] addr0 = addr_ctr;
-  wire [7:0] addr1 = addr_ctr - 8'd1;  // read the slot written last cycle
+
+  // The slot written last cycle. This was `addr_ctr - 8'd1`, an 8-bit
+  // combinational decrementer whose last gate drove the macro's addr1
+  // pins directly — measured at 0.364 ns output slew into a pin whose
+  // model stops at 0.04 ns, and the single largest contributor left
+  // after the delay cells were excluded from PnR.
+  //
+  // For a free-running counter the previous value *is* the registered
+  // copy, so the arithmetic was never needed. addr1 is now driven by a
+  // flop like addr0, whose pins already sit an order of magnitude
+  // closer to the limit. It also behaves better at reset: the
+  // decrementer pointed at 255, a slot nothing had written.
+  reg [7:0] addr_prev;
+  always @(posedge clk) begin
+    if (rst)
+      addr_prev <= 8'd0;
+    else
+      addr_prev <= addr_ctr;
+  end
+  wire [7:0] addr1 = addr_prev;
 
   wire [31:0] sram_dout0;
   wire [31:0] sram_dout1;
