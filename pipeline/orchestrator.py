@@ -30,6 +30,7 @@ import def_layout
 import design_rules
 import equiv_check
 import netlist_graph
+import model_validity
 import operating_point
 import power_activity
 import render_layout
@@ -693,6 +694,18 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         clocks = cdc_check.check(design_dir, run_dir)
         verdict["unverified"] = (verdict.get("unverified", [])
                                  + cdc_check.unverified_domains(clocks))
+        # Whether STA was asked something its models can answer. A macro
+        # liberty stops at some input slew; past that the tool
+        # extrapolates and returns a number indistinguishable from a
+        # measurement. sram_wrapper reports clean setup and hold with
+        # addr pins sitting 22x past the last table entry.
+        #
+        # `unverified` rather than a violation, for the same reason as
+        # the clock domains above: nobody proved the design is bad, they
+        # proved nobody can say from here.
+        models = model_validity.check(design_dir, run_dir)
+        verdict["unverified"] += model_validity.unverified(models)
+        verdict["model_validity"] = models
         verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
         # Fmax/Vmin, derived from per-corner slack the run already
         # measured. Needs the clock period, which lives in config.json

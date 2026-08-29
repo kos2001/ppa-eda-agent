@@ -45,13 +45,22 @@ module sram_wrapper (
   );
 
   // Register the macro's outputs right at the macro boundary instead of
-  // driving the top-level pads directly from its output pins. Real
-  // physical-constraint finding from this vertical slice: the macro's
-  // own .lib characterizes a tight max-transition limit on dout0/dout1
-  // (~0.04ns) that the resizer cannot meet driving all the way to
-  // die-edge pads (RSZ-0090, best achievable 0.043ns) — a standard-cell
-  // flop right next to the macro gives the long net to the pad a strong,
-  // ordinary driver instead of the macro's own constrained output stage.
+  // driving the top-level pads directly from its output pins: a
+  // standard-cell flop next to the macro gives the long net to the pad
+  // an ordinary strong driver. Good practice, and cheap.
+  //
+  // This comment used to justify the registers with a max-transition
+  // limit on dout0/dout1. That was wrong, and is corrected here rather
+  // than quietly deleted because it sent the investigation after the
+  // wrong nets for several sessions. Reading the .lib's bus blocks
+  // directly, `max_transition : 0.04` is on addr0, addr1 and wmask0 —
+  // all *inputs*. dout0 and dout1 carry no such limit. The RSZ-0090
+  // abort comes from the address side, not the data side.
+  //
+  // The 0.04 ns is not an electrical requirement either: every timing
+  // table in that .lib is indexed `index_1("0.00125, 0.005, 0.04")`, so
+  // the "constraint" is just where characterisation stopped. See
+  // pipeline/model_validity.py and lib/*.relaxed.lib.
   reg [31:0] dout0_r;
   reg [31:0] dout1_r;
   always @(posedge clk) begin
