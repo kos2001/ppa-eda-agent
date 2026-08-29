@@ -1,20 +1,59 @@
 :root {
   --bg: #eef2f7;
   --surface: #ffffff;
-  --surface-raised: #ffffff;
-  --border: #d5dce7;
+  /* Was #ffffff — byte-identical to --surface, so every "raised" panel
+     (section headers, code blocks, inline code) was invisible as a
+     panel and read as bare page. 1.14:1 against white now. */
+  --surface-raised: #ecf0f6;
+  /* Was #d5dce7: 1.23:1 against --bg, so a card's outline faded out
+     exactly where it separates the card from the page. 1.30 now. */
+  --border: #cad7e6;
   --border-strong: #b9c5d4;
   --text: #111827;
-  --text-dim: #667085;
-  --accent: #087ea4;
+  /* Was #667085: 4.43:1 on --bg, and 4.35:1 once --surface-raised
+     stopped being pure white. Secondary text is most of the text on
+     this page, so it had the largest share of the problem. */
+  --text-dim: #636d81;
+  /* Was #087ea4 at 4.12:1 on --bg — links and focus rings below AA on
+     the page background. 4.64 / 5.22 / 4.56 across bg, surface and
+     raised now. */
+  --accent: #087599;
   --accent-soft: #d8f3fb;
   --accent-glow: rgba(8, 126, 164, 0.16);
-  --good: #1f9d5c;
-  --good-soft: #e1f5ea;
-  --critical: #c9333f;
-  --critical-soft: #fbe4e6;
-  --warn: #9a6b00;
-  --warn-soft: #faf0d6;
+  /* The dark palette below was measured and tuned; this one never was,
+     and every status colour failed WCAG AA on its own pill:
+
+       before                on soft   on bg   pill vs bg
+       critical #c9333f       4.30      4.64      1.08
+       good     #1f9d5c       3.06      3.09      1.01
+       warn     #9a6b00       4.13      4.17      1.01
+
+     Two separate problems. The text contrast is the obvious one — green
+     at 3.06:1 is not readable text by any standard. The pill backgrounds
+     are the quieter one: at 1.01:1 against the page they are not
+     distinguishable from it at all, so a PASS pill was text floating on
+     nothing while the dark theme's equivalent reads as a solid chip.
+
+     Solved rather than nudged: searched HSL for colours meeting 4.5:1 on
+     the pill, on --bg and on --surface at once, with the pill itself at
+     the same ~1.4:1 the dark theme uses, and constrained to stay
+     saturated so red still reads as red. Maximising contrast alone
+     returned near-blacks (#320b0b) that lose the hue, and hue is how
+     these are told apart at a glance.
+
+       after                 on soft   on bg   on surface   pill vs bg
+       critical #92070c       6.00      8.27      9.29        1.38
+       good     #0c5530       6.00      7.94      8.93        1.32
+       warn     #5f441c       5.88      8.03      9.03        1.37
+
+     Dark's reference pair for comparison: 6.52 / 9.30 (critical),
+     7.15 / 10.25 (good). */
+  --good: #0c5530;
+  --good-soft: #b7dcc9;
+  --critical: #92070c;
+  --critical-soft: #f2c5c6;
+  --warn: #5f441c;
+  --warn-soft: #dbcfbd;
 
   --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Consolas,
     monospace;
@@ -29,12 +68,21 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #070b12;
-    --surface: #0e1522;
-    --surface-raised: #121c2b;
-    --border: #202d40;
+    /* The three layers were 1.08:1 and 1.07:1 apart — below the ~1.15
+       where a surface stops reading as a distinct plane. Cards, panels
+       and the page were one flat field, so the depth the layout implies
+       was never actually drawn. Now 1.22 and 1.20.
+
+       Lifting --surface-raised cost --text-dim its AA margin on it
+       (4.31:1), so --text-dim moved with it: 4.51:1 there, while still
+       at 36% of --text's luminance — dimmer by hierarchy, not by being
+       unreadable. */
+    --surface: #162135;
+    --surface-raised: #1f2f4c;
+    --border: #293e64;
     --border-strong: #35455c;
     --text: #e5edf7;
-    --text-dim: #8593a8;
+    --text-dim: #8997ab;
     --accent: #43d9d3;
     --accent-soft: #102f35;
     --accent-glow: rgba(67, 217, 211, 0.14);
@@ -59,12 +107,13 @@
 
 :root[data-theme="dark"] {
   --bg: #070b12;
-  --surface: #0e1522;
-  --surface-raised: #121c2b;
-  --border: #202d40;
+  /* Kept in sync with the @media block above — see its comment. */
+  --surface: #162135;
+  --surface-raised: #1f2f4c;
+  --border: #293e64;
   --border-strong: #35455c;
   --text: #e5edf7;
-  --text-dim: #8593a8;
+  --text-dim: #8997ab;
   --accent: #43d9d3;
   --accent-soft: #102f35;
   --accent-glow: rgba(67, 217, 211, 0.14);
