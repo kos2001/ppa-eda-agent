@@ -55,6 +55,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+import tool_retrieval
 import verify_diagnosis
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -81,8 +82,18 @@ def latest_case(design: str) -> Path | None:
     return hits[-1] if hits else None
 
 
-def prompt_for(case: dict) -> str:
+def prompt_for(case: dict, guidance: bool = False) -> str:
     """What the model is given: the run's own output, and no answer.
+
+    With `guidance`, the retrieved measurement block is prepended — the
+    same text request_review.py now puts in front of a reviewer. That
+    makes the A/B the point of the exercise: does supplying which tool
+    answers this, and which trap wastes the attempt, change the answer?
+
+    It measures context supply, not tool use. A single chat call cannot
+    run report_checks, so the ceiling here is whatever the trap text
+    itself is worth. Do not read a gain as evidence the agent could have
+    done the measurement.
 
     Deliberately the same evidence verify_diagnosis grades against — the
     error text and candidate tags the run really produced — so a model
@@ -90,7 +101,12 @@ def prompt_for(case: dict) -> str:
     by a prompt that mentioned it.
     """
     errors, tags = verify_diagnosis.recorded_evidence(case)
-    lines = [
+    # Leave-one-out: an entry grounded in this very design is that
+    # design's answer, and returning it would measure reading rather
+    # than reasoning.
+    block = (tool_retrieval.guidance_block(case, exclude_design=case.get("design"))
+             if guidance else None)
+    lines = ([block, ""] if block else []) + [
         f"Design: {case.get('design')}",
         f"Outcome: {case.get('outcome')}",
         f"Candidate tags that were run: {', '.join(sorted(tags)) or '(none)'}",
@@ -171,7 +187,7 @@ def score_case(case: dict, answer: str) -> dict:
     }
 
 
-def run(designs: list[str], server: str) -> dict:
+def run(designs: list[str], server: str, guidance: bool = False) -> dict:
     rows = []
     for design in designs:
         path = latest_case(design)
@@ -179,8 +195,9 @@ def run(designs: list[str], server: str) -> dict:
             rows.append({"design": design, "error": "no recorded case"})
             continue
         case = json.loads(path.read_text())
-        answer, seconds = ask(server, prompt_for(case))
-        row = {"design": design, "case": path.name, "seconds": round(seconds, 1)}
+        answer, seconds = ask(server, prompt_for(case, guidance))
+        row = {"design": design, "case": path.name, "guidance": guidance,
+               "seconds": round(seconds, 1)}
         row.update(score_case(case, answer))
         row["answer"] = answer
         rows.append(row)
@@ -188,6 +205,7 @@ def run(designs: list[str], server: str) -> dict:
     scored = [r for r in rows if "error" not in r]
     return {
         "server": server,
+        "guidance": guidance,
         "cases": len(scored),
         "grounded": sum(1 for r in scored if r["grounded"]),
         "mean_seconds": (round(sum(r["seconds"] for r in scored) / len(scored), 1)
@@ -202,11 +220,13 @@ def main() -> None:
                     default=sorted(ROOT_CAUSE_TERMS),
                     help="designs to replay (default: those with recorded terms)")
     ap.add_argument("--server", default=DEFAULT_SERVER)
+    ap.add_argument("--with-guidance", action="store_true",
+                    help="prepend the retrieved measurement block")
     ap.add_argument("--quiet", action="store_true",
                     help="omit the answers, keep the scores")
     args = ap.parse_args()
 
-    got = run(args.designs, args.server)
+    got = run(args.designs, args.server, args.with_guidance)
     if args.quiet:
         for row in got["rows"]:
             row.pop("answer", None)

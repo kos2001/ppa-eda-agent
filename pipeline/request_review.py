@@ -33,6 +33,7 @@ import os
 import tempfile
 
 import case_retrieval
+import tool_retrieval
 import verify_diagnosis
 import json
 from datetime import datetime, timezone
@@ -108,6 +109,20 @@ def cmd_request(args: argparse.Namespace) -> None:
         lines += ["", case_retrieval.precedent_block(case, corpus, top=3)]
     except Exception as e:  # noqa: BLE001 - recorded, never fatal
         lines += ["", f"## Precedent from reference-db\n\n(retrieval failed: {e})"]
+
+    # Which measurement answers this, alongside what happened before.
+    # Precedent alone leaves a reviewer reasoning over text somebody
+    # already wrote, and that was measured: replaying three recorded
+    # cases through the configured model scored grounded 3/3 and
+    # root-cause recall 1/10 — while every real advance in those cases
+    # came from running something new. None of the eight agent
+    # definitions mentions a single tool of this pipeline's, so the
+    # tools cannot be reached for by an agent that was never told they
+    # exist.
+    try:
+        lines += ["", tool_retrieval.guidance_block(case)]
+    except Exception as e:  # noqa: BLE001 - recorded, never fatal
+        lines += ["", f"## Measurements that apply\n\n(retrieval failed: {e})"]
 
     lines += [
         "",
