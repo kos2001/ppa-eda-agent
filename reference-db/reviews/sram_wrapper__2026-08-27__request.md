@@ -51,6 +51,46 @@ See the
 - winner: sweep-util-55
 
 
+## Measurements that apply (retrieved from what actually worked)
+
+5 of the recorded measurements match this case's failure signature. Each names the trap that wastes the attempt, because in every instance below the trap is what a previous session actually fell into.
+
+### ppa_sta_path  (matched RSZ-0090, max_slew_violation)
+
+- **answers**: Why one specific pin's slew is what it is — the cell at each stage of the chain and which one adds the most.
+- **run**: `python3 pipeline/sta_path.py --design D --run-dir R --pin P`
+- **trap**: This is usually NOT the critical path. sram_wrapper had +18.57 ns of setup slack on the very path whose slew was 22x over its limit, so a pin taken from the timing report shows nothing wrong. Take the pin from ppa_sta_report's max-slew violator list.
+- **on the record**: sram_wrapper: found repair_design fixing a slew violation with dlymetal6s2s_1, a delay cell, after five config variables had been tried and all were null.
+
+### ppa_verify_diagnosis / model_validity  (matched macro_present, max_slew_violation)
+
+- **answers**: Whether the STA numbers are measurements or extrapolation off the end of a liberty table.
+- **run**: `python3 pipeline/model_validity.py --design D --run-dir R`
+- **trap**: Clean setup and hold prove nothing if the slews sit past the model's characterisation ceiling. Judge such a run by the model_validity flag, not by WNS.
+- **on the record**: sram_wrapper reported WNS +9.39 ns with zero violations while its addr pins sat 22x past where the model stops.
+
+### read the macro's .lib directly  (matched RSZ-0090)
+
+- **answers**: Whether a max_transition limit is an electrical requirement or just where characterisation stopped.
+- **run**: `grep -o 'index_1("[^"]*")' <macro>.lib | sort -u`
+- **trap**: RSZ-0090 is a feasibility precheck, not a violation report — it aborts before doing any work, whether or not a net violates. Sweeping placement or repair knobs cannot move it.
+- **on the record**: sram_wrapper: max_transition 0.04 equals the top of index_1("0.00125, 0.005, 0.04"), and sits on addr0/addr1/wmask0 — inputs — not on dout0/dout1 as this project's own record claimed for several sessions.
+
+### read PDN_MACRO_CONNECTIONS in config.json  (matched PDN-0231)
+
+- **answers**: Whether the macro is actually connected to the power grid.
+- **run**: `python3 -c "import json;print(json.load(open('config.json'))['PDN_MACRO_CONNECTIONS'])"`
+- **trap**: The format is <instance> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin> — net before pin. Swapped, it names nets the design does not have, connects nothing, and OpenLane only WARNs.
+- **on the record**: sram_wrapper: carried the macro's pin names in the net slots for the life of the case; the macro had no power connection in the generated PDN.
+
+### ppa_odb_query  (matched GRT-0097)
+
+- **answers**: One net's real pin count, HPWL and max span in microns.
+- **run**: `python3 pipeline/odb_query.py --design D --tag T`
+- **trap**: metrics.json aggregates cannot answer a question about one net, and a span that looks long may still be inside what the driver can hold — check the driver before moving anything.
+- **on the record**: sram_wrapper: addr1[7] measured 138.6 um, inside buf_12's reach, which retired 'keep addr drivers within 145 um' as a constraint that was already satisfied.
+
+
 ## Existing diagnosis (read before dispatching — don't re-derive what's already known)
 
 
@@ -168,6 +208,70 @@ assumes the clock input port is driven by inv_2 across a 557 um net
 (`set_driving_cell -lib_cell sky130_fd_sc_hd__inv_2 [get_ports {clk}]`), and clk
 slew is 0.834 ns - past even the design-wide 0.75 ns limit. Flop Q transitions
 are indexed by clock slew, so that degradation propagates into every addr net.
+
+
+[2026-08-29T13:45:00Z] slew root cause found by tracing the path, not by guessing knobs.
+
+FIRST, A CORRECTION TO THIS RECORD. The previous entry said
+SYNTH_CLK_DRIVING_CELL=clkbuf_16/X gave "byte-identical results", and inferred the
+knob does not reach the SDC. That inference was wrong, and it was wrong because the
+SDC was never opened. It does reach it - base.sdc lines 47-58 use it, and the
+generated SDC changes from `inv_2 -pin {Y}` to `clkbuf_16 -pin {X}` on [get_ports clk].
+Re-tested properly: the SDC changes and the addr slews do not (addr1[7] 0.545439 in
+both). Candidate A's variable was already identified; it simply does not help.
+
+WHAT report_checks SHOWS, which no amount of knob-sweeping would have. Path to
+u_sram/addr0[3] in the baseline:
+
+  _093_/Q     (dfxtp_1)          slew 0.0539   <- the flop is fine
+  load_slew85 (dlymetal6s2s_1)   slew 0.1576
+  load_slew84 (dlymetal6s2s_1)   slew 0.2350
+  load_slew83 (clkbuf_2)         slew 0.2585
+  u_sram/addr0[3]                slew 0.3453   <- violation
+
+repair_design (step 31) inserts these; the `load_slew` prefix is its own naming for
+buffers inserted to fix a load-side slew violation. So it was trying to fix exactly
+this - and dlymetal6s2s_1 is a DELAY cell, whose entire purpose is to be slow. The
+tool was repairing slew with cells sold as slow.
+
+THREE CHANGES, EACH MEASURED SEPARATELY (worst addr slew, nom_tt, and how far past
+the macro model's 0.04 ns characterisation ceiling):
+
+  A-base       baseline                                 0.8804 ns   22.0x
+  D-nodelay    exclude dly*/clkdly* from PnR            0.4434 ns   11.1x
+  E-regaddr    register addr1 instead of decrementing   0.2320 ns    5.8x
+  F-strongbuf  also exclude buf_1/buf_2/clkbuf_1        0.2092 ns    5.2x
+
+76% off the worst slew. Hold WNS stays positive throughout (0.1171 -> 0.1132) and
+setup is unchanged (9.3909 -> 9.3786), so none of it was bought from timing.
+
+The addr1 change is not a workaround. `addr1 = addr_ctr - 8'd1` built an 8-bit
+combinational decrementer whose last gate (xnor2_2) drove the macro pin directly at
+0.364 ns output slew. For a free-running counter the previous value IS the registered
+copy, so the arithmetic was never needed. It also behaves better at reset, where the
+decrementer pointed at slot 255.
+
+CLOSED, WITH REASONS:
+  - SYNTH_CLK_DRIVING_CELL: works, changes nothing (above).
+  - Per-pin max_transition in a custom SDC (PNR_SDC_FILE): OpenSTA rejects it -
+    "pnr.sdc line 164, unsupported object type Pin". set_max_transition takes ports,
+    clocks or current_design, never pins. So a pin limit can only live in liberty,
+    and repair_design demonstrably does not size its buffers against it.
+  - MAX_TRANSITION_CONSTRAINT 0.25 / 0.15: no effect on addr (0.4858 -> 0.4853 ->
+    0.4861) while total violations go 16 -> 52 -> 87.
+  - RSZ_DONT_TOUCH_RX=^addr[01]\[ : no effect, byte-identical. The netlist names are
+    escaped (\addr0[0]) and the regex does not match them.
+
+WHY THE LAST GAP LOOKS UNCLOSABLE WITH THIS LIBRARY. The best pin now sits at 0.063 ns
+against a 0.04 ns ceiling. OpenROAD's own feasibility precheck puts the floor at
+0.043 ns for the strongest buffer it will use driving a 0.01 pF probe - i.e. above
+0.04 before any real wire is added. The macro's model was not characterised for the
+slews sky130_fd_sc_hd produces.
+
+STILL OPEN. 16/16 pins remain extrapolated, so model_validity keeps the run
+`unverified` and this is not signoff. The run also still fails at Magic Write LEF on
+sky130 SRAM GDS layer mapping (layer 33 datatype 42/43, layer 22/21), unchanged and
+unrelated.
 
 
 ## What to do
