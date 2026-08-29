@@ -23,7 +23,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE
+from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
@@ -97,7 +97,7 @@ def render_gds_png(run_dir: Path, output_path: Path, size: int = 900) -> Path:
             _KLAYOUT_SCRIPT.format(size=size, lyp=LYP_IN_CONTAINER))
 
         cmd = [
-            "docker", "run", "--rm", "--platform", "linux/amd64",
+            "docker", "run", "--rm", *platform_args(),
             "-e", "QT_QPA_PLATFORM=offscreen",
             "-v", f"{PDK_ROOT}:/pdk:ro",
             "-v", f"{tmp_path}:/work",

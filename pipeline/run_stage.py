@@ -23,7 +23,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE
+from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
@@ -90,7 +90,7 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
         raise FileNotFoundError(f"no config.json in {design_dir}")
 
     cmd = [
-        "docker", "run", "--rm", "--platform", "linux/amd64",
+        "docker", "run", "--rm", *platform_args(),
         "-v", f"{PDK_ROOT}:/pdk",
         "-v", f"{design_dir}:/design",
         IMAGE,

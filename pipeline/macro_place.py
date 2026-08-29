@@ -42,7 +42,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE
+from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 from odb_query import find_odb
 
 # Reports each macro's placement before and after, so the comparison is
@@ -138,7 +138,7 @@ def autoplace(run_dir: Path | str, halo_um: float = 5.0,
         linked.write_bytes(odb_path.read_bytes())
         created = True
     cmd = [
-        "docker", "run", "--rm", "--platform", "linux/amd64",
+        "docker", "run", "--rm", *platform_args(),
         "-v", f"{work}:/work",
         IMAGE,
         "openroad", "-no_init", "-exit", "-python", "/work/_macro_place.py",

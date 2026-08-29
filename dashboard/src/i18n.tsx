@@ -157,8 +157,8 @@ const dict = {
   man_w_run: { en: "Layout Pipeline → Action Center, top of the page", ko: "레이아웃 파이프라인 → 맨 위 Action Center" },
   man_q_howlong: { en: "How long does a run take?", ko: "실행은 얼마나 걸리나요?" },
   man_a_howlong: {
-    en: "Measured, per candidate: about 1:04-1:06 for counter4 (14 instances) and 1:12-1:14 for SPM (421 instances), so a ten-candidate sweep is roughly ten to twelve minutes. Design size moves this less than the step count does — every candidate pays for all 78 steps. If you only need an area-versus-slack comparison across synthesis strategies, the exploration flow gives all nine in about 9 seconds and only the chosen few get full runs.",
-    ko: "후보 하나당 실측: counter4(인스턴스 14개)는 약 1:04~1:06, SPM(421개)은 1:12~1:14입니다. 따라서 후보 10개 스윕은 대략 10~12분입니다. 설계 크기보다 단계 수가 더 지배적입니다 — 후보마다 78단계를 전부 치릅니다. 합성 전략별 면적·슬랙 비교만 필요하다면 탐색 플로우가 9개 전부를 약 9초에 내놓고, 선택된 몇 개만 전체 실행합니다.",
+    en: "Measured on a 10-core arm64 Mac running the container natively, per candidate: about 27 s for counter4 (14 instances). The same run took 68 s while the pipeline was forcing x86 emulation, so any timing is a property of the machine as much as the design — each case now records its architecture. Design size moves this less than the step count does — every candidate pays for all 78 steps. If you only need an area-versus-slack comparison across synthesis strategies, the exploration flow gives all nine in about 9 seconds and only the chosen few get full runs.",
+    ko: "10코어 arm64 Mac에서 컨테이너를 네이티브로 돌린 실측: counter4(인스턴스 14개) 후보 하나당 약 27초입니다. 파이프라인이 x86 에뮬레이션을 강제하던 때는 같은 실행이 68초였으므로, 실행 시간은 설계만큼이나 기계의 속성입니다 — 이제 케이스마다 아키텍처를 기록합니다. 설계 크기보다 단계 수가 더 지배적입니다 — 후보마다 78단계를 전부 치릅니다. 합성 전략별 면적·슬랙 비교만 필요하다면 탐색 플로우가 9개 전부를 약 9초에 내놓고, 선택된 몇 개만 전체 실행합니다.",
   },
   man_q_watch: { en: "Can I see it running?", ko: "실행 중인 걸 볼 수 있나요?" },
   man_a_watch: {
