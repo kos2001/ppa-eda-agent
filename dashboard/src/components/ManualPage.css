@@ -46,11 +46,15 @@
 /* Not --accent for any of these: PipelineTab's own phase colours found
    --accent and --good measured too close to tell apart side by side
    (see its CSS), so this reuses that page's actual four-colour set
-   (text-dim / warn / good / critical) instead of reintroducing the
-   collision. */
+   (text-dim / warn / good / accent) instead of reintroducing the
+   collision.
+
+   The fourth was --critical until the pipeline's DECIDE phase stopped
+   being red. "When you get stuck" is a chapter of a manual, not an
+   error state, and it kept company with three neutral chapters. */
 .man__card--start   { border-top-color: var(--text-dim); }
 .man__card--read    { border-top-color: var(--warn); }
-.man__card--stuck   { border-top-color: var(--critical); }
+.man__card--stuck   { border-top-color: var(--accent); }
 .man__card--improve { border-top-color: var(--good); }
 
 .man__card-title {
@@ -63,7 +67,7 @@
 }
 .man__card--start   .man__card-title { color: var(--text-dim); }
 .man__card--read    .man__card-title { color: var(--warn); }
-.man__card--stuck   .man__card-title { color: var(--critical); }
+.man__card--stuck   .man__card-title { color: var(--accent); }
 .man__card--improve .man__card-title { color: var(--good); }
 
 .man__list { margin: 0; display: grid; gap: 0.5rem; }

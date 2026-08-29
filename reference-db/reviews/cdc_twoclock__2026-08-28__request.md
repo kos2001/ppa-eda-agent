@@ -1,8 +1,8 @@
 # Human-in-the-loop review request — cdc_twoclock (2026-08-28)
 
-Case file: reference-db/cases/cdc_twoclock__2026-08-28.json
-Outcome: no candidate met targets — no auto-repairable pattern matched, needs a human/subagent decision
-Stages the real run outcomes hit: verification_ppa
+- Case file: reference-db/cases/cdc_twoclock__2026-08-28.json
+- Outcome: no candidate met targets — no auto-repairable pattern matched, needs a human/subagent decision
+- Stages the real run outcomes hit: verification_ppa
 
 ## Relevant subagents (dispatch these, in this order)
 
