@@ -251,7 +251,12 @@
 
 .app__main {
   flex: 1;
-  max-width: 1380px;
+  /* No hard cap: report-paste and pipeline pages are grids/tables/charts
+     that benefit from real width on a wide monitor, and prose blocks
+     that shouldn't stretch that far (ManualPage, DiagnosisPage, ...)
+     already cap themselves in `ch` units. A page-level cap here fought
+     both at once — narrow on an ultrawide, and redundant on the pages
+     that already self-limit. */
   width: 100%;
   padding: 0 clamp(1rem, 3vw, 2rem) 4rem;
 }
