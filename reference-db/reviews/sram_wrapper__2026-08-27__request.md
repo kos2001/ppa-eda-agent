@@ -53,7 +53,7 @@ See the
 
 ## Measurements that apply (retrieved from what actually worked)
 
-5 of the recorded measurements match this case's failure signature. Each names the trap that wastes the attempt, because in every instance below the trap is what a previous session actually fell into.
+7 of the recorded measurements match this case's failure signature. Each names the trap that wastes the attempt, because in every instance below the trap is what a previous session actually fell into.
 
 ### ppa_sta_path  (matched RSZ-0090, max_slew_violation)
 
@@ -83,12 +83,26 @@ See the
 - **trap**: The format is <instance> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin> — net before pin. Swapped, it names nets the design does not have, connects nothing, and OpenLane only WARNs.
 - **on the record**: sram_wrapper: carried the macro's pin names in the net slots for the life of the case; the macro had no power connection in the generated PDN.
 
+### ppa_sta_report  (matched RSZ-0090, max_slew_violation)
+
+- **answers**: Which pins violate max_slew / max_cap / max_fanout, per corner, from the reports the run already wrote.
+- **run**: `python3 pipeline/sta_report.py --design D --tag T`
+- **trap**: Read it before ppa_sta_path, not after — the path trace needs an endpoint, and this is where the endpoint comes from. Also read the worst corner: sram_wrapper's worst pin was 0.545 ns at nom_tt and 0.880 ns at max_ss.
+- **on the record**: sram_wrapper: its max-slew violator list is what named addr1[7] and addr0[3], the pins whose path trace then found delay cells inserted as slew repair.
+
 ### ppa_odb_query  (matched GRT-0097)
 
 - **answers**: One net's real pin count, HPWL and max span in microns.
 - **run**: `python3 pipeline/odb_query.py --design D --tag T`
 - **trap**: metrics.json aggregates cannot answer a question about one net, and a span that looks long may still be inside what the driver can hold — check the driver before moving anything.
 - **on the record**: sram_wrapper: addr1[7] measured 138.6 um, inside buf_12's reach, which retired 'keep addr drivers within 145 um' as a constraint that was already satisfied.
+
+### ppa_render_layout  (matched macro_present)
+
+- **answers**: The run's real rendered GDS, for a question about where things physically ended up.
+- **run**: `python3 pipeline/render_layout.py --design D --tag T`
+- **trap**: An image is not a measurement — use it to form the question, then answer it with ppa_odb_query's numbers rather than by eye.
+- **on the record**: arxiv.org/html/2605.06936v3 measured that a layout image improves diagnosis of real post-flow violations over text alone; this pipeline stores the render in reference-db so it survives the run directory being cleaned up.
 
 
 ## Existing diagnosis (read before dispatching — don't re-derive what's already known)

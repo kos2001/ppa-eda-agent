@@ -153,6 +153,52 @@ class LeaveOneOutTests(unittest.TestCase):
         self.assertNotIn("transferable", empty)
 
 
+# Tools that drive the loop rather than answer a failure. They are how
+# a run is started, a case is read and a review is filed — no failure
+# signature should select them, so they are exempt from the coverage
+# check below rather than being given invented entries.
+WORKFLOW_TOOLS = {
+    "ppa_orchestrate", "ppa_run_stage", "ppa_get_case", "ppa_request_review",
+    "ppa_apply_review", "ppa_self_improve_scan",
+}
+
+
+class CoverageTests(unittest.TestCase):
+    """A tool nobody can retrieve is a tool nobody reaches for.
+
+    Measured before this check existed: 13 MCP tools, 4 reachable from
+    any failure signature. Worst of them was ppa_sta_report — the trap
+    text on the path trace says "take the pin from ppa_sta_report's
+    violator list", while nothing routed an agent to ppa_sta_report at
+    all. It was told to use the output of a tool it was never pointed
+    at.
+    """
+
+    def _mcp(self):
+        import mcp_server
+        return {t["name"] for t in mcp_server.TOOLS}
+
+    def _reachable(self):
+        names = self._mcp()
+        return {n for e in tool_retrieval.MEASUREMENTS for n in names
+                if n in e["tool"] or n in e["cli"]}
+
+    def test_every_diagnostic_tool_is_reachable(self):
+        missing = sorted(self._mcp() - WORKFLOW_TOOLS - self._reachable())
+        self.assertEqual(missing, [],
+                         f"no failure signature reaches: {missing}")
+
+    def test_the_workflow_exemption_names_real_tools(self):
+        # An exemption list that drifts is a way to make the check pass
+        # by listing whatever fails it.
+        self.assertEqual(sorted(WORKFLOW_TOOLS - self._mcp()), [])
+
+    def test_the_path_trace_prerequisite_is_reachable(self):
+        # The specific gap. ppa_sta_path is useless without an endpoint,
+        # and ppa_sta_report is where endpoints come from.
+        self.assertIn("ppa_sta_report", self._reachable())
+
+
 class ReviewRequestTests(unittest.TestCase):
     def test_the_request_carries_the_measurement_block(self):
         # Where an agent's context actually comes from. Without this the
