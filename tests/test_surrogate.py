@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (
+    win_rate_interval,
     MIN_SAMPLES_PER_SCL,
     scl_is_informative,  # noqa: E402
     MIN_SAMPLES, MIN_WIN_RATE, TARGETS, best_k, dataset_report, default_k,
@@ -386,6 +387,85 @@ class TechnologyAxisTests(unittest.TestCase):
         b = {"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hs"}
         self.assertEqual(distance(a, b, {}, use_scl=True), 1.0)
         self.assertIsNone(distance(a, b, {}, use_scl=False))
+
+
+class WinRateIntervalTests(unittest.TestCase):
+    """How settled a win-rate is, which the rate alone cannot say.
+
+    evaluate() reports a single number, and this pipeline decides
+    whether to trust a surrogate by comparing it to MIN_WIN_RATE. But
+    0.75 on 8 folds and 0.75 on 200 folds are the same figure and
+    completely different claims, and only one of them clears the bar.
+    """
+
+    def test_the_same_rate_is_settled_only_with_enough_folds(self):
+        # The point of the whole function, in one assertion.
+        few = win_rate_interval([1] * 6 + [0] * 2)
+        many = win_rate_interval([1] * 150 + [0] * 50)
+        self.assertEqual(few["win_rate"], many["win_rate"])
+        self.assertFalse(few["clears_threshold"])
+        self.assertTrue(many["clears_threshold"])
+        self.assertLess(many["hi"] - many["lo"], few["hi"] - few["lo"])
+
+    def test_the_interval_brackets_the_rate(self):
+        got = win_rate_interval([1] * 30 + [0] * 10)
+        self.assertLessEqual(got["lo"], got["win_rate"])
+        self.assertLessEqual(got["win_rate"], got["hi"])
+
+    def test_it_is_reproducible(self):
+        # Same seed, same answer — a reported interval nobody else can
+        # regenerate is an opinion.
+        folds = [1] * 30 + [0] * 10
+        self.assertEqual(win_rate_interval(folds), win_rate_interval(folds))
+
+    def test_the_seed_is_actually_used(self):
+        # The first version of the test above passed even with a
+        # clock-based seed: at 40 folds and 2000 resamples the
+        # percentiles are stable enough that two runs agree by
+        # coincidence. A small, high-variance sample makes the seed
+        # visible, so a non-deterministic one cannot hide.
+        folds = [1] * 5 + [0] * 4
+        a = win_rate_interval(folds, resamples=200, seed=1)
+        b = win_rate_interval(folds, resamples=200, seed=2)
+        self.assertNotEqual((a["lo"], a["hi"]), (b["lo"], b["hi"]))
+        self.assertEqual(win_rate_interval(folds, resamples=200, seed=1), a)
+
+    def test_a_perfect_run_on_a_few_folds_is_not_settled(self):
+        # The defect this caught in its own first version. Resampling
+        # all-wins yields all-wins, so the percentile interval collapsed
+        # to [1.00, 1.00] and reported three perfect folds as settled —
+        # the exact false confidence the function exists to prevent.
+        got = win_rate_interval([1, 1, 1])
+        self.assertTrue(got["degenerate"])
+        self.assertEqual(got["lo"], 0.0)
+        self.assertFalse(got["clears_threshold"])
+
+    def test_a_perfect_run_becomes_settled_with_enough_folds(self):
+        # Rule of three: 1 - 3/n. It should not refuse forever.
+        self.assertTrue(win_rate_interval([1] * 40)["clears_threshold"])
+
+    def test_an_all_loss_run_is_also_degenerate(self):
+        got = win_rate_interval([0] * 5)
+        self.assertTrue(got["degenerate"])
+        self.assertFalse(got["clears_threshold"])
+
+    def test_too_few_folds_to_say_anything_returns_none(self):
+        self.assertIsNone(win_rate_interval([1]))
+        self.assertIsNone(win_rate_interval([]))
+
+    def test_the_real_store_reports_an_interval_that_clears(self):
+        refdb = Path(__file__).resolve().parent.parent / "reference-db"
+        if not (refdb / "cases").is_dir():
+            self.skipTest("no reference-db")
+        data = load_dataset(refdb)
+        for field in ("area_um2", "completed"):
+            got = win_rate_interval(evaluate(data, field)["fold_wins"])
+            self.assertIsNotNone(got, field)
+            # Re-asserted rather than assumed, like the k default: the
+            # corpus moves and this should fail when it does.
+            self.assertTrue(got["clears_threshold"],
+                            f"{field}: {got['win_rate']:.2f} "
+                            f"[{got['lo']:.2f}, {got['hi']:.2f}]")
 
 
 class NeighbourhoodSizeTests(unittest.TestCase):
