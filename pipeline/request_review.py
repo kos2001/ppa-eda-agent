@@ -81,9 +81,15 @@ def cmd_request(args: argparse.Namespace) -> None:
     lines = [
         f"# Human-in-the-loop review request — {args.design} ({case['date']})",
         "",
-        f"Case file: {case_file.relative_to(REPO_ROOT).as_posix()}",
-        f"Outcome: {case['outcome']}",
-        f"Stages the real run outcomes hit: {', '.join(stages_hit) or '(none classified)'}",
+        # A list, not three consecutive lines. Markdown joins consecutive
+        # lines into one paragraph, so these three separate facts
+        # rendered as a single run-on sentence in the console — correct
+        # markdown, and not what the text means. Bullets say "three
+        # things" in both a renderer and a terminal.
+        f"- Case file: {case_file.relative_to(REPO_ROOT).as_posix()}",
+        f"- Outcome: {case['outcome']}",
+        f"- Stages the real run outcomes hit: "
+        f"{', '.join(stages_hit) or '(none classified)'}",
         "",
         "## Relevant subagents (dispatch these, in this order)",
         "",

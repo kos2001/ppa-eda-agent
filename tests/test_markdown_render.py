@@ -9,6 +9,12 @@ to be read carefully before someone commits a judgement:
     lists and fenced tool output, shown as an unstyled wall four lines
     tall. Every structural cue request_review.py emits was discarded.
 
+    Collapsible sections were the first fix and only halved it — open
+    two and you are scrolling again. It now shows one section at a time
+    with a contents rail, so the tests below check that the document
+    actually divides into namable, roughly-even sections: a rail over
+    one giant section would have moved the scrolling, not removed it.
+
   - Its status colours failed WCAG AA. Light-mode green was 3.06:1 and
     the pill backgrounds were 1.01:1 against the page — not a shape at
     all. The dark palette had been measured and tuned in an earlier
@@ -236,6 +242,53 @@ class ParserTests(unittest.TestCase):
         # item is a name plus the path to its .md file.
         joined = " ".join(self.got["listItems"])
         self.assertIn("`", joined)
+
+    def test_it_splits_into_navigable_sections(self):
+        # The contents rail is built from these. Too few and the rail is
+        # pointless; too many and it is a second thing to scroll.
+        sections = self.got["sections"]
+        self.assertGreaterEqual(len(sections), 3)
+        self.assertLessEqual(len(sections), 12)
+
+    def test_every_section_is_named(self):
+        # A nameless entry is unpickable — the reader cannot tell what
+        # is behind it, which defeats navigating instead of scrolling.
+        for s in self.got["sections"]:
+            self.assertTrue(s["title"], s)
+
+    def test_no_section_is_long_enough_to_need_much_scrolling(self):
+        # The point of the change. The whole document is ~140 lines; if
+        # one section still held most of them, the rail would only have
+        # moved the scrolling rather than removed it.
+        biggest = max(s["lines"] for s in self.got["sections"])
+        self.assertLess(biggest, self.got["total"] * 0.8,
+                        "one section still holds most of the document")
+
+    def test_sections_advertise_what_is_inside_them(self):
+        # A rail entry carries a line count and its subheadings so the
+        # reader can choose without opening. At least one section here
+        # has subheadings — the retrieved precedent has one per case.
+        self.assertTrue(any(s["subheads"] for s in self.got["sections"]))
+
+    def test_the_header_facts_stay_separate(self):
+        # Markdown joins consecutive lines into one paragraph, so the
+        # request's three header facts rendered as a single run-on
+        # sentence. request_review.py emits them as a list for that
+        # reason; this fails if that regresses.
+        items = " | ".join(self.got["listItems"])
+        self.assertIn("Case file:", items)
+        self.assertIn("Outcome:", items)
+        for para in self.got["paras"]:
+            self.assertNotIn("Case file:", para)
+
+    def test_a_line_count_counts_lines_not_blocks(self):
+        # A section with a 5-line fence, a 2-item list and a paragraph
+        # is 8 lines to read, not 3 blocks. Counting blocks would let a
+        # section holding a 20-line log advertise itself as tiny, which
+        # is the opposite of what the number is for.
+        got = self.got["counting"]
+        self.assertEqual(got["blocks"], 3)
+        self.assertEqual(got["lines"], 8)
 
     def test_the_whole_document_is_accounted_for(self):
         # A parser that silently drops blocks would still pass the

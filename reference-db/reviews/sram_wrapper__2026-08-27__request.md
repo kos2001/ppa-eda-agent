@@ -1,8 +1,8 @@
 # Human-in-the-loop review request — sram_wrapper (2026-08-27)
 
-Case file: reference-db/cases/sram_wrapper__2026-08-27.json
-Outcome: no candidate met targets — no auto-repairable pattern matched, needs a human/subagent decision
-Stages the real run outcomes hit: physical_constraint
+- Case file: reference-db/cases/sram_wrapper__2026-08-27.json
+- Outcome: no candidate met targets — no auto-repairable pattern matched, needs a human/subagent decision
+- Stages the real run outcomes hit: physical_constraint
 
 ## Relevant subagents (dispatch these, in this order)
 
