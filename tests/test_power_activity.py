@@ -8,7 +8,7 @@ correct answer is no number at all.
 score() carried "no VCD/SAIF activity annotation configured in this
 pipeline yet" as a documented caveat. It was closable with tools already
 in the pinned image, and on spm the default estimate turned out to
-understate combinational power by 27%.
+understate combinational power by 44%.
 """
 import sys
 import tempfile
@@ -18,8 +18,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from power_activity import (  # noqa: E402
-    PowerActivityError, compare, find_netlist, find_testbench, measure,
-    parse_power,
+    POWER_CORNER, POWER_RC_CORNER, PowerActivityError, compare, find_netlist,
+    find_sdc, find_spef, find_testbench, measure, parse_power,
 )
 
 # A real OpenSTA report_power table, as emitted for spm.
@@ -116,6 +116,58 @@ class DiscoveryTests(unittest.TestCase):
         f = nl / "spm.nl.v"
         f.write_text("module spm; endmodule")
         self.assertEqual(find_netlist(d), f)
+
+
+class SetupFidelityTests(unittest.TestCase):
+    """The three things that made the numbers wrong while looking right.
+
+    Each was caught only by checking the vectorless column against
+    OpenLane's own power__total for the same corner. With all three
+    fixed that check agrees to 0.1%; with any one of them undone it
+    does not.
+    """
+
+    def _run(self):
+        d = Path(tempfile.mkdtemp())
+        (d / "final" / "spef" / "max").mkdir(parents=True)
+        (d / "final" / "spef" / "nom").mkdir(parents=True)
+        (d / "final" / "sdc").mkdir(parents=True)
+        (d / "final" / "spef" / "max" / "x.max.spef").write_text("*SPEF")
+        (d / "final" / "spef" / "nom" / "x.nom.spef").write_text("*SPEF")
+        (d / "final" / "sdc" / "x.sdc").write_text("create_clock")
+        return d
+
+    def test_parasitics_are_found(self):
+        # Without SPEF every net has zero wire capacitance and switching
+        # power came out 1.8x low.
+        self.assertIsNotNone(find_spef(self._run()))
+
+    def test_parasitics_match_the_power_corner(self):
+        # max SPEF pairs with the ff liberty, which is what OpenLane's
+        # max_ff_n40C_1v95 means. Taking nom here would silently pair
+        # mismatched extraction with the fast-fast library.
+        self.assertEqual(find_spef(self._run()).name, "x.max.spef")
+
+    def test_falls_back_to_nom_when_the_power_corner_is_absent(self):
+        d = self._run()
+        for f in (d / "final" / "spef" / "max").glob("*"):
+            f.unlink()
+        self.assertEqual(find_spef(d).name, "x.nom.spef")
+
+    def test_the_runs_own_sdc_is_preferred(self):
+        # A hand-written create_clock leaves inputs with ideal zero
+        # transition and no output load.
+        self.assertIsNotNone(find_sdc(self._run()))
+
+    def test_no_sdc_is_none_so_the_caller_can_say_so(self):
+        self.assertIsNone(find_sdc(Path(tempfile.mkdtemp())))
+
+    def test_the_default_corner_is_the_one_score_reports(self):
+        # OpenLane's power__total carries no corner suffix but is
+        # max_ff_n40C_1v95. Defaulting to tt here produced a 14% gap
+        # that looked like a defect in this module and was not one.
+        self.assertEqual(POWER_CORNER, "ff_n40C_1v95")
+        self.assertEqual(POWER_RC_CORNER, "max")
 
 
 class RealDesignTests(unittest.TestCase):
