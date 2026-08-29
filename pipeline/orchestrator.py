@@ -31,6 +31,7 @@ import design_rules
 import equiv_check
 import netlist_graph
 import operating_point
+import power_activity
 import render_layout
 import step_coverage
 import synth_explore
@@ -397,11 +398,21 @@ def score(metrics: dict, targets: dict) -> dict:
         })
     timing_corners.sort(key=lambda c: c["corner"])
 
-    # Real power (OpenLane's default/vectorless estimate — no VCD/SAIF
-    # activity annotation configured in this pipeline yet, so these are
-    # OpenSTA's default-activity numbers, not switching-activity-accurate
-    # ones; still real computed values, not fabricated) and real IR-drop/
-    # power-grid numbers from the actual PDN OpenROAD generated.
+    # Real power, still OpenLane's own default/vectorless estimate:
+    # score() reads metrics.json, and OpenSTA computed these numbers from
+    # a default toggle rate rather than from a workload. Real computed
+    # values, not fabricated — but an estimate.
+    #
+    # The activity-annotated measurement now lives beside it, under the
+    # verdict's `power_activity` key, put there by run_candidate()
+    # because it needs the design and the run directory that score()
+    # never sees. The two are not interchangeable: on spm the same
+    # netlist reads 1.33e-03 W here against 1.53e-03 W measured, with
+    # combinational power understated by 44%. Anything comparing
+    # candidates must pick one basis for all of them — see pick_winner().
+    #
+    # Followed by real IR-drop/power-grid numbers from the actual PDN
+    # OpenROAD generated.
     power = None
     if "power__total" in metrics:
         power = {
@@ -640,6 +651,30 @@ def verify_function(design_dir: Path, run_dir: Path, verdict: dict) -> dict | No
     return result
 
 
+def measure_activity_power(design_dir: Path, run_dir: Path) -> dict | None:
+    """Activity-annotated power for one completed run, or None.
+
+    None whenever the design has no testbench — the common case, and not
+    an error. Passes the design's own clock port and period so OpenSTA
+    constrains the same clock OpenLane did.
+    """
+    ports = cdc_check.declared_clock_ports(design_dir)
+    if not ports:
+        return None
+    period = clock_period(design_dir)
+    return power_activity.measure(
+        design_dir, run_dir,
+        clock_port=ports[0],
+        clock_period=period if period else 10.0,
+    )
+
+
+def annotated_total_w(result: dict) -> float | None:
+    """A candidate's measured total power, if it really was measured."""
+    pa = (result.get("verdict") or {}).get("power_activity") or {}
+    return (pa.get("annotated") or {}).get("total", {}).get("total_w")
+
+
 def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                    verify_fn: bool = False) -> dict:
     """Runs and scores one independent candidate."""
@@ -664,6 +699,24 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         # and never reaches score().
         verdict["operating_point"] = operating_point.operating_point(
             metrics, clock_period(design_dir))
+        # Power measured against a real workload, when the design has a
+        # testbench to provide one. score()'s figure is OpenSTA's
+        # default-activity estimate, which on spm understates
+        # combinational power by 44% — the tool is being asked how much
+        # the design burns without being told what it is doing.
+        #
+        # Non-intrusive by construction: measure() returns None and
+        # starts no container for the designs without a testbench, which
+        # is most of them. Failures here are attached, not raised — a
+        # simulation that will not compile is a fact about the
+        # testbench, and it must not discard a completed OpenLane run.
+        try:
+            annotated = measure_activity_power(design_dir, run_dir)
+        except Exception as e:  # noqa: BLE001
+            annotated = {"error": f"{type(e).__name__}: {e}"}
+        if annotated:
+            verdict["power_activity"] = annotated
+
         equiv = verify_function(design_dir, run_dir, verdict) if verify_fn else None
         layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
         # The gate-level circuit itself. Yosys wrote this during
@@ -833,11 +886,33 @@ def pick_winner(results: list[dict]) -> dict | None:
     if len(passing) == 1:
         return passing[0]
 
+    # Rank on measured power when every passing candidate has it, and on
+    # the estimate otherwise — never a mixture.
+    #
+    # This is the whole reason the choice is made here rather than
+    # per-candidate. Annotated and vectorless numbers are not
+    # interchangeable: on spm the same netlist reads 1.33e-03 W
+    # estimated against 1.53e-03 W measured. Ranking a measured
+    # candidate against an estimated one would compare a 15% offset
+    # and call it a difference between designs, so a single candidate
+    # whose simulation failed to compile would silently win the power
+    # objective against candidates that are genuinely better.
+    #
+    # An all-or-nothing rule is safe because the testbench belongs to
+    # the design, not the candidate: within one run_spec the candidates
+    # either all have one or none do, and the mixed case only arises
+    # when a simulation actually failed — exactly when the estimate is
+    # the honest common basis.
+    use_annotated = all(annotated_total_w(r) is not None for r in passing)
+
     points = []
     for r in passing:
         v = r["verdict"]
         area = v["area_um2"] or 0.0
-        power_total = (v.get("power") or {}).get("total_w") or 0.0
+        if use_annotated:
+            power_total = annotated_total_w(r) or 0.0
+        else:
+            power_total = (v.get("power") or {}).get("total_w") or 0.0
         margin = -v["worst_setup_wns"]  # minimize negative slack = maximize margin
         points.append(ParetoPoint(key=r["tag"], objs=(area, power_total, margin)))
 
