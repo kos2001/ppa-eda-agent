@@ -3049,6 +3049,65 @@ against: making `measure()` return a number without a testbench fails
 the suite, as do dropping zero-power groups and reporting an absolute
 delta where a percentage is claimed.
 
+## Asking STA a question its models cannot answer
+
+A liberty file's timing tables are indexed by input slew, and that index
+has a top. Ask for a delay above it and the tool does not refuse — it
+extrapolates off the end of the table and returns a number that looks
+exactly like a measurement.
+
+sky130's OpenRAM SRAM macro is characterised over
+`index_1("0.00125, 0.005, 0.04")` — input slew to 0.04 ns and no
+further — and carries `max_transition : 0.04` on `addr0`, `addr1` and
+`wmask0`. Those are the same number because the "constraint" is just
+where characterisation stopped. The standard cell library, for
+comparison, goes to 1.5 ns.
+
+`pipeline/model_validity.py` compares every reported slew against the
+ceiling of the library that owns the pin, and produces an `unverified`
+entry — not a violation. Nobody proved the design is bad; they proved
+nobody can say from here. It returns `None` when there is no macro
+liberty or no signoff STA report, so absence of evidence is reported as
+absence rather than as a pass.
+
+### What this caught on sram_wrapper
+
+Three things were wrong, two of them ours:
+
+1. **`PDN_MACRO_CONNECTIONS` had its fields swapped.** The format is
+   `<instance_rx> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>` — net before
+   pin. Ours put the macro's pin names in the net slots, naming nets
+   this design does not have. OpenLane said so, at WARNING level only:
+   `[PDN-0231] u_sram is not connected to any power/ground nets`. The
+   macro had no power connection in the generated PDN for the life of
+   the case.
+2. **The limit is on the address inputs, not the data outputs.** The
+   case record and the RTL comment both said `dout0`/`dout1`, which is
+   what sent an earlier session after data-bus wirelength and macro
+   position. `dout0`/`dout1` carry no `max_transition` at all.
+3. **`RSZ-0090` is a feasibility precheck, not a violation report.** It
+   compares the tightest limit in the design against the best any
+   available buffer can reach at 0.01 pF and aborts before doing any
+   work, whether or not a single net violates. That is why no placement
+   or repair tuning ever moved it.
+
+Relaxing the limit to 0.05 in a derived liberty takes the flow from
+aborting at step 31 of 78 to reaching step 58 — placement, CTS, detailed
+routing, post-PnR STA over nine corners — with **WNS +9.39 ns and zero
+setup, hold and max-cap violations**.
+
+That result is not trustworthy, which is the whole point. The addr pins
+settle at 0.3–0.9 ns, up to **22x past where the model stops**. Relaxing
+the limit converted a loud abort into a quiet fiction, and the check
+exists so the pipeline cannot score it as a pass.
+
+The remaining problem is drive, not distance — which retires the case's
+previous next step. `addr1[7]` spans 138.6 µm and `buf_12` meets 0.05 ns
+at that load (0.0372 ns); the pins are instead driven by unbuffered
+`xnor2_2`/`nand2_1`. "Keep addr drivers within ~145 µm" was aiming at a
+constraint already satisfied. Five repair levers were tried and all were
+null, one of them byte-identical.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
@@ -3061,6 +3120,17 @@ delta where a percentage is claimed.
   vectorless estimate, which `spm` shows can understate combinational
   power by 44%. Writing testbenches for the rest is the work that would
   close this, not more tooling.
+- `sram_wrapper` still cannot be signed off: it needs a re-characterised
+  SRAM liberty, and with the derived one it fails in Magic on unrelated
+  sky130 SRAM GDS layer mapping (layer 33 datatype 42/43, layer 22/21).
+  Why `repair_design` leaves a macro input pin driven by an unbuffered
+  `xnor2_2` when a `buf_12` would meet the limit at the measured span is
+  open.
+- Config-file keys are not checked for being silently ignored. The
+  `reject_ignored_overrides` guard covers CLI overrides only, which is
+  how a wrong-but-recognised `PDN_MACRO_CONNECTIONS` value sat in
+  `config.json` unnoticed — the key was valid, the value was not, and
+  OpenLane only warned.
 - Ranking falls back to the estimate for *all* candidates as soon as one
   of them lacks a measurement (`pick_winner()`). Correct, but blunt: a
   single candidate whose simulation fails to compile discards the
