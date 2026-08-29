@@ -27,9 +27,16 @@ interface Step {
   where?: DictKey;
 }
 
-const SECTIONS: { title: DictKey; steps: Step[] }[] = [
+// A section's kind picks its card's accent colour — the same
+// understand/propose/evaluate/decide colour language PipelineTab uses
+// for its four phases, reused here because this page is the same kind
+// of four-stage journey (start -> read -> get stuck -> improve).
+type SectionKind = "start" | "read" | "stuck" | "improve";
+
+const SECTIONS: { title: DictKey; kind: SectionKind; steps: Step[] }[] = [
   {
     title: "man_s_start",
+    kind: "start",
     steps: [
       { q: "man_q_what", a: "man_a_what" },
       { q: "man_q_run", a: "man_a_run", where: "man_w_run" },
@@ -42,6 +49,7 @@ const SECTIONS: { title: DictKey; steps: Step[] }[] = [
   },
   {
     title: "man_s_read",
+    kind: "read",
     steps: [
       { q: "man_q_verdict", a: "man_a_verdict", where: "man_w_verdict" },
       { q: "man_q_unverified", a: "man_a_unverified" },
@@ -50,6 +58,7 @@ const SECTIONS: { title: DictKey; steps: Step[] }[] = [
   },
   {
     title: "man_s_stuck",
+    kind: "stuck",
     steps: [
       { q: "man_q_open", a: "man_a_open", where: "man_w_open" },
       { q: "man_q_review", a: "man_a_review", where: "man_w_review" },
@@ -58,6 +67,7 @@ const SECTIONS: { title: DictKey; steps: Step[] }[] = [
   },
   {
     title: "man_s_improve",
+    kind: "improve",
     steps: [
       { q: "man_q_next", a: "man_a_next", where: "man_w_next" },
       { q: "man_q_data", a: "man_a_data" },
@@ -174,27 +184,32 @@ export default function ManualPage() {
       <h2 className="man__title">{t("man_title")}</h2>
       <p className="man__lede">{t("man_lede")}</p>
 
-      {SECTIONS.map((section) => (
-        <section key={section.title} className="man__block">
-          <h3>{t(section.title)}</h3>
-          <dl className="man__list">
-            {section.steps.map((step) => (
-              <div key={step.q} className="man__item">
-                <dt>{t(step.q)}</dt>
-                <dd>
-                  {t(step.a)}
-                  {/* Named so the answer can be acted on without
-                      hunting. A manual that explains a concept but not
-                      where the control is has answered half a question. */}
-                  {step.where && (
-                    <span className="man__where">{t(step.where)}</span>
-                  )}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      ))}
+      <div className="man__grid">
+        {SECTIONS.map((section) => (
+          <section
+            key={section.title}
+            className={`man__card man__card--${section.kind}`}
+          >
+            <h3 className="man__card-title">{t(section.title)}</h3>
+            <dl className="man__list">
+              {section.steps.map((step) => (
+                <div key={step.q} className="man__item">
+                  <dt>{t(step.q)}</dt>
+                  <dd>
+                    {t(step.a)}
+                    {/* Named so the answer can be acted on without
+                        hunting. A manual that explains a concept but not
+                        where the control is has answered half a question. */}
+                    {step.where && (
+                      <span className="man__where">{t(step.where)}</span>
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </div>
 
       <Feedback />
     </section>

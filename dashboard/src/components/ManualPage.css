@@ -1,9 +1,10 @@
 /* Operating instructions, then somewhere to say they did not help.
-   Reading text, so it gets a measure and a rhythm the metric pages do
-   not need — the console is monospace throughout, so a mono design has
-   to earn readability from line length, spacing and weight. */
-
-.man { max-width: 90ch; }
+   Reading text, so line length still has to earn readability — but a
+   single page-wide column capped in `ch` (the old approach) either
+   sits stranded in a void on a wide monitor or has to stay narrow and
+   waste the screen. A card grid gets both: each card holds its own
+   line length, and the page fills with cards instead of empty margin
+   as the window grows. */
 
 .man__title { margin: 0 0 0.2rem; font-size: 1.15rem; }
 
@@ -15,25 +16,68 @@
   max-width: 68ch;
 }
 
-.man__block { margin-bottom: 1.4rem; }
+.man__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
 
-.man__block h3 {
-  margin: 0 0 0.6rem;
-  padding-bottom: 0.3rem;
+/* One card per stage of the journey (start / read / stuck / improve),
+   coloured the same way PipelineTab colours its four phases — a
+   reader who has already learned that colour language on the pipeline
+   page gets it for free here. */
+.man__card {
+  border: 1px solid var(--border);
+  border-top-width: 3px;
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  padding: 1.1rem 1.2rem 1.3rem;
+  transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.man__card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Not --accent for any of these: PipelineTab's own phase colours found
+   --accent and --good measured too close to tell apart side by side
+   (see its CSS), so this reuses that page's actual four-colour set
+   (text-dim / warn / good / critical) instead of reintroducing the
+   collision. */
+.man__card--start   { border-top-color: var(--text-dim); }
+.man__card--read    { border-top-color: var(--warn); }
+.man__card--stuck   { border-top-color: var(--critical); }
+.man__card--improve { border-top-color: var(--good); }
+
+.man__card-title {
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--border);
-  font-size: 0.78rem;
-  letter-spacing: 0.05em;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--accent);
 }
+.man__card--start   .man__card-title { color: var(--text-dim); }
+.man__card--read    .man__card-title { color: var(--warn); }
+.man__card--stuck   .man__card-title { color: var(--critical); }
+.man__card--improve .man__card-title { color: var(--good); }
 
-.man__list { margin: 0; }
+.man__list { margin: 0; display: grid; gap: 0.5rem; }
 
+/* Each Q&A is its own small card nested inside the section card,
+   rather than a plain list item — the same "card within a card"
+   pattern metric-grid/metric-card uses elsewhere in this app. */
 .man__item {
-  padding: 0.55rem 0 0.55rem 0.7rem;
-  border-left: 2px solid var(--border);
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface-raised);
 }
-.man__item + .man__item { margin-top: 0.4rem; }
 
 .man__item dt {
   font-size: 0.8rem;
@@ -61,13 +105,21 @@
 }
 
 /* ---- feedback ------------------------------------------------------ */
+/* A card too, matching the section cards above it — but capped in
+   width rather than stretched full-bleed: it holds a textarea and
+   buttons, and an input form the width of a wide monitor is harder to
+   use, not easier, the way the reading cards above benefit from more
+   room. */
 .man__feedback {
-  margin-top: 1.8rem;
-  padding: 1rem;
+  margin-top: 1.75rem;
+  max-width: 640px;
+  padding: 1.1rem 1.2rem;
   border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 10px;
+  border-top-width: 3px;
+  border-top-color: var(--accent);
+  border-radius: 12px;
   background: var(--surface);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
 }
 
 .man__feedback h3 { margin: 0 0 0.3rem; font-size: 0.88rem; }

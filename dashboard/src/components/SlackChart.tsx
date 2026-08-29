@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { TimingCorner } from "../api/referenceDb";
 import "./SlackChart.css";
 
@@ -26,11 +26,35 @@ function useTooltip() {
   return { show, hide, node };
 }
 
+// Recharts' own bar charts elsewhere in this dashboard fill their panel
+// via ResponsiveContainer; this one is hand-drawn SVG, so it needs the
+// same thing done by hand. Without it the chart sat at a fixed 560px
+// forever — a fifth of a wide monitor — while everything around it grew
+// to fill the page.
+const FALLBACK_WIDTH = 560;
+const MIN_WIDTH = 340;
+
+function useContainerWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(FALLBACK_WIDTH);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width;
+      if (w) setWidth(Math.max(w, MIN_WIDTH));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return { ref, width };
+}
+
 export default function SlackChart({ corners }: { corners: TimingCorner[] }) {
   const { show, hide, node } = useTooltip();
+  const { ref: containerRef, width } = useContainerWidth();
   if (corners.length === 0) return null;
 
-  const width = 560;
   const barH = 15;
   const gap = 6;
   const labelW = 130;
@@ -45,7 +69,7 @@ export default function SlackChart({ corners }: { corners: TimingCorner[] }) {
   );
 
   return (
-    <div className="slack-chart">
+    <div className="slack-chart" ref={containerRef}>
       <svg width={width} height={height + 18} role="img" aria-label="setup slack per PVT corner">
         <line x1={zeroX} y1={0} x2={zeroX} y2={height} className="slack-chart__baseline" />
         {corners.map((c, i) => {
