@@ -42,7 +42,7 @@
 }
 @keyframes ac-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
 @media (prefers-reduced-motion: reduce) { .ac__dot { animation: none; } }
-.ac__count--needing { color: var(--critical); font-weight: 600; }
+.ac__count--needing { color: var(--accent); font-weight: 600; }
 
 .ac__list { list-style: none; margin: 0; padding: 0; }
 
@@ -57,12 +57,22 @@
 }
 .ac__list > .ac__row:first-child { border-top: none; }
 
-/* Colour carries the same meaning as the pipeline phases: red = a
-   decision only a person can make, amber = a decision but a mechanical
-   one, dim = nothing owed. */
-.ac__row--review { border-left-color: var(--critical); background: var(--critical-soft); }
+/* Priority by emphasis, not by alarm.
+ *
+ * This used to read "red = a decision only a person can make, amber = a
+ * decision but a mechanical one" — a deliberate colour language, and the
+ * wrong one. Red means broken everywhere else in this UI (and in every
+ * other UI), so spending it on the most ordinary state left the list
+ * looking like a list of failures, and left nothing for the rows that
+ * are actually failures.
+ *
+ * The triage it encoded is worth keeping, so it now comes from weight:
+ * a judgement call gets the accent edge and a filled button, a run gets
+ * the same hue at lower emphasis, a mechanical step stays amber, and a
+ * finished row fades. Nothing routine is red. */
+.ac__row--review { border-left-color: var(--accent); }
 .ac__row--budget { border-left-color: var(--warn); }
-.ac__row--run    { border-left-color: var(--accent); }
+.ac__row--run    { border-left-color: var(--border-strong); }
 .ac__row--done   { opacity: 0.6; }
 
 .ac__what { display: flex; flex-direction: column; gap: 0.2rem; }
@@ -72,9 +82,9 @@
   font-size: 0.62rem;
   letter-spacing: 0.08em;
 }
-.ac__row--review .ac__state { color: var(--critical); }
+.ac__row--review .ac__state { color: var(--accent); }
 .ac__row--budget .ac__state { color: var(--warn); }
-.ac__row--run    .ac__state { color: var(--accent); }
+.ac__row--run    .ac__state { color: var(--text-dim); }
 .ac__row--done   .ac__state { color: var(--text-dim); }
 
 .ac__ask {
@@ -97,7 +107,7 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.ac__row--review .ac__do button { background: var(--critical); }
+.ac__row--review .ac__do button { background: var(--accent); }
 .ac__row--budget .ac__do button { background: var(--warn); color: #1a1200; }
 .ac__do button:disabled { opacity: 0.5; cursor: default; }
 

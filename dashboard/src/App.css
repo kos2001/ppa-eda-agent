@@ -149,8 +149,10 @@
   animation: agent-pulse 1.4s ease-in-out infinite;
 }
 
+/* Unseen, not wrong. This dot marks a tab with output you have not
+   looked at yet; red made every new result look like a problem. */
 .app__tab-dot--unseen {
-  background: var(--critical);
+  background: var(--accent);
 }
 
 @keyframes agent-pulse {
