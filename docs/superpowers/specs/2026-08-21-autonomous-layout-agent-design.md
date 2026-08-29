@@ -2926,6 +2926,56 @@ moves that less than the step count does, since every candidate pays for
 all 78 steps, which is the argument for the 9-second exploration flow
 when only a strategy comparison is needed. The manual now says so.
 
+## freerouting: nothing to borrow in the algorithms, one thing in the method
+
+freerouting (github.com/freerouting/freerouting) is a PCB autorouter, so
+its routing has no bearing on standard-cell layout — that is
+TritonRoute's job here. Its `docs/benchmarks.md` does one thing this
+project did not, and it turned out to matter.
+
+Its results table states the machine above the numbers — CPU, RAM, OS —
+and the exact command line, and marks unmeasured cells `?` rather than
+leaving them blank. This store recorded the OpenLane image and **not one
+fact about the host**. Two cases from different machines were compared as
+though identical, and the per-candidate timings that had just gone into
+the manual had no stated environment at all.
+
+Following that thread found something larger. The pipeline has forced
+`--platform linux/amd64` since its first commit, in six modules
+independently. This host is arm64, the image is multi-arch, and both
+OpenLane and OpenROAD run on it natively — so every run this project has
+ever made was emulating x86, and nothing said so.
+
+Measured, counter4 through the real wrapper:
+
+    forced linux/amd64 (emulated)    68 s
+    native arm64                     27 s
+
+and of 279 metrics, 278 are identical. The exception is
+`power__leakage__total`, differing in its tenth significant figure on a
+0.5 nW number — floating-point summation order, not a different result.
+Area, instance count, utilization, setup slack, DRC, LVS and total power
+are bit-identical.
+
+So the platform is no longer forced: `platform_args()` returns nothing by
+default and lets Docker pick native, overridable through
+`PPA_EDA_DOCKER_PLATFORM` because the choice is a real one — an x86 host
+is native either way, and a future tool in the image might be x86-only.
+All six call sites go through it, which a test enforces, since a
+hardcoded platform duplicated six times is exactly how this survived
+unexamined.
+
+`toolchain_info()` now records arch, system, core count and whether the
+platform was forced, so cases recorded before and after this change stay
+comparable rather than silently mixing two architectures. Deliberately no
+hostname or user: what makes results comparable is the machine's shape,
+not whose it is.
+
+The manual's timing answer was corrected in the same pass. It now says
+27 s per counter4 candidate on a 10-core arm64 Mac running natively, and
+that the same run took 68 s under emulation — because a duration with no
+machine attached is the thing freerouting's table exists to avoid.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

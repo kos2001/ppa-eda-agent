@@ -35,7 +35,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE
+from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -113,7 +113,7 @@ def query(run_dir: Path) -> dict:
     odb_path = find_odb(run_dir)
     work = odb_path.parent
     cmd = [
-        "docker", "run", "--rm", "--platform", "linux/amd64",
+        "docker", "run", "--rm", *platform_args(),
         "-v", f"{work}:/work",
         IMAGE,
         "openroad", "-no_init", "-exit", "-python", "/work/_odb_query.py",

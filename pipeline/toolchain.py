@@ -26,11 +26,57 @@ run, and re-baselining all of them onto a development build would trade
 that for novelty.
 """
 
+import os
+import platform
+
 OPENLANE_IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 
 # Where that image comes from, recorded alongside results so a case can
 # be attributed to a toolchain rather than to "whatever was installed".
 OPENLANE_UPSTREAM = "github.com/chipfoundry/openlane2"
+
+
+# Which architecture the container runs under.
+#
+# This pipeline forced `--platform linux/amd64` from its first commit,
+# which on an arm64 host means every OpenLane run has been emulating
+# x86. The image is multi-arch and both OpenLane and OpenROAD run
+# natively: measured on counter4, 68 s emulated against 28 s native, and
+# 278 of 279 metrics identical — the exception being
+# power__leakage__total differing in its tenth significant figure, which
+# is floating-point summation noise on a 0.5 nW number.
+#
+# Overridable because the choice is a real one: an x86 host is native
+# either way, and a future tool in the image might be x86-only.
+DOCKER_PLATFORM = os.environ.get("PPA_EDA_DOCKER_PLATFORM", "").strip()
+
+
+def platform_args() -> list[str]:
+    """`docker run` platform flag, or nothing to let Docker pick native."""
+    return ["--platform", DOCKER_PLATFORM] if DOCKER_PLATFORM else []
+
+
+def host_info() -> dict:
+    """The machine a result was produced on.
+
+    Borrowed from freerouting's benchmark table
+    (github.com/freerouting/freerouting, docs/benchmarks.md), which
+    states its CPU, RAM and OS above the numbers. This store recorded the
+    OpenLane image and nothing about the machine, so two cases from
+    different hosts — or from emulated and native runs of the same image
+    — were compared as though identical, and any wall-clock figure taken
+    from one had no stated environment at all.
+
+    Deliberately no hostname or user: what makes results comparable is
+    the architecture and core count, not who ran them.
+    """
+    return {
+        "arch": platform.machine(),
+        "system": platform.system(),
+        "cpu_count": os.cpu_count(),
+        # "" means Docker chose; anything else was forced by us.
+        "docker_platform": DOCKER_PLATFORM or "native",
+    }
 
 
 def toolchain_info() -> dict:
@@ -40,6 +86,7 @@ def toolchain_info() -> dict:
     return {
         "openlane_image": OPENLANE_IMAGE,
         "openlane_upstream": OPENLANE_UPSTREAM,
+        "host": host_info(),
     }
 
 

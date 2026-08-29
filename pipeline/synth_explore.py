@@ -31,7 +31,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE
+from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 import operating_point
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -111,7 +111,7 @@ def explore(design_dir: Path | str, tag: str = "synth-explore",
         raise SynthExploreError(f"no config.json in {design_dir}")
 
     cmd = [
-        "docker", "run", "--rm", "--platform", "linux/amd64",
+        "docker", "run", "--rm", *platform_args(),
         "-v", f"{PDK_ROOT}:/pdk",
         "-v", f"{design_dir}:/design",
         IMAGE,

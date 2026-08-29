@@ -38,7 +38,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE
+from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
@@ -144,7 +144,7 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None) -> dict:
         (work / "eq.ys").write_text(
             _YS.format(rtl_args=" ".join(rtl_args), top=top))
 
-        cmd = ["docker", "run", "--rm", "--platform", "linux/amd64",
+        cmd = ["docker", "run", "--rm", *platform_args(),
                "-v", f"{work}:/work", IMAGE, "yosys", "-s", "/work/eq.ys"]
         print(f"$ {' '.join(cmd)}", file=sys.stderr)
         result = subprocess.run(cmd, capture_output=True, text=True)
