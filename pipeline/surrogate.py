@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import json
 import math
+import random
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -440,6 +441,11 @@ def evaluate(dataset: list[dict], field: str = "area_um2",
         "wins": wins,
         "ties": ties,
         "win_rate": win_rate,
+        # The per-fold outcomes the rate is computed from. Exposed so a
+        # resampler can put an interval on it: a rate is a point, and a
+        # point on 31 folds looks far more settled than it is.
+        "fold_wins": [1 if m < b else 0
+                      for m, b in zip(errors, baseline_errors)],
         "mae_improvement_pct": (
             None if not base_mae else round(100 * (base_mae - model_mae) / base_mae, 1)
         ),
@@ -625,3 +631,77 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# --- how settled is a win-rate? -------------------------------------
+
+# Resamples per run. 2000 is where the 5th percentile stopped moving in
+# the third decimal across seeds on this corpus; more only costs time.
+BOOTSTRAP_RESAMPLES = 2000
+
+# Fixed so a reported interval is reproducible. This project treats a
+# number nobody else can regenerate as an opinion.
+BOOTSTRAP_SEED = 20260830
+
+
+def win_rate_interval(fold_wins: list[int], resamples: int = BOOTSTRAP_RESAMPLES,
+                      seed: int = BOOTSTRAP_SEED,
+                      confidence: float = 0.90) -> dict | None:
+    """A percentile interval on a leave-one-out win-rate.
+
+    evaluate() reports the rate as a single number, which reads as
+    settled. It is not: 0.97 on 31 folds and 0.97 on 3100 folds are the
+    same figure and completely different claims, and this pipeline
+    decides whether to trust a surrogate by comparing that figure to
+    MIN_WIN_RATE.
+
+    Resampling the folds with replacement is the cheapest honest answer.
+    It needs no new runs — the folds already exist — and it says how far
+    the rate could reasonably sit from where it landed.
+
+    What it does NOT do: account for the folds being correlated (they
+    share a corpus and 21 of the rows come from two sweeps of one
+    design), or for the corpus being unrepresentative of designs nobody
+    has run. It bounds sampling noise, not the choice of samples.
+    """
+    n = len(fold_wins)
+    if n < 2:
+        return None
+    rng = random.Random(seed)
+    rates = []
+    for _ in range(resamples):
+        rates.append(sum(fold_wins[rng.randrange(n)] for _ in range(n)) / n)
+    rates.sort()
+    tail = (1.0 - confidence) / 2.0
+    lo = rates[int(tail * resamples)]
+    hi = rates[min(int((1.0 - tail) * resamples), resamples - 1)]
+    point = sum(fold_wins) / n
+
+    # The percentile bootstrap collapses when every fold agrees: resample
+    # all-wins and you get all-wins, so three perfect folds report
+    # [1.00, 1.00] and "settled" — the exact false confidence this
+    # function exists to prevent, produced by the function itself.
+    #
+    # Falls back to the rule of three, which is what you can say about
+    # zero observed failures in n trials: the rate could plausibly be as
+    # low as 1 - 3/n. At n=3 that is 0.0, which is the honest answer.
+    degenerate = point in (0.0, 1.0)
+    if degenerate:
+        if point == 1.0:
+            lo, hi = max(0.0, 1.0 - 3.0 / n), 1.0
+        else:
+            lo, hi = 0.0, min(1.0, 3.0 / n)
+    return {
+        "degenerate": degenerate,
+        "win_rate": point,
+        "lo": lo,
+        "hi": hi,
+        "confidence": confidence,
+        "folds": n,
+        "resamples": resamples,
+        # The decision this feeds. A point estimate over the threshold
+        # with an interval straddling it is not evidence the surrogate
+        # clears the bar, and that distinction is the reason to compute
+        # any of this.
+        "clears_threshold": lo >= MIN_WIN_RATE,
+    }
