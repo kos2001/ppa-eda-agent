@@ -71,8 +71,12 @@ MIN_SAMPLES = 8
 # best_k() re-derives these, the loop reports current beside best every
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
+# Re-measured, not chosen. area_um2 moved from 3 to 4 when the
+# technology sweep added five completed runs: at k=4 it wins 96% of
+# leave-one-out folds (23 scored, MAE 19.1 against a 128.5 baseline)
+# where k=3 wins 91%. completed stays at 1.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 3,
+    "area_um2": 4,
     "completed": 1,
 }
 DEFAULT_K = 1
@@ -137,6 +141,12 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
                                    .get("design") or {}).get("settings", [])
                     },
                     "overrides": overrides,
+                    # Carried onto the row, not only into the dedup key.
+                    # It was in the key alone at first, which kept two
+                    # technologies from collapsing but left featurize
+                    # unable to see the difference — the feature existed
+                    # and was always None.
+                    "scl": result.get("scl"),
                     "completed": verdict is not None,
                     "passed": bool(verdict and verdict.get("passed")),
                     "area_um2": (verdict or {}).get("area_um2"),
@@ -150,6 +160,19 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
 # axis. Stated so an old row and a new explicit one compare equal
 # instead of looking like different technologies.
 DEFAULT_SCL = "sky130_fd_sc_hd"
+
+# How many rows a technology needs before it is allowed to separate
+# neighbourhoods. Measured, not chosen: with 42 hd rows and 3 hs rows,
+# switching the feature on took area's win-rate from 0.91 to 0.88 and
+# completion's from 0.68 to 0.65. A categorical with a near-empty
+# category adds a full unit of distance to every cross-technology pair,
+# which pushes away the only neighbours a sparse category has. The
+# feature is right and was premature; this makes it turn itself on.
+#
+# Same discipline as MIN_SAMPLES above — refuse to use data too thin to
+# support the thing being asked of it, rather than reporting a number
+# that came from noise.
+MIN_SAMPLES_PER_SCL = 8
 
 # Numeric features a config can carry. Categorical values (SYNTH_STRATEGY)
 # are handled by exact match rather than by inventing an ordering — "AREA
@@ -227,7 +250,23 @@ def _ranges(rows: list[dict]) -> dict[str, tuple[float, float]]:
     return out
 
 
-def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]]) -> float | None:
+def scl_is_informative(dataset: list[dict]) -> bool:
+    """Whether the technology axis has enough rows on both sides to help.
+
+    False keeps distance() blind to it, which is what a 42-to-3 split
+    wants. It flips on its own once a second technology is properly
+    represented.
+    """
+    counts: dict[str, int] = {}
+    for row in dataset:
+        key = row.get("scl") or DEFAULT_SCL
+        counts[key] = counts.get(key, 0) + 1
+    big = [n for n in counts.values() if n >= MIN_SAMPLES_PER_SCL]
+    return len(big) >= 2
+
+
+def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]],
+             use_scl: bool = True) -> float | None:
     """Normalized distance between two configs, or None when they share
     no comparable feature at all — in which case they are not neighbours
     and pretending otherwise would make every point equidistant."""
@@ -240,6 +279,8 @@ def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]]) -> float 
             total += ((va - vb) / (hi - lo)) ** 2
             compared += 1
     for key in ("SYNTH_STRATEGY", "SCL"):
+        if key == "SCL" and not use_scl:
+            continue
         va, vb = fa.get(key), fb.get(key)
         if va is None and vb is None:
             continue
@@ -275,10 +316,11 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
             "n_samples": len(same),
         }
 
+    use_scl = scl_is_informative(dataset)
     ranges = _ranges(same)
     scored = []
     for row in same:
-        d = distance(target, row, ranges)
+        d = distance(target, row, ranges, use_scl=use_scl)
         if d is not None:
             scored.append((d, row))
     if not scored:
