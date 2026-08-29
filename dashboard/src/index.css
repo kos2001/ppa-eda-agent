@@ -40,8 +40,18 @@
     --accent-glow: rgba(67, 217, 211, 0.14);
     --good: #34d399;
     --good-soft: #113328;
-    --critical: #f2495c;
-    --critical-soft: #3a1620;
+    /* First pass (#f87171) measured 5.77:1 against --critical-soft and
+       was still reported hard to see against the real UI, so pushed
+       further rather than trusting the math alone. Two changes: the red
+       itself is brighter (6.52:1 on the badge, 9.30:1 on --bg, both now
+       above --good's 7.15/6.79 reference pair), and --critical-soft
+       itself was darker than --good-soft relative to --bg (1.23:1 vs
+       1.43:1) — the FAIL pill's own background barely read as a shape
+       distinct from the page, which flattens whatever text sits on it.
+       Brought to the same 1.43:1 as --good-soft so the two pill kinds
+       carry equal visual weight, not just equal text contrast. */
+    --critical: #ff9494;
+    --critical-soft: #551620;
     --warn: #e8b339;
     --warn-soft: #362a0e;
   }
@@ -60,8 +70,9 @@
   --accent-glow: rgba(67, 217, 211, 0.14);
   --good: #34d399;
   --good-soft: #113328;
-  --critical: #f2495c;
-  --critical-soft: #3a1620;
+  /* Kept in sync with the @media block above — see its comment. */
+  --critical: #ff9494;
+  --critical-soft: #551620;
   --warn: #e8b339;
   --warn-soft: #362a0e;
 }
