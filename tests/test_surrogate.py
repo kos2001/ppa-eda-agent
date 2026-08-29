@@ -8,13 +8,17 @@ predictor. So these tests prove both directions: it refuses on what we
 actually have, and it predicts and beats the baseline on a dataset that
 genuinely carries signal.
 """
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
-from surrogate import (  # noqa: E402
+from surrogate import (
+    MIN_SAMPLES_PER_SCL,
+    scl_is_informative,  # noqa: E402
     MIN_SAMPLES, MIN_WIN_RATE, TARGETS, best_k, dataset_report, default_k,
     distance, evaluate, featurize, load_dataset, predict,
 )
@@ -157,10 +161,17 @@ class RefusalTests(unittest.TestCase):
         data = load_dataset(refdb)
         result = evaluate(data)
         # The measured state, re-asserted rather than assumed. It has
-        # already changed twice: first when counter4 crossed
-        # MIN_SAMPLES, then when a collection sweep made it evaluable.
-        # The store is still not good enough to rely on a prediction.
-        self.assertNotIn("worth trusting", result["verdict"])
+        # already changed three times: when counter4 crossed
+        # MIN_SAMPLES, when a collection sweep made it evaluable, and
+        # when the technology sweep took area's win-rate past
+        # MIN_WIN_RATE.
+        #
+        # Asserted on the caveat rather than on the absence of "worth
+        # trusting". That substring check silently became meaningless:
+        # the verdict for a passing win-rate reads "not yet worth
+        # trusting a prediction to", which contains it, so the test
+        # failed while the thing it was protecting was still true.
+        self.assertIn("not yet worth trusting", result["verdict"])
 
     def test_trainable_requires_enough_to_survive_leave_one_out(self):
         # Exactly MIN_SAMPLES is not enough: LOO leaves MIN_SAMPLES - 1.
@@ -296,6 +307,85 @@ class CompletionTargetTests(unittest.TestCase):
             evaluate(rows, "area_um2")["n_total"], 0,
             "crashed runs have no area and must not be scored on it")
         self.assertGreater(evaluate(rows, "completed")["n_total"], 0)
+
+
+class TechnologyAxisTests(unittest.TestCase):
+    """The library as a first-class axis.
+
+    Every recorded sample was sky130_fd_sc_hd and the library was not a
+    field, while on counter4 the eleven design-knob samples span 4.3% of
+    area and switching library alone moves it 53.1%.
+    """
+
+    def _case(self, tmp, results):
+        cases = Path(tmp) / "cases"
+        cases.mkdir(parents=True, exist_ok=True)
+        (cases / "d__2026-01-01.json").write_text(json.dumps({
+            "design": "d",
+            "iterations": [{"results": results}],
+        }))
+        return tmp
+
+    def test_two_technologies_at_the_same_config_are_two_samples(self):
+        # The collision the dedup key exists to prevent. Real collected
+        # data does not currently trigger it — the hs candidate also
+        # carries an exclusion-list override — so it is pinned here
+        # rather than left to chance.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [
+                {"tag": "hd", "overrides": {}, "scl": "sky130_fd_sc_hd",
+                 "verdict": {"area_um2": 290.3, "passed": True}},
+                {"tag": "hs", "overrides": {}, "scl": "sky130_fd_sc_hs",
+                 "verdict": {"area_um2": 444.4, "passed": True}},
+            ])
+            rows = load_dataset(root)
+            self.assertEqual(len(rows), 2)
+            self.assertEqual({r["area_um2"] for r in rows}, {290.3, 444.4})
+
+    def test_an_unrecorded_library_equals_the_explicit_default(self):
+        # Rows written before the field existed used hd. Treating them
+        # as a different technology would split the corpus in half.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [
+                {"tag": "old", "overrides": {},
+                 "verdict": {"area_um2": 290.3, "passed": True}},
+                {"tag": "new", "overrides": {}, "scl": "sky130_fd_sc_hd",
+                 "verdict": {"area_um2": 291.0, "passed": True}},
+            ])
+            self.assertEqual(len(load_dataset(root)), 1)
+
+    def test_the_library_reaches_the_row_not_only_the_key(self):
+        # It was in the dedup key alone at first, which kept the two
+        # technologies apart and left featurize unable to see the
+        # difference — the feature existed and was always None.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [
+                {"tag": "hs", "overrides": {}, "scl": "sky130_fd_sc_hs",
+                 "verdict": {"area_um2": 444.4, "passed": True}},
+            ])
+            self.assertEqual(load_dataset(root)[0]["scl"], "sky130_fd_sc_hs")
+
+    def test_a_thin_second_technology_is_held_back(self):
+        # Measured: with 42 hd and 3 hs rows, switching the feature on
+        # took area's win-rate from 0.96 to 0.88. A categorical with a
+        # near-empty category adds a full unit of distance to every
+        # cross-technology pair and pushes away the only neighbours the
+        # sparse category has.
+        thin = ([{"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hd"}] * 20
+                + [{"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hs"}] * 3)
+        self.assertFalse(scl_is_informative(thin))
+
+    def test_it_turns_itself_on_once_both_are_represented(self):
+        fat = ([{"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hd"}] * 20
+               + [{"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hs"}]
+               * MIN_SAMPLES_PER_SCL)
+        self.assertTrue(scl_is_informative(fat))
+
+    def test_distance_ignores_the_library_when_held_back(self):
+        a = {"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hd"}
+        b = {"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hs"}
+        self.assertEqual(distance(a, b, {}, use_scl=True), 1.0)
+        self.assertIsNone(distance(a, b, {}, use_scl=False))
 
 
 class NeighbourhoodSizeTests(unittest.TestCase):
