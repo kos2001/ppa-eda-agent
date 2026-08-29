@@ -681,10 +681,20 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     """Runs and scores one independent candidate."""
     tag = cand["tag"]
     overrides = [f"{k}={override_value(v)}" for k, v in cand.get("overrides", {}).items()]
-    print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})} ===",
-          file=sys.stderr)
+    # The standard cell library is a candidate axis, not a global. It
+    # cannot be an override — OpenLane accepts STD_CELL_LIBRARY into
+    # resolved.json and ignores it, so a comparison made that way reports
+    # a plausible 0.00% delta (see run_stage's docstring). It goes to
+    # --scl, and it is recorded on the result because nothing downstream
+    # could otherwise tell two runs of the same config apart: measured on
+    # counter4, hd and hs differ by 53% in area and 59% in power, and
+    # surrogate.load_dataset deduplicated the pair down to one sample.
+    scl = cand.get("scl")
+    print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})}"
+          f"{f', scl: {scl}' if scl else ''} ===", file=sys.stderr)
     try:
-        run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides)
+        run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
+                            scl=scl)
         metrics = read_metrics(run_dir)
         verdict = score(metrics, run_spec.get("targets", {}))
         # Clock-domain coverage needs the run's logs, which score() never
@@ -750,6 +760,7 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         declared = classic_steps()
         coverage = step_coverage.check(run_dir, declared) if declared else None
         return {"tag": tag, "overrides": cand.get("overrides", {}),
+                "scl": scl,
                 "verdict": verdict, "run_dir": str(run_dir),
                 "data": data_pointers(run_dir),
                 "clocks": clocks,
@@ -759,7 +770,7 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                 "layout": layout}
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         return {"tag": tag, "overrides": cand.get("overrides", {}),
-                "error": str(e)}
+                "scl": scl, "error": str(e)}
 
 
 # Cheap pre-flight cutoff, stopping just past placement/PDN. Measured on
