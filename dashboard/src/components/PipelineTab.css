@@ -346,17 +346,19 @@
 .pipeline__review-steps button:disabled { opacity: 0.45; cursor: default; }
 .pipeline__review-link { border-color: transparent !important; }
 
-.pipeline__review-pre {
+/* The review request, rendered rather than dumped.
+   It used to be a <pre> at max-height 260px and font-size 0.66rem: a
+   10,000-character document with headings, lists and fenced tool output
+   shown as one unstyled wall inside a box four lines tall. The reader
+   had to scroll it while making the decision it exists to support.
+   MarkdownDoc renders the structure and collapses long sections, so the
+   height here is generous rather than a keyhole — the sections do the
+   shortening, not a scrollbar. */
+.pipeline__review-doc {
   margin-top: 0.6rem;
-  max-height: 260px;
-  overflow: auto;
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.66rem;
-  color: var(--text-dim);
-  white-space: pre-wrap;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.2rem;
 }
 
 .pipeline__review-result {
