@@ -2991,21 +2991,49 @@ annotates the resulting switching activity, and reports power both
 ways so the difference is visible rather than assumed.
 
 Measured on `spm`, whose testbench ships with OpenLane's own example
-(1061 pin activities annotated):
+(1061 pin activities annotated), at `max_ff_n40C_1v95`:
 
 | group | vectorless | annotated | change |
 |---|---|---|---|
-| combinational | 3.39e-04 W | 4.31e-04 W | **+27.1%** |
-| sequential | 4.24e-04 W | 4.22e-04 W | -0.5% |
-| clock | 2.81e-04 W | 2.81e-04 W | 0.0% |
-| total | 1.04e-03 W | 1.13e-03 W | +8.7% |
+| combinational | 4.64e-04 W | 6.69e-04 W | **+44.2%** |
+| sequential | 5.03e-04 W | 4.99e-04 W | -0.8% |
+| clock | 3.65e-04 W | 3.65e-04 W | 0.0% |
+| total | 1.33e-03 W | 1.53e-03 W | **+15.0%** |
 
-The default estimate understates combinational power by more than a
-quarter. That is the expected shape of the error rather than a
-surprise: a fixed toggle rate has no idea a multiplier's datapath is
-busy, while sequential and clock power are clock-driven and so their
-activity was never in doubt. The two groups that should move did, and
-the two that shouldn't didn't.
+The default estimate understates combinational power by nearly half.
+That is the expected shape of the error rather than a surprise: a fixed
+toggle rate has no idea a multiplier's datapath is busy, while
+sequential and clock power are clock-driven and so their activity was
+never in doubt. The two groups that should move did, and the two that
+shouldn't didn't.
+
+### The vectorless column is the check, not decoration
+
+It reproduces OpenLane's own `power__total` for the same corner to
+within **0.1%** (1.330e-03 W against 1.331575e-03 W). That is what makes
+the annotated column trustworthy: it differs from a number OpenLane
+independently computed because of the activity data and nothing else.
+
+Getting there took three corrections, none of which announced itself —
+the numbers looked perfectly reasonable at every stage, and only the
+comparison against OpenLane's own figure exposed them:
+
+1. **No SPEF.** Every net had zero wire capacitance, so switching power
+   came out 1.8x low (2.07e-04 W against OpenLane's 3.72e-04 W). The
+   activity annotation fixes *how often* a net toggles; the parasitics
+   fix *what it costs* to toggle it.
+2. **A hand-written `create_clock`** instead of the run's own signoff
+   SDC, leaving inputs at ideal zero transition with no output load.
+   Reconstructing constraints the run already wrote down is a way to
+   disagree with the run for no reason.
+3. **The wrong corner.** OpenLane's `power__total` carries no corner
+   suffix, which reads as "the" power. It is `max_ff_n40C_1v95` — the
+   fast-fast 1.95 V corner, the highest-power one. This presented as a
+   14% error in the new module and was not one: OpenLane's own `tt`
+   number is 1.152e-03 W against the module's 1.140e-03 W, already a 1%
+   agreement.
+
+Each is covered by a test that fails when the correction is undone.
 
 The simulation is also functional evidence the pipeline did not have.
 `equiv_check` proves formally that the netlist matches the RTL;
@@ -3031,8 +3059,13 @@ delta where a percentage is claimed.
 - Activity-annotated power needs a testbench, and only `spm` has one —
   so for four of the five designs the power figure is still the
   vectorless estimate, which `spm` shows can understate combinational
-  power by 27%. Writing testbenches for the rest is the work that would
+  power by 44%. Writing testbenches for the rest is the work that would
   close this, not more tooling.
+- Ranking falls back to the estimate for *all* candidates as soon as one
+  of them lacks a measurement (`pick_winner()`). Correct, but blunt: a
+  single candidate whose simulation fails to compile discards the
+  measured basis for the whole comparison rather than being excluded
+  from it.
 - On-demand diagnosis translation (`POST /translate`) works for text of
   any length tested so far, but the `ppa-eda-analyst` gateway model
   delivers the whole response in one burst rather than token-by-token —
