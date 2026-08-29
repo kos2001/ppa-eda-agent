@@ -2976,6 +2976,51 @@ The manual's timing answer was corrected in the same pass. It now says
 that the same run took 68 s under emulation — because a duration with no
 machine attached is the thing freerouting's table exists to avoid.
 
+## Power from a real workload
+
+`score()` carried a caveat from the day it was written: its power
+numbers were "OpenSTA's default-activity numbers, not
+switching-activity-accurate ones". Honest, and a declared gap — the
+tool was being asked how much power the design burns without being
+told what the design is doing.
+
+Closing it needed no new dependency. The pinned image already ships
+Icarus Verilog and OpenSTA's `read_vcd`. `pipeline/power_activity.py`
+simulates the **placed-and-routed** netlist against a testbench,
+annotates the resulting switching activity, and reports power both
+ways so the difference is visible rather than assumed.
+
+Measured on `spm`, whose testbench ships with OpenLane's own example
+(1061 pin activities annotated):
+
+| group | vectorless | annotated | change |
+|---|---|---|---|
+| combinational | 3.39e-04 W | 4.31e-04 W | **+27.1%** |
+| sequential | 4.24e-04 W | 4.22e-04 W | -0.5% |
+| clock | 2.81e-04 W | 2.81e-04 W | 0.0% |
+| total | 1.04e-03 W | 1.13e-03 W | +8.7% |
+
+The default estimate understates combinational power by more than a
+quarter. That is the expected shape of the error rather than a
+surprise: a fixed toggle rate has no idea a multiplier's datapath is
+busy, while sequential and clock power are clock-driven and so their
+activity was never in doubt. The two groups that should move did, and
+the two that shouldn't didn't.
+
+The simulation is also functional evidence the pipeline did not have.
+`equiv_check` proves formally that the netlist matches the RTL;
+this runs the vendor testbench against the netlist that would actually
+be fabricated and reports whether it passed. Different claim,
+different evidence — on `spm`, 16 checks passed.
+
+Most designs here have no testbench. Absent one, `measure()` returns
+`None` and starts no container, because a vectorless figure relabelled
+as measured would be worse than no figure at all. That refusal is the
+load-bearing behaviour, so it is the mutation the tests were checked
+against: making `measure()` return a number without a testbench fails
+the suite, as do dropping zero-power groups and reporting an absolute
+delta where a percentage is claimed.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
@@ -2983,10 +3028,11 @@ machine attached is the thing freerouting's table exists to avoid.
   embedding — fine for bootstrapping a reference DB, likely to need
   revisiting once there are enough cases to see whether it actually
   clusters similar designs.
-- Runs under Docker emulation on Apple Silicon (the image is amd64-only,
-  same constraint the existing OpenSTA sim server already has) — slower
-  than native, acceptable for a validation vertical slice, worth
-  revisiting if iteration turnaround becomes the bottleneck.
+- Activity-annotated power needs a testbench, and only `spm` has one —
+  so for four of the five designs the power figure is still the
+  vectorless estimate, which `spm` shows can understate combinational
+  power by 27%. Writing testbenches for the rest is the work that would
+  close this, not more tooling.
 - On-demand diagnosis translation (`POST /translate`) works for text of
   any length tested so far, but the `ppa-eda-analyst` gateway model
   delivers the whole response in one burst rather than token-by-token —
