@@ -29,6 +29,8 @@ Usage:
         --agent feedback-optimizer --response-file /path/to/response.txt
 """
 import argparse
+import os
+import tempfile
 
 import case_retrieval
 import verify_diagnosis
@@ -79,7 +81,7 @@ def cmd_request(args: argparse.Namespace) -> None:
     lines = [
         f"# Human-in-the-loop review request — {args.design} ({case['date']})",
         "",
-        f"Case file: {case_file.relative_to(REPO_ROOT)}",
+        f"Case file: {case_file.relative_to(REPO_ROOT).as_posix()}",
         f"Outcome: {case['outcome']}",
         f"Stages the real run outcomes hit: {', '.join(stages_hit) or '(none classified)'}",
         "",
@@ -88,7 +90,7 @@ def cmd_request(args: argparse.Namespace) -> None:
     ]
     for name in sorted(relevant):
         agent_file = AGENTS_DIR / f"{name}.md"
-        lines.append(f"- `{name}` — {agent_file.relative_to(REPO_ROOT)}"
+        lines.append(f"- `{name}` — {agent_file.relative_to(REPO_ROOT).as_posix()}"
                       f"{'' if agent_file.exists() else '  (WARNING: file not found)'}")
     # Precedent from the rest of reference-db. Without this a review
     # starts cold: judging an RSZ-0090 with no sight of the other times
@@ -122,7 +124,34 @@ def cmd_request(args: argparse.Namespace) -> None:
     out_dir = REFDB / "reviews"
     out_dir.mkdir(exist_ok=True)
     out_file = out_dir / f"{args.design}__{case['date']}__request.md"
-    out_file.write_text("\n".join(lines) + "\n")
+    # self_improve.scan_design() regenerates this file on *every* scan for
+    # any OPEN, unreviewed design — no check for "a request already
+    # exists" — so two overlapping scans (two browser tabs on the health
+    # page, a manual run racing a poll) can both be writing this same path
+    # at once. Path.write_text() truncates then writes as two separate
+    # steps; a second writer's truncate landing in between, or either
+    # writer being killed mid-write, leaves the file empty. Hit for real:
+    # reference-db/reviews/cdc_twoclock__2026-08-28__request.md went from
+    # a full request to 0 bytes this way. Write to a temp file in the same
+    # directory and os.replace() it in — atomic at the OS level, so any
+    # reader sees either the old complete file or the new one, never a
+    # partial write.
+    fd, tmp_path = tempfile.mkstemp(dir=out_dir, prefix=f"{out_file.name}.", suffix=".tmp")
+    try:
+        # Explicit encoding, not the platform default: this text has real
+        # em-dashes, and open()'s default encoding is the OS locale
+        # (cp949 on a Korean-locale Windows box), which can't represent
+        # them — the write raised UnicodeEncodeError. Caught here rather
+        # than corrupting anything because the temp file is a fresh file,
+        # not out_file; before the atomic-rename change above, the same
+        # error hit *after* write_text() had already truncated out_file,
+        # which is what actually emptied cdc_twoclock's review request.
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")
+        os.replace(tmp_path, out_file)
+    except BaseException:
+        os.unlink(tmp_path)
+        raise
     print(f"review request written to {out_file.relative_to(REPO_ROOT)}")
 
 
