@@ -28,6 +28,7 @@ from types import SimpleNamespace
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
+import sta_path  # noqa: E402
 import orchestrator  # noqa: E402
 import render_layout  # noqa: E402
 import request_review  # noqa: E402
@@ -193,6 +194,29 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_sta_path",
+        "description": "Traces slew and delay STAGE BY STAGE along the path to one "
+                        "chosen pin, by running a fresh report_checks. This is the "
+                        "question no stored report answers: ppa_sta_report says WHICH "
+                        "pins violate, this says WHY a given one does — which cell in "
+                        "the chain adds the slew. It found that OpenROAD was repairing "
+                        "a macro's slew violation with delay cells, after five config "
+                        "variables had been tried and all were null. Note the path is "
+                        "usually NOT the critical path (that case had +18.57ns setup "
+                        "slack), so take the pin from ppa_sta_report's max-slew "
+                        "violator list rather than from the timing report.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "tag", "pin"],
+            "properties": {
+                "design": {"type": "string"}, "tag": {"type": "string"},
+                "pin": {"type": "string",
+                        "description": "endpoint, e.g. 'u_sram/addr0[3]'"},
+                "corner": {"type": "string", "description": "default tt_025C_1v80"},
+            },
+        },
+    },
+    {
         "name": "ppa_odb_query",
         "description": "Queries a run's real OpenROAD database (.odb) directly for "
                         "measured per-net placement facts — pin count, HPWL and max "
@@ -333,6 +357,13 @@ def _tool_sta_report(args: dict) -> dict:
     return sta_report.read_run(run_dir, args.get("corner"))
 
 
+def _tool_sta_path(args: dict) -> dict:
+    design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
+    run_dir = design_dir / "runs" / args["tag"]
+    return sta_path.trace(design_dir, run_dir, args["pin"],
+                          corner=args.get("corner", "tt_025C_1v80"))
+
+
 def _tool_odb_query(args: dict) -> dict:
     run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
     data = odb_query.query(run_dir)
@@ -365,6 +396,7 @@ _TOOL_IMPL = {
     "ppa_verify_diagnosis": _tool_verify_diagnosis,
     "ppa_equiv_check": _tool_equiv_check,
     "ppa_sta_report": _tool_sta_report,
+    "ppa_sta_path": _tool_sta_path,
     "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
 }
