@@ -191,6 +191,25 @@ MEASUREMENTS: list[dict] = [
                     "it survives the run directory being cleaned up.",
     },
     {
+        "id": "hs-library-magic-drc",
+        "design": "counter4",
+        "when": ["scl_sky130_fd_sc_hs", "magic_drc_only"],
+        "tool": "compare the two DRC engines before blaming the design",
+        "cli": "grep -c 'um ' <run>/*magic-drc*/reports/drc_violations.magic.rpt",
+        "answers": "Whether a DRC failure is the design's or the library's.",
+        "trap": "Magic and KLayout disagree here, and only one of them is "
+                "wrong. Read both counts and the per-cell ratio before "
+                "changing anything: violations that scale with instance count "
+                "are inside the cells, and no placement or routing change will "
+                "move them.",
+        "evidence": "counter4, cdc_twoclock and spm all reach step 74 on "
+                    "sky130_fd_sc_hs and all fail the same rule, licon.11 "
+                    "(diffusion contact to gate < 0.055um): Magic reports "
+                    "21/48/282 while KLayout reports 0/0/0 and routing DRC is "
+                    "0/0/0. That is 0.60, 0.52 and 0.57 violations per cell "
+                    "instance across three unrelated designs.",
+    },
+    {
         "id": "library-comparison",
         "design": "counter4_tinydie",
         "when": ["technology_question"],
@@ -231,6 +250,10 @@ def symptoms(case: dict) -> set[str]:
     text = json.dumps(case)
     if '"macro' in text.lower() or "MACROS" in text:
         found.add("macro_present")
+    for result in [r for it in case.get("iterations", []) for r in it.get("results", [])]:
+        scl = result.get("scl")
+        if scl and scl != "sky130_fd_sc_hd":
+            found.add(f"scl_{scl}")
     for iteration in case.get("iterations", []):
         results = iteration.get("results", [])
         errors = [r.get("error") or "" for r in results]

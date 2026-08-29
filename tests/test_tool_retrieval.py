@@ -199,6 +199,50 @@ class CoverageTests(unittest.TestCase):
         self.assertIn("ppa_sta_report", self._reachable())
 
 
+class TransferabilityTests(unittest.TestCase):
+    """The thing the index did not have when it was first written.
+
+    Every entry then came from sram_wrapper, so leave-one-out left
+    sram_wrapper with nothing and the layer had no transferable
+    guidance. Sweeping the technology axis produced a signature from a
+    different source: counter4, cdc_twoclock and spm all reach step 74
+    on sky130_fd_sc_hs and all fail the same rule, with Magic reporting
+    21/48/282 violations while KLayout reports 0/0/0.
+    """
+
+    NEW_DESIGN = {
+        "design": "some_new_design",
+        "iterations": [{"results": [
+            {"tag": "t", "scl": "sky130_fd_sc_hs",
+             "error": "21 Magic DRC errors found"},
+        ]}],
+    }
+
+    def test_a_non_default_library_is_a_retrievable_signature(self):
+        self.assertIn("scl_sky130_fd_sc_hs",
+                      tool_retrieval.case_keys(self.NEW_DESIGN))
+
+    def test_the_default_library_is_not_a_signature(self):
+        # Every case uses hd; making that a key would match everything
+        # and select nothing.
+        case = {"design": "d", "iterations": [{"results": [
+            {"tag": "t", "scl": "sky130_fd_sc_hd"}]}]}
+        self.assertNotIn("scl_sky130_fd_sc_hd", tool_retrieval.case_keys(case))
+
+    def test_a_new_design_retrieves_guidance_it_did_not_produce(self):
+        # The point. This survives leave-one-out because the evidence
+        # comes from somewhere else.
+        hits = tool_retrieval.retrieve(self.NEW_DESIGN,
+                                       exclude_design="some_new_design")
+        self.assertTrue(hits)
+        self.assertNotIn("some_new_design", {h["design"] for h in hits})
+
+    def test_the_index_is_no_longer_single_source(self):
+        # With one source design, leave-one-out empties the index for
+        # that design and the layer cannot help anyone.
+        self.assertGreater(len({e["design"] for e in tool_retrieval.MEASUREMENTS}), 1)
+
+
 class ReviewRequestTests(unittest.TestCase):
     def test_the_request_carries_the_measurement_block(self):
         # Where an agent's context actually comes from. Without this the

@@ -108,7 +108,13 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
                 overrides = result.get("overrides") or {}
-                key = (design, json.dumps(overrides, sort_keys=True))
+                # The library is part of the identity of a run. Without
+                # it two candidates that differ only by technology
+                # collapse into one and the later silently replaces the
+                # earlier — verified: recording counter4 at hd (290.3
+                # um2) and hs (444.4 um2) left one sample.
+                key = (design, json.dumps(overrides, sort_keys=True),
+                       result.get("scl") or DEFAULT_SCL)
                 verdict = result.get("verdict")
                 # Later cases win: a re-run reflects the current
                 # toolchain, and mixing outcomes from different OpenLane
@@ -139,6 +145,11 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
                 }
     return list(seen.values())
 
+
+# What every recorded run used before the library became a candidate
+# axis. Stated so an old row and a new explicit one compare equal
+# instead of looking like different technologies.
+DEFAULT_SCL = "sky130_fd_sc_hd"
 
 # Numeric features a config can carry. Categorical values (SYNTH_STRATEGY)
 # are handled by exact match rather than by inventing an ordering — "AREA
@@ -172,6 +183,20 @@ def featurize(row: dict) -> dict:
     else:
         feats["die_area_um2"] = None
     feats["SYNTH_STRATEGY"] = ov.get("SYNTH_STRATEGY")
+    # Technology, the axis this dataset was blind to. Every recorded
+    # sample was sky130_fd_sc_hd and it was not even a field, while on
+    # counter4 all eleven design-knob samples span 4.3% of area and the
+    # library alone moves it 53.1%. Predicting area from knobs that
+    # barely move it, with the one that does left out, is a large part
+    # of why win-rate sat at 0.67.
+    # Stored raw, not defaulted. Defaulting it here made every pair of
+    # configs share a feature, so distance() stopped returning None for
+    # two rows with nothing in common and returned 0.0 — every point
+    # equidistant, which is the exact failure its docstring warns about.
+    # An existing test caught it. The default is applied where it is
+    # actually needed: comparing a row that declares the library against
+    # one recorded before the field existed.
+    feats["SCL"] = row.get("scl")
 
     # A density feature (sequential cells per um^2) was tried here and
     # removed. The reasoning was sound — what decides whether a floorplan
@@ -214,9 +239,15 @@ def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]]) -> float 
         if _numeric(va) and _numeric(vb):
             total += ((va - vb) / (hi - lo)) ** 2
             compared += 1
-    sa, sb = fa.get("SYNTH_STRATEGY"), fb.get("SYNTH_STRATEGY")
-    if sa is not None or sb is not None:
-        total += 0.0 if sa == sb else 1.0
+    for key in ("SYNTH_STRATEGY", "SCL"):
+        va, vb = fa.get(key), fb.get(key)
+        if va is None and vb is None:
+            continue
+        if key == "SCL":
+            # A row from before the field existed used the default, so
+            # it is the same technology as one that says so explicitly.
+            va, vb = va or DEFAULT_SCL, vb or DEFAULT_SCL
+        total += 0.0 if va == vb else 1.0
         compared += 1
     return math.sqrt(total) if compared else None
 
