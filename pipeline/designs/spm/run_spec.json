@@ -12,5 +12,11 @@
     }
   ],
   "candidates": [],
-  "max_iterations": 1
+  "max_iterations": 1,
+  "explore_synthesis": {
+    "count": 3,
+    "overrides": {
+      "FP_CORE_UTIL": 55
+    }
+  }
 }
