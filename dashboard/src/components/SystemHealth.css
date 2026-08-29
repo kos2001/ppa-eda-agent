@@ -109,7 +109,9 @@
    re-run and a judgment call need different people. */
 .sh__row--act   { border-left-color: var(--accent); }
 .sh__row--judge { border-left-color: var(--warn); }
-.sh__row--warn  { border-left-color: var(--critical); }
+/* Named warn; was painted critical. A warning is not a failure, and
+   this row sits beside ones that are. */
+.sh__row--warn  { border-left-color: var(--warn); }
 
 .sh__label { font-size: 0.72rem; color: var(--text); }
 
