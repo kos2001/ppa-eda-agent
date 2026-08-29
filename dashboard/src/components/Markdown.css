@@ -8,13 +8,52 @@
   color: var(--text);
 }
 
-.md__toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.4rem;
+/* --- rail layout -------------------------------------------------- */
+
+/* Content left, contents rail right. The rail is what replaces
+   scrolling: only the selected section is in the DOM, so there is
+   nothing below it to scroll past. */
+.md--railed {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 13.5rem;
+  gap: 1rem;
+  align-items: start;
 }
 
-.md__toolbar-btn {
+.md__pane {
+  min-width: 0;
+  /* Sections differ a lot in length; without this the whole panel
+     jumps height on every navigation, which reads as the page moving
+     under you. A floor, not a fixed height. */
+  min-height: 16rem;
+}
+
+.md__pane-title {
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  margin: 0 0 0.6rem;
+  overflow-wrap: anywhere;
+  padding-bottom: 0.4rem;
+}
+
+.md__pane-body > :first-child {
+  margin-top: 0;
+}
+
+/* --- prev / next -------------------------------------------------- */
+
+.md__steps {
+  align-items: center;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
+.md__steps button {
   background: none;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -22,79 +61,122 @@
   cursor: pointer;
   font: inherit;
   font-size: 0.7rem;
-  padding: 0.15rem 0.5rem;
+  max-width: 42%;
+  overflow: hidden;
+  padding: 0.2rem 0.5rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.md__toolbar-btn:hover {
+.md__steps button:hover:not(:disabled) {
   border-color: var(--border-strong);
   color: var(--text);
 }
 
-/* --- sections ----------------------------------------------------- */
-
-.md__section {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  margin: 0 0 0.5rem;
-  overflow: hidden;
+.md__steps button:disabled {
+  cursor: default;
+  opacity: 0.35;
 }
 
-.md__section-head {
-  align-items: baseline;
-  background: var(--surface-raised);
+.md__steps-pos {
+  color: var(--text-dim);
+  flex: none;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- contents rail ------------------------------------------------ */
+
+.md__rail {
+  border-left: 1px solid var(--border);
+  padding-left: 0.75rem;
+  position: sticky;
+  top: 0.5rem;
+}
+
+.md__rail-label {
+  color: var(--text-dim);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.md__rail ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.md__rail-item {
+  background: none;
   border: 0;
-  border-bottom: 1px solid transparent;
-  color: var(--text);
+  border-left: 2px solid transparent;
+  color: var(--text-dim);
   cursor: pointer;
-  display: flex;
+  display: block;
   font: inherit;
-  font-weight: 650;
-  gap: 0.45rem;
-  padding: 0.5rem 0.7rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  margin-bottom: 0.1rem;
+  padding: 0.3rem 0.4rem;
   text-align: left;
   width: 100%;
 }
 
-.md__section-head[aria-expanded="true"] {
-  border-bottom-color: var(--border);
+.md__rail-item:hover {
+  color: var(--text);
 }
 
-.md__section-head:hover {
-  color: var(--accent);
+.md__rail-item.is-active {
+  background: var(--surface-raised);
+  border-left-color: var(--accent);
+  border-radius: 0 6px 6px 0;
+  color: var(--text);
+  font-weight: 650;
 }
 
-/* A heading's level should be visible without counting hashes. */
-.md__section--h1 > .md__section-head {
-  font-size: 0.95rem;
-}
-.md__section--h2 > .md__section-head {
-  font-size: 0.84rem;
-}
-
-.md__chevron {
-  color: var(--text-dim);
-  flex: none;
-  font-size: 0.7em;
-  line-height: 1.6;
-}
-
-.md__section-title {
-  flex: 1;
-  /* Long generated titles carry the design name and date; wrapping
-     beats truncating them, since that is what identifies the case. */
+.md__rail-title {
+  display: block;
   overflow-wrap: anywhere;
 }
 
-.md__section-count {
+.md__rail-count {
   color: var(--text-dim);
-  flex: none;
-  font-size: 0.68rem;
+  display: block;
+  font-size: 0.64rem;
   font-weight: 400;
 }
 
-.md__section-body {
-  padding: 0.15rem 0.85rem 0.6rem;
+/* What is inside the section you are on — so the rail answers "is what
+   I want in here?" without opening anything. */
+.md__rail-subs {
+  color: var(--text-dim);
+  font-size: 0.64rem;
+  line-height: 1.45;
+  list-style: none;
+  margin: 0.1rem 0 0.4rem;
+  padding: 0 0 0 0.9rem;
+}
+
+.md__rail-subs li {
+  overflow-wrap: anywhere;
+  padding: 0.1rem 0;
+}
+
+.md__rail-subs li::before {
+  content: "· ";
+}
+
+/* --- flat fallback (few sections) --------------------------------- */
+
+.md__section--flat {
+  margin-bottom: 0.6rem;
+}
+
+.md__flat-title {
+  font-size: 0.9rem;
+  margin: 0 0 0.4rem;
 }
 
 /* --- blocks ------------------------------------------------------- */
@@ -198,7 +280,4 @@
   .md {
     font-size: 0.78rem;
   }
-  .md__section-body {
-    padding: 0.15rem 0.6rem 0.5rem;
-  }
-}
+  

@@ -97,3 +97,31 @@ export function parseMarkdown(src: string): Block[] {
   return out;
 }
 
+export type Section = { title: string | null; level: number; blocks: Block[] };
+
+export function toSections(blocks: Block[]): Section[] {
+  const out: Section[] = [];
+  let cur: Section = { title: null, level: 0, blocks: [] };
+  for (const b of blocks) {
+    if (b.kind === "heading" && b.level <= 2) {
+      if (cur.blocks.length || cur.title) out.push(cur);
+      cur = { title: b.text, level: b.level, blocks: [] };
+    } else cur.blocks.push(b);
+  }
+  if (cur.blocks.length || cur.title) out.push(cur);
+  return out;
+}
+
+export function countLines(s: Section): number {
+  return s.blocks.reduce((n, b) => {
+    if (b.kind === "code") return n + b.text.split("\n").length;
+    if (b.kind === "list") return n + b.items.length;
+    return n + 1;
+  }, 0);
+}
+
+// The subheadings inside a section, so a contents entry can say what is
+// under it without the reader having to open it and look.
+export function subheads(s: Section): string[] {
+  return s.blocks.filter((b) => b.kind === "heading").map((b) => b.text);
+}

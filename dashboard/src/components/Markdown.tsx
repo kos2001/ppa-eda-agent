@@ -1,6 +1,13 @@
 import { type ReactNode, useState } from "react";
 import "./Markdown.css";
-import { parseMarkdown, type Block } from "./markdownParse";
+import {
+  countLines,
+  parseMarkdown,
+  subheads,
+  toSections,
+  type Block,
+  type Section,
+} from "./markdownParse";
 // A small renderer for the markdown this project actually generates.
 //
 // The review request was shown in a bare <pre>: a 10,000-character
@@ -91,114 +98,119 @@ function Blocks({ blocks, idBase }: { blocks: Block[]; idBase: string }) {
   );
 }
 
-type Section = { title: string | null; level: number; blocks: Block[] };
-
-function toSections(blocks: Block[]): Section[] {
-  const out: Section[] = [];
-  let cur: Section = { title: null, level: 0, blocks: [] };
-  for (const b of blocks) {
-    if (b.kind === "heading" && b.level <= 2) {
-      if (cur.blocks.length || cur.title) out.push(cur);
-      cur = { title: b.text, level: b.level, blocks: [] };
-    } else cur.blocks.push(b);
-  }
-  if (cur.blocks.length || cur.title) out.push(cur);
-  return out;
-}
-
-function countLines(s: Section): number {
-  return s.blocks.reduce((n, b) => {
-    if (b.kind === "code") return n + b.text.split("\n").length;
-    if (b.kind === "list") return n + b.items.length;
-    return n + 1;
-  }, 0);
-}
-
 /**
- * A markdown document with its top-level sections collapsible.
+ * A markdown document shown one section at a time, with a contents rail.
  *
- * Collapsing is the answer to the scrolling, not a smaller font: the
- * document is long because it genuinely carries a lot, and shrinking it
- * only makes the same amount of text harder to read. Sections start
- * open when short, and closed when long enough to bury what follows —
- * with the line count on the toggle, so a closed section still says how
- * much is inside rather than hiding that too.
+ * Collapsing sections was the first attempt and only halved the problem:
+ * open two and you are scrolling again, and the reader still has to
+ * remember which of eight toggles held the thing they wanted. The rail
+ * replaces scrolling with navigation — pick a section, read it whole,
+ * pick the next. Each entry carries its line count and its subheadings,
+ * so choosing does not require opening.
+ *
+ * Below three sections the rail is not worth its own width and the
+ * document renders flat, which is also what a short one wants.
  */
 function MarkdownDoc({
   source,
   className = "",
-  collapseOver = 14,
+  railFrom = 3,
 }: {
   source: string;
   className?: string;
-  collapseOver?: number;
+  railFrom?: number;
 }) {
   const sections = toSections(parseMarkdown(source));
-  const [closed, setClosed] = useState<Set<number>>(
-    () =>
-      new Set(
-        sections
-          .map((s, i) => (s.title && countLines(s) > collapseOver ? i : -1))
-          .filter((i) => i >= 0),
-      ),
-  );
+  const titled = sections.filter((s) => s.title);
+  const [active, setActive] = useState(0);
 
-  const toggle = (i: number) =>
-    setClosed((prev) => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
-      return next;
-    });
+  if (titled.length < railFrom) {
+    return (
+      <div className={`md ${className}`.trim()}>
+        {sections.map((s, i) => (
+          <section key={`s${i}`} className="md__section md__section--flat">
+            {s.title && <h2 className="md__flat-title">{inline(s.title, `t${i}`)}</h2>}
+            <Blocks blocks={s.blocks} idBase={`s${i}`} />
+          </section>
+        ))}
+      </div>
+    );
+  }
 
-  const collapsible = sections.filter((s) => s.title).length;
-  const allClosed = closed.size >= collapsible && collapsible > 0;
+  // Untitled blocks (anything before the first heading) belong to the
+  // section above rather than becoming a nameless rail entry.
+  //
+  // `blocks` is copied, not spread-shared: {...s} would alias the array
+  // parseMarkdown produced, so appending here would edit the parse
+  // result. Harmless today only because the parse is redone every
+  // render, which is exactly the kind of thing that stops being true.
+  const entries = sections.reduce<Section[]>((acc, s) => {
+    if (!s.title && acc.length) acc[acc.length - 1].blocks.push(...s.blocks);
+    else acc.push({ ...s, title: s.title ?? "Overview", blocks: [...s.blocks] });
+    return acc;
+  }, []);
+
+  const current = entries[Math.min(active, entries.length - 1)];
 
   return (
-    <div className={`md ${className}`.trim()}>
-      {collapsible > 1 && (
-        <div className="md__toolbar">
+    <div className={`md md--railed ${className}`.trim()}>
+      <div className="md__pane" key={active}>
+        <h2 className="md__pane-title">{inline(current.title!, `pt${active}`)}</h2>
+        <div className="md__pane-body">
+          <Blocks blocks={current.blocks} idBase={`s${active}`} />
+        </div>
+        {/* Linear reading still has to be possible: a contents rail is
+            for jumping, and someone reading the whole request in order
+            should not have to hunt the next entry in a list. */}
+        <nav className="md__steps" aria-label="Section navigation">
           <button
             type="button"
-            className="md__toolbar-btn"
-            onClick={() =>
-              setClosed(
-                allClosed
-                  ? new Set()
-                  : new Set(sections.map((s, i) => (s.title ? i : -1)).filter((i) => i >= 0)),
-              )
-            }
+            disabled={active === 0}
+            onClick={() => setActive((i) => Math.max(0, i - 1))}
           >
-            {allClosed ? "Expand all" : "Collapse all"}
+            ← {entries[active - 1]?.title ?? ""}
           </button>
-        </div>
-      )}
-      {sections.map((s, i) => {
-        if (!s.title) return <Blocks key={`s${i}`} blocks={s.blocks} idBase={`s${i}`} />;
-        const isClosed = closed.has(i);
-        const n = countLines(s);
-        return (
-          <section key={`s${i}`} className={`md__section md__section--h${s.level}`}>
-            <button
-              type="button"
-              className="md__section-head"
-              aria-expanded={!isClosed}
-              onClick={() => toggle(i)}
-            >
-              <span className="md__chevron" aria-hidden="true">
-                {isClosed ? "▸" : "▾"}
-              </span>
-              <span className="md__section-title">{inline(s.title, `t${i}`)}</span>
-              {isClosed && <span className="md__section-count">{n} lines</span>}
-            </button>
-            {!isClosed && (
-              <div className="md__section-body">
-                <Blocks blocks={s.blocks} idBase={`s${i}`} />
-              </div>
-            )}
-          </section>
-        );
-      })}
+          <span className="md__steps-pos">
+            {active + 1} / {entries.length}
+          </span>
+          <button
+            type="button"
+            disabled={active >= entries.length - 1}
+            onClick={() => setActive((i) => Math.min(entries.length - 1, i + 1))}
+          >
+            {entries[active + 1]?.title ?? ""} →
+          </button>
+        </nav>
+      </div>
+
+      <nav className="md__rail" aria-label="Contents">
+        <p className="md__rail-label">Contents</p>
+        <ol>
+          {entries.map((s, i) => {
+            const subs = subheads(s);
+            return (
+              <li key={`r${i}`}>
+                <button
+                  type="button"
+                  className={`md__rail-item${i === active ? " is-active" : ""}`}
+                  aria-current={i === active ? "true" : undefined}
+                  onClick={() => setActive(i)}
+                >
+                  <span className="md__rail-title">{s.title}</span>
+                  <span className="md__rail-count">{countLines(s)} lines</span>
+                </button>
+                {i === active && subs.length > 0 && (
+                  <ul className="md__rail-subs">
+                    {subs.map((t, j) => (
+                      <li key={`r${i}-${j}`}>{t}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
     </div>
   );
 }
