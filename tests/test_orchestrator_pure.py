@@ -25,6 +25,7 @@ nothing about the tools this pipeline actually shells out to.
 import json
 import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -512,6 +513,47 @@ class TestScreening(unittest.TestCase):
         """The cutoff must sit early enough to be cheap. Measured: 10s to
         GeneratePDN vs 64s for the full flow on counter4."""
         self.assertEqual(orchestrator.SCREEN_STEP, "OpenROAD.GeneratePDN")
+
+
+class SameDayCaseTests(unittest.TestCase):
+    """One file per run, not per day.
+
+    `{design}__{date}.json` meant a second orchestrate of the same
+    design on the same day silently replaced the first. Hit for real:
+    a technology comparison (counter4 tech-hd vs tech-hs) was
+    overwritten by a synthesis sweep the same afternoon, and the only
+    symptom was the surrogate dataset quietly losing rows.
+    """
+
+    def test_a_second_run_the_same_day_does_not_replace_the_first(self):
+        import orchestrator
+        with tempfile.TemporaryDirectory() as tmp:
+            real = orchestrator.REFDB
+            orchestrator.REFDB = Path(tmp)
+            try:
+                design = Path(tmp) / "d"
+                design.mkdir()
+                a = orchestrator.write_case("d", design, [], None)
+                b = orchestrator.write_case("d", design, [], None)
+                self.assertNotEqual(a, b)
+                self.assertTrue(a.exists() and b.exists())
+            finally:
+                orchestrator.REFDB = real
+
+    def test_the_first_run_keeps_the_plain_name(self):
+        # Every existing case file and every path in index.json uses it,
+        # so only a collision may take a suffix.
+        import orchestrator
+        with tempfile.TemporaryDirectory() as tmp:
+            real = orchestrator.REFDB
+            orchestrator.REFDB = Path(tmp)
+            try:
+                design = Path(tmp) / "d"
+                design.mkdir()
+                first = orchestrator.write_case("d", design, [], None)
+                self.assertRegex(first.name, r"^d__\d{4}-\d{2}-\d{2}\.json$")
+            finally:
+                orchestrator.REFDB = real
 
 
 if __name__ == "__main__":

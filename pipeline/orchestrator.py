@@ -21,7 +21,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from run_stage import run_stage, read_metrics
@@ -1152,7 +1152,21 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     (REFDB / "layouts").mkdir(exist_ok=True)
+    # One file per run, not per day. `{design}__{date}.json` meant a
+    # second orchestrate of the same design on the same day silently
+    # replaced the first — hit for real: a technology comparison
+    # (counter4 tech-hd vs tech-hs) was overwritten by a later synthesis
+    # sweep the same afternoon, and the only trace was the surrogate
+    # dataset quietly losing rows.
+    #
+    # The plain `{design}__{date}.json` name is kept when it is free, so
+    # every existing case file and every path recorded in index.json
+    # stays valid. Only a same-day collision gets a suffix.
     case_file = REFDB / "cases" / f"{design_name}__{date.today().isoformat()}.json"
+    if case_file.exists():
+        stamp = datetime.now(timezone.utc).strftime("%H%M%S")
+        case_file = (REFDB / "cases"
+                     / f"{design_name}__{date.today().isoformat()}__{stamp}.json")
     # outcome stays as the short human-readable summary the dashboard
     # already renders; stop_reason is the machine-readable total-guard
     # value (STOP_REASONS) a caller (self_improve.py, the dashboard) can
