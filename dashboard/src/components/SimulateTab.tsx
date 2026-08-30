@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { runSimulation } from "../api/simulation";
+import { useEffect, useState } from "react";
+import { fetchSimScript, runSimulation } from "../api/simulation";
 import { parseTiming } from "../parsers/parseTiming";
 import { parsePower } from "../parsers/parsePower";
 import { useLang } from "../i18n";
@@ -15,6 +15,14 @@ export default function SimulateTab() {
   const [period, setPeriod] = useState(2.0);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
+  // The script the server will run. Read from its template rather than
+  // written out here, so what the page shows and what executes cannot
+  // drift apart.
+  const [script, setScript] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchSimScript().then(setScript).catch(() => setScript(null));
+  }, []);
   const [simError, setSimError] = useState<string | null>(null);
 
   async function handleRun() {
@@ -46,6 +54,13 @@ export default function SimulateTab() {
 
   return (
     <div className="tab">
+      {/* What this page is. The title said "5-cell design, real Nangate45
+          library" and nothing else, so why five cells, why no area, and
+          how this differs from the pipeline were only in sim/README.md —
+          available to whoever already knew to look for them. */}
+      <p className="sim-intro">{t("sim_intro")}</p>
+      <p className="sim-intro sim-intro--dim">{t("sim_why_small")}</p>
+
       <div className="panel">
         <span className="panel__title">{t("sim_panel_title")}</span>
         <div className="panel__body sim-controls">
@@ -62,9 +77,21 @@ export default function SimulateTab() {
           <button onClick={handleRun} disabled={running}>
             {running ? t("sim_running") : t("sim_run")}
           </button>
-          <span className="sim-controls__hint">{t("sim_hint")}</span>
+          <span className="sim-controls__hint">{t("sim_try")}</span>
         </div>
       </div>
+
+      {script && (
+        <details className="panel sim-script">
+          <summary className="panel__title">{t("sim_runs_title")}</summary>
+          <div className="panel__body">
+            <pre className="sim-output">
+              {script.replace("{{PERIOD}}", String(period))}
+            </pre>
+            <p className="sim-note">{t("sim_runs_note")}</p>
+          </div>
+        </details>
+      )}
 
       {simError && (
         <div className="tab__error">
@@ -168,6 +195,26 @@ export default function SimulateTab() {
           </div>
         </div>
       )}
+
+      {/* The boundaries, at the bottom because they answer questions the
+          page raises rather than ones it opens with. Each is a real
+          limit with a reason, not a disclaimer: OpenSTA genuinely has no
+          report_area, and these runs genuinely must not enter the case
+          store. */}
+      <div className="sim-scope">
+        <section>
+          <span className="sim-scope__title">{t("sim_scope_title")}</span>
+          <ul>
+            <li>{t("sim_scope_area")}</li>
+            <li>{t("sim_scope_store")}</li>
+            <li>{t("sim_scope_pnr")}</li>
+          </ul>
+        </section>
+        <section>
+          <span className="sim-scope__title">{t("sim_place_title")}</span>
+          <p>{t("sim_place_body")}</p>
+        </section>
+      </div>
     </div>
   );
 }
