@@ -1,0 +1,7 @@
+{
+  "design_name": "riscv32i",
+  "targets": { "max_core_utilization": 0.75 },
+  "sweeps": [{ "param": "CLOCK_PERIOD", "values": [12, 20, 30], "tag_prefix": "sweep-clk" }],
+  "candidates": [],
+  "max_iterations": 1
+}
