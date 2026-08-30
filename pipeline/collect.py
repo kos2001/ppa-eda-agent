@@ -49,6 +49,7 @@ import surrogate
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DESIGNS = REPO_ROOT / "pipeline" / "designs"
+REFDB = REPO_ROOT / "reference-db"
 
 # Designs that produce nothing, and why. Kept as data rather than a
 # comment so the reason travels with the decision.
@@ -77,6 +78,91 @@ TECHNOLOGIES = [
 
 CLOCK_PERIODS = (4, 6, 8, 12, 20)
 UTILISATIONS = (25, 45, 65)
+
+# Nine ABC scripts, and the axis with the thinnest coverage in the
+# corpus at 7.8% of rows — it was swept once, on counter4, on one
+# library. It moves area only ~4% on that design, but it is nearly free
+# on the fast designs (6-70 s a run) and it is the only axis that
+# changes what synthesis produces rather than how it is placed.
+SYNTH_STRATEGIES = ("AREA 0", "AREA 1", "AREA 2", "AREA 3",
+                    "DELAY 0", "DELAY 1", "DELAY 2", "DELAY 3", "DELAY 4")
+
+# Designs whose runs are cheap enough to sweep exhaustively. aes and
+# riscv32i are 9,731 and 14,705 cells and take twenty to thirty-five
+# minutes a run under contention, against six to seventy seconds for
+# everything else — a 30x spread, so an axis worth adding everywhere is
+# not worth adding there.
+FAST_ONLY_AXES = {"SYNTH_STRATEGY"}
+SLOW_DESIGNS = {"aes", "riscv32i"}
+
+
+def recorded_seconds() -> dict:
+    """Median wall-clock per design, from runs already recorded.
+
+    The collector had no idea what a run costs. Measured across the
+    corpus the small designs land at 6-70 s, while aes (14,705 cells)
+    and riscv32i (9,731) take twenty minutes each under three-way
+    contention — a 20x spread planned as if it were uniform, which is
+    how a 64-run batch took the machine to a load average of 55.
+
+    Read from the same `seconds` field run_one already writes, so this
+    sharpens itself every time anything is collected.
+    """
+    out: dict[str, float] = {}
+    cases = REFDB / "cases"
+    if not cases.is_dir():
+        return out
+    per: dict[str, list] = {}
+    for path in sorted(cases.glob("*.json")):
+        try:
+            case = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        for iteration in case.get("iterations", []):
+            for result in iteration.get("results", []):
+                if isinstance(result.get("seconds"), (int, float)):
+                    per.setdefault(case.get("design", ""), []).append(result["seconds"])
+    for design, values in per.items():
+        values.sort()
+        out[design] = values[len(values) // 2]
+    return out
+
+
+def estimate(items: list[dict], parallel: int) -> dict:
+    """What a plan will cost, before it is started.
+
+    Reported rather than enforced: a long batch may be exactly what
+    someone wants. What they should not have to do is discover the
+    length by watching it.
+    """
+    known = recorded_seconds()
+    timed = [i for i in items if i["design"] in known]
+    untimed = sorted({i["design"] for i in items if i["design"] not in known})
+    total = sum(known[i["design"]] for i in timed)
+
+    per_design: dict[str, dict] = {}
+    for item in items:
+        row = per_design.setdefault(item["design"], {"runs": 0})
+        row["runs"] += 1
+        row["seconds_each"] = round(known[item["design"]], 1) \
+            if item["design"] in known else None
+
+    # No number is given for a design nobody has timed, and none is
+    # guessed from the timed ones either. Measured across this corpus
+    # the small designs land at 6-70 s while aes (14,705 cells) takes
+    # twenty minutes under contention — a 20x spread, so a fallback
+    # drawn from the small ones would have reported 19 minutes for a batch
+    # that ran for hours. An estimate that confident and that wrong is
+    # worse than saying it does not know.
+    return {
+        "runs": len(items),
+        "runs_with_a_timing": len(timed),
+        "minutes_for_timed_runs": round(total / 60, 1),
+        "wall_minutes_at_parallel": round(total / 60 / max(parallel, 1), 1),
+        "untimed_designs": untimed,
+        "estimate_covers_everything": not untimed,
+        "per_design": per_design,
+    }
 
 
 def declared(design: str) -> dict:
@@ -134,6 +220,8 @@ def plan(designs: list[str]) -> list[dict]:
             axes = [("CLOCK_PERIOD", c) for c in CLOCK_PERIODS]
             if not absolute:
                 axes += [("FP_CORE_UTIL", u) for u in UTILISATIONS]
+            if design not in SLOW_DESIGNS:
+                axes += [("SYNTH_STRATEGY", v) for v in SYNTH_STRATEGIES]
             for key, value in axes:
                 overrides = {**base, key: value}
                 sig = (json.dumps(overrides, sort_keys=True),
@@ -167,8 +255,16 @@ def collect(designs: list[str], parallel: int, limit: int | None) -> dict:
     items = plan(designs)
     if limit:
         items = items[:limit]
-    print(f"planned {len(items)} runs across {len(set(i['design'] for i in items))} "
-          f"designs", file=sys.stderr, flush=True)
+    cost = estimate(items, parallel)
+    note = (f"about {cost['wall_minutes_at_parallel']} min at {parallel} parallel"
+            if cost["estimate_covers_everything"]
+            else f"{cost['runs_with_a_timing']} of {cost['runs']} runs have a "
+                 f"timing ({cost['wall_minutes_at_parallel']} min at {parallel} "
+                 f"parallel); no estimate for "
+                 f"{', '.join(cost['untimed_designs'])}")
+    print(f"planned {len(items)} runs across "
+          f"{len(set(i['design'] for i in items))} designs — {note}",
+          file=sys.stderr, flush=True)
 
     by_design: dict[str, list] = {}
     with ThreadPoolExecutor(max_workers=parallel) as pool:
@@ -205,8 +301,14 @@ def main() -> None:
     ap.add_argument("--parallel", type=int, default=3)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--estimate", action="store_true",
+                    help="what the plan will cost, without running it")
     args = ap.parse_args()
 
+    if args.estimate:
+        items = plan(args.designs)
+        print(json.dumps(estimate(items, args.parallel), indent=2))
+        return
     if args.dry_run:
         items = plan(args.designs)
         print(json.dumps({"planned": len(items), "items": items}, indent=2))
