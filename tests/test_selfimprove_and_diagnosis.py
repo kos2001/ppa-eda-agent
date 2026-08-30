@@ -9,6 +9,7 @@ a cheap regression test is worth most.
 """
 import json
 import os
+import pathlib
 import sys
 import unittest
 
@@ -81,6 +82,75 @@ class TestBudgetRetryCommand(unittest.TestCase):
         a plausible-looking invented one."""
         self.assertIsNone(
             self_improve.budget_retry_command("no-such-design", _case()))
+
+
+class TestScanningDoesNotWrite(unittest.TestCase):
+    """Reading the scan must not change the repository.
+
+    GET /self-improve serves scan_all(), and the dashboard polls it on
+    every load. scan_design() generated a review request for any OPEN,
+    unreviewed design as a side effect, so opening the console wrote
+    files into reference-db/reviews/ — three of them appeared during one
+    session of looking at the page, and they show up as untracked work
+    nobody did.
+
+    Generating them on a schedule is the point of this module and stays
+    (see its docstring). Generating them because someone looked is not:
+    a read that writes turns "I opened the dashboard" into a commit
+    someone has to explain, and it races itself when two tabs poll at
+    once — request_review.py already carries a note about that race.
+
+    So writing is opt-in. The default is the safe one, because every
+    caller that is not the scheduled run is a reader: the HTTP endpoint,
+    the MCP tool, and anything added later that forgets to think about
+    it.
+    """
+
+    def setUp(self):
+        self.reviews = (pathlib.Path(self_improve.REPO_ROOT)
+                        / "reference-db" / "reviews")
+        self.before = ({p.name: p.stat().st_mtime_ns
+                        for p in self.reviews.glob("*.md")}
+                       if self.reviews.is_dir() else {})
+
+    def _unchanged(self):
+        after = ({p.name: p.stat().st_mtime_ns
+                  for p in self.reviews.glob("*.md")}
+                 if self.reviews.is_dir() else {})
+        # Names AND mtimes: the old behaviour rewrote a request that
+        # already existed on every scan, so checking only for new files
+        # would call that clean.
+        self.assertEqual(after, self.before)
+
+    def test_scan_all_writes_nothing_by_default(self):
+        self_improve.scan_all()
+        self._unchanged()
+
+    def test_scan_design_writes_nothing_by_default(self):
+        designs = sorted(d.name for d in self_improve.DESIGNS_DIR.iterdir()
+                         if d.is_dir())
+        for design in designs:
+            self_improve.scan_design(design)
+        self._unchanged()
+
+    def test_a_read_only_scan_still_says_a_review_is_needed(self):
+        # Not writing must not mean not reporting. The panel's job is to
+        # say which designs are waiting on a human; only the file is
+        # deferred to whoever actually runs the scan.
+        report = self_improve.scan_all()
+        statuses = [d.get("status", "") for d in report["designs"]]
+        self.assertTrue(any("needs review" in s for s in statuses), statuses)
+
+    def test_a_read_only_scan_reports_requests_that_already_exist(self):
+        # An existing request is a fact about the repo, and reading it is
+        # a read. Without this the panel cannot tell "nobody has filed
+        # one" from "we did not look".
+        report = self_improve.scan_all()
+        on_disk = {p.name for p in self.reviews.glob("*.md")}
+        for row in report["designs"]:
+            path = row.get("review_request")
+            if path:
+                self.assertIn(pathlib.Path(path).name, on_disk, row["design"])
 
 
 class TestVerifyDiagnosisGrounding(unittest.TestCase):
