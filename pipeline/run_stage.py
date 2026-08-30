@@ -19,6 +19,7 @@ Requires:
 import argparse
 import json
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -113,7 +114,14 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
         cmd += ["--override-config", kv]
     cmd.append("/design/config.json")
 
-    print(f"$ {' '.join(cmd)}", file=sys.stderr)
+    # shlex.join, not " ".join. The command is built as an argv list, so
+    # an override like SYNTH_STRATEGY=AREA 2 is passed correctly — but a
+    # naive join printed it unquoted, and the line then read as a shell
+    # command that would split the value in two. Debugging a batch of
+    # failures, that line is the first thing anyone reads, and it
+    # accused the argument handling of a bug it does not have. A logged
+    # command should be one you could paste.
+    print(f"$ {shlex.join(cmd)}", file=sys.stderr)
     # Streamed, not captured-then-printed.
     #
     # This used to be subprocess.run(capture_output=True), which holds
