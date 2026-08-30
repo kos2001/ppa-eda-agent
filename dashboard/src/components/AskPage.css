@@ -1,0 +1,269 @@
+.ask__intro {
+  max-width: 68ch;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.ask__examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.9rem 0;
+}
+.ask__examples-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-right: 0.2rem;
+}
+.ask__example {
+  font-size: 0.76rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.ask__example:hover { border-color: var(--accent); color: var(--text); }
+
+.ask__turn {
+  border-top: 1px solid var(--border);
+  padding-top: 0.8rem;
+  margin-top: 0.9rem;
+}
+.ask__question {
+  font-weight: 600;
+  margin: 0 0 0.55rem;
+  max-width: 68ch;
+}
+/* What is happening, and what already happened. Kept after the answer
+   is finished rather than cleared: "retrieval found 4 sources in 0.4s,
+   the model wrote for 12s" is how a reader judges an answer they cannot
+   otherwise check. */
+.ask__steps {
+  list-style: none;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+}
+.ask__step {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.12rem 0;
+  color: var(--text-dim);
+}
+.ask__step-mark { width: 1ch; }
+.ask__step-detail { color: var(--text); }
+.ask__step-ms { margin-left: auto; opacity: 0.7; }
+
+.ask__step--ok .ask__step-mark { color: var(--good); }
+.ask__step--failed .ask__step-mark { color: var(--critical); }
+.ask__step--empty .ask__step-mark,
+.ask__step--skipped .ask__step-mark { color: var(--text-dim); }
+/* The only motion on the page, and only while something is actually
+   pending — a spinner that keeps turning after the work is done is a
+   lie about the state. */
+.ask__step--running .ask__step-mark { animation: ask-pulse 1.1s infinite; }
+@keyframes ask-pulse { 50% { opacity: 0.25; } }
+
+/* The answer is the page's main text, so it gets a measure and the
+   document styles rather than the monospace-blob treatment a <pre>
+   gave it. Everything inside is rendered by Markdown.tsx. */
+.ask__answer {
+  max-width: 68ch;
+  margin: 0 0 0.9rem;
+}
+.ask__answer p { line-height: 1.65; }
+/* A model's numbered steps are the shape of its answer. Left-aligned
+   markers keep them scannable next to the prose rather than hanging
+   off it. */
+.ask__answer ol,
+.ask__answer ul { padding-left: 1.15rem; }
+.ask__answer li { line-height: 1.6; margin: 0.2rem 0; }
+/* Backticks here hold file paths and metric keys, which is why they
+   must not wrap silently in the middle. */
+.ask__answer code { word-break: keep-all; }
+
+/* The store's own numbers, tighter than the prose about them so the
+   two do not read as one block. */
+.ask__facts-body p,
+.ask__facts-body li {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  margin: 0.15rem 0;
+}
+.ask__facts-body ul { padding-left: 1rem; margin: 0.25rem 0 0; }
+
+/* The numbers, kept visually distinct from the prose about them: these
+   are read from the store at question time and the sentence above them
+   is not. */
+.ask__facts {
+  border-left: 2px solid var(--accent);
+  padding: 0.35rem 0 0.35rem 0.6rem;
+  margin: 0 0 0.8rem;
+}
+.ask__facts-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ask__facts pre {
+  margin: 0.25rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.ask__nothing,
+.ask__no-model {
+  max-width: 68ch;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  font-style: italic;
+  margin: 0 0 0.7rem;
+}
+
+/* Not a footnote. The prose is the part that can be wrong, so what it
+   was built from is shown at the same weight rather than tucked away. */
+.ask__sources-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ask__sources {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ask__source {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.ask__source-head {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ask__source-name {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+}
+.ask__source-title {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  flex: 1;
+}
+
+/* Whether a passage came from a document someone wrote for readers or
+   from a module explaining itself. They answer different kinds of
+   question — "what is this" against "why is it like that" — and a bare
+   path makes the reader work that out from the file extension. */
+.ask__source-kind {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  padding: 0.05rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+
+/* How strong this match is against the best one in the same answer.
+   Relative, because the score has no natural maximum — see the note in
+   AskPage.tsx. */
+.ask__score {
+  display: block;
+  width: 4.5rem;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ask__score-bar {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.ask__term {
+  display: inline-block;
+  margin-right: 0.25rem;
+  padding: 0.02rem 0.28rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+.ask__excerpt {
+  margin: 0;
+  padding: 0 0.55rem 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text-dim);
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.ask__matched {
+  margin: 0;
+  padding: 0 0.55rem 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+}
+
+/* Not sticky. It was, and it sat on top of the sources instead of above
+   the fold: sticky needs an ancestor that establishes the scroll box,
+   and here the whole page scrolls, so `bottom: 0` pinned the form
+   mid-content over the very list this page exists to show. A form at
+   the end of a page that grows downward is where it belongs. */
+.ask__form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.4rem;
+  padding: 0.6rem 0;
+}
+.ask__input {
+  flex: 1;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.86rem;
+}
+.ask__input:focus { outline: none; border-color: var(--accent); }
+.ask__send {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.ask__send:disabled { opacity: 0.5; cursor: default; }

@@ -202,9 +202,19 @@ class RealPdkExtractionTests(unittest.TestCase):
     def test_the_two_variants_that_cannot_run_are_named(self):
         if not (pdk_repair.PDK_ROOT / "gf180mcu").is_dir():
             self.skipTest("no gf180mcu installed")
+        # A and B are the two that cannot run, and being unable to run is
+        # also why a checkout may not carry them: they are ~3.7G that no
+        # recorded run has ever used, so a disk-constrained checkout
+        # deletes them. Assert on the ones present rather than on the
+        # full pair, or this fails on exactly the checkouts that took the
+        # measurement's advice. The synthetic cases above still pin the
+        # rule itself; this one only checks it against a real PDK.
+        present = {v.name for v in pdk_repair.variants("gf180mcu")}
+        expected = sorted({"gf180mcuA", "gf180mcuB"} & present)
+        if not expected:
+            self.skipTest("neither unusable variant is installed")
         got = pdk_repair.repair("gf180mcu")["unusable_variants"]
-        self.assertEqual(sorted(p.split("/")[-1] for p in got),
-                         ["gf180mcuA", "gf180mcuB"])
+        self.assertEqual(sorted(p.split("/")[-1] for p in got), expected)
 
 
 class RealPdkTests(unittest.TestCase):

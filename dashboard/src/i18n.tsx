@@ -137,6 +137,83 @@ const dict = {
   se_skipped: { en: "not run", ko: "미실행" },
   se_failed: { en: "Synthesis exploration failed", ko: "합성 탐색 실패" },
   tab_lineage: { en: "Data & RAG", ko: "데이터 & RAG" },
+  tab_progress: { en: "Progress", ko: "개선 추이" },
+  tab_ask: { en: "Ask", ko: "질문하기" },
+  sidebar_collapse: { en: "collapse sidebar", ko: "사이드바 접기" },
+  sidebar_expand: { en: "expand sidebar", ko: "사이드바 펼치기" },
+  ask_intro: {
+    en: "Ask anything about this service in your own words. Answers are grounded in what this repo holds — its documents, the reasoning recorded in its modules, and the live case store. Every answer shows the sources it was built from, so you can check it.",
+    ko: "이 서비스에 대해 자유롭게 물어보세요. 답변은 이 저장소가 실제로 가진 것 — 문서, 모듈에 기록된 설계 근거, 그리고 실시간 케이스 저장소 — 에만 근거합니다. 답변에 사용한 출처를 항상 함께 보여주므로 직접 확인할 수 있습니다.",
+  },
+  ask_placeholder: {
+    en: "e.g. why is only one gf180mcu variant used?",
+    ko: "예: gf180mcu 변종은 왜 하나만 쓰나요?",
+  },
+  ask_send: { en: "ask", ko: "질문" },
+  ask_asking: { en: "asking…", ko: "묻는 중…" },
+  ask_searching: { en: "searching the repo…", ko: "저장소 검색 중…" },
+  // The steps an answer goes through, named so waiting is legible: a
+  // spinner says "wait", these say what is being waited on and which
+  // part already succeeded.
+  ask_step_search: { en: "searching documents, modules and the case store", ko: "문서·모듈·케이스 저장소 검색" },
+  ask_step_found: { en: "found {n} source(s)", ko: "근거 {n}건 확보" },
+  ask_step_none: { en: "no source matched", ko: "일치하는 근거 없음" },
+  ask_step_write: { en: "writing the answer from those sources", ko: "확보한 근거로 답변 작성" },
+  ask_step_done: { en: "done", ko: "완료" },
+  ask_step_skipped: { en: "skipped — nothing to ground an answer in", ko: "생략 — 근거가 없어 모델을 부르지 않음" },
+  ask_step_failed: { en: "no model reachable", ko: "모델에 연결 실패" },
+  ask_elapsed: { en: "{s}s", ko: "{s}초" },
+  // How a source was found, so the ranking is inspectable rather than
+  // something the reader has to trust.
+  ask_kind_doc: { en: "document", ko: "문서" },
+  ask_kind_module: { en: "module", ko: "모듈" },
+  ask_relevance: { en: "relevance", ko: "적합도" },
+  ask_sources: { en: "sources this answer is built from", ko: "이 답변의 근거" },
+  ask_facts: { en: "live from reference-db", ko: "reference-db 실시간 값" },
+  ask_matched: { en: "matched", ko: "일치한 용어" },
+  ask_nothing: {
+    en: "Nothing in this repo answers that. Rather than answer from general knowledge, it says so — an answer this project cannot support is the thing this page is built to avoid.",
+    ko: "이 저장소에 그 질문에 답할 내용이 없습니다. 일반 지식으로 채우는 대신 없다고 말합니다 — 근거 없는 그럴듯한 답변이야말로 이 화면이 피하려는 것입니다.",
+  },
+  ask_no_model: {
+    en: "No model is reachable, so there is no written answer — but retrieval ran, and these are the passages that answer your question. Configure PPA_EDA_GATEWAY_KEY for prose.",
+    ko: "모델에 연결할 수 없어 문장으로 된 답변은 없습니다 — 다만 검색은 동작했고, 아래가 질문에 답하는 대목들입니다. 문장 답변을 원하면 PPA_EDA_GATEWAY_KEY를 설정하세요.",
+  },
+  ask_examples: { en: "try one of these", ko: "이런 것들을 물어보세요" },
+  ask_ex1: { en: "What is this project for?", ko: "이 프로젝트는 무엇을 하나요?" },
+  ask_ex2: { en: "Why is only one gf180mcu variant used?", ko: "gf180mcu 변종은 왜 하나만 쓰나요?" },
+  ask_ex3: { en: "How many runs has counter4 recorded, and how many passed?", ko: "counter4는 몇 번 실행했고 몇 개가 통과했나요?" },
+  ask_ex4: { en: "How do I read a report_timing slack line?", ko: "report_timing의 slack 줄은 어떻게 읽나요?" },
+  pg_intro: {
+    en: "Whether the attempts are making this better, over time. Two answers, because the store gives two — and neither is the obvious chart. See the warning below for why.",
+    ko: "시도를 거듭하며 실제로 나아지고 있는지를 시간축으로 봅니다. 답이 둘인 이유는 데이터가 둘을 말하기 때문이고, 어느 쪽도 가장 뻔한 그래프는 아닙니다 — 이유는 아래 경고를 보세요.",
+  },
+  pg_warn_title: { en: "the chart that is not here", ko: "여기 없는 그래프" },
+  pg_warn_body: {
+    en: "Plotting recorded area against time shows counter4 going 290um2 to 1029um2. That is not a regression: the later runs are on gf180mcu, a 5-metal process with larger cells than sky130's 6-metal. Nothing got worse — the axis changed underneath the line. Every series below holds one technology for that reason.",
+    ko: "기록된 면적을 그대로 시간축에 그리면 counter4가 290um2에서 1029um2로 나빠진 것처럼 보입니다. 하지만 이는 퇴보가 아닙니다 — 후반 실행은 sky130(6층 금속)이 아니라 gf180mcu(5층 금속) 공정이고, 이 공정의 셀이 원래 더 큽니다. 나빠진 게 아니라 축이 바뀐 것입니다. 아래 모든 계열이 기술을 하나로 고정하는 이유입니다.",
+  },
+  pg_coverage_title: { en: "what has been measured", ko: "측정한 범위" },
+  pg_coverage_note: {
+    en: "Distinct configurations, not recorded rows — the store holds {r} rows and {n} configurations, and the difference is re-runs of the same thing. This only ever rises, because a measurement once taken is not untaken.",
+    ko: "기록된 행이 아니라 서로 다른 설정의 수입니다 — 저장소에는 {r}행이 있고 설정은 {n}개이며, 차이는 같은 것의 재실행입니다. 이 값은 오르기만 합니다. 한 번 측정한 것은 되돌려지지 않기 때문입니다.",
+  },
+  pg_samples: { en: "configurations", ko: "설정" },
+  pg_designs: { en: "designs", ko: "설계" },
+  pg_techs: { en: "technologies", ko: "기술" },
+  pg_frontier_title: { en: "best result found, per technology", ko: "기술별 최고 기록" },
+  pg_frontier_note: {
+    en: "Best area found so far, so it never rises. Only candidates that passed signoff set a record — a failed one often has a smaller area, and being too small is frequently why it failed.",
+    ko: "지금까지 찾은 최고 기록이라 값이 올라가지 않습니다. 사인오프를 통과한 후보만 기록을 세웁니다 — 실패한 후보가 면적은 더 작은 경우가 많은데, 너무 작은 것이 실패 원인인 경우가 잦기 때문입니다.",
+  },
+  pg_attempts: { en: "{n} comparable runs", ko: "비교 가능한 실행 {n}회" },
+  pg_records: { en: "{n} record(s)", ko: "기록 경신 {n}회" },
+  pg_no_gain: { en: "no improvement yet", ko: "아직 개선 없음" },
+  pg_frontier_empty: {
+    en: "No technology has a passing candidate yet, so there is no record to improve on.",
+    ko: "아직 어떤 기술에서도 통과한 후보가 없어 경신할 기록 자체가 없습니다.",
+  },
+  pg_loading: { en: "Loading the record…", ko: "기록을 읽는 중…" },
   tab_manual: { en: "Manual", ko: "사용 안내" },
   man_title: { en: "How to use this console", ko: "이 콘솔 사용법" },
   man_lede: {
@@ -370,6 +447,24 @@ const dict = {
   sa_reviews: { en: "{n} human-in-the-loop review(s) recorded on this case", ko: "이 케이스에 기록된 human-in-the-loop 리뷰 {n}건" },
 
   evidence_title: { en: "the record — every real run, newest first", ko: "기록 — 모든 실제 실행, 최신순" },
+  evidence_count: { en: "{n} run(s) across {d} design(s)", ko: "설계 {d}개, 실행 {n}건" },
+  group_meta: { en: "{n} run(s) · {p} closed · {c} candidates", ko: "{n}건 · 종결 {p} · 후보 {c}개" },
+  // The label that tells one run of a design from another. Named for
+  // what it answers — "what did this run change?" — because a design's
+  // runs are otherwise thirteen identical rows.
+  axis_label: { en: "swept", ko: "스윕 축" },
+  axis_none: { en: "single run", ko: "단일 실행" },
+  axis_repeat: { en: "repeat, nothing varied", ko: "반복 실행, 변화 없음" },
+  // The recorded override keys, in the reader's language. A key with no
+  // entry here is shown as recorded rather than guessed at.
+  knob_FP_CORE_UTIL: { en: "utilization", ko: "이용률" },
+  knob_SYNTH_STRATEGY: { en: "synth strategy", ko: "합성 전략" },
+  knob_CLOCK_PERIOD: { en: "clock period", ko: "클럭 주기" },
+  knob_PL_TARGET_DENSITY_PCT: { en: "placement density", ko: "배치 밀도" },
+  knob_DIE_AREA: { en: "die area", ko: "다이 면적" },
+  knob_PNR_EXCLUDED_CELL_FILE: { en: "cell exclusions", ko: "셀 제외" },
+  knob_PDK: { en: "process", ko: "공정" },
+  knob_SCL: { en: "cell library", ko: "셀 라이브러리" },
   ac_title: { en: "What the agent needs from you", ko: "에이전트가 당신에게 필요한 것" },
   ac_needing: { en: "{n} design(s) waiting on you", ko: "당신을 기다리는 설계 {n}개" },
   ac_all_clear: { en: "nothing waiting — every design is closed", ko: "대기 중 없음 — 모든 설계 완료" },

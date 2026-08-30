@@ -1,5 +1,6 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { LangProvider, useLang } from "./i18n";
+import { NAV_ICONS } from "./components/NavIcons";
 import { AgentProvider, useAgent } from "./agentContext";
 import "./App.css";
 
@@ -11,12 +12,16 @@ const SimulateTab = lazy(() => import("./components/SimulateTab"));
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
+const ProgressTab = lazy(() => import("./components/ProgressTab"));
+const AskPage = lazy(() => import("./components/AskPage"));
 const DataLineage = lazy(() => import("./components/DataLineage"));
 const ManualPage = lazy(() => import("./components/ManualPage"));
 
 type TabId =
   | "pipeline"
   | "health"
+  | "progress"
+  | "ask"
   | "lineage"
   | "manual"
   | "simulate"
@@ -28,6 +33,51 @@ type TabId =
 type Theme = "dark" | "light";
 
 const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
+// Remembered like the theme: the sidebar is chrome, and a reader who
+// collapsed it wants it collapsed on the next load rather than every
+// visit starting with a decision they already made.
+const COLLAPSED_STORAGE_KEY = "ppa-eda-agent-dashboard:sidebar-collapsed";
+
+// One sidebar destination. Every button in this nav was written out by
+// hand with the same three-line className ternary, which is how the
+// icons were going to be added in twelve places and forgotten in one.
+//
+// `title` carries the label for the collapsed rail, where the icon is
+// all that is visible. aria-label carries it unconditionally, so the
+// accessible name does not disappear along with the text.
+function NavItem({
+  id,
+  label,
+  active,
+  onSelect,
+  variant,
+  badge,
+}: {
+  id: TabId;
+  label: string;
+  active: boolean;
+  onSelect: (id: TabId) => void;
+  variant?: "primary" | "agent";
+  badge?: ReactNode;
+}) {
+  const classes = ["app__nav-item"];
+  if (variant === "primary") classes.push("app__nav-item--primary");
+  if (variant === "agent") classes.push("app__nav-item--agent");
+  if (active) classes.push("app__nav-item--active");
+  return (
+    <button
+      className={classes.join(" ")}
+      onClick={() => onSelect(id)}
+      title={label}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+    >
+      <span className="app__nav-icon">{NAV_ICONS[id]}</span>
+      <span className="app__nav-text">{label}</span>
+      {badge}
+    </button>
+  );
+}
 
 function AppInner() {
   const { lang, setLang, t } = useLang();
@@ -40,6 +90,13 @@ function AppInner() {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
   );
+  const [collapsed, setCollapsed] = useState<boolean>(
+    () => localStorage.getItem(COLLAPSED_STORAGE_KEY) === "1"
+  );
+
+  useEffect(() => {
+    localStorage.setItem(COLLAPSED_STORAGE_KEY, collapsed ? "1" : "0");
+  }, [collapsed]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -58,7 +115,15 @@ function AppInner() {
   // Beside health rather than inside it: health asks whether anything
   // needs attention, this asks what the store holds and where it goes.
   // Different questions, and the second had no page at all.
+  // Beside health and lineage, not in the reports group: those three
+  // and this are all about the agent system itself. Health asks what
+  // needs attention now and lineage asks what the store holds; this
+  // asks whether any of it is getting better, which neither answered.
+  const PROGRESS_TAB: { id: TabId; label: string } = { id: "progress", label: t("tab_progress") };
   const LINEAGE_TAB: { id: TabId; label: string } = { id: "lineage", label: t("tab_lineage") };
+  // Next to the manual rather than among the report tabs: both answer
+  // "how does this work", one by being read and one by being asked.
+  const ASK_TAB: { id: TabId; label: string } = { id: "ask", label: t("tab_ask") };
   const MANUAL_TAB: { id: TabId; label: string } = { id: "manual", label: t("tab_manual") };
   const REPORT_TABS: { id: TabId; label: string }[] = [
     { id: "simulate", label: t("tab_simulate") },
@@ -70,7 +135,16 @@ function AppInner() {
 
   return (
     <div className="app app--sidebar">
-      <aside className="app__sidebar">
+      <aside className={collapsed ? "app__sidebar app__sidebar--collapsed" : "app__sidebar"}>
+        <button
+          className="app__collapse"
+          onClick={() => setCollapsed((v) => !v)}
+          title={t(collapsed ? "sidebar_expand" : "sidebar_collapse")}
+          aria-label={t(collapsed ? "sidebar_expand" : "sidebar_collapse")}
+          aria-expanded={!collapsed}
+        >
+          {NAV_ICONS[collapsed ? "expand" : "collapse"]}
+        </button>
         <div className="app__brand">
           <div className="app__mark" aria-hidden="true">
             <span>P</span><span>P</span><span>A</span>
@@ -82,77 +156,46 @@ function AppInner() {
         </div>
 
         <nav className="app__nav">
-          <button
-            className={
-              active === PRIMARY_TAB.id
-                ? "app__nav-item app__nav-item--primary app__nav-item--active"
-                : "app__nav-item app__nav-item--primary"
-            }
-            onClick={() => setActive(PRIMARY_TAB.id)}
-          >
-            {PRIMARY_TAB.label}
-          </button>
+          {[PRIMARY_TAB, HEALTH_TAB, PROGRESS_TAB, LINEAGE_TAB, ASK_TAB, MANUAL_TAB]
+            .map((tab) => (
+              <NavItem
+                key={tab.id}
+                id={tab.id}
+                label={tab.label}
+                active={active === tab.id}
+                onSelect={setActive}
+                variant="primary"
+              />
+            ))}
 
-          <button
-            className={
-              active === HEALTH_TAB.id
-                ? "app__nav-item app__nav-item--primary app__nav-item--active"
-                : "app__nav-item app__nav-item--primary"
-            }
-            onClick={() => setActive(HEALTH_TAB.id)}
-          >
-            {HEALTH_TAB.label}
-          </button>
-
-          <button
-            className={
-              active === LINEAGE_TAB.id
-                ? "app__nav-item app__nav-item--primary app__nav-item--active"
-                : "app__nav-item app__nav-item--primary"
-            }
-            onClick={() => setActive(LINEAGE_TAB.id)}
-          >
-            {LINEAGE_TAB.label}
-          </button>
-
-          <button
-            className={
-              active === MANUAL_TAB.id
-                ? "app__nav-item app__nav-item--primary app__nav-item--active"
-                : "app__nav-item app__nav-item--primary"
-            }
-            onClick={() => setActive(MANUAL_TAB.id)}
-          >
-            {MANUAL_TAB.label}
-          </button>
-
+          {/* Hidden when collapsed rather than shortened: a section
+              heading squeezed into a 3rem rail is a smudge, and the
+              group it names is still legible from the icons. */}
           <span className="app__nav-label">{t("nav_reports_label")}</span>
           {REPORT_TABS.map((tab) => (
-            <button
+            <NavItem
               key={tab.id}
-              className={
-                active === tab.id ? "app__nav-item app__nav-item--active" : "app__nav-item"
-              }
-              onClick={() => setActive(tab.id)}
-            >
-              {tab.label}
-            </button>
+              id={tab.id}
+              label={tab.label}
+              active={active === tab.id}
+              onSelect={setActive}
+            />
           ))}
 
-          <button
-            className={
-              active === "diagnosis"
-                ? "app__nav-item app__nav-item--active app__nav-item--agent"
-                : "app__nav-item app__nav-item--agent"
+          <NavItem
+            id="diagnosis"
+            label={t("agent_sidebar_title")}
+            active={active === "diagnosis"}
+            onSelect={setActive}
+            variant="agent"
+            badge={
+              diagnosing ? (
+                <span className="app__tab-dot app__tab-dot--live" />
+              ) : hasUnseenResult ? (
+                <span className="app__tab-dot app__tab-dot--unseen" />
+              ) : null
             }
-            onClick={() => setActive("diagnosis")}
-          >
-            {t("agent_sidebar_title")}
-            {diagnosing && <span className="app__tab-dot app__tab-dot--live" />}
-            {!diagnosing && hasUnseenResult && (
-              <span className="app__tab-dot app__tab-dot--unseen" />
-            )}
-          </button>
+          />
         </nav>
 
         <div className="app__sidebar-footer">
@@ -190,7 +233,9 @@ function AppInner() {
             {active === "tradeoffs" && <TradeoffsTab />}
             {active === "pipeline" && <PipelineTab />}
             {active === "health" && <SystemHealth standalone />}
+            {active === "progress" && <ProgressTab />}
             {active === "lineage" && <DataLineage />}
+            {active === "ask" && <AskPage />}
             {active === "manual" && <ManualPage />}
             {active === "diagnosis" && <DiagnosisPage />}
           </Suspense>
