@@ -73,18 +73,20 @@ MIN_SAMPLES = 8
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
-# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 as the corpus grew and thinned out
-# again; power_w sits at 2 and completed at 1. The number tracks how
-# densely a row's own technology is populated around it, which is why it
-# moves in both directions rather than only up.
+# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 -> 4 as the corpus grew and thinned
+# out again; power_w sits at 2 and completed at 1. The last move was not
+# new data at all — adding routing_layers as a feature rearranged the
+# neighbourhoods, and k followed. The margin there is one fold in 155
+# (0.994 at k=3 against 1.000 at k=4, tied with k=5), so this is the
+# measurement being followed rather than a difference worth claiming.
+# The number tracks how densely a row's own technology is populated
+# around it, which is why it moves in both directions rather than only
+# up — and why a new feature can move it without a single new row.
 #
 # A test asserts these against best_k() on the real store, which is why
 # none of them has gone stale while the data moved underneath.
-#
-# A test asserts this against best_k() on the real store, so the constant
-# cannot quietly go stale while the data moves under it.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 3,
+    "area_um2": 4,
     "power_w": 2,
     "completed": 1,
 }
@@ -188,6 +190,19 @@ DEFAULT_SCL = "sky130_fd_sc_hd"
 # What every run used before the PDK became a candidate axis.
 DEFAULT_PDK = "sky130A"
 
+# Routing layers per PDK variant, counted from the tech-LEF each one
+# actually ships. A PDK absent from this map yields None, which keeps it
+# out of the distance calculation rather than placing it at zero — an
+# unknown stack is not a stack with no metal.
+ROUTING_LAYERS = {
+    "sky130A": 6,   # li1 + met1..met5
+    "sky130B": 6,
+    "gf180mcuA": 3,  # Metal1..Metal3
+    "gf180mcuB": 4,
+    "gf180mcuC": 5,
+    "gf180mcuD": 5,  # same five layers as C; thicker top metal
+}
+
 # How many rows a technology needs before it is allowed to separate
 # neighbourhoods. Measured, not chosen: with 42 hd rows and 3 hs rows,
 # switching the feature on took area's win-rate from 0.91 to 0.88 and
@@ -264,6 +279,25 @@ def featurize(row: dict) -> dict:
     # one recorded before the field existed.
     feats["SCL"] = row.get("scl")
 
+    # How many layers place-and-route has to route on. Counted from each
+    # installed PDK's own tech-LEF rather than guessed: gf180mcuA ships
+    # Metal1-3, B adds Metal4, C and D both reach Metal5 and differ only
+    # in top-metal thickness; sky130A and sky130B both offer li1 plus
+    # met1-met5. Routing layers are the resource place-and-route runs out
+    # of, so this is the feature that lets a run which did not fit on
+    # three layers inform one being asked to fit on four.
+    #
+    # Numeric rather than categorical, because the stacks are ordered and
+    # a category would make 3LM exactly as far from 4LM as from 5LM. The
+    # cost of the ordering is that gf180mcuC and sky130A both read as 5
+    # despite being unrelated processes — SCL already separates those
+    # categorically, so the pair is never judged similar on this alone.
+    #
+    # It needs no gate of its own. _ranges drops any numeric feature
+    # whose values are all equal, so while every row is one stack this
+    # contributes nothing and turns itself on when a second arrives.
+    feats["routing_layers"] = ROUTING_LAYERS.get(row.get("pdk") or DEFAULT_PDK)
+
     # A density feature (sequential cells per um^2) was tried here and
     # removed. The reasoning was sound — what decides whether a floorplan
     # survives is how much circuit is being asked to fit, not how many
@@ -285,7 +319,7 @@ def _numeric(value) -> bool:
 
 def _ranges(rows: list[dict]) -> dict[str, tuple[float, float]]:
     out: dict[str, tuple[float, float]] = {}
-    for key in (*_NUMERIC, "die_area_um2"):
+    for key in (*_NUMERIC, "die_area_um2", "routing_layers"):
         vals = [f[key] for f in (featurize(r) for r in rows)
                 if _numeric(f.get(key))]
         if len(vals) >= 2 and max(vals) > min(vals):
