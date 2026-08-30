@@ -62,6 +62,37 @@ SKIP = {
                               "is recorded and closed",
 }
 
+# Designs whose declared die cannot be floorplanned, so no axis acting
+# before the floorplan can change the outcome.
+#
+# Not the same thing as SKIP above. These designs do produce rows —
+# counter4_tinydie has 44 — but only from the one axis that can move the
+# result, which is the die area itself, and that is swept by the
+# orchestrator rather than here. Everything this collector varies acts
+# earlier: SYNTH_STRATEGY and CLOCK_PERIOD change synthesis, and
+# FP_CORE_UTIL is ignored outright by an absolute die.
+#
+# Measured rather than assumed. A batch swept nine synthesis strategies
+# across four technologies on counter4_tinydie and all 36 runs failed,
+# each of them at the floorplan and none of them at synthesis. Both
+# families fail, with different errors and the same cause: sky130 gets
+# STA-0572, `-core_area '-2.88' is not a positive float`, and gf180 —
+# with its die already scaled 4x — gets PDN-0185, no room for power
+# straps on Metal4.
+#
+# The reason to refuse them is not that they are wrong. Each row is a
+# true observation. It is that 36 rows carrying one fact are 36 easy
+# rows: added to the store they move completion's win-rate from 0.824 to
+# 0.849, which is a better number and not a better model. A gain that
+# comes from redundant samples is the kind of accuracy this pipeline is
+# built to refuse.
+NO_PRE_FLOORPLAN_AXIS = {
+    "counter4_tinydie": "its declared die fails the floorplan on every "
+                        "technology, so synthesis and clock axes all "
+                        "produce the same row; its informative axis is "
+                        "DIE_AREA, which is swept elsewhere",
+}
+
 # A technology, and what a design needs before it will build there.
 TECHNOLOGIES = [
     {"name": "sky130_fd_sc_hd", "pdk": None, "scl": None, "extra": {}},
@@ -237,6 +268,12 @@ def plan(designs: list[str]) -> list[dict]:
                     base["DIE_AREA"] = grown
             # A design with an absolute die ignores FP_CORE_UTIL, so
             # sweeping it there produces identical runs.
+            # Every axis this collector varies acts before the floorplan,
+            # so a design that cannot floorplan has nothing to learn from
+            # any of them — the same argument as the FP_CORE_UTIL guard
+            # below, one stage earlier.
+            if design in NO_PRE_FLOORPLAN_AXIS:
+                continue
             axes = [("CLOCK_PERIOD", c) for c in CLOCK_PERIODS]
             if not absolute:
                 axes += [("FP_CORE_UTIL", u) for u in UTILISATIONS]
