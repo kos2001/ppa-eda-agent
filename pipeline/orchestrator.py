@@ -679,7 +679,16 @@ def annotated_total_w(result: dict) -> float | None:
 def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                    verify_fn: bool = False) -> dict:
     """Runs and scores one independent candidate."""
-    tag = cand["tag"]
+    # Sanitised here, not only where sweeps are expanded. safe_tag was
+    # applied at expand time and nowhere else, so a caller that builds
+    # its own candidates — collect.py does — could hand in a tag with a
+    # space in it. `SYNTH_STRATEGY` values look like "DELAY 1", and a
+    # tag carrying that space wasted an entire 171-run batch: every run
+    # failed, none with an error that named the tag.
+    #
+    # This is the second time an unsanitised tag has destroyed a batch
+    # here; the first was a DIE_AREA list rendered into one.
+    tag = safe_tag(cand["tag"])
     overrides = [f"{k}={override_value(v)}" for k, v in cand.get("overrides", {}).items()]
     # The standard cell library is a candidate axis, not a global. It
     # cannot be an override — OpenLane accepts STD_CELL_LIBRARY into
