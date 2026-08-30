@@ -204,3 +204,103 @@ class McpExposureTests(unittest.TestCase):
 
 if __name__ == "__main__":
     sys.exit(unittest.main())
+
+
+class ReadOnlyQueryTests(unittest.TestCase):
+    """An open-ended question, without an open-ended shell.
+
+    Borrowed in shape from github.com/The-OpenROAD-Project/OpenROAD-MCP,
+    whose interactive_openroad_exec runs arbitrary commands in a
+    persistent session. The value in that design is that an agent can
+    ask something nobody shipped a tool for — this project's own
+    breakthrough on sram_wrapper was `report_checks -to <pin>`, which
+    existed in no tool until it was added as one. The value is not the
+    ability to write, so this allows reporting commands and nothing
+    else.
+    """
+
+    def test_reporting_commands_are_allowed(self):
+        for good in ("report_power", "report_checks -path_delay max",
+                     "get_property [get_pins a/b] slew_max_rise"):
+            self.assertEqual(sta_path.check_query(good), good)
+
+    def test_anything_that_modifies_is_refused(self):
+        for bad in ("delete_cell x", "write_verilog out.v", "exec rm -rf /",
+                    "set_max_transition 0.1 [current_design]", "source evil.tcl"):
+            with self.assertRaises(sta_path.StaPathError, msg=bad):
+                sta_path.check_query(bad)
+
+    def test_the_refusal_says_what_is_allowed(self):
+        # A refusal that does not name the alternative sends the caller
+        # back to guessing, which is what the tool exists to stop.
+        with self.assertRaises(sta_path.StaPathError) as ctx:
+            sta_path.check_query("write_def out.def")
+        self.assertIn("report_checks", str(ctx.exception))
+
+    def test_every_line_is_checked_not_just_the_first(self):
+        # A allow-listed first line must not carry the rest in behind it.
+        with self.assertRaises(sta_path.StaPathError):
+            sta_path.check_query("report_power\nwrite_verilog out.v")
+
+    def test_comments_and_blank_lines_are_skipped(self):
+        sta_path.check_query("# what the slack is\n\nreport_worst_slack -max")
+
+
+class ImageContentTests(unittest.TestCase):
+    """An image the agent can actually see.
+
+    ppa_render_layout returned {"png_path": ...} and every MCP result was
+    forced to type "text", so a tool whose own description cites the
+    measured finding that layout images improve diagnosis handed back a
+    string. OpenROAD-MCP exposes read_report_image for exactly this.
+    """
+
+    PNG = ("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8"
+           "z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
+
+    def _png(self):
+        import base64
+        import tempfile
+        d = Path(tempfile.mkdtemp())
+        (d / "x.png").write_bytes(base64.b64decode(self.PNG))
+        return d / "x.png"
+
+    def test_an_image_path_is_attached_as_an_image(self):
+        import mcp_server
+        blocks = mcp_server._content({"png_path": str(self._png())})
+        self.assertEqual([b["type"] for b in blocks], ["text", "image"])
+        self.assertEqual(blocks[1]["mimeType"], "image/png")
+
+    def test_the_path_is_still_reported(self):
+        # A human, and a later Bash call, both need it.
+        import mcp_server
+        path = self._png()
+        blocks = mcp_server._content({"png_path": str(path)})
+        self.assertIn(str(path), blocks[0]["text"])
+
+    def test_a_non_image_path_is_not_attached(self):
+        import mcp_server
+        blocks = mcp_server._content({"odb": "/tmp/x.odb", "spef_path": "/tmp/x.spef"})
+        self.assertEqual([b["type"] for b in blocks], ["text"])
+
+    def test_a_missing_file_is_not_attached(self):
+        import mcp_server
+        blocks = mcp_server._content({"png_path": "/nonexistent/x.png"})
+        self.assertEqual([b["type"] for b in blocks], ["text"])
+
+    def test_an_oversized_image_says_so_rather_than_vanishing(self):
+        # Silently dropping it would leave the agent waiting for a
+        # picture that never comes and no reason why.
+        import mcp_server
+        import tempfile
+        d = Path(tempfile.mkdtemp())
+        big = d / "big.png"
+        big.write_bytes(b"\x89PNG" + b"0" * (mcp_server.MAX_INLINE_IMAGE_BYTES + 1))
+        blocks = mcp_server._content({"png_path": str(big)})
+        self.assertEqual([b["type"] for b in blocks], ["text", "text"])
+        self.assertIn("inline", blocks[1]["text"])
+
+    def test_the_render_tool_is_still_registered(self):
+        import mcp_server
+        self.assertIn("ppa_render_layout", mcp_server._TOOL_IMPL)
+        self.assertIn("ppa_sta_query", mcp_server._TOOL_IMPL)
