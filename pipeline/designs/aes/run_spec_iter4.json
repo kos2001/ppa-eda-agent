@@ -1,0 +1,11 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    { "tag": "iter4-delay0-clk11p2",
+      "overrides": { "SYNTH_STRATEGY": "DELAY 0", "CLOCK_PERIOD": 11.2 } },
+    { "tag": "iter4-delay0-clk12",
+      "overrides": { "SYNTH_STRATEGY": "DELAY 0", "CLOCK_PERIOD": 12 } }
+  ],
+  "max_iterations": 1
+}
