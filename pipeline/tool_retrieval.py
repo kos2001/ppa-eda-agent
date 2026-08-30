@@ -228,6 +228,48 @@ MEASUREMENTS: list[dict] = [
                     "vs 468.3; 96um: 392.9 vs 532.3).",
     },
     {
+        "id": "unreadable-macro-gds",
+        "design": "sram_wrapper",
+        "when": ["magic_read_failure", "unknown_layer_datatype"],
+        "tool": "compare the two layer maps before reaching for a knob",
+        "cli": "grep -E '<layer>[[:space:]]+<type>' "
+               "$PDK/libs.tech/magic/sky130A.tech "
+               "$PDK/libs.tech/klayout/tech/sky130A.map",
+        "answers": "Whether a Magic read error is a tool quirk or geometry no "
+                   "sky130 tool configuration defines.",
+        "trap": "MAGIC_CAPTURE_ERRORS=false looks like the fix, and OpenLane's "
+                "own description invites it by saying the fatal determination "
+                "is heuristic and not guaranteed. It is not the fix. Magic then "
+                "streams out a GDS built from a macro it could not read, and "
+                "the run reaches DRC and reports 2,831,364 violations. The "
+                "abort was correct.",
+        "evidence": "sram_wrapper: five layers (22/21, 22/22, 33/42, 33/43, "
+                    "235/0) in the SRAM macro's GDS appear in neither Magic's "
+                    "techfile nor KLayout's map. KLayout ignores unmapped "
+                    "layers and streams out fine at step 57; Magic fails at 59. "
+                    "MAGIC_MACRO_STD_CELL_SOURCE=PDK only moved the failure "
+                    "from 61 to 59.",
+    },
+    {
+        "id": "library-blocked-by-a-missing-file",
+        "design": "counter4",
+        "when": ["pnr_excluded_cell_file_invalid", "pdk_load_failure"],
+        "tool": "pdk_repair",
+        "cli": "python3 pipeline/pdk_repair.py --pdk <family>",
+        "answers": "Whether a library is unusable because the PDK omitted a "
+                   "file OpenLane resolves by convention.",
+        "trap": "The error names PNR_EXCLUDED_CELL_FILE, a variable nobody "
+                "set, and passing --override-config for it does not help: the "
+                "path is validated while loading the PDK, before overrides "
+                "apply. There is also no run directory to inspect.",
+        "evidence": "gf180mcu_fd_sc_mcu9t5v0 ships no drc_exclude.cells while "
+                    "its 7-track sibling does, in all four metal-stack "
+                    "variants; sky130_fd_sc_hvl and sky130_osu_sc_t18 have the "
+                    "same gap. Eight libraries across two PDKs were unusable. "
+                    "With the file created the 9-track library completes all "
+                    "78 stages.",
+    },
+    {
         "id": "library-comparison",
         "design": "counter4_tinydie",
         "when": ["technology_question"],
@@ -272,6 +314,15 @@ def symptoms(case: dict) -> set[str]:
         scl = result.get("scl")
         if scl and scl != "sky130_fd_sc_hd":
             found.add(f"scl_{scl}")
+        err = result.get("error") or ""
+        if "Unknown layer/datatype" in err:
+            found.add("unknown_layer_datatype")
+        if "fatal errors while running Magic" in err:
+            found.add("magic_read_failure")
+        if "PNR_EXCLUDED_CELL_FILE" in err and "invalid" in err:
+            found.add("pnr_excluded_cell_file_invalid")
+        if "Errors have occurred while loading the PDK" in err:
+            found.add("pdk_load_failure")
     for iteration in case.get("iterations", []):
         results = iteration.get("results", [])
         errors = [r.get("error") or "" for r in results]
