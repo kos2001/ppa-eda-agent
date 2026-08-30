@@ -73,10 +73,11 @@ def reject_ignored_overrides(overrides: list[str], output: str,
 
 def run_stage(design_dir: Path, tag: str, to_step: str | None,
               overrides: list[str], overwrite: bool = True,
-              scl: str | None = None) -> Path:
+              scl: str | None = None, pdk: str | None = None) -> Path:
     """Runs a real OpenLane flow against design_dir, returns the run dir.
 
-    `scl` selects the standard cell library. It is a CLI flag rather than
+    `pdk` selects the process design kit (sky130A, gf180mcuD, ...) and
+    `scl` selects the standard cell library within it. It is a CLI flag rather than
     a config override on purpose: OpenLane 2 chooses the SCL from
     `--scl`, and passing `--override-config STD_CELL_LIBRARY=<x>` instead
     is silently ineffective — verified directly, the override does land
@@ -99,6 +100,11 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     ]
     if scl:
         cmd += ["--scl", scl]
+    # The PDK, for the same reason as --scl above: it is a flag, not a
+    # config override. sky130A is OpenLane's default, so passing nothing
+    # keeps every existing run byte-identical.
+    if pdk:
+        cmd += ["--pdk", pdk]
     if overwrite:
         cmd.append("--overwrite")
     if to_step:

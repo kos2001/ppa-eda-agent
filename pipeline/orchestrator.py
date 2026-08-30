@@ -690,11 +690,13 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     # counter4, hd and hs differ by 53% in area and 59% in power, and
     # surrogate.load_dataset deduplicated the pair down to one sample.
     scl = cand.get("scl")
+    pdk = cand.get("pdk")
     print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})}"
+          f"{f', pdk: {pdk}' if pdk else ''}"
           f"{f', scl: {scl}' if scl else ''} ===", file=sys.stderr)
     try:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
-                            scl=scl)
+                            scl=scl, pdk=pdk)
         metrics = read_metrics(run_dir)
         verdict = score(metrics, run_spec.get("targets", {}))
         # Clock-domain coverage needs the run's logs, which score() never
@@ -760,7 +762,7 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         declared = classic_steps()
         coverage = step_coverage.check(run_dir, declared) if declared else None
         return {"tag": tag, "overrides": cand.get("overrides", {}),
-                "scl": scl,
+                "scl": scl, "pdk": pdk,
                 "verdict": verdict, "run_dir": str(run_dir),
                 "data": data_pointers(run_dir),
                 "clocks": clocks,
@@ -770,7 +772,7 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                 "layout": layout}
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         return {"tag": tag, "overrides": cand.get("overrides", {}),
-                "scl": scl, "error": str(e)}
+                "scl": scl, "pdk": pdk, "error": str(e)}
 
 
 # Cheap pre-flight cutoff, stopping just past placement/PDN. Measured on
