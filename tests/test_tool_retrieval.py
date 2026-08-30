@@ -237,11 +237,32 @@ class TransferabilityTests(unittest.TestCase):
         self.assertTrue(hits)
         self.assertNotIn("some_new_design", {h["design"] for h in hits})
 
+    def test_a_foundry_change_retrieves_the_floorplan_warning(self):
+        # GPL-0301 says "Utilization 122%" and nothing about the library.
+        # A design hitting it on a foundry it has never used should be
+        # told that first, not left to sweep utilisation.
+        case = {"design": "brand_new", "iterations": [{"results": [
+            {"tag": "t", "scl": "gf180mcu_fd_sc_mcu7t5v0",
+             "error": "[GPL-0301] Utilization 122.025 % exceeds"}]}]}
+        ids = {h["id"] for h in tool_retrieval.retrieve(
+            case, exclude_design="brand_new")}
+        self.assertIn("new-technology-needs-a-new-floorplan", ids)
+
+    def test_the_inert_override_trap_is_recorded(self):
+        # FP_CORE_UTIL does nothing when FP_SIZING is absolute, so the
+        # obvious fix fails identically to no fix at all. This project
+        # has published two wrong conclusions from ignored overrides.
+        entry = next(e for e in tool_retrieval.MEASUREMENTS
+                     if e["id"] == "new-technology-needs-a-new-floorplan")
+        self.assertIn("FP_SIZING", entry["trap"])
+        self.assertIn("DIE_AREA", entry["trap"])
+
     def test_a_new_library_retrieves_both_kinds_of_failure(self):
-        # Two different things go wrong on sky130_fd_sc_hs and they need
-        # different answers: the cells carry a DRC rule the shipped
-        # exclusion list misses, and they are ~50% larger so a die size
-        # carried over from hd is too small. A generic entry-shape test
+        # Two different things go wrong on a new library and they need
+        # different answers: the cells may carry a DRC rule the shipped
+        # exclusion list misses, and they are larger — 50% for
+        # sky130_fd_sc_hs, 3.7-4.4x for gf180mcu — so a die carried over
+        # is too small. A generic entry-shape test
         # does not notice either going missing.
         case = {"design": "brand_new", "iterations": [{"results": [
             {"tag": "t", "scl": "sky130_fd_sc_hs",
@@ -249,7 +270,7 @@ class TransferabilityTests(unittest.TestCase):
         ]}]}
         ids = {h["id"] for h in tool_retrieval.retrieve(case,
                                                         exclude_design="brand_new")}
-        self.assertIn("hs-needs-a-bigger-die", ids)
+        self.assertIn("new-technology-needs-a-new-floorplan", ids)
         self.assertIn("hs-library-magic-drc", ids)
 
     def test_guidance_comes_from_more_than_one_source_design(self):

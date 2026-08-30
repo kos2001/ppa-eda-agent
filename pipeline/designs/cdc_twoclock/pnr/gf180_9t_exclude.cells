@@ -1,0 +1,9 @@
+# gf180mcu_fd_sc_mcu9t5v0 ships no drc_exclude.cells, while its 7-track
+# sibling does. OpenLane resolves PNR_EXCLUDED_CELL_FILE to that path
+# unconditionally and refuses to start when it is absent, so the 9-track
+# library cannot be used at all without supplying one.
+#
+# Empty on purpose: this asserts nothing about which 9-track cells are
+# DRC-clean. It only says the file exists. If a licon-style rule turns up
+# the way it did for sky130_fd_sc_hs, the offending cells belong here and
+# the evidence belongs in the case.

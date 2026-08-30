@@ -231,24 +231,6 @@ MEASUREMENTS: list[dict] = [
                     "instance across three unrelated designs.",
     },
     {
-        "id": "hs-needs-a-bigger-die",
-        "design": "counter4_tinydie",
-        "when": ["scl_sky130_fd_sc_hs", "PDN-0185", "pdn-strap-width"],
-        "tool": "re-sweep DIE_AREA rather than reusing the hd floorplan",
-        "cli": "python3 pipeline/run_stage.py --design D --tag T "
-               "--override DIE_AREA=0,0,W,H",
-        "answers": "Whether a floorplan that worked for one library is "
-                   "big enough for another.",
-        "trap": "A die size carried over from sky130_fd_sc_hd will fail on "
-                "sky130_fd_sc_hs without saying why the library is the "
-                "reason. Sweep the size on the new library before concluding "
-                "anything about the design.",
-        "evidence": "counter4_tinydie: the smallest die that completes is "
-                    "48um on hd and 56um on hs, and at every size that "
-                    "completes on both, hs is about 50% larger (56um: 310.3 "
-                    "vs 468.3; 96um: 392.9 vs 532.3).",
-    },
-    {
         "id": "unreadable-macro-gds",
         "design": "sram_wrapper",
         "when": ["magic_read_failure", "unknown_layer_datatype"],
@@ -289,6 +271,31 @@ MEASUREMENTS: list[dict] = [
                     "same gap. Eight libraries across two PDKs were unusable. "
                     "With the file created the 9-track library completes all "
                     "78 stages.",
+    },
+    {
+        "id": "new-technology-needs-a-new-floorplan",
+        "design": "counter4_tinydie",
+        "when": ["scl_sky130_fd_sc_hs", "scl_gf180mcu_fd_sc_mcu7t5v0",
+                 "scl_gf180mcu_fd_sc_mcu9t5v0", "GPL-0301",
+                 "PDN-0185", "pdn-strap-width"],
+        "tool": "re-sweep the floorplan rather than reusing the old one",
+        "cli": "python3 pipeline/run_stage.py --design D --tag T "
+               "--override DIE_AREA=0,0,W,H",
+        "answers": "Whether a floorplan that worked for one library is big "
+                   "enough for another.",
+        "trap": "Two of them. A die carried over from the previous technology "
+                "fails without naming the library as the reason — "
+                "GPL-0301 says 'Utilization 122%' and nothing about cells "
+                "being four times larger. And FP_CORE_UTIL is inert when the "
+                "design sets FP_SIZING: absolute, so the obvious override "
+                "changes nothing and the run fails identically; DIE_AREA is "
+                "the knob that exists there.",
+        "evidence": "counter4_tinydie: smallest die that completes is 48um on "
+                    "sky130_fd_sc_hd and 56um on hs, and gf180mcu needs 256um "
+                    "where sky130 needed 8. cdc_twoclock at its fixed 60x60 "
+                    "die hit GPL-0301 at 122% utilisation on both gf180mcu "
+                    "libraries and completed at 128x128 (2627.7 and 3053.8 "
+                    "um2). All four designs now build on both foundries.",
     },
     {
         "id": "library-comparison",
