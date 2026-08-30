@@ -139,6 +139,8 @@ const dict = {
   tab_lineage: { en: "Data & RAG", ko: "데이터 & RAG" },
   tab_progress: { en: "Progress", ko: "개선 추이" },
   tab_ask: { en: "Ask", ko: "질문하기" },
+  sidebar_collapse: { en: "collapse sidebar", ko: "사이드바 접기" },
+  sidebar_expand: { en: "expand sidebar", ko: "사이드바 펼치기" },
   ask_intro: {
     en: "Ask anything about this service in your own words. Answers are grounded in what this repo holds — its documents, the reasoning recorded in its modules, and the live case store. Every answer shows the sources it was built from, so you can check it.",
     ko: "이 서비스에 대해 자유롭게 물어보세요. 답변은 이 저장소가 실제로 가진 것 — 문서, 모듈에 기록된 설계 근거, 그리고 실시간 케이스 저장소 — 에만 근거합니다. 답변에 사용한 출처를 항상 함께 보여주므로 직접 확인할 수 있습니다.",
