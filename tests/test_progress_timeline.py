@@ -170,6 +170,40 @@ class FrontierTests(unittest.TestCase):
         self.assertAlmostEqual(series["improvedPct"],
                                (first - last) / first * 100, 6)
 
+    def test_a_search_that_improved_inside_one_case_still_reports_it(self):
+        # The bug this pins. Points sharing a timestamp were collapsed
+        # into one, keeping the newest area — which overwrote the value
+        # the series STARTED at. Any search whose improvements all landed
+        # in a single case then read first == last and reported 0%.
+        #
+        # spm on sky130-hd is exactly that: six records, 3757.35 down to
+        # 3618.47, every one of them inside the 2026-08-29 case. The page
+        # showed it as "no improvement yet" while the store held a 3.7%
+        # one. Collapsing is fine for the coverage curve, where the last
+        # value at an instant IS the total; it is wrong here, where the
+        # first value is half the measurement.
+        series = next(s for s in self.frontiers
+                      if s["design"] == "spm" and s["scl"] == "sky130_fd_sc_hd")
+        self.assertAlmostEqual(series["points"][0]["area"], 3757.35, 2)
+        self.assertAlmostEqual(series["points"][-1]["area"], 3618.47, 2)
+        self.assertGreater(series["improvedPct"], 3.0)
+
+    def test_the_first_point_is_the_first_record_not_the_first_instant(self):
+        # The general form of the above, over every series: a frontier
+        # starts where its first passing candidate landed.
+        best_first: dict[tuple, float] = {}
+        for row in _rows():
+            verdict = row["verdict"]
+            if not verdict.get("passed") or verdict.get("area_um2") is None:
+                continue
+            key = (row["design"], row["scl"], row["pdk"])
+            if key not in best_first:
+                best_first[key] = verdict["area_um2"]
+        for series in self.frontiers:
+            key = (series["design"], series["scl"], series["pdk"])
+            self.assertAlmostEqual(series["points"][0]["area"], best_first[key], 3,
+                                   str(key))
+
     def test_attempts_counts_every_comparable_run_not_just_the_records(self):
         # 46 attempts produced 2 records. Showing only the records would
         # make a long search look like a short one.
