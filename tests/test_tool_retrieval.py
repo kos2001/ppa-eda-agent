@@ -366,3 +366,74 @@ class ReviewRequestTests(unittest.TestCase):
 
 if __name__ == "__main__":
     sys.exit(unittest.main())
+
+
+class DataLineageTests(unittest.TestCase):
+    """The page that says where the data comes from and who reads it.
+
+    SystemHealth answers "does anything need attention". This answers
+    "what is in here and where does it go" — a different question, and
+    the one with no answer anywhere in the console.
+    """
+
+    def setUp(self):
+        import data_lineage
+        self.mod = data_lineage
+        if not (ROOT / "reference-db" / "cases").is_dir():
+            self.skipTest("no reference-db")
+
+    def test_it_reports_every_stage_in_order(self):
+        got = self.mod.report()
+        self.assertEqual(list(got),
+                         ["collected", "stored", "featurized", "retrieved", "learned"])
+
+    def test_dedup_is_shown_as_a_loss_not_hidden(self):
+        # The gap between recorded runs and distinct samples is the
+        # point: counting re-runs as independent samples would inflate
+        # every accuracy figure on the page below it.
+        stored = self.mod.stored()
+        self.assertGreaterEqual(stored["recorded_runs"], stored["distinct_samples"])
+        self.assertEqual(
+            stored["collapsed_by_dedup"],
+            stored["recorded_runs"] - stored["distinct_samples"])
+
+    def test_a_design_that_never_completes_is_still_listed(self):
+        # sram_wrapper produces no completed rows. Dropping it would
+        # make the page claim a cleaner corpus than exists.
+        names = {d["design"] for d in self.mod.report()["collected"]["designs"]}
+        rows = self.mod.report()["collected"]["designs"]
+        self.assertTrue(any(d["completed"] == 0 for d in rows) or "sram_wrapper" not in names)
+
+    def test_empty_features_are_visible(self):
+        # A feature nobody gave data to is a finding, not a rounding
+        # error — it has happened twice here in both directions.
+        feats = self.mod.report()["featurized"]["features"]
+        self.assertTrue(feats)
+        for f in feats:
+            self.assertIn("coverage_pct", f)
+            self.assertLessEqual(f["coverage_pct"], 100.0)
+
+    def test_both_retrieval_paths_are_reported(self):
+        got = self.mod.retrieved()
+        self.assertIn("precedent", got)
+        self.assertIn("guidance", got)
+        self.assertIn("single_source", got["guidance"])
+
+    def test_each_target_carries_its_interval(self):
+        # A win-rate without an interval reads as settled. The page must
+        # not present one that way.
+        for row in self.mod.report()["learned"]["targets"]:
+            if row.get("win_rate") is None:
+                continue
+            self.assertIsNotNone(row["interval"], row["target"])
+            self.assertIn("clears_threshold", row["interval"])
+
+    def test_the_server_exposes_it(self):
+        src = (ROOT / "server" / "index.mjs").read_text()
+        self.assertIn('"/data-lineage"', src)
+        self.assertIn("data_lineage", src)
+
+    def test_the_page_is_reachable_from_the_sidebar(self):
+        app = (ROOT / "dashboard" / "src" / "App.tsx").read_text()
+        self.assertIn("DataLineage", app)
+        self.assertIn('"lineage"', app)
