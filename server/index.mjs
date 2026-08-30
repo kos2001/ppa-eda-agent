@@ -6,7 +6,8 @@
 import { createServer } from "node:http";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
-import { appendFile, mkdtemp, readFile, readdir, writeFile, rm, cp, access, stat } from "node:fs/promises";
+import { appendFile, mkdir, mkdtemp, readFile, readdir, writeFile, rm, cp, access, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -115,6 +116,65 @@ async function runSimulation(period) {
 // the last request — this cache does the disk stat (cheap) every time
 // but only re-reads+re-parses a file when its mtime actually moved.
 const caseFileCache = new Map(); // fileName -> {mtimeMs, data}
+
+// Where an AI review draft is kept between asking for it and using it.
+//
+// Asking costs a real model call over a document that is thousands of
+// words long — the aes request took over two minutes — and the panel
+// threw the answer away on every re-render, tab switch and reload. A
+// person who wanted to read the draft, think, and then write their own
+// verdict had to pay for it again each time they came back.
+//
+// Keyed by a hash of the request document itself, not by the design
+// name. The request is regenerated from the design's latest case, so
+// when the case changes the document changes, the key changes, and the
+// stale draft is simply never found again. Nothing has to remember to
+// invalidate it.
+//
+// On disk rather than in memory so it survives a server restart, and
+// gitignored because it is a model's draft: if it is worth keeping it
+// gets applied into the case, and if it was not applied it is not
+// evidence of anything.
+const REVIEW_CACHE_DIR = path.resolve(__dirname, "..", ".cache", "reviews");
+
+function reviewCacheKey(requestText, lang) {
+  return createHash("sha256")
+    .update(`${lang ?? "en"}\u0000${requestText}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+async function writeReviewDraft(design, requestText, lang, text) {
+  if (!text.trim()) return;
+  await mkdir(REVIEW_CACHE_DIR, { recursive: true });
+  const payload = {
+    design,
+    lang: lang ?? "en",
+    key: reviewCacheKey(requestText, lang),
+    written_at: new Date().toISOString(),
+    text,
+  };
+  await writeFile(path.join(REVIEW_CACHE_DIR, `${design}.json`),
+                  JSON.stringify(payload, null, 2));
+}
+
+/** The cached draft for this design, or nulls if there is none.
+ *
+ * Returns the key it was stored under so the caller can tell whether it
+ * still matches the request it is looking at — a draft written for an
+ * older case is not an answer to the current one.
+ */
+async function readReviewDraft(design) {
+  try {
+    const raw = await readFile(
+      path.join(REVIEW_CACHE_DIR, `${design}.json`), "utf-8");
+    const draft = JSON.parse(raw);
+    return { text: draft.text, key: draft.key,
+             lang: draft.lang, written_at: draft.written_at };
+  } catch {
+    return { text: null, key: null, lang: null, written_at: null };
+  }
+}
 
 async function readCaseFileCached(fileName) {
   const filePath = path.join(refDbDir, "cases", fileName);
@@ -482,7 +542,8 @@ function withLanguage(prompt, lang) {
   return prompt + (LANGUAGE_INSTRUCTION[lang] ?? LANGUAGE_INSTRUCTION.en);
 }
 
-async function proxyChat(prompt, res, headers, { preferDirect = false } = {}) {
+async function proxyChat(prompt, res, headers,
+                        { preferDirect = false, onComplete = null } = {}) {
   const useDirect = preferDirect && directLlmAvailable();
   const key = useDirect ? directLlmKey() : gatewayKey();
   if (!key) {
@@ -541,10 +602,45 @@ async function proxyChat(prompt, res, headers, { preferDirect = false } = {}) {
     Connection: "keep-alive",
     ...(upstreamHeader ? { "X-Hermes-Gateway-Upstream": upstreamHeader } : {}),
   });
+  // Decoded alongside the passthrough only when someone asked for the
+  // finished text — the stream itself is still forwarded byte for byte,
+  // so nothing about the response changes when a caller wants a copy.
+  const decoder = onComplete ? new TextDecoder() : null;
+  let raw = "";
   for await (const chunk of upstream.body) {
     res.write(chunk);
+    if (decoder) raw += decoder.decode(chunk, { stream: true });
   }
   res.end();
+
+  // After res.end(), so a slow consumer of the finished text cannot
+  // hold the response open. Errors here are logged and dropped: failing
+  // to cache a draft must not fail the request that produced it.
+  if (onComplete) {
+    try {
+      await onComplete(collectSseText(raw));
+    } catch (err) {
+      console.error("[proxyChat onComplete]", err);
+    }
+  }
+}
+
+/** The assistant text out of a server-sent-event stream. */
+function collectSseText(raw) {
+  const out = [];
+  for (const line of raw.split("\n")) {
+    if (!line.startsWith("data: ")) continue;
+    const payload = line.slice(6).trim();
+    if (!payload || payload === "[DONE]") continue;
+    try {
+      const delta = JSON.parse(payload).choices?.[0]?.delta?.content;
+      if (delta) out.push(delta);
+    } catch {
+      // A partial frame at a chunk boundary is normal mid-stream and
+      // there is nothing to recover from it here.
+    }
+  }
+  return out.join("");
 }
 
 const server = createServer(async (req, res) => {
@@ -651,17 +747,89 @@ const server = createServer(async (req, res) => {
   // Streams a real review from hermes-gateway for a generated request.
   // Same SSE path the diagnosis and translation features already use, so
   // the console gets a second opinion without the operator leaving it.
+  // The AI draft this design's current review request already produced,
+  // if one has been produced. Served on its own so the panel can show it
+  // the moment the request is generated, rather than making a person ask
+  // for something that already exists.
+  if (req.method === "POST" && req.url === "/review/cached") {
+    let cachedBody = "";
+    req.on("data", (c) => (cachedBody += c));
+    req.on("end", async () => {
+      try {
+        const { design, requestText, lang } = JSON.parse(cachedBody || "{}");
+        if (!isSafeDesignName(design) || typeof requestText !== "string") {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "design and requestText required" }));
+          return;
+        }
+        const draft = await readReviewDraft(design);
+        // The key is compared here rather than handed to the caller to
+        // compare. It was returned for the caller to check and the
+        // caller did not, so a draft written for a different request —
+        // a different case, or the same one asked in another language —
+        // was put in the box as if it answered this one. Verified
+        // against a real miss: an English draft appeared under a Korean
+        // request. A cache that answers the wrong question is worse
+        // than no cache, because the wrong answer looks like an answer.
+        const fresh = draft.text
+          && draft.key === reviewCacheKey(requestText, lang);
+        res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify(fresh
+          ? { text: draft.text, written_at: draft.written_at }
+          : { text: null, written_at: null }));
+      } catch (err) {
+        console.error("[review cached error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/review/ask") {
     let body = "";
     req.on("data", (c) => (body += c));
     req.on("end", async () => {
       try {
-        const { requestText, lang } = JSON.parse(body || "{}");
+        const { requestText, lang, design, refresh } = JSON.parse(body || "{}");
         if (typeof requestText !== "string" || !requestText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "requestText (non-empty string) required" }));
           return;
         }
+
+        // A draft already written for this exact request is served
+        // instead of paying for it again. Replayed as SSE so the client
+        // has one code path for both, with a header saying which it got
+        // — a cached draft that pretended to be fresh would hide the
+        // fact that nobody asked the model just now.
+        const wantsCache = isSafeDesignName(design) && !refresh;
+        if (wantsCache) {
+          const cached = await readReviewDraft(design);
+          if (cached.text && cached.key === reviewCacheKey(requestText, lang)) {
+            res.writeHead(200, {
+              ...headers,
+              "Content-Type": "text/event-stream",
+              "X-Review-Cache": "hit",
+              "X-Review-Cached-At": cached.written_at ?? "",
+            });
+            res.write(`data: ${JSON.stringify({
+              choices: [{ delta: { content: cached.text } }],
+            })}\n\n`);
+            res.write("data: [DONE]\n\n");
+            res.end();
+            return;
+          }
+        }
+
+        // Written only on a complete answer. A draft cut off by a
+        // dropped connection is worse than no draft: it would be served
+        // back as if it were the model's verdict.
+        const capture = isSafeDesignName(design)
+          ? (text) => writeReviewDraft(design, requestText, lang, text)
+              .catch((e) => console.error("[review cache write]", e))
+          : null;
+
         await proxyChat(
           withLanguage(
           "You are reviewing a stuck chip-layout run. Below is the real " +
@@ -671,7 +839,7 @@ const server = createServer(async (req, res) => {
             "should this stay open? Cite only evidence present below — if " +
             "something cannot be determined from it, say so rather than " +
             "assuming.\n\n" + requestText, lang),
-          res, headers
+          res, { ...headers, "X-Review-Cache": "miss" }, { onComplete: capture }
         );
       } catch (err) {
         console.error("[review ask error]", err);
