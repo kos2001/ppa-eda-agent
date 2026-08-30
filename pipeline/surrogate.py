@@ -73,9 +73,13 @@ MIN_SAMPLES = 8
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
-# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 -> 4 -> 2 as the corpus grew and
+# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 -> 4 -> 2 -> 1 as the corpus grew and
 # thinned out again; power_w has moved 2 -> 1 and completed has stayed
-# at 1 throughout. One of those moves was not new data at all — adding
+# at 1 throughout. Several of those area moves were between values that
+# tie — k=1, 2 and 3 all score 0.9921 on the current store, and best_k
+# breaks the tie toward the smaller neighbourhood. So the constant is
+# tracking a real measurement, but the last digit of it is arbitrary
+# and no conclusion should rest on which of a tied set is chosen. One of those moves was not new data at all — adding
 # routing_layers as a feature rearranged the neighbourhoods and k
 # followed, on a margin of one fold in 155. The next was 85 recovered
 # runs arriving at once.
@@ -92,7 +96,7 @@ MIN_SAMPLES = 8
 # A test asserts these against best_k() on the real store, which is why
 # none of them has gone stale while the data moved underneath.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 2,
+    "area_um2": 1,
     "power_w": 1,
     "completed": 1,
 }
