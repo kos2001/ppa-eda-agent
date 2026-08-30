@@ -1,0 +1,3026 @@
+{
+  "design": "cdc_twoclock",
+  "date": "2026-08-30",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 1,
+    "has_macros": false,
+    "clock_domain_count": 2,
+    "port_count": 4,
+    "sequential_element_estimate": 16,
+    "power_domain_count": 1,
+    "notes": "Deliberately unsafe negative control for the CDC signoff gate: two independent clock ports (clk_a, clk_b) with an 8-bit data path crossing from the clk_a counter into a single clk_b flop, with no synchronizer. Exists to prove the gate can fail \u2014 OpenLane's base.sdc constrains only the first CLOCK_PORT, so the clk_b domain and this crossing are never analysed, and the run still reports zero timing violations. Not a design anyone should copy."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "c-gf180mcu_9t-synth_strategyDELAY_4",
+          "overrides": {
+            "PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells",
+            "DIE_AREA": [
+              0,
+              0,
+              120,
+              120
+            ],
+            "SYNTH_STRATEGY": "DELAY 4"
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "verdict": {
+            "passed": false,
+            "violations": [],
+            "unverified": [
+              "KLayout DRC error(s)",
+              "timing for clock domain 'clk_b' (declared but never constrained, so no path in it was analysed)"
+            ],
+            "area_um2": 3285.27,
+            "utilization": 0.408421,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0025143602397292852,
+              "leakage_w": 3.318195851420569e-08,
+              "switching_w": 0.0005739984335377812,
+              "total_w": 0.003088392084464431
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000319,
+              "ir_drop_worst_v": 0.00128,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.00127681,
+                  "voltage_worst_v": 4.99872,
+                  "nominal_v": 4.99999681,
+                  "drop_pct": 0.025536216292105993
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.00114229,
+                  "voltage_worst_v": 0.00114229,
+                  "nominal_v": 0.00228458,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.522957913997459,
+                  "hold_ws_ns": 0.21195795718513602,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.477042086002541,
+                  "fmax_mhz": 287.600775390577
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.2948059657613875,
+                  "hold_ws_ns": 1.079796838062532,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.7051940342386125,
+                  "fmax_mhz": 175.27887640607742
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.832388959098162,
+                  "hold_ws_ns": 0.479504560740803,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.167611040901838,
+                  "fmax_mhz": 239.94561637009386
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.559455830830428,
+                  "hold_ws_ns": 0.20414004398037613,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.4405441691695717,
+                  "fmax_mhz": 290.6516966010541
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.38542814475399,
+                  "hold_ws_ns": 1.05982803310996,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.61457185524601,
+                  "fmax_mhz": 178.1079707913336
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.886364451368289,
+                  "hold_ws_ns": 0.46761368323271196,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.113635548631711,
+                  "fmax_mhz": 243.0939708143622
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.542773175101383,
+                  "hold_ws_ns": 0.20772956165396145,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.4572268248986173,
+                  "fmax_mhz": 289.24917300713264
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.3440261506379505,
+                  "hold_ws_ns": 1.0690006959988338,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.6559738493620495,
+                  "fmax_mhz": 176.80421208326348
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.861694850974204,
+                  "hold_ws_ns": 0.4730748149341432,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.138305149025796,
+                  "fmax_mhz": 241.6448193133876
+                }
+              ],
+              "fmax_mhz": 175.27887640607742,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk_a",
+              "clk_b"
+            ],
+            "constrained_clocks": [
+              "clk_a"
+            ],
+            "unconstrained_clocks": [
+              "clk_b"
+            ],
+            "custom_sdc": false,
+            "warnings": [
+              "Multi-clock files are not currently supported by the base SDC file. Only the first clock will be constrained."
+            ],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "cdc_twoclock",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_4/06-yosys-synthesis/cdc_twoclock.nl.v.json",
+            "ports": [
+              {
+                "name": "clk_a",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "clk_b",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "out_b",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$272",
+                "label": "272",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    14
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$273",
+                "label": "273",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$274",
+                "label": "274",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_2",
+                "inputs": {
+                  "I": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$275",
+                "label": "275",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand2_1",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    14
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    19
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$276",
+                "label": "276",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    18
+                  ],
+                  "A2": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    20
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$277",
+                "label": "277",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    20
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    21
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$278",
+                "label": "278",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    22
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    23
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$279",
+                "label": "279",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand3_1",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    24
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$280",
+                "label": "280",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    23
+                  ],
+                  "A2": [
+                    24
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    25
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$281",
+                "label": "281",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_4",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    25
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    26
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$282",
+                "label": "282",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__inv_1",
+                "inputs": {
+                  "I": [
+                    27
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    28
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$283",
+                "label": "283",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_4",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    17
+                  ],
+                  "A4": [
+                    22
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    29
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$284",
+                "label": "284",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    29
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    30
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$285",
+                "label": "285",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_4",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    30
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    31
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$286",
+                "label": "286",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__inv_3",
+                "inputs": {
+                  "I": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    32
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$287",
+                "label": "287",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_2",
+                "inputs": {
+                  "A1": [
+                    33
+                  ],
+                  "A2": [
+                    32
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    34
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$288",
+                "label": "288",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkbuf_4",
+                "inputs": {
+                  "I": [
+                    34
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    35
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$289",
+                "label": "289",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    33
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    36
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$290",
+                "label": "290",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    29
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    37
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$291",
+                "label": "291",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__mux2_2",
+                "inputs": {
+                  "I0": [
+                    35
+                  ],
+                  "I1": [
+                    36
+                  ],
+                  "S": [
+                    37
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    38
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$292",
+                "label": "292",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__inv_3",
+                "inputs": {
+                  "I": [
+                    39
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    40
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$293",
+                "label": "293",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    40
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    41
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$294",
+                "label": "294",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    39
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    42
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$295",
+                "label": "295",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand2_1",
+                "inputs": {
+                  "A1": [
+                    27
+                  ],
+                  "A2": [
+                    33
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    43
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$296",
+                "label": "296",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    29
+                  ],
+                  "A2": [
+                    43
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    44
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$297",
+                "label": "297",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__mux2_2",
+                "inputs": {
+                  "I0": [
+                    41
+                  ],
+                  "I1": [
+                    42
+                  ],
+                  "S": [
+                    44
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    45
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$298",
+                "label": "298",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_2",
+                "inputs": {
+                  "A1": [
+                    46
+                  ],
+                  "A2": [
+                    32
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    47
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$299",
+                "label": "299",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkbuf_4",
+                "inputs": {
+                  "I": [
+                    47
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    48
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$300",
+                "label": "300",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    46
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    49
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$301",
+                "label": "301",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_2",
+                "inputs": {
+                  "A1": [
+                    40
+                  ],
+                  "A2": [
+                    29
+                  ],
+                  "A3": [
+                    43
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    50
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$302",
+                "label": "302",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__mux2_2",
+                "inputs": {
+                  "I0": [
+                    48
+                  ],
+                  "I1": [
+                    49
+                  ],
+                  "S": [
+                    50
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    51
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$303",
+                "label": "303",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    32
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    52
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$304",
+                "label": "304",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__buf_1",
+                "inputs": {
+                  "I": [
+                    52
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    53
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$305",
+                "label": "305",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    32
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    54
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$306",
+                "label": "306",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__buf_1",
+                "inputs": {
+                  "I": [
+                    54
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    55
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$307",
+                "label": "307",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    18
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    56
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$308",
+                "label": "308",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    23
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    57
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$309",
+                "label": "309",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    58
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$310",
+                "label": "310",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    59
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$100",
+                "label": "100",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$101",
+                "label": "101",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    21
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$102",
+                "label": "102",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    26
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    22
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$103",
+                "label": "103",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    31
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    27
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$104",
+                "label": "104",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    38
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    33
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$105",
+                "label": "105",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    45
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    39
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$106",
+                "label": "106",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    51
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    46
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$107",
+                "label": "107",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    53
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$108",
+                "label": "108",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    55
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$109",
+                "label": "109",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    56
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$110",
+                "label": "110",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    57
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$111",
+                "label": "111",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    58
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$112",
+                "label": "112",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    35
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$113",
+                "label": "113",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    41
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$114",
+                "label": "114",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    48
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    59
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    13
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "16": "$abc$271$auto$rtlil.cc:2739:MuxGate$240",
+              "21": "$abc$271$auto$rtlil.cc:2739:MuxGate$242",
+              "26": "$abc$271$auto$rtlil.cc:2739:MuxGate$244",
+              "31": "$abc$271$auto$rtlil.cc:2739:MuxGate$246",
+              "38": "$abc$271$auto$rtlil.cc:2739:MuxGate$248",
+              "45": "$abc$271$auto$rtlil.cc:2739:MuxGate$250",
+              "51": "$abc$271$auto$rtlil.cc:2739:MuxGate$252",
+              "53": "$abc$271$auto$rtlil.cc:2739:MuxGate$254",
+              "55": "$abc$271$auto$rtlil.cc:2739:MuxGate$256",
+              "56": "$abc$271$auto$rtlil.cc:2739:MuxGate$258",
+              "57": "$abc$271$auto$rtlil.cc:2739:MuxGate$260",
+              "58": "$abc$271$auto$rtlil.cc:2739:MuxGate$262",
+              "35": "$abc$271$auto$rtlil.cc:2739:MuxGate$264",
+              "41": "$abc$271$auto$rtlil.cc:2739:MuxGate$266",
+              "48": "$abc$271$auto$rtlil.cc:2739:MuxGate$268",
+              "59": "$abc$271$auto$rtlil.cc:2739:MuxGate$270",
+              "15": "$abc$271$new_n26",
+              "18": "$abc$271$new_n28",
+              "19": "$abc$271$new_n29",
+              "20": "$abc$271$new_n30",
+              "23": "$abc$271$new_n32",
+              "24": "$abc$271$new_n33",
+              "25": "$abc$271$new_n34",
+              "28": "$abc$271$new_n36",
+              "29": "$abc$271$new_n37",
+              "30": "$abc$271$new_n38",
+              "32": "$abc$271$new_n40",
+              "34": "$abc$271$new_n41",
+              "36": "$abc$271$new_n43",
+              "37": "$abc$271$new_n44",
+              "40": "$abc$271$new_n46",
+              "42": "$abc$271$new_n48",
+              "43": "$abc$271$new_n49",
+              "44": "$abc$271$new_n50",
+              "47": "$abc$271$new_n52",
+              "49": "$abc$271$new_n54",
+              "50": "$abc$271$new_n55",
+              "52": "$abc$271$new_n57",
+              "54": "$abc$271$new_n59",
+              "2": "clk_a",
+              "3": "clk_b",
+              "13": "ctr_a[0]",
+              "14": "ctr_a[1]",
+              "17": "ctr_a[2]",
+              "22": "ctr_a[3]",
+              "27": "ctr_a[4]",
+              "33": "ctr_a[5]",
+              "39": "ctr_a[6]",
+              "46": "ctr_a[7]",
+              "5": "out_b[0]",
+              "6": "out_b[1]",
+              "7": "out_b[2]",
+              "8": "out_b[3]",
+              "9": "out_b[4]",
+              "10": "out_b[5]",
+              "11": "out_b[6]",
+              "12": "out_b[7]",
+              "4": "rst"
+            },
+            "cell_count": 55,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "count": 16
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_2",
+                "count": 8
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__xnor2_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__mux2_2",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_2",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__buf_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkbuf_4",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__inv_3",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_4",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_2",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__inv_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_4",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_2",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              120.0,
+              120.0
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "cdc_twoclock",
+          "seconds": 30.5
+        },
+        {
+          "tag": "c-gf180mcu_9t-synth_strategyDELAY_3",
+          "overrides": {
+            "PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells",
+            "DIE_AREA": [
+              0,
+              0,
+              120,
+              120
+            ],
+            "SYNTH_STRATEGY": "DELAY 3"
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "verdict": {
+            "passed": false,
+            "violations": [],
+            "unverified": [
+              "KLayout DRC error(s)",
+              "timing for clock domain 'clk_b' (declared but never constrained, so no path in it was analysed)"
+            ],
+            "area_um2": 3056.66,
+            "utilization": 0.38,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.002467191079631448,
+              "leakage_w": 3.024879902113753e-08,
+              "switching_w": 0.0005275627481751144,
+              "total_w": 0.002994784153997898
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000296,
+              "ir_drop_worst_v": 0.000652,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000651722,
+                  "voltage_worst_v": 4.99935,
+                  "nominal_v": 5.0000017219999995,
+                  "drop_pct": 0.013034435510940412
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.00078428,
+                  "voltage_worst_v": 0.00078428,
+                  "nominal_v": 0.00156856,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 7.17298596378297,
+                  "hold_ws_ns": 0.24423835867287932,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 2.8270140362170304,
+                  "fmax_mhz": 353.73011495130396
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 5.70931051928574,
+                  "hold_ws_ns": 1.172222907476564,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.29068948071426,
+                  "fmax_mhz": 233.06277569019807
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 6.863803053535289,
+                  "hold_ws_ns": 0.5333754699990529,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.136196946464711,
+                  "fmax_mhz": 318.8575261917953
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 7.194183674636255,
+                  "hold_ws_ns": 0.23414087997833732,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 2.805816325363745,
+                  "fmax_mhz": 356.4025167863974
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 5.770796892574484,
+                  "hold_ws_ns": 1.146169636087756,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.229203107425516,
+                  "fmax_mhz": 236.4511645809179
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 6.895209043344107,
+                  "hold_ws_ns": 0.5181235587223064,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.1047909566558927,
+                  "fmax_mhz": 322.0828757750183
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 7.184802733902071,
+                  "hold_ws_ns": 0.23874963792850584,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 2.815197266097929,
+                  "fmax_mhz": 355.21489454487636
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 5.742719351487627,
+                  "hold_ws_ns": 1.1580616793300558,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.257280648512373,
+                  "fmax_mhz": 234.89172609502057
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 6.881341025106695,
+                  "hold_ws_ns": 0.5250848238170379,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.1186589748933047,
+                  "fmax_mhz": 320.65064120523533
+                }
+              ],
+              "fmax_mhz": 233.06277569019807,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk_a",
+              "clk_b"
+            ],
+            "constrained_clocks": [
+              "clk_a"
+            ],
+            "unconstrained_clocks": [
+              "clk_b"
+            ],
+            "custom_sdc": false,
+            "warnings": [
+              "Multi-clock files are not currently supported by the base SDC file. Only the first clock will be constrained."
+            ],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "cdc_twoclock",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/c-gf180mcu_9t-synth_strategyDELAY_3/06-yosys-synthesis/cdc_twoclock.nl.v.json",
+            "ports": [
+              {
+                "name": "clk_a",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "clk_b",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "out_b",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$272",
+                "label": "272",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$273",
+                "label": "273",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$274",
+                "label": "274",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$275",
+                "label": "275",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    19
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$276",
+                "label": "276",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    19
+                  ],
+                  "A2": [
+                    20
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    21
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$277",
+                "label": "277",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    19
+                  ],
+                  "A2": [
+                    22
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    23
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$278",
+                "label": "278",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "B": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    24
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$279",
+                "label": "279",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "B": [
+                    24
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    25
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$280",
+                "label": "280",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "B": [
+                    26
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    27
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$281",
+                "label": "281",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "A3": [
+                    26
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    28
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$282",
+                "label": "282",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    27
+                  ],
+                  "A3": [
+                    28
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    29
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$283",
+                "label": "283",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "A3": [
+                    26
+                  ],
+                  "A4": [
+                    30
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    31
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$284",
+                "label": "284",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "A3": [
+                    26
+                  ],
+                  "A4": [
+                    30
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    32
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$285",
+                "label": "285",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    28
+                  ],
+                  "B": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    33
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$286",
+                "label": "286",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    28
+                  ],
+                  "B": [
+                    33
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    34
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$287",
+                "label": "287",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    32
+                  ],
+                  "B": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    35
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$288",
+                "label": "288",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    32
+                  ],
+                  "B": [
+                    35
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    36
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$289",
+                "label": "289",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    31
+                  ],
+                  "B": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    37
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$290",
+                "label": "290",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    16
+                  ],
+                  "A3": [
+                    32
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    38
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$291",
+                "label": "291",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    37
+                  ],
+                  "A3": [
+                    38
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    39
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$292",
+                "label": "292",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    40
+                  ],
+                  "A2": [
+                    38
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    41
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$293",
+                "label": "293",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_1",
+                "inputs": {
+                  "A1": [
+                    13
+                  ],
+                  "A2": [
+                    15
+                  ],
+                  "A3": [
+                    40
+                  ],
+                  "A4": [
+                    31
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    42
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$294",
+                "label": "294",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand2_1",
+                "inputs": {
+                  "A1": [
+                    19
+                  ],
+                  "A2": [
+                    42
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    43
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$295",
+                "label": "295",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    43
+                  ],
+                  "A2": [
+                    41
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    44
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$296",
+                "label": "296",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    40
+                  ],
+                  "A2": [
+                    38
+                  ],
+                  "B": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    45
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$297",
+                "label": "297",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    18
+                  ],
+                  "A2": [
+                    42
+                  ],
+                  "B": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    46
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$298",
+                "label": "298",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    46
+                  ],
+                  "A2": [
+                    45
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    47
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$299",
+                "label": "299",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    19
+                  ],
+                  "A2": [
+                    26
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    48
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$300",
+                "label": "300",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    19
+                  ],
+                  "A2": [
+                    30
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    49
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$301",
+                "label": "301",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    50
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$302",
+                "label": "302",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    51
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$303",
+                "label": "303",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    19
+                  ],
+                  "A2": [
+                    40
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    52
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$304",
+                "label": "304",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    18
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    53
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$305",
+                "label": "305",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    54
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$100",
+                "label": "100",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    25
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    22
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$101",
+                "label": "101",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    29
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    26
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$102",
+                "label": "102",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    34
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    30
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$103",
+                "label": "103",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    36
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$104",
+                "label": "104",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    39
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$105",
+                "label": "105",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    44
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    40
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$106",
+                "label": "106",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    47
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$107",
+                "label": "107",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    21
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$108",
+                "label": "108",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    23
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$109",
+                "label": "109",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    48
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$110",
+                "label": "110",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    49
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$111",
+                "label": "111",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    50
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$112",
+                "label": "112",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    51
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$113",
+                "label": "113",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    52
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$114",
+                "label": "114",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    53
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    54
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    20
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "25": "$abc$271$auto$rtlil.cc:2739:MuxGate$240",
+              "29": "$abc$271$auto$rtlil.cc:2739:MuxGate$242",
+              "34": "$abc$271$auto$rtlil.cc:2739:MuxGate$244",
+              "36": "$abc$271$auto$rtlil.cc:2739:MuxGate$246",
+              "39": "$abc$271$auto$rtlil.cc:2739:MuxGate$248",
+              "44": "$abc$271$auto$rtlil.cc:2739:MuxGate$250",
+              "47": "$abc$271$auto$rtlil.cc:2739:MuxGate$252",
+              "21": "$abc$271$auto$rtlil.cc:2739:MuxGate$254",
+              "23": "$abc$271$auto$rtlil.cc:2739:MuxGate$256",
+              "48": "$abc$271$auto$rtlil.cc:2739:MuxGate$258",
+              "49": "$abc$271$auto$rtlil.cc:2739:MuxGate$260",
+              "50": "$abc$271$auto$rtlil.cc:2739:MuxGate$262",
+              "51": "$abc$271$auto$rtlil.cc:2739:MuxGate$264",
+              "52": "$abc$271$auto$rtlil.cc:2739:MuxGate$266",
+              "53": "$abc$271$auto$rtlil.cc:2739:MuxGate$268",
+              "54": "$abc$271$auto$rtlil.cc:2739:MuxGate$270",
+              "14": "$abc$271$new_n26",
+              "16": "$abc$271$new_n27",
+              "18": "$abc$271$new_n28",
+              "19": "$abc$271$new_n29",
+              "24": "$abc$271$new_n32",
+              "27": "$abc$271$new_n34",
+              "28": "$abc$271$new_n35",
+              "31": "$abc$271$new_n37",
+              "32": "$abc$271$new_n38",
+              "33": "$abc$271$new_n39",
+              "35": "$abc$271$new_n41",
+              "37": "$abc$271$new_n43",
+              "38": "$abc$271$new_n44",
+              "41": "$abc$271$new_n46",
+              "42": "$abc$271$new_n47",
+              "43": "$abc$271$new_n48",
+              "45": "$abc$271$new_n50",
+              "46": "$abc$271$new_n51",
+              "2": "clk_a",
+              "3": "clk_b",
+              "20": "ctr_a[0]",
+              "22": "ctr_a[1]",
+              "26": "ctr_a[2]",
+              "30": "ctr_a[3]",
+              "13": "ctr_a[4]",
+              "15": "ctr_a[5]",
+              "40": "ctr_a[6]",
+              "17": "ctr_a[7]",
+              "5": "out_b[0]",
+              "6": "out_b[1]",
+              "7": "out_b[2]",
+              "8": "out_b[3]",
+              "9": "out_b[4]",
+              "10": "out_b[5]",
+              "11": "out_b[6]",
+              "12": "out_b[7]",
+              "4": "rst"
+            },
+            "cell_count": 50,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "count": 16
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "count": 7
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "count": 6
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "count": 5
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand2_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              120.0,
+              120.0
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "cdc_twoclock",
+          "seconds": 30.8
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "max_iterations_reached",
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2",
+    "host": {
+      "arch": "arm64",
+      "system": "Darwin",
+      "cpu_count": 10,
+      "docker_platform": "native"
+    }
+  },
+  "constraints": {
+    "design": {
+      "design_name": "cdc_twoclock",
+      "settings": [
+        {
+          "key": "CLOCK_PORT",
+          "label": "clock port",
+          "value": "clk_a clk_b"
+        },
+        {
+          "key": "CLOCK_PERIOD",
+          "label": "clock period (ns)",
+          "value": 10
+        },
+        {
+          "key": "DIE_AREA",
+          "label": "die area (um)",
+          "value": [
+            0,
+            0,
+            60,
+            60
+          ]
+        },
+        {
+          "key": "FP_SIZING",
+          "label": "floorplan sizing",
+          "value": "absolute"
+        }
+      ],
+      "fixed_macros": [],
+      "power_connections": [],
+      "targets": {
+        "max_core_utilization": 0.75,
+        "max_ir_drop_pct": 5.0
+      }
+    },
+    "pdk": {
+      "source": "/Users/kos2001/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+      "manufacturing_grid_um": 0.005,
+      "database_units_per_um": 1000.0,
+      "sites": [
+        {
+          "name": "unithd",
+          "width_um": 0.46,
+          "height_um": 2.72,
+          "class": "CORE"
+        },
+        {
+          "name": "unithddbl",
+          "width_um": 0.46,
+          "height_um": 5.44,
+          "class": "CORE"
+        }
+      ],
+      "routing_layers": [
+        {
+          "name": "li1",
+          "direction": "vertical",
+          "pitch_um": null,
+          "min_width_um": 0.17,
+          "min_spacing_um": 0.17,
+          "min_area_um2": 0.0561,
+          "thickness_um": 0.1,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 12.8
+        },
+        {
+          "name": "met1",
+          "direction": "horizontal",
+          "pitch_um": 0.34,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.083,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met2",
+          "direction": "vertical",
+          "pitch_um": 0.46,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.0676,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met3",
+          "direction": "horizontal",
+          "pitch_um": 0.68,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met4",
+          "direction": "vertical",
+          "pitch_um": 0.92,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met5",
+          "direction": "horizontal",
+          "pitch_um": 3.4,
+          "min_width_um": 1.6,
+          "min_spacing_um": 1.6,
+          "min_area_um2": 4.0,
+          "thickness_um": 1.2,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 0.0285
+        }
+      ]
+    }
+  },
+  "synthesis_exploration": null,
+  "layout_image": "layouts/cdc_twoclock__2026-08-30__c-gf180mcu_9t-synth_strategyDELAY_4.png",
+  "layout_image_tag": "c-gf180mcu_9t-synth_strategyDELAY_4"
+}
