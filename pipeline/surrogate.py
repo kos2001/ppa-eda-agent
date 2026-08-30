@@ -73,8 +73,10 @@ MIN_SAMPLES = 8
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
-# moved 3 -> 4 -> 5 -> 2 -> 5 as technologies were added; power_w sits
-# at 2 and completed at 1.
+# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 as the corpus grew and thinned out
+# again; power_w sits at 2 and completed at 1. The number tracks how
+# densely a row's own technology is populated around it, which is why it
+# moves in both directions rather than only up.
 #
 # A test asserts these against best_k() on the real store, which is why
 # none of them has gone stale while the data moved underneath.
@@ -82,7 +84,7 @@ MIN_SAMPLES = 8
 # A test asserts this against best_k() on the real store, so the constant
 # cannot quietly go stale while the data moves under it.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 5,
+    "area_um2": 3,
     "power_w": 2,
     "completed": 1,
 }

@@ -136,6 +136,7 @@ const dict = {
   se_ran: { en: "RAN", ko: "실행됨" },
   se_skipped: { en: "not run", ko: "미실행" },
   se_failed: { en: "Synthesis exploration failed", ko: "합성 탐색 실패" },
+  tab_lineage: { en: "Data & RAG", ko: "데이터 & RAG" },
   tab_manual: { en: "Manual", ko: "사용 안내" },
   man_title: { en: "How to use this console", ko: "이 콘솔 사용법" },
   man_lede: {
