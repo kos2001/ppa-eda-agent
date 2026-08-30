@@ -298,6 +298,29 @@ MEASUREMENTS: list[dict] = [
                     "um2). All four designs now build on both foundries.",
     },
     {
+        "id": "a-whole-batch-failed-identically",
+        "design": "counter4",
+        "when": ["every_candidate_failed", "override_changed_nothing"],
+        "tool": "run one candidate by hand before blaming the sweep",
+        "cli": "python3 pipeline/run_stage.py --design D --tag t "
+               "--override 'KEY=VALUE'",
+        "answers": "Whether a batch failed because of what it swept or "
+                   "because of how the runs were named.",
+        "trap": "A batch where *every* run fails and none of the errors "
+                "mentions the sweep is the signature of the harness, not the "
+                "design. Run one candidate directly with the same override: "
+                "if it passes, the override was never the problem and the "
+                "difference is the tag built from it. Failures like these must "
+                "also be deleted from reference-db — left there they read as "
+                "'this design does not build' and move the metrics.",
+        "evidence": "A 171-run batch failed completely because SYNTH_STRATEGY "
+                    "values look like 'DELAY 1' and safe_tag was applied only "
+                    "where sweeps are expanded, never in run_candidate. The "
+                    "rows took completion's win-rate from 0.82 to 0.56 before "
+                    "they were removed. Second occurrence: the first rendered "
+                    "a DIE_AREA list into a tag.",
+    },
+    {
         "id": "library-comparison",
         "design": "counter4_tinydie",
         "when": ["technology_question"],
@@ -351,6 +374,12 @@ def symptoms(case: dict) -> set[str]:
             found.add("pnr_excluded_cell_file_invalid")
         if "Errors have occurred while loading the PDK" in err:
             found.add("pdk_load_failure")
+    # A batch where nothing at all succeeded says something about the
+    # harness. One where some did says something about the design.
+    results = [r for it in case.get("iterations", []) for r in it.get("results", [])]
+    if len(results) > 3 and all(not (r.get("verdict") or {}).get("area_um2")
+                                for r in results):
+        found.add("every_candidate_failed")
     for iteration in case.get("iterations", []):
         results = iteration.get("results", [])
         errors = [r.get("error") or "" for r in results]
