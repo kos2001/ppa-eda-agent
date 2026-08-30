@@ -73,12 +73,33 @@
 .ask__step--running .ask__step-mark { animation: ask-pulse 1.1s infinite; }
 @keyframes ask-pulse { 50% { opacity: 0.25; } }
 
+/* The answer is the page's main text, so it gets a measure and the
+   document styles rather than the monospace-blob treatment a <pre>
+   gave it. Everything inside is rendered by Markdown.tsx. */
 .ask__answer {
-  margin: 0 0 0.8rem;
   max-width: 68ch;
-  line-height: 1.6;
-  white-space: pre-wrap;
+  margin: 0 0 0.9rem;
 }
+.ask__answer p { line-height: 1.65; }
+/* A model's numbered steps are the shape of its answer. Left-aligned
+   markers keep them scannable next to the prose rather than hanging
+   off it. */
+.ask__answer ol,
+.ask__answer ul { padding-left: 1.15rem; }
+.ask__answer li { line-height: 1.6; margin: 0.2rem 0; }
+/* Backticks here hold file paths and metric keys, which is why they
+   must not wrap silently in the middle. */
+.ask__answer code { word-break: keep-all; }
+
+/* The store's own numbers, tighter than the prose about them so the
+   two do not read as one block. */
+.ask__facts-body p,
+.ask__facts-body li {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  margin: 0.15rem 0;
+}
+.ask__facts-body ul { padding-left: 1rem; margin: 0.25rem 0 0; }
 
 /* The numbers, kept visually distinct from the prose about them: these
    are read from the store at question time and the sentence above them
