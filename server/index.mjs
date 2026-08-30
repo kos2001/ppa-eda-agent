@@ -835,6 +835,28 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Where the data comes from and who reads it. SystemHealth answers
+  // "does anything need attention"; this answers "what is in here and
+  // where does it go", which had no answer anywhere in the console.
+  if (req.method === "GET" && req.url === "/data-lineage") {
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); import data_lineage; " +
+         "print(json.dumps(data_lineage.report(), default=str))"],
+        { cwd: pipelineDir, timeout: 180_000, maxBuffer: 32 * 1024 * 1024 }
+      );
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[data-lineage error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/gateway-status") {
     res.writeHead(200, { ...headers, "Content-Type": "application/json" });
     res.end(JSON.stringify({

@@ -1,0 +1,328 @@
+/* Five stages, read top to bottom in the order the data moves. Every
+   colour is a theme token so the page inherits both palettes rather
+   than carrying a third one. */
+
+.dl {
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.dl__lede {
+  color: var(--text-dim);
+  margin: 0 0 1.1rem;
+  max-width: 62ch;
+}
+
+.dl__loading,
+.dl__error {
+  color: var(--text-dim);
+  padding: 1.5rem 0;
+}
+
+.dl__error {
+  color: var(--critical);
+}
+
+/* --- a stage ------------------------------------------------------ */
+
+.dl__stage {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 0.9rem;
+  overflow: hidden;
+}
+
+.dl__stage-head {
+  align-items: center;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+}
+
+/* The step number carries the ordering, which is the page's whole
+   argument — a run becomes a case becomes a row. */
+.dl__stage-n {
+  align-items: center;
+  background: var(--accent);
+  border-radius: 999px;
+  color: var(--surface);
+  display: flex;
+  flex: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  height: 1.5rem;
+  justify-content: center;
+  width: 1.5rem;
+}
+
+.dl__stage-head h3 {
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.dl__stage-head p {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  margin: 0.1rem 0 0;
+}
+
+.dl__stage-body {
+  padding: 0.85rem 0.9rem;
+}
+
+/* --- tables ------------------------------------------------------- */
+
+.dl__table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+}
+
+.dl__table th {
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.3rem 0.5rem;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.dl__table th:first-child,
+.dl__table td:first-child {
+  text-align: left;
+}
+
+.dl__table td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.35rem 0.5rem;
+  text-align: right;
+}
+
+.dl__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.dl__name {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+}
+
+/* A zero is a fact worth reading as one, not a number to skim past. */
+.dl__zero {
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+.dl__of {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+.dl__note {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  margin: 0.6rem 0 0;
+  max-width: 70ch;
+}
+
+.dl__note code,
+.dl__warn code {
+  font-size: 0.9em;
+  margin: 0 0.15em;
+}
+
+.dl__warn {
+  border-left: 2px solid var(--warn);
+  color: var(--warn);
+  font-size: 0.72rem;
+  margin: 0.6rem 0 0;
+  padding-left: 0.5rem;
+}
+
+/* --- dedup flow --------------------------------------------------- */
+
+.dl__flow {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.dl__flow-box {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  text-align: center;
+}
+
+.dl__flow-box--out {
+  border-color: var(--accent);
+}
+
+.dl__flow-box strong {
+  display: block;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.dl__flow-box span {
+  color: var(--text-dim);
+  display: block;
+  font-size: 0.7rem;
+}
+
+.dl__flow-box small {
+  color: var(--text-dim);
+  display: block;
+  font-size: 0.64rem;
+  margin-top: 0.2rem;
+  opacity: 0.75;
+}
+
+.dl__flow-arrow {
+  color: var(--text-dim);
+  flex: none;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.dl__flow-arrow small {
+  display: block;
+  font-size: 0.62rem;
+}
+
+/* --- coverage bars ------------------------------------------------ */
+
+.dl__bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dl__bars li {
+  align-items: center;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: 13rem 1fr 3rem;
+  margin-bottom: 0.3rem;
+}
+
+.dl__bar-label code {
+  font-size: 0.72rem;
+}
+
+.dl__bar-track {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  height: 0.85rem;
+  overflow: hidden;
+}
+
+.dl__bar-fill {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+}
+
+/* A feature almost nobody filled should not read as a rounding error —
+   it is the finding. */
+.dl__bar-fill--thin {
+  background: var(--warn);
+}
+
+.dl__bar-value {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* --- two-up cards ------------------------------------------------- */
+
+.dl__two {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.dl__card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 0.85rem;
+}
+
+.dl__card h4 {
+  font-size: 0.74rem;
+  margin: 0;
+}
+
+.dl__big {
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+  margin: 0.3rem 0 0;
+}
+
+.dl__sub {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  margin: 0;
+}
+
+/* --- chips -------------------------------------------------------- */
+
+.dl__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+}
+
+.dl__chips li {
+  align-items: baseline;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+}
+
+.dl__chips code {
+  font-size: 0.68rem;
+}
+
+.dl__chips span {
+  color: var(--text-dim);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.dl__sigs {
+  margin-top: 0.7rem;
+}
+
+.dl__sigs summary {
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 720px) {
+  .dl__bars li {
+    grid-template-columns: 9rem 1fr 2.6rem;
+  }
+  .dl__flow {
+    flex-direction: column;
+  }
+}

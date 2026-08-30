@@ -11,11 +11,13 @@ const SimulateTab = lazy(() => import("./components/SimulateTab"));
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
+const DataLineage = lazy(() => import("./components/DataLineage"));
 const ManualPage = lazy(() => import("./components/ManualPage"));
 
 type TabId =
   | "pipeline"
   | "health"
+  | "lineage"
   | "manual"
   | "simulate"
   | "area"
@@ -53,6 +55,10 @@ function AppInner() {
   // Sits with the other two rather than in the reports group: all three
   // are about operating this system, where the report tabs analyse
   // material the user brings in.
+  // Beside health rather than inside it: health asks whether anything
+  // needs attention, this asks what the store holds and where it goes.
+  // Different questions, and the second had no page at all.
+  const LINEAGE_TAB: { id: TabId; label: string } = { id: "lineage", label: t("tab_lineage") };
   const MANUAL_TAB: { id: TabId; label: string } = { id: "manual", label: t("tab_manual") };
   const REPORT_TABS: { id: TabId; label: string }[] = [
     { id: "simulate", label: t("tab_simulate") },
@@ -96,6 +102,17 @@ function AppInner() {
             onClick={() => setActive(HEALTH_TAB.id)}
           >
             {HEALTH_TAB.label}
+          </button>
+
+          <button
+            className={
+              active === LINEAGE_TAB.id
+                ? "app__nav-item app__nav-item--primary app__nav-item--active"
+                : "app__nav-item app__nav-item--primary"
+            }
+            onClick={() => setActive(LINEAGE_TAB.id)}
+          >
+            {LINEAGE_TAB.label}
           </button>
 
           <button
@@ -173,6 +190,7 @@ function AppInner() {
             {active === "tradeoffs" && <TradeoffsTab />}
             {active === "pipeline" && <PipelineTab />}
             {active === "health" && <SystemHealth standalone />}
+            {active === "lineage" && <DataLineage />}
             {active === "manual" && <ManualPage />}
             {active === "diagnosis" && <DiagnosisPage />}
           </Suspense>
