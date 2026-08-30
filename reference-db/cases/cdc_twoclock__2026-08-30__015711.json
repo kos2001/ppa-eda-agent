@@ -1,0 +1,2733 @@
+{
+  "design": "cdc_twoclock",
+  "date": "2026-08-30",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 1,
+    "has_macros": false,
+    "clock_domain_count": 2,
+    "port_count": 4,
+    "sequential_element_estimate": 16,
+    "power_domain_count": 1,
+    "notes": "Deliberately unsafe negative control for the CDC signoff gate: two independent clock ports (clk_a, clk_b) with an 8-bit data path crossing from the clk_a counter into a single clk_b flop, with no synchronizer. Exists to prove the gate can fail \u2014 OpenLane's base.sdc constrains only the first CLOCK_PORT, so the clk_b domain and this crossing are never analysed, and the run still reports zero timing violations. Not a design anyone should copy."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "gf180-7t-die",
+          "overrides": {
+            "DIE_AREA": [
+              0,
+              0,
+              128,
+              128
+            ]
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuD",
+          "verdict": {
+            "passed": false,
+            "violations": [],
+            "unverified": [
+              "KLayout DRC error(s)",
+              "timing for clock domain 'clk_b' (declared but never constrained, so no path in it was analysed)"
+            ],
+            "area_um2": 2627.65,
+            "utilization": 0.244485,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0018574929563328624,
+              "leakage_w": 4.0263891776248784e-08,
+              "switching_w": 0.00031262653646990657,
+              "total_w": 0.00217015971429646
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000142,
+              "ir_drop_worst_v": 0.000639,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000639264,
+                  "voltage_worst_v": 4.99936,
+                  "nominal_v": 4.999999264,
+                  "drop_pct": 0.012785281881993491
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000803415,
+                  "voltage_worst_v": 0.000803415,
+                  "nominal_v": 0.00160683,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.599330602110601,
+                  "hold_ws_ns": 0.32258874262686993,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.4006693978893994,
+                  "fmax_mhz": 294.05975206547356
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 3.67210094947386,
+                  "hold_ws_ns": 1.5184030018655077,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.32789905052614,
+                  "fmax_mhz": 158.0303339252629
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.935113457579876,
+                  "hold_ws_ns": 0.6887565712714907,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.064886542420124,
+                  "fmax_mhz": 246.00932635247105
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.645525651204109,
+                  "hold_ws_ns": 0.3157756367989649,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.3544743487958906,
+                  "fmax_mhz": 298.10930000372673
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 3.76413044721228,
+                  "hold_ws_ns": 1.500730804326628,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.235869552787721,
+                  "fmax_mhz": 160.36255914829937
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 6.005510925205494,
+                  "hold_ws_ns": 0.6785112663770391,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.9944890747945063,
+                  "fmax_mhz": 250.34490801591298
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.624473601615774,
+                  "hold_ws_ns": 0.3188461251938588,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.375526398384226,
+                  "fmax_mhz": 296.2500902018344
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 3.722417590640553,
+                  "hold_ws_ns": 1.5086966547536032,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.277582409359447,
+                  "fmax_mhz": 159.29699282148306
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.973568919705227,
+                  "hold_ws_ns": 0.6831294612231839,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.026431080294773,
+                  "fmax_mhz": 248.35890148324367
+                }
+              ],
+              "fmax_mhz": 158.0303339252629,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk_a",
+              "clk_b"
+            ],
+            "constrained_clocks": [
+              "clk_a"
+            ],
+            "unconstrained_clocks": [
+              "clk_b"
+            ],
+            "custom_sdc": false,
+            "warnings": [
+              "Multi-clock files are not currently supported by the base SDC file. Only the first clock will be constrained."
+            ],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "cdc_twoclock",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-7t-die/06-yosys-synthesis/cdc_twoclock.nl.v.json",
+            "ports": [
+              {
+                "name": "clk_a",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "clk_b",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "out_b",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$272",
+                "label": "272",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$273",
+                "label": "273",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$274",
+                "label": "274",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$275",
+                "label": "275",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    15
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$276",
+                "label": "276",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    16
+                  ],
+                  "B": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    19
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$277",
+                "label": "277",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    16
+                  ],
+                  "B": [
+                    20
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    21
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$278",
+                "label": "278",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    16
+                  ],
+                  "A3": [
+                    20
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    22
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$279",
+                "label": "279",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    21
+                  ],
+                  "A3": [
+                    22
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    23
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$280",
+                "label": "280",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    16
+                  ],
+                  "A3": [
+                    20
+                  ],
+                  "A4": [
+                    24
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    25
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$281",
+                "label": "281",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    24
+                  ],
+                  "A2": [
+                    22
+                  ],
+                  "B": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    26
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$282",
+                "label": "282",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    25
+                  ],
+                  "A2": [
+                    26
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    27
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$283",
+                "label": "283",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    25
+                  ],
+                  "B": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    29
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$284",
+                "label": "284",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    25
+                  ],
+                  "B": [
+                    29
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    30
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$285",
+                "label": "285",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    25
+                  ],
+                  "B": [
+                    31
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    32
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$286",
+                "label": "286",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    31
+                  ],
+                  "A3": [
+                    25
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    33
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$287",
+                "label": "287",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    32
+                  ],
+                  "A3": [
+                    33
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    34
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$288",
+                "label": "288",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    35
+                  ],
+                  "A2": [
+                    33
+                  ],
+                  "B": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    36
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$289",
+                "label": "289",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    35
+                  ],
+                  "A2": [
+                    33
+                  ],
+                  "B": [
+                    36
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    37
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$290",
+                "label": "290",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    35
+                  ],
+                  "A2": [
+                    33
+                  ],
+                  "B": [
+                    38
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    39
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$291",
+                "label": "291",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    35
+                  ],
+                  "A2": [
+                    38
+                  ],
+                  "A3": [
+                    33
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    40
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$292",
+                "label": "292",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    39
+                  ],
+                  "A3": [
+                    40
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    41
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$293",
+                "label": "293",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    20
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    42
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$294",
+                "label": "294",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    24
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    43
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$295",
+                "label": "295",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    28
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    44
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$296",
+                "label": "296",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    31
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    45
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$297",
+                "label": "297",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    35
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    46
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$298",
+                "label": "298",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    38
+                  ],
+                  "A2": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    47
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$299",
+                "label": "299",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    48
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$100",
+                "label": "100",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$101",
+                "label": "101",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    23
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    20
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$102",
+                "label": "102",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    27
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    24
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$103",
+                "label": "103",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    30
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    28
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$104",
+                "label": "104",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    34
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    31
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$105",
+                "label": "105",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    37
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    35
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$106",
+                "label": "106",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    41
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    38
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$107",
+                "label": "107",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$108",
+                "label": "108",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$109",
+                "label": "109",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    42
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$110",
+                "label": "110",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    43
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$111",
+                "label": "111",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    44
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$112",
+                "label": "112",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    45
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$113",
+                "label": "113",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    46
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$114",
+                "label": "114",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    47
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    48
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    14
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "19": "$abc$271$auto$rtlil.cc:2739:MuxGate$240",
+              "23": "$abc$271$auto$rtlil.cc:2739:MuxGate$242",
+              "27": "$abc$271$auto$rtlil.cc:2739:MuxGate$244",
+              "30": "$abc$271$auto$rtlil.cc:2739:MuxGate$246",
+              "34": "$abc$271$auto$rtlil.cc:2739:MuxGate$248",
+              "37": "$abc$271$auto$rtlil.cc:2739:MuxGate$250",
+              "41": "$abc$271$auto$rtlil.cc:2739:MuxGate$252",
+              "15": "$abc$271$auto$rtlil.cc:2739:MuxGate$254",
+              "17": "$abc$271$auto$rtlil.cc:2739:MuxGate$256",
+              "42": "$abc$271$auto$rtlil.cc:2739:MuxGate$258",
+              "43": "$abc$271$auto$rtlil.cc:2739:MuxGate$260",
+              "44": "$abc$271$auto$rtlil.cc:2739:MuxGate$262",
+              "45": "$abc$271$auto$rtlil.cc:2739:MuxGate$264",
+              "46": "$abc$271$auto$rtlil.cc:2739:MuxGate$266",
+              "47": "$abc$271$auto$rtlil.cc:2739:MuxGate$268",
+              "48": "$abc$271$auto$rtlil.cc:2739:MuxGate$270",
+              "13": "$abc$271$new_n26",
+              "18": "$abc$271$new_n29",
+              "21": "$abc$271$new_n31",
+              "22": "$abc$271$new_n32",
+              "25": "$abc$271$new_n34",
+              "26": "$abc$271$new_n35",
+              "29": "$abc$271$new_n37",
+              "32": "$abc$271$new_n39",
+              "33": "$abc$271$new_n40",
+              "36": "$abc$271$new_n42",
+              "39": "$abc$271$new_n44",
+              "40": "$abc$271$new_n45",
+              "2": "clk_a",
+              "3": "clk_b",
+              "14": "ctr_a[0]",
+              "16": "ctr_a[1]",
+              "20": "ctr_a[2]",
+              "24": "ctr_a[3]",
+              "28": "ctr_a[4]",
+              "31": "ctr_a[5]",
+              "35": "ctr_a[6]",
+              "38": "ctr_a[7]",
+              "5": "out_b[0]",
+              "6": "out_b[1]",
+              "7": "out_b[2]",
+              "8": "out_b[3]",
+              "9": "out_b[4]",
+              "10": "out_b[5]",
+              "11": "out_b[6]",
+              "12": "out_b[7]",
+              "4": "rst"
+            },
+            "cell_count": 44,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 16
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and2_1",
+                "count": 8
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 6
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__oai21_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__clkinv_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              128.0,
+              128.0
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "stage": "verification_ppa",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-9t-die",
+          "overrides": {
+            "DIE_AREA": [
+              0,
+              0,
+              128,
+              128
+            ],
+            "PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells"
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "verdict": {
+            "passed": false,
+            "violations": [],
+            "unverified": [
+              "KLayout DRC error(s)",
+              "timing for clock domain 'clk_b' (declared but never constrained, so no path in it was analysed)"
+            ],
+            "area_um2": 3053.84,
+            "utilization": 0.311995,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.002473638392984867,
+              "leakage_w": 3.33666854146486e-08,
+              "switching_w": 0.0005167797207832336,
+              "total_w": 0.0029904514085501432
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000258,
+              "ir_drop_worst_v": 0.000776,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000776316,
+                  "voltage_worst_v": 4.99922,
+                  "nominal_v": 4.999996316,
+                  "drop_pct": 0.015526331439801004
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.00115024,
+                  "voltage_worst_v": 0.00115024,
+                  "nominal_v": 0.00230048,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.629824876745812,
+                  "hold_ws_ns": 0.1972020935698212,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.370175123254188,
+                  "fmax_mhz": 296.72048585843686
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.463222362468066,
+                  "hold_ws_ns": 1.035738857329565,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.536777637531934,
+                  "fmax_mhz": 180.6104679410168
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.9716362434093,
+                  "hold_ws_ns": 0.46000260458328945,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.0283637565907,
+                  "fmax_mhz": 248.23974705956638
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.652962813411805,
+                  "hold_ws_ns": 0.1864997098432043,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.347037186588195,
+                  "fmax_mhz": 298.77170292791124
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.5235900750055595,
+                  "hold_ws_ns": 1.0082285292020305,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.4764099249944405,
+                  "fmax_mhz": 182.60137821969477
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 6.006752598671351,
+                  "hold_ws_ns": 0.4437177417752178,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.9932474013286487,
+                  "fmax_mhz": 250.4227510840616
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.6423419755686535,
+                  "hold_ws_ns": 0.19140495286048415,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.3576580244313465,
+                  "fmax_mhz": 297.8266377110755
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.495994814814239,
+                  "hold_ws_ns": 1.0208367773377718,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.504005185185761,
+                  "fmax_mhz": 181.68587534974313
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.990673460195561,
+                  "hold_ws_ns": 0.45118043911320266,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.009326539804439,
+                  "fmax_mhz": 249.4184472309847
+                }
+              ],
+              "fmax_mhz": 180.6104679410168,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk_a",
+              "clk_b"
+            ],
+            "constrained_clocks": [
+              "clk_a"
+            ],
+            "unconstrained_clocks": [
+              "clk_b"
+            ],
+            "custom_sdc": false,
+            "warnings": [
+              "Multi-clock files are not currently supported by the base SDC file. Only the first clock will be constrained."
+            ],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "cdc_twoclock",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/cdc_twoclock/runs/gf180-9t-die/06-yosys-synthesis/cdc_twoclock.nl.v.json",
+            "ports": [
+              {
+                "name": "clk_a",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "clk_b",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "out_b",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$272",
+                "label": "272",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$273",
+                "label": "273",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "inputs": {
+                  "I": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$274",
+                "label": "274",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$275",
+                "label": "275",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    18
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    19
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$276",
+                "label": "276",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    17
+                  ],
+                  "A2": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    20
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$277",
+                "label": "277",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    18
+                  ],
+                  "B": [
+                    20
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    21
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$278",
+                "label": "278",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    18
+                  ],
+                  "B": [
+                    22
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    23
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$279",
+                "label": "279",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    18
+                  ],
+                  "A3": [
+                    22
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    24
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$280",
+                "label": "280",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    23
+                  ],
+                  "A3": [
+                    24
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    25
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$281",
+                "label": "281",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    18
+                  ],
+                  "A3": [
+                    22
+                  ],
+                  "A4": [
+                    26
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    27
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$282",
+                "label": "282",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    26
+                  ],
+                  "A2": [
+                    24
+                  ],
+                  "B": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    28
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$283",
+                "label": "283",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    27
+                  ],
+                  "A2": [
+                    28
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    29
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$284",
+                "label": "284",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    27
+                  ],
+                  "B": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    31
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$285",
+                "label": "285",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    27
+                  ],
+                  "B": [
+                    31
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    32
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$286",
+                "label": "286",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    27
+                  ],
+                  "B": [
+                    33
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    34
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$287",
+                "label": "287",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    33
+                  ],
+                  "A3": [
+                    27
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    35
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$288",
+                "label": "288",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    34
+                  ],
+                  "A3": [
+                    35
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    36
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$289",
+                "label": "289",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    33
+                  ],
+                  "A3": [
+                    37
+                  ],
+                  "A4": [
+                    27
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    38
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$290",
+                "label": "290",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    37
+                  ],
+                  "A2": [
+                    35
+                  ],
+                  "B": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    39
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$291",
+                "label": "291",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    37
+                  ],
+                  "A2": [
+                    35
+                  ],
+                  "B": [
+                    39
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    40
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$292",
+                "label": "292",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    38
+                  ],
+                  "B": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    41
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$293",
+                "label": "293",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    38
+                  ],
+                  "B": [
+                    41
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    42
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$294",
+                "label": "294",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    22
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    43
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$295",
+                "label": "295",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    26
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    44
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$296",
+                "label": "296",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    30
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    45
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$297",
+                "label": "297",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    33
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    46
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$298",
+                "label": "298",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "inputs": {
+                  "A1": [
+                    37
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    47
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$299",
+                "label": "299",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    14
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    48
+                  ]
+                }
+              },
+              {
+                "name": "$abc$271$auto$blifparse.cc:396:parse_blif$300",
+                "label": "300",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    16
+                  ],
+                  "A2": [
+                    4
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    49
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$100",
+                "label": "100",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    21
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$101",
+                "label": "101",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    25
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    22
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$102",
+                "label": "102",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    29
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    26
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$103",
+                "label": "103",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    32
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    30
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$104",
+                "label": "104",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    36
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    33
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$105",
+                "label": "105",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    40
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    37
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$106",
+                "label": "106",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    42
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$107",
+                "label": "107",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$108",
+                "label": "108",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    19
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$109",
+                "label": "109",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    43
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$110",
+                "label": "110",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    44
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$111",
+                "label": "111",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    45
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$112",
+                "label": "112",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    46
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$113",
+                "label": "113",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    47
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$114",
+                "label": "114",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    3
+                  ],
+                  "D": [
+                    48
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    49
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    16
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "21": "$abc$271$auto$rtlil.cc:2739:MuxGate$240",
+              "25": "$abc$271$auto$rtlil.cc:2739:MuxGate$242",
+              "29": "$abc$271$auto$rtlil.cc:2739:MuxGate$244",
+              "32": "$abc$271$auto$rtlil.cc:2739:MuxGate$246",
+              "36": "$abc$271$auto$rtlil.cc:2739:MuxGate$248",
+              "40": "$abc$271$auto$rtlil.cc:2739:MuxGate$250",
+              "42": "$abc$271$auto$rtlil.cc:2739:MuxGate$252",
+              "17": "$abc$271$auto$rtlil.cc:2739:MuxGate$254",
+              "19": "$abc$271$auto$rtlil.cc:2739:MuxGate$256",
+              "43": "$abc$271$auto$rtlil.cc:2739:MuxGate$258",
+              "44": "$abc$271$auto$rtlil.cc:2739:MuxGate$260",
+              "45": "$abc$271$auto$rtlil.cc:2739:MuxGate$262",
+              "46": "$abc$271$auto$rtlil.cc:2739:MuxGate$264",
+              "47": "$abc$271$auto$rtlil.cc:2739:MuxGate$266",
+              "48": "$abc$271$auto$rtlil.cc:2739:MuxGate$268",
+              "49": "$abc$271$auto$rtlil.cc:2739:MuxGate$270",
+              "14": "$abc$271$new_n26",
+              "15": "$abc$271$new_n27",
+              "20": "$abc$271$new_n30",
+              "23": "$abc$271$new_n32",
+              "24": "$abc$271$new_n33",
+              "27": "$abc$271$new_n35",
+              "28": "$abc$271$new_n36",
+              "31": "$abc$271$new_n38",
+              "34": "$abc$271$new_n40",
+              "35": "$abc$271$new_n41",
+              "38": "$abc$271$new_n43",
+              "39": "$abc$271$new_n44",
+              "41": "$abc$271$new_n46",
+              "2": "clk_a",
+              "3": "clk_b",
+              "16": "ctr_a[0]",
+              "18": "ctr_a[1]",
+              "22": "ctr_a[2]",
+              "26": "ctr_a[3]",
+              "30": "ctr_a[4]",
+              "33": "ctr_a[5]",
+              "37": "ctr_a[6]",
+              "13": "ctr_a[7]",
+              "5": "out_b[0]",
+              "6": "out_b[1]",
+              "7": "out_b[2]",
+              "8": "out_b[3]",
+              "9": "out_b[4]",
+              "10": "out_b[5]",
+              "11": "out_b[6]",
+              "12": "out_b[7]",
+              "4": "rst"
+            },
+            "cell_count": 45,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__dffq_1",
+                "count": 16
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and2_1",
+                "count": 7
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__aoi21_1",
+                "count": 6
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor2_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__oai21_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__clkinv_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu9t5v0__nand4_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              128.0,
+              128.0
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "stage": "verification_ppa",
+          "produced_by_feedback": false
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "max_iterations_reached",
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2",
+    "host": {
+      "arch": "arm64",
+      "system": "Darwin",
+      "cpu_count": 10,
+      "docker_platform": "native"
+    }
+  },
+  "constraints": {
+    "design": {
+      "design_name": "cdc_twoclock",
+      "settings": [
+        {
+          "key": "CLOCK_PORT",
+          "label": "clock port",
+          "value": "clk_a clk_b"
+        },
+        {
+          "key": "CLOCK_PERIOD",
+          "label": "clock period (ns)",
+          "value": 10
+        },
+        {
+          "key": "DIE_AREA",
+          "label": "die area (um)",
+          "value": [
+            0,
+            0,
+            60,
+            60
+          ]
+        },
+        {
+          "key": "FP_SIZING",
+          "label": "floorplan sizing",
+          "value": "absolute"
+        }
+      ],
+      "fixed_macros": [],
+      "power_connections": [],
+      "targets": {
+        "max_core_utilization": 0.75,
+        "max_ir_drop_pct": 5.0
+      }
+    },
+    "pdk": {
+      "source": "/Users/kos2001/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+      "manufacturing_grid_um": 0.005,
+      "database_units_per_um": 1000.0,
+      "sites": [
+        {
+          "name": "unithd",
+          "width_um": 0.46,
+          "height_um": 2.72,
+          "class": "CORE"
+        },
+        {
+          "name": "unithddbl",
+          "width_um": 0.46,
+          "height_um": 5.44,
+          "class": "CORE"
+        }
+      ],
+      "routing_layers": [
+        {
+          "name": "li1",
+          "direction": "vertical",
+          "pitch_um": null,
+          "min_width_um": 0.17,
+          "min_spacing_um": 0.17,
+          "min_area_um2": 0.0561,
+          "thickness_um": 0.1,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 12.8
+        },
+        {
+          "name": "met1",
+          "direction": "horizontal",
+          "pitch_um": 0.34,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.083,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met2",
+          "direction": "vertical",
+          "pitch_um": 0.46,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.0676,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met3",
+          "direction": "horizontal",
+          "pitch_um": 0.68,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met4",
+          "direction": "vertical",
+          "pitch_um": 0.92,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met5",
+          "direction": "horizontal",
+          "pitch_um": 3.4,
+          "min_width_um": 1.6,
+          "min_spacing_um": 1.6,
+          "min_area_um2": 4.0,
+          "thickness_um": 1.2,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 0.0285
+        }
+      ]
+    }
+  },
+  "synthesis_exploration": null,
+  "layout_image": "layouts/cdc_twoclock__2026-08-30__gf180-7t-die.png",
+  "layout_image_tag": "gf180-7t-die"
+}
