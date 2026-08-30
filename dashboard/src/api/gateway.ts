@@ -211,16 +211,43 @@ export async function translateStream(
 // given the review request the pipeline generated. Server-proxied only:
 // unlike diagnosis, this one has no browser-direct variant, because the
 // prompt is assembled server-side alongside the request file it reviews.
+/** The draft already written for this design's current request, if any.
+ *
+ * Asked before offering to generate one, because asking the model costs
+ * a real multi-minute call and the answer to "what did it say" is
+ * usually already on disk.
+ */
+export async function cachedReview(
+  design: string,
+  requestText: string,
+  lang: Lang
+): Promise<{ text: string | null; written_at: string | null }> {
+  // The request text goes with the ask so the server can confirm the
+  // stored draft was written for THIS request. Without that check a
+  // draft from another case — or the same case asked in another
+  // language — comes back looking like an answer.
+  const res = await fetch(`${LOCAL_SERVER_URL}/review/cached`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ design, requestText, lang }),
+  });
+  if (!res.ok) return { text: null, written_at: null };
+  return res.json();
+}
+
 export async function askReview(
   requestText: string,
   callbacks: DiagnoseCallbacks,
-  lang: Lang = "en"
+  lang: Lang = "en",
+  // Passing the design lets the server cache the draft; `refresh` asks
+  // it to write a new one over the cached answer.
+  options: { design?: string; refresh?: boolean } = {}
 ): Promise<void> {
   try {
     const res = await fetch(`${LOCAL_SERVER_URL}/review/ask`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestText, lang }),
+      body: JSON.stringify({ requestText, lang, ...options }),
     });
     await pipeSse(res, callbacks);
   } catch (e) {

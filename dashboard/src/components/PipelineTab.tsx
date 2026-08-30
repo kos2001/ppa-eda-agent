@@ -16,7 +16,7 @@ import {
   sweptAxis,
   type DesignGroup,
 } from "./caseGrouping";
-import { askReview, translateStream, translateViaServer } from "../api/gateway";
+import { askReview, cachedReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import { useLang, type DictKey } from "../i18n";
 import ActionCenter from "./ActionCenter";
@@ -141,6 +141,14 @@ export function verdictPill(
   if (v.violations.length === 0 && (v.unverified?.length ?? 0) > 0)
     return { cls: "pill--warn", text: "UNVERIFIED" };
   return { cls: "pill--critical", text: "FAIL" };
+}
+
+// When a cached draft was written, in the reader's own clock. Shown so
+// "the model said this" carries a when — a draft from before the last
+// run is about a case that has since moved.
+function formatCachedAt(iso: string): string {
+  const at = new Date(iso);
+  return Number.isNaN(at.getTime()) ? iso : at.toLocaleString();
 }
 
 // Agent legend — every subagent that touches this pipeline, in pipeline
@@ -655,6 +663,12 @@ function ReviewWorkflow({
   // buttons and no way to say anything.
   const [aiDrafted, setAiDrafted] = useState(false);
   const [humanEdited, setHumanEdited] = useState(false);
+  // When the shown draft came off disk rather than from a call just
+  // now. Surfaced because a reader deciding whether to trust a verdict
+  // should know whether the model saw this case a minute ago or an hour
+  // ago — and because "regenerate" only makes sense once they know they
+  // are looking at a stored answer.
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
 
   const reviewAuthor = !aiDrafted
     ? "human-review"
@@ -668,6 +682,23 @@ function ReviewWorkflow({
     try {
       const { content } = await requestReview(design);
       setRequestText(content);
+      // The usual order of work is: read what the model said, then write
+      // your own verdict. So if a draft for this exact request already
+      // exists, it is put in the box now rather than behind a button —
+      // pressing "ask" to retrieve an answer that is already on disk is
+      // a step that exists only because the panel forgot.
+      // Only when there is a request to match a draft against. With no
+      // request text there is nothing to compare a stored draft to, and
+      // showing one anyway is the bug this check exists to prevent.
+      if (content) {
+        const cached = await cachedReview(design, content, lang);
+        if (cached.text) {
+          setReview(cached.text);
+          setAiDrafted(true);
+          setHumanEdited(false);
+          setCachedAt(cached.written_at);
+        }
+      }
     } catch (e) {
       setError(String(e));
     } finally {
@@ -675,13 +706,14 @@ function ReviewWorkflow({
     }
   }
 
-  function handleAsk() {
+  function handleAsk(refresh = false) {
     if (!requestText) return;
     setBusy("ask");
     setReview("");
     setError(null);
     setAiDrafted(true);
     setHumanEdited(false);
+    setCachedAt(null);
     // The agent answers in the language the console is set to, rather
     // than answering in English and leaving the user to press translate.
     askReview(requestText, {
@@ -691,7 +723,7 @@ function ReviewWorkflow({
         setBusy(null);
         setError(e.message);
       },
-    }, lang);
+    }, lang, { design, refresh });
   }
 
   async function handleApply() {
@@ -709,6 +741,7 @@ function ReviewWorkflow({
       setRequestText(null);
       setAiDrafted(false);
       setHumanEdited(false);
+      setCachedAt(null);
       onApplied();
     } catch (e) {
       setError(String(e));
@@ -739,13 +772,24 @@ function ReviewWorkflow({
               way to produce review text, so the entire panel was unusable
               on a machine with no key. */}
           <button
-            onClick={handleAsk}
+            onClick={() => handleAsk(cachedAt !== null)}
             disabled={busy !== null || !requestText || !serverConfigured}
             title={!serverConfigured ? t("pipeline_translate_needs_key") : undefined}
           >
-            {busy === "ask" ? t("review_asking") : t("review_step_ask")}
+            {busy === "ask"
+              ? t("review_asking")
+              : cachedAt
+                ? t("review_step_reask")
+                : t("review_step_ask")}
           </button>
-          <span className="pipeline__review-optional">{t("review_ai_optional")}</span>
+          {/* Once a draft is already in the box, this button's job
+              changes from "get one" to "get another" — and it says so,
+              because pressing it then costs a fresh multi-minute call
+              and overwrites what is there. */}
+          <span className="pipeline__review-optional">
+            {cachedAt ? t("review_cached_at").replace("{t}", formatCachedAt(cachedAt))
+                      : t("review_ai_optional")}
+          </span>
         </li>
         <li>
           <button onClick={handleApply} disabled={busy !== null || !review?.trim()}>
