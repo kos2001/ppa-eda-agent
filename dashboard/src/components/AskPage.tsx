@@ -5,6 +5,7 @@ import {
   type AskSource,
 } from "../api/gateway";
 import { useLang, type DictKey } from "../i18n";
+import MarkdownDoc from "./Markdown";
 import "./AskPage.css";
 
 // Free-form questions about this service.
@@ -166,10 +167,27 @@ function TurnView({ turn }: { turn: Turn }) {
           {turn.facts && (
             <div className="ask__facts">
               <span className="ask__facts-label">{t("ask_facts")}</span>
-              <pre>{turn.facts}</pre>
+              {/* Already markdown — service_qa.py writes a sentence and a
+                  "- design: ..." list — so it goes through the same
+                  parser rather than a <pre> that showed the hyphens. */}
+              <MarkdownDoc source={turn.facts} className="ask__facts-body" railFrom={99} />
             </div>
           )}
-          {turn.answer && <p className="ask__answer">{turn.answer}</p>}
+          {turn.answer && (
+            // The model writes markdown — headings, numbered steps,
+            // backticked file paths and metric keys — and this rendered
+            // it into a <pre>, so a reader met "**두 가지**" and
+            // "`report_area`" as literal asterisks and backticks. The
+            // console already has a parser for exactly this text, used
+            // for review requests and covered by test_markdown_render.py;
+            // there was no reason for a second, worse one.
+            //
+            // railFrom is out of reach on purpose: the contents rail
+            // earns its width in a 10,000-character review document and
+            // not in a chat answer, where it would put a table of
+            // contents beside three paragraphs.
+            <MarkdownDoc source={turn.answer} className="ask__answer" railFrom={99} />
+          )}
           {turn.modelError && !turn.answer && (
             <p className="ask__no-model">{t("ask_no_model")}</p>
           )}
