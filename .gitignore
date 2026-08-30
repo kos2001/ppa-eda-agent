@@ -12,3 +12,9 @@ dashboard/dist/
 pdk/
 pipeline/designs/*/runs/
 __pycache__/
+
+# AI review drafts, cached by server/index.mjs so reading one does not
+# cost a fresh multi-minute model call every time the panel re-renders.
+# Not evidence: a draft worth keeping is applied into the case, and one
+# that was not applied says nothing about anything.
+.cache/
