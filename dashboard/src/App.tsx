@@ -11,12 +11,14 @@ const SimulateTab = lazy(() => import("./components/SimulateTab"));
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
+const ProgressTab = lazy(() => import("./components/ProgressTab"));
 const DataLineage = lazy(() => import("./components/DataLineage"));
 const ManualPage = lazy(() => import("./components/ManualPage"));
 
 type TabId =
   | "pipeline"
   | "health"
+  | "progress"
   | "lineage"
   | "manual"
   | "simulate"
@@ -58,6 +60,11 @@ function AppInner() {
   // Beside health rather than inside it: health asks whether anything
   // needs attention, this asks what the store holds and where it goes.
   // Different questions, and the second had no page at all.
+  // Beside health and lineage, not in the reports group: those three
+  // and this are all about the agent system itself. Health asks what
+  // needs attention now and lineage asks what the store holds; this
+  // asks whether any of it is getting better, which neither answered.
+  const PROGRESS_TAB: { id: TabId; label: string } = { id: "progress", label: t("tab_progress") };
   const LINEAGE_TAB: { id: TabId; label: string } = { id: "lineage", label: t("tab_lineage") };
   const MANUAL_TAB: { id: TabId; label: string } = { id: "manual", label: t("tab_manual") };
   const REPORT_TABS: { id: TabId; label: string }[] = [
@@ -102,6 +109,17 @@ function AppInner() {
             onClick={() => setActive(HEALTH_TAB.id)}
           >
             {HEALTH_TAB.label}
+          </button>
+
+          <button
+            className={
+              active === PROGRESS_TAB.id
+                ? "app__nav-item app__nav-item--primary app__nav-item--active"
+                : "app__nav-item app__nav-item--primary"
+            }
+            onClick={() => setActive(PROGRESS_TAB.id)}
+          >
+            {PROGRESS_TAB.label}
           </button>
 
           <button
@@ -190,6 +208,7 @@ function AppInner() {
             {active === "tradeoffs" && <TradeoffsTab />}
             {active === "pipeline" && <PipelineTab />}
             {active === "health" && <SystemHealth standalone />}
+            {active === "progress" && <ProgressTab />}
             {active === "lineage" && <DataLineage />}
             {active === "manual" && <ManualPage />}
             {active === "diagnosis" && <DiagnosisPage />}
