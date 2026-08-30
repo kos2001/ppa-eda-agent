@@ -5,7 +5,23 @@
     "max_ir_drop_pct": 5.0
   },
   "candidates": [
-    { "tag": "cand-baseline", "overrides": {} }
+    {
+      "tag": "cand-baseline",
+      "overrides": {}
+    }
   ],
-  "max_iterations": 1
+  "max_iterations": 1,
+  "sweeps": [
+    {
+      "param": "CLOCK_PERIOD",
+      "values": [
+        6,
+        8,
+        10,
+        14,
+        20
+      ],
+      "tag_prefix": "sweep-clk"
+    }
+  ]
 }
