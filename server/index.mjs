@@ -122,7 +122,14 @@ async function readCaseFileCached(fileName) {
   const cached = caseFileCache.get(fileName);
   if (cached && cached.mtimeMs === mtimeMs) return cached.data;
   const raw = await readFile(filePath, "utf-8");
-  const data = JSON.parse(raw);
+  // The name is attached here rather than left for the caller because
+  // it is the only thing that identifies a case. A case records `date`,
+  // and the store keeps one dated file per design per day plus a
+  // timestamped file for every re-run that day, so `date` is shared by
+  // 41 of the 54 cases currently on disk. Everything downstream that
+  // has to order cases in time, or key a list by them, reads the time
+  // out of this name.
+  const data = { ...JSON.parse(raw), file: fileName };
   caseFileCache.set(fileName, { mtimeMs, data });
   return data;
 }

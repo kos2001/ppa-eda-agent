@@ -10,6 +10,12 @@ import {
   type PipelineCase,
   type ProcessStageId,
 } from "../api/referenceDb";
+import {
+  groupByDesign,
+  recordedAt,
+  sweptAxis,
+  type DesignGroup,
+} from "./caseGrouping";
 import { askReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import { useLang, type DictKey } from "../i18n";
@@ -908,6 +914,121 @@ function TranslateBlock({ text }: { text: string }) {
   );
 }
 
+// The clock time a case was recorded, for a row that already sits under
+// its date. Cases predating the timestamped filenames read as midnight,
+// and showing "00:00" for them would be a time nobody measured — they
+// get the date instead, which is all that was ever recorded.
+function caseStamp(c: PipelineCase): string {
+  const at = recordedAt(c);
+  return at.endsWith("T00:00:00") ? at.slice(0, 10) : at.slice(0, 16).replace("T", " ");
+}
+
+// The knobs a case swept, in the reader's language. Keys the dictionary
+// does not carry are shown exactly as recorded rather than prettified,
+// so an unfamiliar label can be grepped for in the case file.
+function AxisLabel({ pipelineCase }: { pipelineCase: PipelineCase }) {
+  const { t } = useLang();
+  const axis = sweptAxis(pipelineCase);
+  const candidates = pipelineCase.iterations.flatMap((i) => i.results);
+  if (axis.length === 0) {
+    return (
+      <span className="pipeline__axis pipeline__axis--none">
+        {candidates.length <= 1 ? t("axis_none") : t("axis_repeat")}
+      </span>
+    );
+  }
+  return (
+    <span className="pipeline__axis">
+      {axis.map((key) => {
+        const dictKey = `knob_${key}` as DictKey;
+        return (
+          <span className="pipeline__axis-knob" key={key}>
+            {dictKey in TRANSLATED_KNOBS ? t(dictKey) : key}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+// Which knob keys the dictionary carries. Checked against a real set
+// rather than a try/catch on t(), so a key added to one language and
+// not the other fails the type check instead of rendering "undefined".
+const TRANSLATED_KNOBS: Record<string, true> = {
+  knob_FP_CORE_UTIL: true,
+  knob_SYNTH_STRATEGY: true,
+  knob_CLOCK_PERIOD: true,
+  knob_PL_TARGET_DENSITY_PCT: true,
+  knob_DIE_AREA: true,
+  knob_PNR_EXCLUDED_CELL_FILE: true,
+  knob_PDK: true,
+  knob_SCL: true,
+};
+
+// One design's runs, newest first, behind a header that says how many
+// there are and how many closed. Collapsed by default for all but the
+// newest design: the store holds 54 cases across 8 designs, and the
+// flat list this replaces was 54 cards deep with no way to see what
+// designs exist without scrolling past all of them.
+function DesignGroupSection({
+  group,
+  defaultOpen,
+  onApplied,
+  focusDesign,
+}: {
+  group: DesignGroup;
+  defaultOpen: boolean;
+  onApplied: () => void;
+  focusDesign: string | null;
+}) {
+  const { t } = useLang();
+  const [open, setOpen] = useState(defaultOpen);
+
+  // The Action Center jumps to a design's newest case. That case now
+  // lives inside a collapsed group, so the group has to open with it or
+  // the jump lands on nothing.
+  useEffect(() => {
+    if (focusDesign === group.design) setOpen(true);
+  }, [focusDesign, group.design]);
+
+  return (
+    <section className="pipeline__group">
+      <button
+        className="pipeline__group-head"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <span className="pipeline__group-name">
+          {open ? "▾" : "▸"} {group.design}
+        </span>
+        <span className="pipeline__group-meta">
+          {t("group_meta")
+            .replace("{n}", String(group.cases.length))
+            .replace("{p}", String(group.passed))
+            .replace("{c}", String(group.candidates))}
+        </span>
+      </button>
+      {open && (
+        <div className="pipeline__group-body">
+          {group.cases.map((c, index) => (
+            <CaseCard
+              // The case file, not `${design}__${date}`: the store keeps
+              // one dated file per design per day plus a timestamped one
+              // per re-run, so the old key collided up to eleven times
+              // and let one card's open state land on another case.
+              key={c.file ?? `${c.design}__${c.date}__${index}`}
+              pipelineCase={c}
+              defaultOpen={false}
+              onApplied={onApplied}
+              focusDesign={focusDesign}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function CaseCard({
   pipelineCase,
   defaultOpen,
@@ -971,8 +1092,11 @@ function CaseCard({
       <div className="panel pipeline__case--collapsed" ref={cardRef}>
         <button className="pipeline__case-toggle" onClick={() => setOpen(true)}>
           <span className="pipeline__case-toggle-name">
-            ▸ {pipelineCase.design} — {pipelineCase.date}
+            {/* The design name is the group header above; what this row
+                has to answer is when, and what it changed. */}
+            ▸ {caseStamp(pipelineCase)}
           </span>
+          <AxisLabel pipelineCase={pipelineCase} />
           <span className={`pill ${pipelineCase.winner_tag ? "pill--good" : "pill--critical"}`}>
             {pipelineCase.winner_tag ? "CLOSED" : "OPEN"}
           </span>
@@ -990,7 +1114,8 @@ function CaseCard({
         <button className="pipeline__case-collapse" onClick={() => setOpen(false)}>
           ▾
         </button>
-        {pipelineCase.design} — {pipelineCase.date}
+        {pipelineCase.design} — {caseStamp(pipelineCase)}
+        <AxisLabel pipelineCase={pipelineCase} />
       </span>
       <div className="panel__body">
         <div className="metric-grid pipeline__metrics">
@@ -1108,7 +1233,6 @@ export default function PipelineTab() {
   const [cases, setCases] = useState<PipelineCase[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [designFilter, setDesignFilter] = useState<string>("all");
 
   const loadCases = useCallback(() => {
     return fetchReferenceDb()
@@ -1153,13 +1277,7 @@ export default function PipelineTab() {
     () => Array.from(new Set((cases ?? []).map((c) => c.design))).sort(),
     [cases]
   );
-  const visibleCases = useMemo(
-    () =>
-      designFilter === "all"
-        ? cases
-        : (cases ?? []).filter((c) => c.design === designFilter),
-    [cases, designFilter]
-  );
+  const groups = useMemo(() => groupByDesign(cases ?? []), [cases]);
 
   return (
     <div className="tab">
@@ -1189,30 +1307,37 @@ export default function PipelineTab() {
           {error} — {t("pipeline_error_hint")}
         </p>
       )}
-      {!loading && !error && visibleCases?.length === 0 && (
+      {!loading && !error && groups.length === 0 && (
         <p>{t("pipeline_empty")}</p>
       )}
 
       <div className="pipeline__evidence-head">
         <span className="pipeline__evidence-title">{t("evidence_title")}</span>
-        {designNames.length > 1 && (
-          <label className="pipeline__filter">
-            <span className="tab__meta-label">{t("pipeline_filter_design")}</span>
-            <select value={designFilter} onChange={(e) => setDesignFilter(e.target.value)}>
-              <option value="all">{t("pipeline_filter_all")}</option>
-              {designNames.map((name) => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
-          </label>
+        {/* The dropdown that used to live here filtered to one design at
+            a time. The groups below are that filter, except every design
+            is reachable at once and the counts are visible without
+            choosing one. */}
+        {/* Only once there is a store to count. The list re-polls after
+            every triggered run, and rendering the count unconditionally
+            put "0 runs across 0 designs" on screen during each refresh —
+            a number that was never true. */}
+        {cases !== null && (
+          <span className="pipeline__evidence-count">
+            {t("evidence_count")
+              .replace("{n}", String(cases.length))
+              .replace("{d}", String(groups.length))}
+          </span>
         )}
       </div>
 
-      {visibleCases?.map((c) => (
-        <CaseCard
-          key={`${c.design}__${c.date}`}
-          pipelineCase={c}
-          defaultOpen={false}
+      {groups.map((group, index) => (
+        <DesignGroupSection
+          key={group.design}
+          group={group}
+          // Only the newest design opens. The store holds 54 cases
+          // across 8 designs; opening all of them is the wall of cards
+          // the grouping exists to remove.
+          defaultOpen={index === 0}
           onApplied={loadCases}
           focusDesign={focusDesign}
         />

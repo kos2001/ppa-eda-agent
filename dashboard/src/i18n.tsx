@@ -370,6 +370,24 @@ const dict = {
   sa_reviews: { en: "{n} human-in-the-loop review(s) recorded on this case", ko: "이 케이스에 기록된 human-in-the-loop 리뷰 {n}건" },
 
   evidence_title: { en: "the record — every real run, newest first", ko: "기록 — 모든 실제 실행, 최신순" },
+  evidence_count: { en: "{n} run(s) across {d} design(s)", ko: "설계 {d}개, 실행 {n}건" },
+  group_meta: { en: "{n} run(s) · {p} closed · {c} candidates", ko: "{n}건 · 종결 {p} · 후보 {c}개" },
+  // The label that tells one run of a design from another. Named for
+  // what it answers — "what did this run change?" — because a design's
+  // runs are otherwise thirteen identical rows.
+  axis_label: { en: "swept", ko: "스윕 축" },
+  axis_none: { en: "single run", ko: "단일 실행" },
+  axis_repeat: { en: "repeat, nothing varied", ko: "반복 실행, 변화 없음" },
+  // The recorded override keys, in the reader's language. A key with no
+  // entry here is shown as recorded rather than guessed at.
+  knob_FP_CORE_UTIL: { en: "utilization", ko: "이용률" },
+  knob_SYNTH_STRATEGY: { en: "synth strategy", ko: "합성 전략" },
+  knob_CLOCK_PERIOD: { en: "clock period", ko: "클럭 주기" },
+  knob_PL_TARGET_DENSITY_PCT: { en: "placement density", ko: "배치 밀도" },
+  knob_DIE_AREA: { en: "die area", ko: "다이 면적" },
+  knob_PNR_EXCLUDED_CELL_FILE: { en: "cell exclusions", ko: "셀 제외" },
+  knob_PDK: { en: "process", ko: "공정" },
+  knob_SCL: { en: "cell library", ko: "셀 라이브러리" },
   ac_title: { en: "What the agent needs from you", ko: "에이전트가 당신에게 필요한 것" },
   ac_needing: { en: "{n} design(s) waiting on you", ko: "당신을 기다리는 설계 {n}개" },
   ac_all_clear: { en: "nothing waiting — every design is closed", ko: "대기 중 없음 — 모든 설계 완료" },

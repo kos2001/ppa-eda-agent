@@ -255,6 +255,12 @@ export interface NetlistGraph {
 export interface CandidateResult {
   tag: string;
   overrides: Record<string, unknown>;
+  // The technology this candidate ran on. Recorded beside `overrides`
+  // rather than inside it because OpenLane takes both as flags, not as
+  // config — but they are swept like any other knob, so anything
+  // reading `overrides` to find what varied has to fold these in too.
+  pdk?: string | null;
+  scl?: string | null;
   verdict?: CandidateVerdict;
   error?: string;
   run_dir?: string;
@@ -301,6 +307,13 @@ export interface SynthesisExploration {
 export interface PipelineCase {
   design: string;
   date: string;
+  // The case file's own name under reference-db/cases/, sent by the
+  // server. `date` alone does not identify a case — the store keeps one
+  // dated file per design per day and appends a timestamped one for
+  // every re-run, so 41 of the 54 cases here read 2026-08-30. The
+  // filename carries the time, which is what orders the record list and
+  // what keys it. Optional: a server predating this sends none.
+  file?: string | null;
   process_stages?: ProcessStage[];
   topology?: Topology | null;
   iterations: IterationResult[];

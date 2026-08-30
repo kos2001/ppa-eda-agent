@@ -341,6 +341,58 @@
 }
 .pipeline__filter { margin-top: 0; }
 
+.pipeline__evidence-count {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim);
+}
+
+/* One design's runs. The header carries the counts so the group is
+   worth reading closed — a row of eight names with no numbers would
+   force opening every one to find where the work is. */
+.pipeline__group { margin-top: 0.5rem; }
+
+.pipeline__group-head {
+  width: 100%;
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  justify-content: space-between; gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  background: none; border: 1px solid var(--border); border-radius: 4px;
+  color: inherit; cursor: pointer; text-align: left;
+}
+.pipeline__group-head:hover { border-color: var(--text-dim); }
+
+.pipeline__group-name {
+  font-family: var(--mono); font-size: 0.86rem; font-weight: 600;
+}
+.pipeline__group-meta {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim);
+}
+
+.pipeline__group-body {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  margin: 0.4rem 0 0 0.6rem;
+  padding-left: 0.6rem;
+  /* Ties the cases to the design header they belong to, so a long
+     group does not read as loose cards once the header scrolls off. */
+  border-left: 1px solid var(--border);
+}
+
+/* What a run changed. The one thing that tells a design's runs apart —
+   without it counter4 is thirteen identical rows. */
+.pipeline__axis {
+  display: inline-flex; flex-wrap: wrap; gap: 0.25rem;
+  margin-left: 0.4rem;
+}
+.pipeline__axis-knob {
+  font-family: var(--mono); font-size: 0.66rem;
+  padding: 0.05rem 0.3rem;
+  border: 1px solid var(--border); border-radius: 3px;
+  color: var(--text-dim); white-space: nowrap;
+}
+.pipeline__axis--none {
+  font-family: var(--mono); font-size: 0.66rem;
+  color: var(--text-dim); font-style: italic;
+}
+
 .pipeline__review { margin-top: 0.6rem; }
 
 .pipeline__review-steps {
