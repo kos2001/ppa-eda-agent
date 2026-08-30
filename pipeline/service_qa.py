@@ -87,7 +87,73 @@ then there these they this to us was what when where which who why will
 with would you your
 """.split())
 
-TOKEN = re.compile(r"[a-z0-9_]+")
+# Letters in any script, not just ASCII. This was [a-z0-9_]+, which made
+# every Korean question tokenize to nothing, score nothing, and land on
+# the no-sources path — where the page told the reader, in Korean, that
+# this repo cannot answer a question it answers well. That message is
+# the one output this page treats as authoritative, and a regex was
+# turning an honest refusal into a false one.
+TOKEN = re.compile(r"[^\W]+", re.UNICODE)
+
+# Korean for the words this corpus is written in. The corpus is English,
+# so tokenizing Korean is necessary and not sufficient: the terms still
+# have to reach English text, and nothing in "이 프로젝트는 무엇을 하나요"
+# matches a document that says "project".
+#
+# Hand-written, like tool_retrieval.py's entries and for the same
+# reason: it is small enough to read, every line is checkable, and a
+# wrong answer is fixed by editing one line rather than retraining
+# something. A test holds every target word to actually appearing in the
+# corpus, so an entry cannot quietly point at a word that was renamed.
+#
+# It covers this project's vocabulary, not the Korean language. A
+# question outside it falls back to whatever ASCII it contains — design
+# names, metric keys and error codes are written the same way in both —
+# and failing that, returns nothing, which stays the honest answer.
+GLOSSARY = {
+    "프로젝트": "project",
+    "설계": "design",
+    "면적": "area",
+    "전력": "power",
+    "타이밍": "timing",
+    "슬랙": "slack",
+    "공정": "pdk",
+    "셀": "cell",
+    "라이브러리": "library",
+    "실행": "run",
+    "후보": "candidate",
+    "배치": "placement",
+    "배선": "routing",
+    "합성": "synthesis",
+    "통과": "passed",
+    "실패": "failed",
+    "변종": "variant",
+    "이용률": "utilization",
+    "밀도": "density",
+    "클럭": "clock",
+    "주기": "period",
+    "리포트": "report",
+    "보고서": "report",
+    "검증": "verification",
+    "사인오프": "signoff",
+    "에이전트": "agent",
+    "파이프라인": "pipeline",
+    "저장소": "store",
+    "케이스": "case",
+    "샘플": "sample",
+    "목표": "target",
+    "제약": "constraints",
+    "복구": "repair",
+    "리뷰": "review",
+    "토폴로지": "topology",
+    "다이": "die",
+    "매크로": "macro",
+    "네트리스트": "netlist",
+    "시뮬레이션": "simulation",
+    "모델": "model",
+    "학습": "learning",
+    "정확도": "accuracy",
+}
 
 # Below this, a passage shares only incidental vocabulary with the
 # question. Returning it anyway is the failure that matters here: it
@@ -115,6 +181,14 @@ def tokenize(text: str) -> list[str]:
         if "_" in word:
             out.extend(p for p in word.split("_")
                        if len(p) > 1 and p not in STOPWORDS)
+        # Korean is written without spaces between a noun and its
+        # particle ("프로젝트는", "설계에서"), so a whole-word lookup
+        # misses almost everything. Substring containment is crude and
+        # right here: the glossary keys are domain nouns long enough not
+        # to collide.
+        for korean, english in GLOSSARY.items():
+            if korean in word:
+                out.extend(english.split())
     return out
 
 

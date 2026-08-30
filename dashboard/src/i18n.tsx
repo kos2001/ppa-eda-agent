@@ -150,6 +150,22 @@ const dict = {
   ask_send: { en: "ask", ko: "질문" },
   ask_asking: { en: "asking…", ko: "묻는 중…" },
   ask_searching: { en: "searching the repo…", ko: "저장소 검색 중…" },
+  // The steps an answer goes through, named so waiting is legible: a
+  // spinner says "wait", these say what is being waited on and which
+  // part already succeeded.
+  ask_step_search: { en: "searching documents, modules and the case store", ko: "문서·모듈·케이스 저장소 검색" },
+  ask_step_found: { en: "found {n} source(s)", ko: "근거 {n}건 확보" },
+  ask_step_none: { en: "no source matched", ko: "일치하는 근거 없음" },
+  ask_step_write: { en: "writing the answer from those sources", ko: "확보한 근거로 답변 작성" },
+  ask_step_done: { en: "done", ko: "완료" },
+  ask_step_skipped: { en: "skipped — nothing to ground an answer in", ko: "생략 — 근거가 없어 모델을 부르지 않음" },
+  ask_step_failed: { en: "no model reachable", ko: "모델에 연결 실패" },
+  ask_elapsed: { en: "{s}s", ko: "{s}초" },
+  // How a source was found, so the ranking is inspectable rather than
+  // something the reader has to trust.
+  ask_kind_doc: { en: "document", ko: "문서" },
+  ask_kind_module: { en: "module", ko: "모듈" },
+  ask_relevance: { en: "relevance", ko: "적합도" },
   ask_sources: { en: "sources this answer is built from", ko: "이 답변의 근거" },
   ask_facts: { en: "live from reference-db", ko: "reference-db 실시간 값" },
   ask_matched: { en: "matched", ko: "일치한 용어" },

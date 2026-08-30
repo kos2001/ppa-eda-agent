@@ -160,6 +160,81 @@ class RetrievalTests(unittest.TestCase):
             self.assertTrue(hit["matched"])
 
 
+class KoreanTests(unittest.TestCase):
+    """Questions asked in Korean, against an English corpus.
+
+    The console ships a Korean UI and this page ships Korean example
+    questions, and every one of them returned "nothing in this repo
+    answers that". The tokenizer matched [a-z0-9_]+, so a Korean
+    question produced zero terms, scored nothing, and hit the
+    no-sources path — which then told the reader, in Korean, that the
+    repo could not answer a question the repo answers well.
+
+    That message is the worst possible failure here. It is the one
+    output this page treats as authoritative: a claim that the material
+    does not exist. Returning it because of a regex made the honest
+    refusal into a lie.
+
+    The corpus is English, so tokenizing Korean is necessary and not
+    sufficient — the terms still have to reach English text. The bridge
+    is a hand-written glossary, the same choice tool_retrieval.py made
+    for its own entries: small, auditable, and correctable by editing a
+    list rather than retraining something.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.docs = service_qa.load_corpus()
+
+    def _top(self, question, n=4):
+        return [h["source"]
+                for h in service_qa.search(question, self.docs, top=n)]
+
+    def test_a_korean_question_produces_terms_at_all(self):
+        self.assertTrue(service_qa.tokenize("이 프로젝트는 무엇을 하나요?"))
+
+    def test_the_example_questions_this_page_ships_all_find_something(self):
+        # These are the four chips on the Ask page. A shipped example
+        # that returns "nothing" is worse than no example: it teaches the
+        # reader the feature does not work.
+        for question in (
+            "이 프로젝트는 무엇을 하나요?",
+            "gf180mcu 변종은 왜 하나만 쓰나요?",
+            "counter4는 몇 번 실행했고 몇 개가 통과했나요?",
+            "report_timing의 slack 줄은 어떻게 읽나요?",
+        ):
+            built = service_qa.build_prompt(question)
+            self.assertIsNotNone(built["prompt"], question)
+
+    def test_korean_reaches_the_same_source_as_the_english_question(self):
+        korean = self._top("gf180mcu 변종은 왜 하나만 쓰나요?")
+        self.assertIn("pipeline/collect.py", korean)
+
+    def test_a_korean_question_about_results_gets_the_store_numbers(self):
+        built = service_qa.build_prompt("counter4는 몇 번 실행했고 몇 개가 통과했나요?")
+        self.assertIsNotNone(built["facts"])
+        self.assertIn("counter4", built["facts"])
+
+    def test_an_off_topic_korean_question_still_returns_nothing(self):
+        # The refusal has to survive the fix. If bridging Korean also
+        # made every Korean question match something, the page would
+        # have traded a false "no" for a false "yes", which is worse.
+        built = service_qa.build_prompt("프랑스의 수도는 어디인가요")
+        self.assertEqual(built["sources"], [])
+        self.assertIsNone(built["prompt"])
+
+    def test_the_glossary_maps_to_words_the_corpus_actually_uses(self):
+        # A glossary entry pointing at a word no document contains is a
+        # dead entry that looks alive. Checked against the real corpus so
+        # it fails when a term is renamed out from under it.
+        vocabulary = set()
+        for doc in self.docs:
+            vocabulary.update(service_qa.tokenize(f"{doc['title']} {doc['text']}"))
+        for korean, english in service_qa.GLOSSARY.items():
+            for word in english.split():
+                self.assertIn(word, vocabulary, f"{korean} -> {word}")
+
+
 class StoreFactTests(unittest.TestCase):
     """Facts computed from reference-db, never written down here."""
 
