@@ -228,6 +228,64 @@ export async function askReview(
   }
 }
 
+export interface AskSource {
+  source: string;
+  title: string;
+  score: number;
+  matched: string[];
+  excerpt: string;
+}
+
+export interface AskGrounding {
+  sources: AskSource[];
+  /** Counts read live from reference-db, when the question is about results. */
+  facts: string | null;
+}
+
+/** What the repo holds on this question, with no model involved.
+ *
+ * Called first and on its own, because it is the half that works
+ * without a hermes-gateway key. A checkout that has not configured one
+ * still gets "here is the section that answers this, in collect.py",
+ * which is a worse answer than a written one and a far better answer
+ * than an empty box.
+ */
+export async function askSources(question: string): Promise<AskGrounding> {
+  const res = await fetch(`${LOCAL_SERVER_URL}/ask/sources`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+/** The written answer, grounded in those same sources. */
+export async function askViaServer(
+  question: string,
+  callbacks: DiagnoseCallbacks
+): Promise<void> {
+  try {
+    const res = await fetch(`${LOCAL_SERVER_URL}/ask`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    });
+    // Retrieval found nothing, so the server declined to ask the model
+    // rather than inviting it to invent an answer. It says so in JSON
+    // instead of streaming, and reading that as a stream would show the
+    // reader an empty answer with no reason for it.
+    if (res.headers.get("Content-Type")?.includes("application/json")) {
+      const body = await res.json();
+      callbacks.onError(new Error(body.error ?? "ungrounded"));
+      return;
+    }
+    await pipeSse(res, callbacks);
+  } catch (e) {
+    callbacks.onError(e instanceof Error ? e : new Error(String(e)));
+  }
+}
+
 export async function translateViaServer(
   text: string,
   callbacks: DiagnoseCallbacks

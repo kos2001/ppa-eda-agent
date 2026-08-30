@@ -875,6 +875,67 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Free-form questions about this service, grounded in what the repo
+  // holds — documents, module reasoning, and the live case store (see
+  // pipeline/service_qa.py).
+  //
+  // TWO ENDPOINTS ON PURPOSE. /ask/sources retrieves and returns the
+  // passages; /ask writes an answer from them. The split is what makes
+  // the feature work with no hermes-gateway key: the client always shows
+  // the sources, and only asks for prose when a model is reachable. One
+  // endpoint that did both would be a 503 and a blank box on exactly the
+  // checkout that has not configured a key yet.
+  if (req.method === "POST" && (req.url === "/ask" || req.url === "/ask/sources")) {
+    const wantsAnswer = req.url === "/ask";
+    let askBody = "";
+    req.on("data", (chunk) => (askBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { question } = JSON.parse(askBody || "{}");
+        if (typeof question !== "string" || !question.trim()) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "question (non-empty string) required" }));
+          return;
+        }
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import service_qa; " +
+           "print(json.dumps(service_qa.build_prompt(sys.argv[1])))",
+           question],
+          { cwd: pipelineDir, timeout: 60_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        const built = JSON.parse(stdout);
+
+        if (!wantsAnswer) {
+          res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ sources: built.sources, facts: built.facts }));
+          return;
+        }
+        // Nothing was retrieved, so there is nothing to be grounded in.
+        // Asking the model anyway is asking it to invent, which is the
+        // one failure this whole path exists to prevent.
+        if (!built.prompt) {
+          res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ sources: [], facts: null, grounded: false }));
+          return;
+        }
+        // preferDirect: this is a plain question-answering task, not the
+        // ppa-eda-analyst persona the diagnosis route needs.
+        await proxyChat(built.prompt, res, headers, { preferDirect: true });
+      } catch (err) {
+        console.error("[ask error]", err);
+        if (!res.headersSent) {
+          res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: String(err.message ?? err) }));
+        } else {
+          res.end();
+        }
+      }
+    });
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/diagnose") {
     let diagBody = "";
     req.on("data", (chunk) => (diagBody += chunk));

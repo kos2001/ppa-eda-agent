@@ -1,0 +1,181 @@
+.ask__intro {
+  max-width: 68ch;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.ask__examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.9rem 0;
+}
+.ask__examples-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-right: 0.2rem;
+}
+.ask__example {
+  font-size: 0.76rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.ask__example:hover { border-color: var(--accent); color: var(--text); }
+
+.ask__turn {
+  border-top: 1px solid var(--border);
+  padding-top: 0.8rem;
+  margin-top: 0.9rem;
+}
+.ask__question {
+  font-weight: 600;
+  margin: 0 0 0.55rem;
+  max-width: 68ch;
+}
+.ask__answer {
+  margin: 0 0 0.8rem;
+  max-width: 68ch;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* The numbers, kept visually distinct from the prose about them: these
+   are read from the store at question time and the sentence above them
+   is not. */
+.ask__facts {
+  border-left: 2px solid var(--accent);
+  padding: 0.35rem 0 0.35rem 0.6rem;
+  margin: 0 0 0.8rem;
+}
+.ask__facts-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ask__facts pre {
+  margin: 0.25rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+
+.ask__nothing,
+.ask__no-model {
+  max-width: 68ch;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  font-style: italic;
+  margin: 0 0 0.7rem;
+}
+
+/* Not a footnote. The prose is the part that can be wrong, so what it
+   was built from is shown at the same weight rather than tucked away. */
+.ask__sources-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.ask__sources {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ask__source {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.ask__source-head {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0.55rem;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ask__source-name {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+}
+.ask__source-title {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.ask__excerpt {
+  margin: 0;
+  padding: 0 0.55rem 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text-dim);
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.ask__matched {
+  margin: 0;
+  padding: 0 0.55rem 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+}
+
+.ask__busy {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+
+/* Not sticky. It was, and it sat on top of the sources instead of above
+   the fold: sticky needs an ancestor that establishes the scroll box,
+   and here the whole page scrolls, so `bottom: 0` pinned the form
+   mid-content over the very list this page exists to show. A form at
+   the end of a page that grows downward is where it belongs. */
+.ask__form {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.4rem;
+  padding: 0.6rem 0;
+}
+.ask__input {
+  flex: 1;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.86rem;
+}
+.ask__input:focus { outline: none; border-color: var(--accent); }
+.ask__send {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: none;
+  color: var(--accent);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.ask__send:disabled { opacity: 0.5; cursor: default; }

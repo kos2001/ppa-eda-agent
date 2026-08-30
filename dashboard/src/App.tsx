@@ -12,6 +12,7 @@ const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
 const ProgressTab = lazy(() => import("./components/ProgressTab"));
+const AskPage = lazy(() => import("./components/AskPage"));
 const DataLineage = lazy(() => import("./components/DataLineage"));
 const ManualPage = lazy(() => import("./components/ManualPage"));
 
@@ -19,6 +20,7 @@ type TabId =
   | "pipeline"
   | "health"
   | "progress"
+  | "ask"
   | "lineage"
   | "manual"
   | "simulate"
@@ -66,6 +68,9 @@ function AppInner() {
   // asks whether any of it is getting better, which neither answered.
   const PROGRESS_TAB: { id: TabId; label: string } = { id: "progress", label: t("tab_progress") };
   const LINEAGE_TAB: { id: TabId; label: string } = { id: "lineage", label: t("tab_lineage") };
+  // Next to the manual rather than among the report tabs: both answer
+  // "how does this work", one by being read and one by being asked.
+  const ASK_TAB: { id: TabId; label: string } = { id: "ask", label: t("tab_ask") };
   const MANUAL_TAB: { id: TabId; label: string } = { id: "manual", label: t("tab_manual") };
   const REPORT_TABS: { id: TabId; label: string }[] = [
     { id: "simulate", label: t("tab_simulate") },
@@ -131,6 +136,17 @@ function AppInner() {
             onClick={() => setActive(LINEAGE_TAB.id)}
           >
             {LINEAGE_TAB.label}
+          </button>
+
+          <button
+            className={
+              active === ASK_TAB.id
+                ? "app__nav-item app__nav-item--primary app__nav-item--active"
+                : "app__nav-item app__nav-item--primary"
+            }
+            onClick={() => setActive(ASK_TAB.id)}
+          >
+            {ASK_TAB.label}
           </button>
 
           <button
@@ -210,6 +226,7 @@ function AppInner() {
             {active === "health" && <SystemHealth standalone />}
             {active === "progress" && <ProgressTab />}
             {active === "lineage" && <DataLineage />}
+            {active === "ask" && <AskPage />}
             {active === "manual" && <ManualPage />}
             {active === "diagnosis" && <DiagnosisPage />}
           </Suspense>
