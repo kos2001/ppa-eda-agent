@@ -18,6 +18,7 @@ can just call these Python modules directly via Bash — this server
 exists for contexts that want a typed tool boundary instead (a future
 session, a non-Claude-Code agent, hermes-agent).
 """
+import base64
 import json
 import os
 import re
@@ -217,6 +218,27 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_sta_query",
+        "description": "Runs a read-only OpenSTA reporting command against a "
+                        "completed run — report_checks, report_power, "
+                        "report_check_types, get_property and the rest. Use it "
+                        "for the question nobody shipped a tool for: this "
+                        "pipeline's own breakthrough on sram_wrapper was "
+                        "`report_checks -to <pin>`, which existed in no tool "
+                        "until it was added as one. Commands that modify "
+                        "anything are refused with the list of what is allowed.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design", "tag", "tcl"],
+            "properties": {
+                "design": {"type": "string"}, "tag": {"type": "string"},
+                "tcl": {"type": "string",
+                        "description": "one or more read-only report/get commands"},
+                "corner": {"type": "string", "description": "default tt_025C_1v80"},
+            },
+        },
+    },
+    {
         "name": "ppa_odb_query",
         "description": "Queries a run's real OpenROAD database (.odb) directly for "
                         "measured per-net placement facts — pin count, HPWL and max "
@@ -364,6 +386,13 @@ def _tool_sta_path(args: dict) -> dict:
                           corner=args.get("corner", "tt_025C_1v80"))
 
 
+def _tool_sta_query(args: dict) -> dict:
+    design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
+    run_dir = design_dir / "runs" / args["tag"]
+    return sta_path.query(design_dir, run_dir, args["tcl"],
+                          corner=args.get("corner", "tt_025C_1v80"))
+
+
 def _tool_odb_query(args: dict) -> dict:
     run_dir = REPO_ROOT / "pipeline" / "designs" / args["design"] / "runs" / args["tag"]
     data = odb_query.query(run_dir)
@@ -397,6 +426,7 @@ _TOOL_IMPL = {
     "ppa_equiv_check": _tool_equiv_check,
     "ppa_sta_report": _tool_sta_report,
     "ppa_sta_path": _tool_sta_path,
+    "ppa_sta_query": _tool_sta_query,
     "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
 }
@@ -440,11 +470,55 @@ def handle(msg: dict) -> None:
             return
         try:
             out = impl(args)
-            _result(rid, {"content": [{"type": "text", "text": json.dumps(out, indent=2, default=str)}]})
+            _result(rid, {"content": _content(out)})
         except Exception as e:  # surface real errors to the caller, not a crash
             _error(rid, -32000, f"{name} failed: {e}")
     elif rid is not None:
         _error(rid, -32601, f"method not found: {method}")
+
+
+# MCP carries images as content, and every result here was forced to
+# type "text". ppa_render_layout therefore returned a filesystem path
+# and nothing else — a tool whose own description cites the measured
+# finding that a layout image improves diagnosis, handing the agent a
+# string it cannot look at. Pattern noticed by reading
+# github.com/The-OpenROAD-Project/OpenROAD-MCP, which exposes
+# read_report_image for exactly this.
+#
+# A path is still returned alongside, because it is what a human or a
+# later Bash call needs.
+_IMAGE_MIME = {".png": "image/png", ".jpg": "image/jpeg",
+               ".jpeg": "image/jpeg", ".gif": "image/gif"}
+
+# Big enough for a layout render, small enough not to bury a transcript.
+MAX_INLINE_IMAGE_BYTES = 4 * 1024 * 1024
+
+
+def _content(out: dict) -> list[dict]:
+    """A tool result as MCP content, with any image actually attached."""
+    blocks = [{"type": "text", "text": json.dumps(out, indent=2, default=str)}]
+    if not isinstance(out, dict):
+        return blocks
+    for key, value in out.items():
+        if not key.endswith("_path") or not isinstance(value, str):
+            continue
+        path = Path(value)
+        mime = _IMAGE_MIME.get(path.suffix.lower())
+        if mime is None or not path.is_file():
+            continue
+        # Reported rather than silently dropped: an agent that asked for
+        # a picture and got only a path should be told why.
+        if path.stat().st_size > MAX_INLINE_IMAGE_BYTES:
+            blocks.append({"type": "text",
+                           "text": f"({path.name} is "
+                                   f"{path.stat().st_size // 1024} KB, over the "
+                                   f"{MAX_INLINE_IMAGE_BYTES // 1024} KB inline "
+                                   f"limit — read it from the path above)"})
+            continue
+        blocks.append({"type": "image",
+                       "data": base64.b64encode(path.read_bytes()).decode(),
+                       "mimeType": mime})
+    return blocks
 
 
 def main() -> None:
