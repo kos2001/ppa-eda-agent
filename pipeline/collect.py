@@ -134,6 +134,15 @@ TECHNOLOGIES = [
 # cross-product there would add ~70 rows that a k-NN can predict
 # perfectly from their D twins, which is the tinydie lesson again in a
 # different costume: an easy row raises the score without adding a fact.
+# Eight C rows reached the store before this was measured, recovered
+# from the interrupted batch that found the A/B failure. Three had a D
+# twin with an identical area to the last digit and were removed; the
+# other five sweep a clock period D has not run, so they measure
+# something no other row measures and were kept. The distinction is
+# duplication, not provenance — the metric barely moves either way
+# (area 0.9922 to 0.9920, completion 0.8805 to 0.8774), so the reason to
+# drop them is that they are the same measurement twice, not that the
+# number improves.
 #
 # What survived is the feature, not the axis. routing_layers stays in
 # surrogate.py because sky130 and gf180 genuinely differ there (6 against
