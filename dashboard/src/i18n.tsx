@@ -555,6 +555,11 @@ const dict = {
     ko: "작성 주체 그대로 기록됩니다: 직접 쓰면 human-review, 모델이 쓰면 hermes-review, 모델 초안을 수정하면 hermes-review+human.",
   },
   review_ai_optional: { en: "optional — needs a gateway key", ko: "선택 사항 — 게이트웨이 키 필요" },
+  review_step_reask: { en: "2. Ask again", ko: "2. 다시 받기" },
+  // A cached draft says when it was written. Without that, "the model
+  // said this" has no age, and a draft from before the last run reads
+  // as a verdict on a case that has since moved.
+  review_cached_at: { en: "cached draft from {t} — asking again replaces it", ko: "{t}에 저장된 초안 — 다시 받으면 대체됩니다" },
   review_asking: { en: "reviewing…", ko: "리뷰 중…" },
   review_show_request: { en: "show request", ko: "요청 내용 보기" },
   review_hide_request: { en: "hide request", ko: "요청 내용 숨기기" },
