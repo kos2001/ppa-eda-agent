@@ -121,6 +121,92 @@ class RepairTests(unittest.TestCase):
         self.assertEqual(second["written"], [])
 
 
+class ExtractionRulesetTests(unittest.TestCase):
+    """Parasitic-extraction rulesets: reported, never repaired.
+
+    OpenLane validates RCX_RULESETS during PDK load exactly like
+    drc_exclude.cells, and a variant missing them quits before writing a
+    run directory. Found by adding gf180mcuA and gf180mcuB as
+    technologies: both ship none, C and D ship all of them, and 34 runs
+    failed identically before anyone read the message.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.real = pdk_repair.PDK_ROOT
+        pdk_repair.PDK_ROOT = self.tmp
+
+    def tearDown(self):
+        pdk_repair.PDK_ROOT = self.real
+
+    def make(self, variant: str, rulesets: list[str]):
+        tech = (self.tmp / "fam" / "versions" / "v1" / variant
+                / "libs.tech" / "openlane")
+        (tech / "x_fd_sc_7t").mkdir(parents=True)
+        (tech / "x_fd_sc_7t" / "drc_exclude.cells").write_text("")
+        for name in rulesets:
+            (tech / name).write_text("rules")
+
+    def test_a_variant_with_no_rulesets_is_reported(self):
+        self.make("famA", [])
+        self.assertTrue(pdk_repair.missing_rcx("fam"))
+
+    def test_a_bare_named_ruleset_counts(self):
+        # gf180mcuD's shape.
+        self.make("famA", [f"rules.openrcx.famA.{c}" for c in ("min", "nom", "max")])
+        self.assertEqual(pdk_repair.missing_rcx("fam"), [])
+
+    def test_a_suffixed_ruleset_counts(self):
+        # sky130A's shape: no bare file at all, only .calibre, .magic and
+        # .spef_extractor. An exact-name check reported the default PDK,
+        # behind two hundred completed runs, as unusable.
+        self.make("famA", [f"rules.openrcx.famA.{c}.{s}"
+                           for c in ("min", "nom", "max")
+                           for s in ("calibre", "magic", "spef_extractor")])
+        self.assertEqual(pdk_repair.missing_rcx("fam"), [])
+
+    def test_a_partial_set_is_still_reported(self):
+        # Missing one corner is as fatal as missing all three.
+        self.make("famA", ["rules.openrcx.famA.nom.magic"])
+        gaps = [p.name for p in pdk_repair.missing_rcx("fam")]
+        self.assertEqual(sorted(gaps),
+                         ["rules.openrcx.famA.max", "rules.openrcx.famA.min"])
+
+    def test_apply_never_writes_a_ruleset(self):
+        # The distinction from drc_exclude.cells, and the reason this is
+        # a separate function. An empty exclusion list is truthful —
+        # nothing is excluded. An extraction ruleset has no truthful
+        # empty form: a stub would make the flow run and return
+        # parasitics that are wrong and look measured.
+        self.make("famA", [])
+        got = pdk_repair.repair("fam", apply=True)
+        self.assertTrue(got["unusable_variants"])
+        tech = (self.tmp / "fam" / "versions" / "v1" / "famA"
+                / "libs.tech" / "openlane")
+        self.assertEqual(list(tech.glob("rules.openrcx.*")), [])
+        self.assertTrue(pdk_repair.missing_rcx("fam"))
+
+
+class RealPdkExtractionTests(unittest.TestCase):
+    """Against the PDKs installed here."""
+
+    def test_the_working_pdk_is_not_condemned(self):
+        # The negative control this check needed and did not have: it
+        # first reported sky130A unusable, which is the PDK almost every
+        # recorded run used. A gate that fires on the working case gets
+        # switched off rather than obeyed.
+        if not (pdk_repair.PDK_ROOT / "sky130").is_dir():
+            self.skipTest("no sky130 installed")
+        self.assertEqual(pdk_repair.repair("sky130")["unusable_variants"], [])
+
+    def test_the_two_variants_that_cannot_run_are_named(self):
+        if not (pdk_repair.PDK_ROOT / "gf180mcu").is_dir():
+            self.skipTest("no gf180mcu installed")
+        got = pdk_repair.repair("gf180mcu")["unusable_variants"]
+        self.assertEqual(sorted(p.split("/")[-1] for p in got),
+                         ["gf180mcuA", "gf180mcuB"])
+
+
 class RealPdkTests(unittest.TestCase):
     """Against the PDKs actually installed here."""
 
