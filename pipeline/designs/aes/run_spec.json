@@ -1,0 +1,7 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "sweeps": [{ "param": "CLOCK_PERIOD", "values": [8, 12, 20], "tag_prefix": "sweep-clk" }],
+  "candidates": [],
+  "max_iterations": 1
+}
