@@ -110,11 +110,18 @@ class CoverageTests(unittest.TestCase):
         self.assertLess(self.curve[-1]["samples"], len(_rows()))
 
     def test_the_day_the_store_grew_is_visible(self):
+        # The shape, not the totals. This pinned 400 for 2026-08-30 and
+        # broke the next time the pipeline ran — the store is append-only
+        # and a test that fails when it grows is a test that punishes the
+        # thing the page exists to show. 40 on 2026-08-29 is fixed
+        # because that day is finished; the last day is only required to
+        # be much larger, which is the claim being made.
         by_day: dict[str, int] = {}
         for point in self.curve:
             by_day[point["at"][:10]] = point["samples"]
         self.assertEqual(by_day["2026-08-29"], 40)
-        self.assertEqual(by_day["2026-08-30"], 400)
+        self.assertGreaterEqual(by_day["2026-08-30"], 400)
+        self.assertEqual(by_day["2026-08-30"], self.curve[-1]["samples"])
 
 
 class FrontierTests(unittest.TestCase):
