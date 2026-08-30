@@ -160,5 +160,76 @@ class PreFloorplanAxisTests(unittest.TestCase):
         self.assertNotIn("counter4_tinydie", collect.SKIP)
 
 
+class IncrementalWriteTests(unittest.TestCase):
+    """A design's case is written when its last run lands, not at the end.
+
+    The batch used to write everything once, after all of it finished. A
+    171-run batch was killed at 104 and wrote nothing; 85 finished runs
+    sat on disk unrecorded. Losing one design to an interruption is not
+    the same as losing the batch.
+    """
+
+    def test_each_design_is_written_as_it_finishes(self):
+        seen = []
+
+        def fake_run_one(item):
+            return {"design": item["design"], "tag": item["tag"],
+                    "overrides": item["overrides"],
+                    "verdict": {"area_um2": 1.0, "passed": True}}
+
+        def fake_write_case(design, *a, **kw):
+            seen.append(design)
+            return collect.REPO_ROOT / "reference-db" / "cases" / f"{design}.json"
+
+        items = [{"design": "a", "tag": "t1", "overrides": {}},
+                 {"design": "a", "tag": "t2", "overrides": {}},
+                 {"design": "b", "tag": "t3", "overrides": {}}]
+        real_plan, real_run, real_write, real_winner = (
+            collect.plan, collect.run_one,
+            collect.orchestrator.write_case, collect.orchestrator.pick_winner)
+        collect.plan = lambda designs: items
+        collect.run_one = fake_run_one
+        collect.orchestrator.write_case = fake_write_case
+        collect.orchestrator.pick_winner = lambda rows: rows[0]
+        try:
+            got = collect.collect(["a", "b"], parallel=1, limit=None)
+        finally:
+            (collect.plan, collect.run_one, collect.orchestrator.write_case,
+             collect.orchestrator.pick_winner) = (
+                real_plan, real_run, real_write, real_winner)
+
+        self.assertEqual(sorted(seen), ["a", "b"])
+        self.assertEqual(len(got["cases_written"]), 2)
+
+    def test_a_design_is_written_exactly_once(self):
+        # Flushing per result rather than per design would rewrite the
+        # same case on every run and fill reference-db with duplicates.
+        seen = []
+
+        def fake_run_one(item):
+            return {"design": item["design"], "tag": item["tag"],
+                    "overrides": item["overrides"],
+                    "verdict": {"area_um2": 1.0, "passed": True}}
+
+        items = [{"design": "a", "tag": f"t{i}", "overrides": {}}
+                 for i in range(5)]
+        real_plan, real_run, real_write, real_winner = (
+            collect.plan, collect.run_one,
+            collect.orchestrator.write_case, collect.orchestrator.pick_winner)
+        collect.plan = lambda designs: items
+        collect.run_one = fake_run_one
+        collect.orchestrator.write_case = lambda design, *a, **kw: (
+            seen.append(design)
+            or collect.REPO_ROOT / "reference-db" / "cases" / "a.json")
+        collect.orchestrator.pick_winner = lambda rows: rows[0]
+        try:
+            collect.collect(["a"], parallel=1, limit=None)
+        finally:
+            (collect.plan, collect.run_one, collect.orchestrator.write_case,
+             collect.orchestrator.pick_winner) = (
+                real_plan, real_run, real_write, real_winner)
+        self.assertEqual(seen, ["a"])
+
+
 if __name__ == "__main__":
     sys.exit(unittest.main())

@@ -323,6 +323,35 @@ def collect(designs: list[str], parallel: int, limit: int | None) -> dict:
           f"{len(set(i['design'] for i in items))} designs — {note}",
           file=sys.stderr, flush=True)
 
+    # How many runs of each design are still outstanding, so a design's
+    # case can be written the moment its last run lands instead of at
+    # the end of the batch.
+    #
+    # The batch used to write everything once, after all of it finished.
+    # A batch that finishes is fine; an interrupted one lost every
+    # completed run it held. That is not hypothetical — a 171-run batch
+    # was killed at 104 and a second at 2, and the store stayed exactly
+    # where it started while 85 finished runs sat on disk unrecorded.
+    #
+    # This does not make a batch un-loseable; the design still being run
+    # when the process dies is still unwritten here. What makes those
+    # recoverable is recover_runs.py, which reads the run directories
+    # OpenLane wrote on its own. This just means the interruption costs
+    # one design instead of all of them.
+    outstanding: dict[str, int] = {}
+    for item in items:
+        outstanding[item["design"]] = outstanding.get(item["design"], 0) + 1
+
+    written: list[str] = []
+
+    def flush(design: str, results: list) -> None:
+        case_file = orchestrator.write_case(
+            design, DESIGNS / design, [{"iteration": 1, "results": results}],
+            orchestrator.pick_winner(results), "max_iterations_reached")
+        written.append(str(case_file.relative_to(REPO_ROOT)))
+        print(f"  wrote {case_file.name} ({len(results)} runs)",
+              file=sys.stderr, flush=True)
+
     by_design: dict[str, list] = {}
     with ThreadPoolExecutor(max_workers=parallel) as pool:
         futures = {pool.submit(run_one, item): item for item in items}
@@ -340,13 +369,17 @@ def collect(designs: list[str], parallel: int, limit: int | None) -> dict:
             ok = "ok" if (result.get("verdict") or {}).get("area_um2") else "no verdict"
             print(f"[{done}/{len(items)}] {item['design']:18s} {item['tag']:28s} {ok}",
                   file=sys.stderr, flush=True)
+            design = item["design"]
+            outstanding[design] -= 1
+            if outstanding[design] == 0:
+                flush(design, by_design[design])
 
-    written = []
+    # Anything still unflushed — only reachable if a design's count and
+    # its results disagree, which would mean the accounting above is
+    # wrong. Writing it is better than dropping it silently.
     for design, results in sorted(by_design.items()):
-        case_file = orchestrator.write_case(
-            design, DESIGNS / design, [{"iteration": 1, "results": results}],
-            orchestrator.pick_winner(results), "max_iterations_reached")
-        written.append(str(case_file.relative_to(REPO_ROOT)))
+        if outstanding.get(design):
+            flush(design, results)
     return {"planned": len(items), "cases_written": written}
 
 
