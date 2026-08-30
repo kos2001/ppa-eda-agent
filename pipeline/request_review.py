@@ -65,6 +65,72 @@ def latest_case(design: str) -> tuple[Path, dict]:
     return case_file, json.loads(case_file.read_text())
 
 
+def request_filename(design: str, case: dict, case_filename: str) -> str:
+    """The request file's name, keyed to the case rather than the day.
+
+    It was `<design>__<case date>__request.md`, and a design run twice on
+    one day produces two cases with the same date — so the second run's
+    request silently replaced the first on disk, including one already
+    committed, while describing a different case.
+
+    The case file already carries whatever distinguishes it: the store
+    names a re-run `<design>__<date>__<HHMMSS>.json`. Reusing that stem
+    means the name is unique exactly when the case is, and the four
+    requests already committed keep the names they have — renaming those
+    would orphan them from the cases they describe, which is the problem
+    this is fixing.
+    """
+    stem = case_filename[:-len(".json")] if case_filename.endswith(".json") \
+        else case_filename
+    return f"{stem}__request.md" if stem else f"{design}__{case['date']}__request.md"
+
+
+def carried_diagnosis(design: str, case_filename: str,
+                      refdb: Path | str = REFDB) -> str | None:
+    """The most recent review recorded on an EARLIER case of this design.
+
+    A review is recorded into the case file it reviewed, and
+    orchestrator.py writes a new case file per run. So the second run of
+    a design read "Existing diagnosis: (none recorded yet)" while the
+    case one run earlier held the verdict that had proposed the very
+    candidates just executed — and the request asks the reviewer not to
+    "re-derive what's already known" while handing over nothing to know
+    it from.
+
+    Returns None when this case has its own diagnosis: that one is
+    current, and putting a superseded recommendation beside it with
+    nothing to say which is which is worse than omitting it.
+
+    Only this design's cases, because a verdict about counter4 is not
+    context for aes — handing one over is the cross-design contamination
+    verify_diagnosis exists to catch.
+    """
+    cases_dir = Path(refdb) / "cases"
+    try:
+        own = json.loads((cases_dir / case_filename).read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    if (own.get("diagnosis") or "").strip():
+        return None
+
+    earlier = sorted(p for p in cases_dir.glob(f"{design}__*.json")
+                     if p.name < case_filename)
+    for path in reversed(earlier):
+        try:
+            case = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if case.get("design") != design:
+            continue
+        text = (case.get("diagnosis") or "").strip()
+        if text:
+            # Named, so the reviewer can tell a verdict on an earlier run
+            # from one on the run in front of them.
+            return (f"(carried from an earlier case of this design, "
+                    f"{path.name} — it reviewed a different run)\n\n{text}")
+    return None
+
+
 def cmd_request(args: argparse.Namespace) -> None:
     case_file, case = latest_case(args.design)
 
@@ -129,7 +195,9 @@ def cmd_request(args: argparse.Namespace) -> None:
         "## Existing diagnosis (read before dispatching — don't re-derive"
         " what's already known)",
         "",
-        case.get("diagnosis", "(none recorded yet)"),
+        (case.get("diagnosis")
+         or carried_diagnosis(args.design, case_file.name)
+         or "(none recorded yet)"),
         "",
         "## What to do",
         "",
@@ -144,7 +212,7 @@ def cmd_request(args: argparse.Namespace) -> None:
 
     out_dir = REFDB / "reviews"
     out_dir.mkdir(exist_ok=True)
-    out_file = out_dir / f"{args.design}__{case['date']}__request.md"
+    out_file = out_dir / request_filename(args.design, case, case_file.name)
     # self_improve.scan_design() regenerates this file on *every* scan for
     # any OPEN, unreviewed design — no check for "a request already
     # exists" — so two overlapping scans (two browser tabs on the health
