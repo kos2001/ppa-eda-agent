@@ -70,3 +70,61 @@
 .sim-raw-details summary::after { content: "+ expand raw report"; float: right; color: var(--accent); font-size: 0.62rem; }
 .sim-raw-details[open] summary::after { content: "− collapse"; }
 @media (max-width: 900px) { .sim-visual-grid { grid-template-columns: 1fr; } }
+
+/* The page's own explanation. Above the control rather than below the
+   results: someone deciding whether to press the button needs to know
+   what pressing it does. */
+.sim-intro {
+  max-width: 68ch;
+  margin: 0 0 0.5rem;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+.sim-intro--dim {
+  font-size: 0.79rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+
+/* Collapsed by default. It is evidence for the "real tool" claim, so it
+   has to be reachable; it is also five lines of TCL, so it should not
+   be the first thing on the page. */
+.sim-script { margin-top: 0.6rem; }
+.sim-note {
+  margin: 0.5rem 0 0;
+  max-width: 68ch;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* Limits and placement, side by side under everything else. */
+.sim-scope {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.sim-scope__title {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+.sim-scope ul {
+  margin: 0;
+  padding-left: 1.05rem;
+}
+.sim-scope li,
+.sim-scope p {
+  margin: 0.3rem 0;
+  max-width: 62ch;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}

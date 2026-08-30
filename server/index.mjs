@@ -556,6 +556,24 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // The TCL the Simulate tab is about to run, read from the same file
+  // runSimulation() fills in. Served rather than copied into the
+  // dashboard: a page that claims to run a real tool has to be able to
+  // show what it ran, and a second copy of these five lines would
+  // eventually show something the server no longer runs.
+  if (req.method === "GET" && req.url === "/simulate/script") {
+    try {
+      const template = await readFile(
+        path.join(simDir, "run.tcl.template"), "utf-8");
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ template }));
+    } catch (err) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/reference-db") {
     try {
       const data = await loadReferenceDb();

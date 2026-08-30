@@ -585,6 +585,46 @@ const dict = {
     en: "live OpenSTA simulation — 5-cell design, real Nangate45 library",
     ko: "실시간 OpenSTA 시뮬레이션 — 5셀 설계, 실제 Nangate45 라이브러리",
   },
+  // What this page is, on the page. It said "live OpenSTA simulation —
+  // 5-cell design, real Nangate45 library" and stopped there, so why
+  // five cells, why no area, and how this differs from the pipeline
+  // lived in sim/README.md and in comments — readable by whoever
+  // already knew to look.
+  sim_intro: {
+    en: "A real OpenSTA run, not a mock. Change the clock period and the tool runs again in Docker against a real standard-cell library — the numbers below are what it reported, and the raw output is there to check them against.",
+    ko: "모사가 아니라 실제 OpenSTA 실행입니다. 클록 주기를 바꾸면 Docker에서 실제 표준 셀 라이브러리로 도구가 다시 돌고, 아래 수치는 그 도구가 보고한 값입니다. 원본 출력도 함께 있어 직접 대조할 수 있습니다.",
+  },
+  sim_why_small: {
+    en: "Why a 5-cell design: small enough to finish in about a second, real enough that changing the period changes genuine timing and power behaviour. The design (3 flops, a buffer, an AND gate) and the Nangate45 library are OpenSTA's own examples, used verbatim.",
+    ko: "왜 5셀 설계인가: 1초 안에 끝날 만큼 작고, 주기를 바꾸면 진짜 타이밍·전력 거동이 달라질 만큼은 실제이기 때문입니다. 설계(플립플롭 3개, 버퍼 1개, AND 게이트 1개)와 Nangate45 라이브러리는 OpenSTA 공식 예제를 그대로 씁니다.",
+  },
+  sim_try: {
+    en: "Try it: tighten the period below ~0.13ns and the violation you see is one you caused, not one that was staged.",
+    ko: "직접 해보세요: 주기를 ~0.13ns 아래로 줄이면 나타나는 위반은 미리 준비된 것이 아니라 당신이 만든 것입니다.",
+  },
+  sim_runs_title: { en: "what actually runs", ko: "실제로 실행되는 것" },
+  sim_runs_note: {
+    en: "These five lines, filled in with the period above and executed by the openroad/opensta image. Shown because a page claiming to run a real tool should say exactly what it ran.",
+    ko: "위 주기를 채워 넣은 이 다섯 줄이 openroad/opensta 이미지에서 실행됩니다. 실제 도구를 돌린다고 말하는 화면이라면 무엇을 돌렸는지도 밝혀야 하므로 그대로 보여줍니다.",
+  },
+  sim_scope_title: { en: "what this page does not do", ko: "이 화면이 하지 않는 일" },
+  sim_scope_area: {
+    en: "No area. OpenSTA has no report_area, so only timing and power come out of it.",
+    ko: "면적은 다루지 않습니다. OpenSTA에는 report_area가 없어 타이밍과 전력만 나옵니다.",
+  },
+  sim_scope_store: {
+    en: "Nothing is recorded. These runs never enter reference-db — re-running one example design is not a measurement the case store should learn from.",
+    ko: "기록되지 않습니다. 이 실행은 reference-db에 들어가지 않습니다 — 예제 설계 하나를 반복 실행한 것은 케이스 저장소가 학습할 측정이 아닙니다.",
+  },
+  sim_scope_pnr: {
+    en: "No placement or routing. This is static timing analysis; physical design is the Layout Pipeline's job.",
+    ko: "배치·배선은 하지 않습니다. 여기는 정적 타이밍 분석이고, 물리 설계는 레이아웃 파이프라인의 일입니다.",
+  },
+  sim_place_title: { en: "where this sits", ko: "이 화면의 위치" },
+  sim_place_body: {
+    en: "Between the report tabs, which run no tool at all, and the Layout Pipeline, which runs the full OpenLane flow and needs a PDK and minutes per candidate. This one is a real run you can have in a second, so the claim that these numbers come from real tools is checkable before committing to the long path.",
+    ko: "도구를 전혀 돌리지 않는 리포트 탭들과, OpenLane 전체 플로우를 돌리며 PDK와 후보당 수십 초가 필요한 레이아웃 파이프라인 사이에 있습니다. 여기서는 1초 만에 실제 실행을 볼 수 있어, 긴 경로에 들어가기 전에 \"이 수치들이 진짜 도구에서 나온다\"를 먼저 확인할 수 있습니다.",
+  },
   sim_clock_period: { en: "Clock period (ns)", ko: "클록 주기 (ns)" },
   sim_run: { en: "Run simulation", ko: "시뮬레이션 실행" },
   sim_running: { en: "Running OpenSTA…", ko: "OpenSTA 실행 중…" },
