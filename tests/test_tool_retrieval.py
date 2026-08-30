@@ -263,6 +263,63 @@ class TransferabilityTests(unittest.TestCase):
             case, exclude_design="brand_new")}
         self.assertGreater(len(sources), 1, sources)
 
+    def test_an_error_message_alone_is_enough_to_retrieve(self):
+        # Neither of these carries an EDA error code, so signature
+        # matching on codes finds nothing. Both are cases where the
+        # message names something the user never set and there is no run
+        # directory to inspect — exactly when guidance is worth most.
+        for err, expect in [
+            ("Encountered one or more fatal errors while running Magic",
+             "unreadable-macro-gds"),
+            ("Path provided for variable 'PNR_EXCLUDED_CELL_FILE' is "
+             "invalid: Errors have occurred while loading the PDK",
+             "library-blocked-by-a-missing-file"),
+        ]:
+            case = {"design": "brand_new", "iterations": [{"results": [
+                {"tag": "t", "error": err}]}]}
+            ids = {h["id"] for h in tool_retrieval.retrieve(
+                case, exclude_design="brand_new")}
+            self.assertIn(expect, ids, err[:40])
+
+    def test_each_symptom_is_derived_from_the_real_message(self):
+        # Asserted per symptom, not through retrieval. Each entry lists
+        # two `when` keys, so dropping one extraction still matched via
+        # the other and a mutation removing it passed — the retrieval
+        # kept working while the key it was supposed to derive silently
+        # stopped existing.
+        for err, key in [
+            ("Unknown layer/datatype in boundary, layer=33 type=42",
+             "unknown_layer_datatype"),
+            ("Encountered one or more fatal errors while running Magic",
+             "magic_read_failure"),
+            ("Path provided for variable 'PNR_EXCLUDED_CELL_FILE' is invalid",
+             "pnr_excluded_cell_file_invalid"),
+            ("Errors have occurred while loading the PDK",
+             "pdk_load_failure"),
+        ]:
+            case = {"design": "d", "iterations": [{"results": [
+                {"tag": "t", "error": err}]}]}
+            self.assertIn(key, tool_retrieval.case_keys(case), err[:40])
+
+    def test_an_unrelated_error_derives_none_of_them(self):
+        # A key that fires on anything selects nothing.
+        case = {"design": "d", "iterations": [{"results": [
+            {"tag": "t", "error": "[STA-1140] library already exists"}]}]}
+        keys = tool_retrieval.case_keys(case)
+        for key in ("unknown_layer_datatype", "magic_read_failure",
+                    "pnr_excluded_cell_file_invalid", "pdk_load_failure"):
+            self.assertNotIn(key, keys)
+
+    def test_the_suppression_trap_is_recorded(self):
+        # The most expensive kind of guidance: a knob that looks like the
+        # fix and is not. MAGIC_CAPTURE_ERRORS=false takes sram_wrapper
+        # from an abort to 2,831,364 DRC errors on a GDS built from a
+        # macro Magic could not read.
+        entry = next(e for e in tool_retrieval.MEASUREMENTS
+                     if e["id"] == "unreadable-macro-gds")
+        self.assertIn("MAGIC_CAPTURE_ERRORS", entry["trap"])
+        self.assertIn("2,831,364", entry["trap"])
+
     def test_the_index_is_no_longer_single_source(self):
         # With one source design, leave-one-out empties the index for
         # that design and the layer cannot help anyone.
