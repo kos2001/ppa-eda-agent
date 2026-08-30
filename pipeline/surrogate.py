@@ -73,12 +73,18 @@ MIN_SAMPLES = 8
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
-# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 -> 4 as the corpus grew and thinned
-# out again; power_w sits at 2 and completed at 1. The last move was not
-# new data at all — adding routing_layers as a feature rearranged the
-# neighbourhoods, and k followed. The margin there is one fold in 155
-# (0.994 at k=3 against 1.000 at k=4, tied with k=5), so this is the
-# measurement being followed rather than a difference worth claiming.
+# moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 -> 4 -> 2 as the corpus grew and
+# thinned out again; power_w has moved 2 -> 1 and completed has stayed
+# at 1 throughout. One of those moves was not new data at all — adding
+# routing_layers as a feature rearranged the neighbourhoods and k
+# followed, on a margin of one fold in 155. The next was 85 recovered
+# runs arriving at once.
+#
+# The pattern across all of them: the margins between adjacent k are
+# small for the continuous targets (0.987/0.992/0.992 across k=1,2,3 for
+# area) and large for completion, which falls monotonically from 0.873
+# at k=1 to 0.740 at k=5. Averaging neighbours helps a number and hurts
+# a boolean, which is why they were split apart in the first place.
 # The number tracks how densely a row's own technology is populated
 # around it, which is why it moves in both directions rather than only
 # up — and why a new feature can move it without a single new row.
@@ -86,8 +92,8 @@ MIN_SAMPLES = 8
 # A test asserts these against best_k() on the real store, which is why
 # none of them has gone stale while the data moved underneath.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 4,
-    "power_w": 2,
+    "area_um2": 2,
+    "power_w": 1,
     "completed": 1,
 }
 DEFAULT_K = 1

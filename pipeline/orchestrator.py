@@ -676,6 +676,96 @@ def annotated_total_w(result: dict) -> float | None:
     return (pa.get("annotated") or {}).get("total", {}).get("total_w")
 
 
+def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
+                  tag: str, scl: str | None, pdk: str | None,
+                  verify_fn=None) -> dict:
+    """Everything that turns a finished OpenLane run directory into a row.
+
+    Split out of run_candidate so that scoring a run and *performing* one
+    are separate concerns. An interrupted batch leaves real, complete run
+    directories on disk that the collector never got to record — 83 of
+    them, once — and recovering those without inventing a second,
+    drifting definition of a result means handing them to the same
+    function the live path uses.
+
+    The same argument the screening code already makes about failures:
+    one code path producing results rather than two.
+    """
+    metrics = read_metrics(run_dir)
+    verdict = score(metrics, run_spec.get("targets", {}))
+    # Clock-domain coverage needs the run's logs, which score() never
+    # sees — it reads metrics.json only. Folded into the same
+    # `unverified` list because an unconstrained domain is exactly
+    # that: not a failure anyone found, a check nobody ran.
+    clocks = cdc_check.check(design_dir, run_dir)
+    verdict["unverified"] = (verdict.get("unverified", [])
+                             + cdc_check.unverified_domains(clocks))
+    # Whether STA was asked something its models can answer. A macro
+    # liberty stops at some input slew; past that the tool
+    # extrapolates and returns a number indistinguishable from a
+    # measurement. sram_wrapper reports clean setup and hold with
+    # addr pins sitting 22x past the last table entry.
+    #
+    # `unverified` rather than a violation, for the same reason as
+    # the clock domains above: nobody proved the design is bad, they
+    # proved nobody can say from here.
+    models = model_validity.check(design_dir, run_dir)
+    verdict["unverified"] += model_validity.unverified(models)
+    verdict["model_validity"] = models
+    verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
+    # Fmax/Vmin, derived from per-corner slack the run already
+    # measured. Needs the clock period, which lives in config.json
+    # and never reaches score().
+    verdict["operating_point"] = operating_point.operating_point(
+        metrics, clock_period(design_dir))
+    # Power measured against a real workload, when the design has a
+    # testbench to provide one. score()'s figure is OpenSTA's
+    # default-activity estimate, which on spm understates
+    # combinational power by 44% — the tool is being asked how much
+    # the design burns without being told what it is doing.
+    #
+    # Non-intrusive by construction: measure() returns None and
+    # starts no container for the designs without a testbench, which
+    # is most of them. Failures here are attached, not raised — a
+    # simulation that will not compile is a fact about the
+    # testbench, and it must not discard a completed OpenLane run.
+    try:
+        annotated = measure_activity_power(design_dir, run_dir)
+    except Exception as e:  # noqa: BLE001
+        annotated = {"error": f"{type(e).__name__}: {e}"}
+    if annotated:
+        verdict["power_activity"] = annotated
+
+    equiv = verify_function(design_dir, run_dir, verdict) if verify_fn else None
+    layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
+    # The gate-level circuit itself. Yosys wrote this during
+    # synthesis and the pipeline recorded only its path, into runs/,
+    # which is deleted — so the console could say a netlist had
+    # existed without ever showing one.
+    netlist = netlist_graph.summary(run_dir, run_spec.get("design_name"))
+    # Which declared flow steps this run silently skipped.
+    #
+    # Deliberately recorded rather than folded into the verdict's
+    # `unverified` list. RUN_EQY is False by default and enabling it
+    # aborts inside EQY itself ("This should not happen. Please
+    # report this bug."), so gating on it would mark every candidate
+    # unverified forever — a gate that always fires gets switched
+    # off rather than obeyed. The equivalence claim is covered by
+    # this project's own equiv_check, which proves the same design
+    # (4 points, 0 unproven) where EQY crashes.
+    declared = classic_steps()
+    coverage = step_coverage.check(run_dir, declared) if declared else None
+    return {"tag": tag, "overrides": cand.get("overrides", {}),
+            "scl": scl, "pdk": pdk,
+            "verdict": verdict, "run_dir": str(run_dir),
+            "data": data_pointers(run_dir),
+            "clocks": clocks,
+            "netlist": netlist,
+            "step_coverage": coverage,
+            "equivalence": equiv,
+            "layout": layout}
+
+
 def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                    verify_fn: bool = False) -> dict:
     """Runs and scores one independent candidate."""
@@ -706,79 +796,8 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     try:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
                             scl=scl, pdk=pdk)
-        metrics = read_metrics(run_dir)
-        verdict = score(metrics, run_spec.get("targets", {}))
-        # Clock-domain coverage needs the run's logs, which score() never
-        # sees — it reads metrics.json only. Folded into the same
-        # `unverified` list because an unconstrained domain is exactly
-        # that: not a failure anyone found, a check nobody ran.
-        clocks = cdc_check.check(design_dir, run_dir)
-        verdict["unverified"] = (verdict.get("unverified", [])
-                                 + cdc_check.unverified_domains(clocks))
-        # Whether STA was asked something its models can answer. A macro
-        # liberty stops at some input slew; past that the tool
-        # extrapolates and returns a number indistinguishable from a
-        # measurement. sram_wrapper reports clean setup and hold with
-        # addr pins sitting 22x past the last table entry.
-        #
-        # `unverified` rather than a violation, for the same reason as
-        # the clock domains above: nobody proved the design is bad, they
-        # proved nobody can say from here.
-        models = model_validity.check(design_dir, run_dir)
-        verdict["unverified"] += model_validity.unverified(models)
-        verdict["model_validity"] = models
-        verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
-        # Fmax/Vmin, derived from per-corner slack the run already
-        # measured. Needs the clock period, which lives in config.json
-        # and never reaches score().
-        verdict["operating_point"] = operating_point.operating_point(
-            metrics, clock_period(design_dir))
-        # Power measured against a real workload, when the design has a
-        # testbench to provide one. score()'s figure is OpenSTA's
-        # default-activity estimate, which on spm understates
-        # combinational power by 44% — the tool is being asked how much
-        # the design burns without being told what it is doing.
-        #
-        # Non-intrusive by construction: measure() returns None and
-        # starts no container for the designs without a testbench, which
-        # is most of them. Failures here are attached, not raised — a
-        # simulation that will not compile is a fact about the
-        # testbench, and it must not discard a completed OpenLane run.
-        try:
-            annotated = measure_activity_power(design_dir, run_dir)
-        except Exception as e:  # noqa: BLE001
-            annotated = {"error": f"{type(e).__name__}: {e}"}
-        if annotated:
-            verdict["power_activity"] = annotated
-
-        equiv = verify_function(design_dir, run_dir, verdict) if verify_fn else None
-        layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
-        # The gate-level circuit itself. Yosys wrote this during
-        # synthesis and the pipeline recorded only its path, into runs/,
-        # which is deleted — so the console could say a netlist had
-        # existed without ever showing one.
-        netlist = netlist_graph.summary(run_dir, run_spec.get("design_name"))
-        # Which declared flow steps this run silently skipped.
-        #
-        # Deliberately recorded rather than folded into the verdict's
-        # `unverified` list. RUN_EQY is False by default and enabling it
-        # aborts inside EQY itself ("This should not happen. Please
-        # report this bug."), so gating on it would mark every candidate
-        # unverified forever — a gate that always fires gets switched
-        # off rather than obeyed. The equivalence claim is covered by
-        # this project's own equiv_check, which proves the same design
-        # (4 points, 0 unproven) where EQY crashes.
-        declared = classic_steps()
-        coverage = step_coverage.check(run_dir, declared) if declared else None
-        return {"tag": tag, "overrides": cand.get("overrides", {}),
-                "scl": scl, "pdk": pdk,
-                "verdict": verdict, "run_dir": str(run_dir),
-                "data": data_pointers(run_dir),
-                "clocks": clocks,
-                "netlist": netlist,
-                "step_coverage": coverage,
-                "equivalence": equiv,
-                "layout": layout}
+        return score_run_dir(design_dir, run_dir, run_spec, cand, tag,
+                             scl, pdk, verify_fn)
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         return {"tag": tag, "overrides": cand.get("overrides", {}),
                 "scl": scl, "pdk": pdk, "error": str(e)}
