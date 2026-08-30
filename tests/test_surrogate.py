@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (
+    DEFAULT_K,
     DEFAULT_K_BY_TARGET,
     win_rate_interval,
     MIN_SAMPLES_PER_SCL,
@@ -642,15 +643,35 @@ class NeighbourhoodSizeTests(unittest.TestCase):
     inherited from when it was set.
     """
 
-    def test_each_target_has_its_own_k(self):
-        # Adding SPM moved the area target from k=1 to k=3 while
-        # completion stayed at 1. One constant cannot serve a continuous
-        # target with 21 samples and a boolean one with 36.
-        # Not a hard-coded count: the point is that the targets do not
-        # share one k, and a literal 2 broke the moment a third target
-        # (power_w) arrived with a third value.
-        self.assertGreater(len({default_k(f) for f in TARGETS}), 1)
+    def test_k_is_looked_up_per_target(self):
+        # This asserted that the three targets do not share one k, which
+        # was true when written — adding SPM moved area from 1 to 3 while
+        # completion stayed at 1 — and is not a property of the design.
+        # On the 319-sample store the measurement makes all three 1, and
+        # the assertion failed on a legitimate state. Area's k=1, 2 and 3
+        # are also tied at 0.9921 there, so part of the agreement is just
+        # best_k breaking ties toward the smaller neighbourhood.
+        #
+        # What is worth pinning is the mechanism, not the coincidence:
+        # each target is looked up separately, so they *can* diverge. A
+        # single shared constant would fail this even while the current
+        # measured values happen to agree.
         self.assertEqual(len(TARGETS), len(DEFAULT_K_BY_TARGET))
+        for field in TARGETS:
+            self.assertIn(field, DEFAULT_K_BY_TARGET)
+        real = DEFAULT_K_BY_TARGET.copy()
+        try:
+            DEFAULT_K_BY_TARGET[TARGETS[0]] = 99
+            self.assertEqual(default_k(TARGETS[0]), 99)
+            for field in TARGETS[1:]:
+                self.assertNotEqual(default_k(field), 99,
+                                    f"{field} followed another target's k")
+        finally:
+            DEFAULT_K_BY_TARGET.clear()
+            DEFAULT_K_BY_TARGET.update(real)
+
+    def test_an_unknown_target_falls_back_rather_than_raising(self):
+        self.assertEqual(default_k("not_a_target"), DEFAULT_K)
 
     def test_tries_every_candidate_and_names_a_winner(self):
         got = best_k(linear_dataset(n=20))
