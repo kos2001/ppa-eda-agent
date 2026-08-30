@@ -17,6 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from surrogate import (
+    DEFAULT_K_BY_TARGET,
     win_rate_interval,
     MIN_SAMPLES_PER_SCL,
     scl_is_informative,  # noqa: E402
@@ -310,6 +311,74 @@ class CompletionTargetTests(unittest.TestCase):
         self.assertGreater(evaluate(rows, "completed")["n_total"], 0)
 
 
+class PowerAndClockTests(unittest.TestCase):
+    """A target and an axis the dataset already had the data for.
+
+    power_w was in every verdict and extracted by nothing, so the metric
+    the clock actually moves was invisible: on counter4, 10ns -> 4ns
+    takes area up 6.9% and power up 152%. It scored 0.92 the moment it
+    was extracted, on rows that already existed.
+
+    PL_TARGET_DENSITY_PCT is the mirror image — declared in _NUMERIC
+    from the start and present in zero rows, a feature nobody ever gave
+    data to.
+    """
+
+    def _case(self, tmp, results):
+        cases = Path(tmp) / "cases"
+        cases.mkdir(parents=True, exist_ok=True)
+        (cases / "d__2026-01-01.json").write_text(json.dumps({
+            "design": "d", "iterations": [{"results": results}],
+            "constraints": {"design": {"settings": [
+                {"key": "CLOCK_PERIOD", "value": 10}]}},
+        }))
+        return tmp
+
+    def test_power_is_extracted_from_the_verdict(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [{"tag": "t", "overrides": {}, "verdict": {
+                "area_um2": 290.3, "passed": True,
+                "power": {"total_w": 9.55e-05}}}])
+            self.assertAlmostEqual(load_dataset(root)[0]["power_w"], 9.55e-05)
+
+    def test_power_is_a_target(self):
+        self.assertIn("power_w", TARGETS)
+
+    def test_a_run_with_no_power_leaves_it_missing_not_zero(self):
+        # Zero watts is a claim. A run that never reached power analysis
+        # made none.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [{"tag": "t", "overrides": {},
+                                     "verdict": {"area_um2": 1.0, "passed": True}}])
+            self.assertIsNone(load_dataset(root)[0]["power_w"])
+
+    def test_an_overridden_clock_is_a_feature(self):
+        row = {"design": "d", "overrides": {"CLOCK_PERIOD": 4}}
+        self.assertEqual(featurize(row)["CLOCK_PERIOD"], 4.0)
+
+    def test_a_declared_clock_is_used_when_not_overridden(self):
+        # Most designs fix the clock in config.json and never override
+        # it. Without the fallback every such row looks like a design
+        # with no clock, which is most of the corpus.
+        row = {"design": "d", "overrides": {}, "declared": {"CLOCK_PERIOD": 10}}
+        self.assertEqual(featurize(row)["CLOCK_PERIOD"], 10.0)
+
+    def test_an_override_wins_over_the_declared_value(self):
+        row = {"design": "d", "overrides": {"CLOCK_PERIOD": 4},
+               "declared": {"CLOCK_PERIOD": 10}}
+        self.assertEqual(featurize(row)["CLOCK_PERIOD"], 4.0)
+
+    def test_the_real_store_now_carries_both(self):
+        refdb = Path(__file__).resolve().parent.parent / "reference-db"
+        if not (refdb / "cases").is_dir():
+            self.skipTest("no reference-db")
+        data = load_dataset(refdb)
+        clocks = {featurize(r).get("CLOCK_PERIOD") for r in data}
+        clocks.discard(None)
+        self.assertGreater(len(clocks), 3, "the clock axis was never swept")
+        self.assertTrue(any(r.get("power_w") for r in data))
+
+
 class TechnologyAxisTests(unittest.TestCase):
     """The library as a first-class axis.
 
@@ -515,7 +584,11 @@ class NeighbourhoodSizeTests(unittest.TestCase):
         # Adding SPM moved the area target from k=1 to k=3 while
         # completion stayed at 1. One constant cannot serve a continuous
         # target with 21 samples and a boolean one with 36.
-        self.assertEqual(len({default_k(f) for f in TARGETS}), 2)
+        # Not a hard-coded count: the point is that the targets do not
+        # share one k, and a literal 2 broke the moment a third target
+        # (power_w) arrived with a third value.
+        self.assertGreater(len({default_k(f) for f in TARGETS}), 1)
+        self.assertEqual(len(TARGETS), len(DEFAULT_K_BY_TARGET))
 
     def test_tries_every_candidate_and_names_a_winner(self):
         got = best_k(linear_dataset(n=20))
