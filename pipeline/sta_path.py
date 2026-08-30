@@ -240,6 +240,90 @@ def worst_degrader(stages: list[dict]) -> dict | None:
     return worst
 
 
+# Commands that only report. An agent needs to ask questions nobody
+# shipped a tool for — this session's own breakthrough was
+# `report_checks -to <pin>`, which existed in no tool until it was added
+# as one — but "run anything" against a design database is a different
+# proposition from "ask it something".
+#
+# The list is what OpenSTA offers for reporting, so a query outside it is
+# refused with the list rather than executed. Borrowed in shape from
+# github.com/The-OpenROAD-Project/OpenROAD-MCP, whose interactive_exec
+# runs arbitrary commands in a persistent session; this is the bounded
+# version, because the value in that design is the open-ended question,
+# not the ability to write.
+READ_ONLY_COMMANDS = (
+    "report_checks", "report_check_types", "report_power", "report_clock_skew",
+    "report_clock_properties", "report_tns", "report_wns", "report_worst_slack",
+    "report_pulse_width_checks", "report_units", "report_net", "report_cell",
+    "report_edges", "report_disconnected_pins", "report_annotated_delay",
+    "report_parasitic_annotation", "get_property", "get_pins", "get_nets",
+    "get_cells", "get_ports", "get_clocks", "get_lib_cells", "get_fanout",
+    "puts", "sta_version",
+)
+
+
+def check_query(query: str) -> str:
+    """The first word of each line, or a refusal naming what is allowed."""
+    for raw in query.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        head = line.split()[0].lstrip("[")
+        if head not in READ_ONLY_COMMANDS:
+            raise StaPathError(
+                f"{head!r} is not a read-only reporting command. Allowed: "
+                f"{', '.join(sorted(READ_ONLY_COMMANDS))}")
+    return query
+
+
+def query(design_dir: Path | str, run_dir: Path | str, tcl: str,
+          scl: str = "sky130_fd_sc_hd",
+          corner: str = "tt_025C_1v80") -> dict:
+    """Run read-only OpenSTA reporting against a completed run.
+
+    Same setup as trace() — the run's own netlist, parasitics and
+    constraints — so an answer here and an answer from ppa_sta_path
+    describe the same design.
+    """
+    check_query(tcl)
+    design_dir = Path(design_dir).resolve()
+    run_dir = Path(run_dir).resolve()
+    got = inputs_for(run_dir)
+    top = got["netlist"].name.replace(".nl.v", "").replace(".pnl", "")
+
+    work = run_dir / "_sta_query"
+    work.mkdir(exist_ok=True)
+    (work / "nl.v").write_bytes(got["netlist"].read_bytes())
+    if got["spef"]:
+        (work / "p.spef").write_bytes(got["spef"].read_bytes())
+    if got["sdc"]:
+        (work / "c.sdc").write_bytes(got["sdc"].read_bytes())
+
+    liberties = [f"read_liberty /pdkv/sky130A/libs.ref/{scl}/lib/{scl}__{corner}.lib"]
+    for i, lib in enumerate(macro_libs(design_dir)):
+        (work / f"macro{i}.lib").write_bytes(lib.read_bytes())
+        liberties.append(f"read_liberty /work/macro{i}.lib")
+
+    script = _TCL.format(
+        liberties="\n".join(liberties), top=top, pin="",
+        spef_cmd="read_spef /work/p.spef" if got["spef"] else 'puts "###NO_SPEF###"',
+        sdc_cmd="read_sdc /work/c.sdc" if got["sdc"] else 'puts "###NO_SDC###"',
+    ).split("puts \"###PATH###\"")[0] + 'puts "###OUT###"\n' + tcl + "\nexit\n"
+    (work / "query.tcl").write_text(script)
+
+    cmd = ["docker", "run", "--rm", *platform_args(),
+           "-v", f"{find_pdk_root()}:/pdkv", "-v", f"{work}:/work",
+           IMAGE, "sta", "-no_init", "-exit", "/work/query.tcl"]
+    print("$ docker run … sta query", file=sys.stderr)
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    out = proc.stdout
+    if "###OUT###" not in out:
+        raise StaPathError(f"OpenSTA produced no output:\n{out[-800:]}")
+    body = out.split("###OUT###", 1)[1]
+    return {"query": tcl, "corner": corner, "output": body.strip()[:20000]}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--design", required=True, type=Path)
