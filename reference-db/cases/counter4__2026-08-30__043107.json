@@ -1,0 +1,5275 @@
+{
+  "design": "counter4",
+  "date": "2026-08-30",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 1,
+    "has_macros": false,
+    "clock_domain_count": 1,
+    "port_count": 4,
+    "sequential_element_estimate": 4,
+    "power_domain_count": 1,
+    "notes": "Single-module 4-bit synchronous up-counter, synchronous reset, enable. Purely standard-cell, no macros \u2014 the regular/simple end of this pipeline's topology range, contrasted with sram_wrapper's macro-heavy case."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-clock_period12",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 0",
+            "CLOCK_PERIOD": 12
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0013292653020471334,
+              "leakage_w": 9.748828411204613e-09,
+              "switching_w": 0.0002321423962712288,
+              "total_w": 0.0015614174772053957
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000236,
+              "ir_drop_worst_v": 0.000381,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000381109,
+                  "voltage_worst_v": 4.99962,
+                  "nominal_v": 5.000001109,
+                  "drop_pct": 0.007622178309400852
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000404894,
+                  "voltage_worst_v": 0.000404894,
+                  "nominal_v": 0.000809788,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 8.453516348423078,
+                  "hold_ws_ns": 0.403736888682042,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 1.5464836515769225,
+                  "fmax_mhz": 646.6282388309229
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 6.081709530343451,
+                  "hold_ws_ns": 1.7248810645795658,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.918290469656549,
+                  "fmax_mhz": 255.2133405483982
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 7.722118274504649,
+                  "hold_ws_ns": 0.8099687261267349,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 2.2778817254953507,
+                  "fmax_mhz": 439.0043560240332
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 8.474186925369363,
+                  "hold_ws_ns": 0.39438847748339967,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 1.525813074630637,
+                  "fmax_mhz": 655.3882756851301
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 6.133659087580945,
+                  "hold_ws_ns": 1.700099442679128,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.866340912419055,
+                  "fmax_mhz": 258.6424794533521
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 7.752568584306841,
+                  "hold_ws_ns": 0.7956294182020404,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 2.2474314156931587,
+                  "fmax_mhz": 444.9523989997165
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 8.464847729022086,
+                  "hold_ws_ns": 0.398613597856559,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 1.535152270977914,
+                  "fmax_mhz": 651.4011794823361
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 6.110193857158036,
+                  "hold_ws_ns": 1.7113018153590256,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.889806142841964,
+                  "fmax_mhz": 257.082220367255
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 7.738810700196587,
+                  "hold_ws_ns": 0.8021198376987119,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 2.261189299803413,
+                  "fmax_mhz": 442.24514952681744
+                }
+              ],
+              "fmax_mhz": 255.2133405483982,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period12/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-clock_period20",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 0",
+            "CLOCK_PERIOD": 20
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.000798263878095895,
+              "leakage_w": 1.023282880652232e-08,
+              "switching_w": 0.00013417526497505605,
+              "total_w": 0.0009324493585154414
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000142,
+              "ir_drop_worst_v": 0.000228,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000227616,
+                  "voltage_worst_v": 4.99977,
+                  "nominal_v": 4.999997616,
+                  "drop_pct": 0.004552322170547211
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000209378,
+                  "voltage_worst_v": 0.000209378,
+                  "nominal_v": 0.000418756,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 14.488231469072684,
+                  "hold_ws_ns": 0.4306093381527376,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -4.488231469072684,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 12.169044782956389,
+                  "hold_ws_ns": 1.7906452383254772,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -2.169044782956389,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 13.773245156457628,
+                  "hold_ws_ns": 0.850344929650161,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -3.7732451564576284,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 14.500887123732916,
+                  "hold_ws_ns": 0.4131209935519355,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -4.500887123732916,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 12.2008291367827,
+                  "hold_ws_ns": 1.7443935678561115,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -2.2008291367826995,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 13.791890686549726,
+                  "hold_ws_ns": 0.8232572079289022,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -3.791890686549726,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 14.495137056481155,
+                  "hold_ws_ns": 0.42097904132017067,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -4.4951370564811555,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 12.186407783374165,
+                  "hold_ws_ns": 1.7646552496508625,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -2.1864077833741646,
+                  "fmax_mhz": null
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 13.783421016899926,
+                  "hold_ws_ns": 0.8353525330127601,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": -3.7834210168999256,
+                  "fmax_mhz": null
+                }
+              ],
+              "fmax_mhz": null,
+              "fmax_limiting_corner": null,
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period20/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-clock_period6",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 0",
+            "CLOCK_PERIOD": 6
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.002658328041434288,
+              "leakage_w": 9.86982851003404e-09,
+              "switching_w": 0.0004589503805618733,
+              "total_w": 0.0031172882299870253
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000475,
+              "ir_drop_worst_v": 0.000737,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000736739,
+                  "voltage_worst_v": 4.99926,
+                  "nominal_v": 4.999996738999999,
+                  "drop_pct": 0.014734789610029785
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000811704,
+                  "voltage_worst_v": 0.000811704,
+                  "nominal_v": 0.001623408,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 3.4744537119697254,
+                  "hold_ws_ns": 0.4031365910756496,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.525546288030275,
+                  "fmax_mhz": 153.24387505062788
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 1.1339050019878545,
+                  "hold_ws_ns": 0.795582067188701,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 8.866094998012146,
+                  "fmax_mhz": 112.78922684949896
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 2.7528344827287596,
+                  "hold_ws_ns": 0.7740963089635302,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 7.24716551727124,
+                  "fmax_mhz": 137.98498152371823
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 3.4906809542011894,
+                  "hold_ws_ns": 0.3954404693401356,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.509319045798811,
+                  "fmax_mhz": 153.62590049191266
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 1.1748238270299125,
+                  "hold_ws_ns": 0.7466408813661162,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 8.825176172970087,
+                  "fmax_mhz": 113.31218554739094
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 2.776770003638201,
+                  "hold_ws_ns": 0.7453709527234826,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 7.223229996361799,
+                  "fmax_mhz": 138.44222051681598
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 3.483312847867578,
+                  "hold_ws_ns": 0.3988650078675957,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.5166871521324214,
+                  "fmax_mhz": 153.45220303736312
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 1.1562295892430043,
+                  "hold_ws_ns": 0.7689005205724887,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 8.843770410756996,
+                  "fmax_mhz": 113.07394398023541
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 2.7658949247152194,
+                  "hold_ws_ns": 0.7584375009367507,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 7.234105075284781,
+                  "fmax_mhz": 138.23409939350842
+                }
+              ],
+              "fmax_mhz": 112.78922684949896,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period6/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-clock_period8",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 0",
+            "CLOCK_PERIOD": 8
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0019946652464568615,
+              "leakage_w": 9.627828312375186e-09,
+              "switching_w": 0.00034406394115649164,
+              "total_w": 0.0023387386463582516
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000352,
+              "ir_drop_worst_v": 0.000547,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000547196,
+                  "voltage_worst_v": 4.99945,
+                  "nominal_v": 4.999997196000001,
+                  "drop_pct": 0.010943926137353776
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000607529,
+                  "voltage_worst_v": 0.000607529,
+                  "nominal_v": 0.001215058,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 5.477671360430696,
+                  "hold_ws_ns": 0.3992439825077696,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.522328639569304,
+                  "fmax_mhz": 221.12501759607582
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 3.14215107271417,
+                  "hold_ws_ns": 0.8279588360377071,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.85784892728583,
+                  "fmax_mhz": 145.8183186306753
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 4.757619322055613,
+                  "hold_ws_ns": 0.793105270573016,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.242380677944387,
+                  "fmax_mhz": 190.7530302419996
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 5.493717636304027,
+                  "hold_ws_ns": 0.3924328750813655,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.506282363695973,
+                  "fmax_mhz": 221.91241455624584
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 3.182591835708304,
+                  "hold_ws_ns": 0.7695216903723344,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.817408164291696,
+                  "fmax_mhz": 146.68331071004553
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 4.781278619468716,
+                  "hold_ws_ns": 0.7589370458008089,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.218721380531284,
+                  "fmax_mhz": 191.61781729343758
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 5.486407927703163,
+                  "hold_ws_ns": 0.39552107153400295,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.513592072296837,
+                  "fmax_mhz": 221.55303004401298
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 3.164173901342693,
+                  "hold_ws_ns": 0.7959680917452806,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 6.835826098657307,
+                  "fmax_mhz": 146.28809825873424
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 4.770497465416274,
+                  "hold_ws_ns": 0.7744503590960964,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.229502534583726,
+                  "fmax_mhz": 191.22277757526723
+                }
+              ],
+              "fmax_mhz": 145.8183186306753,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-clock_period8/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-fp_core_util25",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 0",
+            "FP_CORE_UTIL": 25
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1069.06,
+            "utilization": 0.649333,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0015948716318234801,
+              "leakage_w": 1.1200829597157735e-08,
+              "switching_w": 0.0002790227881632745,
+              "total_w": 0.0018739055376499891
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000263,
+              "ir_drop_worst_v": 0.000492,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000492359,
+                  "voltage_worst_v": 4.99951,
+                  "nominal_v": 5.000002359,
+                  "drop_pct": 0.009847175354102669
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000504954,
+                  "voltage_worst_v": 0.000504954,
+                  "nominal_v": 0.001009908,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.486123821623126,
+                  "hold_ws_ns": 0.43062821194469003,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.513876178376874,
+                  "fmax_mhz": 284.58600964759063
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.163871143515315,
+                  "hold_ws_ns": 1.7881023834379588,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.836128856484685,
+                  "fmax_mhz": 171.3464566309005
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.77021202706857,
+                  "hold_ws_ns": 0.8493074262043061,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.22978797293143,
+                  "fmax_mhz": 236.41846976716326
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.498699096134104,
+                  "hold_ws_ns": 0.4146333949100048,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5013009038658964,
+                  "fmax_mhz": 285.6081289374097
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.195361510276391,
+                  "hold_ws_ns": 1.7465458462725205,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.804638489723609,
+                  "fmax_mhz": 172.27601714910855
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.788687470988484,
+                  "hold_ws_ns": 0.8250508287870625,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.211312529011516,
+                  "fmax_mhz": 237.4556609396836
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.49307026524006,
+                  "hold_ws_ns": 0.4218182589282195,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5069297347599404,
+                  "fmax_mhz": 285.1497108961759
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.181257236572657,
+                  "hold_ws_ns": 1.7652072525543179,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.818742763427343,
+                  "fmax_mhz": 171.85843070522372
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.78040298654443,
+                  "hold_ws_ns": 0.8359441153681627,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.21959701345557,
+                  "fmax_mhz": 236.9894558203477
+                }
+              ],
+              "fmax_mhz": 171.3464566309005,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-fp_core_util25/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              55.865,
+              73.785
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 0"
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0015951180830597878,
+              "leakage_w": 9.748828411204613e-09,
+              "switching_w": 0.00027857086388394237,
+              "total_w": 0.0018736987840384245
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000284,
+              "ir_drop_worst_v": 0.000457,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.00045733,
+                  "voltage_worst_v": 4.99954,
+                  "nominal_v": 4.999997329999999,
+                  "drop_pct": 0.009146604884287009
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000485872,
+                  "voltage_worst_v": 0.000485872,
+                  "nominal_v": 0.000971744,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.453517014556912,
+                  "hold_ws_ns": 0.403736888682042,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.546482985443088,
+                  "fmax_mhz": 281.969490366824
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.081710196477284,
+                  "hold_ws_ns": 1.7248810645795658,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.918289803522716,
+                  "fmax_mhz": 168.96773108420186
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.722118940638483,
+                  "hold_ws_ns": 0.8099687261267349,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.277881059361517,
+                  "fmax_mhz": 233.7605899097279
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.474188035592419,
+                  "hold_ws_ns": 0.39438847748339967,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5258119644075814,
+                  "fmax_mhz": 283.62261234995367
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.133659753714778,
+                  "hold_ws_ns": 1.700099442679128,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.866340246285222,
+                  "fmax_mhz": 170.46403004551877
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.752569694529898,
+                  "hold_ws_ns": 0.7956294182020404,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.247430305470102,
+                  "fmax_mhz": 235.43647054364575
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.4648483951559195,
+                  "hold_ws_ns": 0.398613597856559,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5351516048440805,
+                  "fmax_mhz": 282.8732998691595
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.110194523291869,
+                  "hold_ws_ns": 1.7113018153590256,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.889805476708131,
+                  "fmax_mhz": 169.78489424729008
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.738811366330421,
+                  "hold_ws_ns": 0.8021198376987119,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.261188633669579,
+                  "fmax_mhz": 234.676304188589
+                }
+              ],
+              "fmax_mhz": 168.96773108420186,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_0/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 1"
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0015951180830597878,
+              "leakage_w": 9.748828411204613e-09,
+              "switching_w": 0.00027857086388394237,
+              "total_w": 0.0018736987840384245
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000284,
+              "ir_drop_worst_v": 0.000457,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.00045733,
+                  "voltage_worst_v": 4.99954,
+                  "nominal_v": 4.999997329999999,
+                  "drop_pct": 0.009146604884287009
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000485872,
+                  "voltage_worst_v": 0.000485872,
+                  "nominal_v": 0.000971744,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.453517014556912,
+                  "hold_ws_ns": 0.403736888682042,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.546482985443088,
+                  "fmax_mhz": 281.969490366824
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.081710196477284,
+                  "hold_ws_ns": 1.7248810645795658,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.918289803522716,
+                  "fmax_mhz": 168.96773108420186
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.722118940638483,
+                  "hold_ws_ns": 0.8099687261267349,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.277881059361517,
+                  "fmax_mhz": 233.7605899097279
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.474188035592419,
+                  "hold_ws_ns": 0.39438847748339967,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5258119644075814,
+                  "fmax_mhz": 283.62261234995367
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.133659753714778,
+                  "hold_ws_ns": 1.700099442679128,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.866340246285222,
+                  "fmax_mhz": 170.46403004551877
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.752569694529898,
+                  "hold_ws_ns": 0.7956294182020404,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.247430305470102,
+                  "fmax_mhz": 235.43647054364575
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.4648483951559195,
+                  "hold_ws_ns": 0.398613597856559,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5351516048440805,
+                  "fmax_mhz": 282.8732998691595
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.110194523291869,
+                  "hold_ws_ns": 1.7113018153590256,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.889805476708131,
+                  "fmax_mhz": 169.78489424729008
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.738811366330421,
+                  "hold_ws_ns": 0.8021198376987119,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.261188633669579,
+                  "fmax_mhz": 234.676304188589
+                }
+              ],
+              "fmax_mhz": 168.96773108420186,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_1/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        },
+        {
+          "tag": "c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2",
+          "overrides": {
+            "SYNTH_STRATEGY": "AREA 2"
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuC",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0015951180830597878,
+              "leakage_w": 9.748828411204613e-09,
+              "switching_w": 0.00027857086388394237,
+              "total_w": 0.0018736987840384245
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000284,
+              "ir_drop_worst_v": 0.000457,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.00045733,
+                  "voltage_worst_v": 4.99954,
+                  "nominal_v": 4.999997329999999,
+                  "drop_pct": 0.009146604884287009
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000485872,
+                  "voltage_worst_v": 0.000485872,
+                  "nominal_v": 0.000971744,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.453517014556912,
+                  "hold_ws_ns": 0.403736888682042,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.546482985443088,
+                  "fmax_mhz": 281.969490366824
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.081710196477284,
+                  "hold_ws_ns": 1.7248810645795658,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.918289803522716,
+                  "fmax_mhz": 168.96773108420186
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.722118940638483,
+                  "hold_ws_ns": 0.8099687261267349,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.277881059361517,
+                  "fmax_mhz": 233.7605899097279
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.474188035592419,
+                  "hold_ws_ns": 0.39438847748339967,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5258119644075814,
+                  "fmax_mhz": 283.62261234995367
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.133659753714778,
+                  "hold_ws_ns": 1.700099442679128,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.866340246285222,
+                  "fmax_mhz": 170.46403004551877
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.752569694529898,
+                  "hold_ws_ns": 0.7956294182020404,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.247430305470102,
+                  "fmax_mhz": 235.43647054364575
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.4648483951559195,
+                  "hold_ws_ns": 0.398613597856559,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5351516048440805,
+                  "fmax_mhz": 282.8732998691595
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.110194523291869,
+                  "hold_ws_ns": 1.7113018153590256,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.889805476708131,
+                  "fmax_mhz": 169.78489424729008
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.738811366330421,
+                  "hold_ws_ns": 0.8021198376987119,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.261188633669579,
+                  "fmax_mhz": 234.676304188589
+                }
+              ],
+              "fmax_mhz": 168.96773108420186,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t_5lm_thin-synth_strategyAREA_2/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "design": "counter4",
+          "seconds": null
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "recovered_from_run_dirs",
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2",
+    "host": {
+      "arch": "arm64",
+      "system": "Darwin",
+      "cpu_count": 10,
+      "docker_platform": "native"
+    }
+  },
+  "constraints": {
+    "design": {
+      "design_name": "counter4",
+      "settings": [
+        {
+          "key": "CLOCK_PORT",
+          "label": "clock port",
+          "value": "clk"
+        },
+        {
+          "key": "CLOCK_PERIOD",
+          "label": "clock period (ns)",
+          "value": 10
+        },
+        {
+          "key": "FP_CORE_UTIL",
+          "label": "target core utilization (%)",
+          "value": 35
+        }
+      ],
+      "fixed_macros": [],
+      "power_connections": [],
+      "targets": {
+        "max_core_utilization": 0.75
+      }
+    },
+    "pdk": {
+      "source": "/Users/kos2001/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+      "manufacturing_grid_um": 0.005,
+      "database_units_per_um": 1000.0,
+      "sites": [
+        {
+          "name": "unithd",
+          "width_um": 0.46,
+          "height_um": 2.72,
+          "class": "CORE"
+        },
+        {
+          "name": "unithddbl",
+          "width_um": 0.46,
+          "height_um": 5.44,
+          "class": "CORE"
+        }
+      ],
+      "routing_layers": [
+        {
+          "name": "li1",
+          "direction": "vertical",
+          "pitch_um": null,
+          "min_width_um": 0.17,
+          "min_spacing_um": 0.17,
+          "min_area_um2": 0.0561,
+          "thickness_um": 0.1,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 12.8
+        },
+        {
+          "name": "met1",
+          "direction": "horizontal",
+          "pitch_um": 0.34,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.083,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met2",
+          "direction": "vertical",
+          "pitch_um": 0.46,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.0676,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met3",
+          "direction": "horizontal",
+          "pitch_um": 0.68,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met4",
+          "direction": "vertical",
+          "pitch_um": 0.92,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met5",
+          "direction": "horizontal",
+          "pitch_um": 3.4,
+          "min_width_um": 1.6,
+          "min_spacing_um": 1.6,
+          "min_area_um2": 4.0,
+          "thickness_um": 1.2,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 0.0285
+        }
+      ]
+    }
+  },
+  "synthesis_exploration": null,
+  "layout_image": "layouts/counter4__2026-08-30__c-gf180mcu_7t_5lm_thin-clock_period12.png",
+  "layout_image_tag": "c-gf180mcu_7t_5lm_thin-clock_period12"
+}
