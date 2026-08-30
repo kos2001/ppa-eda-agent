@@ -556,5 +556,44 @@ class SameDayCaseTests(unittest.TestCase):
                 orchestrator.REFDB = real
 
 
+class CandidateTagTests(unittest.TestCase):
+    """A tag is sanitised where it is used, not only where it is built.
+
+    safe_tag was applied when sweeps were expanded and nowhere else, so
+    a caller that builds its own candidates could hand run_candidate a
+    tag with a space in it. SYNTH_STRATEGY values look like "DELAY 1".
+
+    That wasted a 171-run batch: every run failed, none with an error
+    naming the tag, and the failures then entered the dataset as 171
+    rows of "this design does not build" — dropping the completion
+    win-rate from 0.82 to 0.56 with a fact about a bug rather than about
+    any design. Second time an unsanitised tag has destroyed a batch
+    here; the first rendered a DIE_AREA list into one.
+    """
+
+    def test_a_space_never_reaches_a_run_tag(self):
+        import orchestrator
+        self.assertNotIn(" ", orchestrator.safe_tag("c-hd-synth_strategyDELAY 1"))
+
+    def test_run_candidate_sanitises_what_it_is_given(self):
+        # The fix has to live here. Sanitising only at expansion time is
+        # what allowed the batch through.
+        import inspect
+        import orchestrator
+        src = inspect.getsource(orchestrator.run_candidate)
+        self.assertIn("safe_tag(cand[", src)
+
+    def test_a_clean_tag_is_left_alone(self):
+        import orchestrator
+        for good in ("sweep-util25", "c-hd-clock_period8", "baseline"):
+            self.assertEqual(orchestrator.safe_tag(good), good)
+
+    def test_characters_that_broke_runs_before_are_removed(self):
+        import orchestrator
+        got = orchestrator.safe_tag("data-die-[0, 0, 64, 64]")
+        for ch in "[], ":
+            self.assertNotIn(ch, got)
+
+
 if __name__ == "__main__":
     unittest.main()
