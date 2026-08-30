@@ -135,6 +135,107 @@ class CarriedDiagnosisTests(unittest.TestCase):
         self.assertNotIn("oldest", carried)
 
 
+class AttemptHistoryTests(unittest.TestCase):
+    """What was already tried for this design, and how it turned out.
+
+    Carrying the previous verdict fixed half the problem: the reviewer
+    learns what was RECOMMENDED and still not what HAPPENED. It showed
+    immediately. Iteration 3 tried PL/GRT_RESIZER_HOLD_SLACK_MARGIN at
+    0.3/0.25 and hold got worse — 172 violations to 200 — and the very
+    next review called those values "verified in the earlier case" and
+    proposed them again.
+
+    A verdict is a proposal. The candidates are the record of what the
+    proposal did. Both have to travel, or the loop recommends things it
+    has already disproved.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.refdb = Path(self.tmp.name)
+        (self.refdb / "cases").mkdir()
+        self.addCleanup(self.tmp.cleanup)
+
+    def _write(self, filename, case):
+        (self.refdb / "cases" / filename).write_text(json.dumps(case))
+
+    def _case_with(self, tag, overrides, violations, date="2026-08-30"):
+        return _case("aes", date, iterations=[{"iteration": 1, "results": [
+            {"tag": tag, "overrides": overrides,
+             "verdict": {"passed": False, "violations": violations}}]}])
+
+    def test_an_earlier_attempt_is_listed_with_what_it_produced(self):
+        self._write("aes__2026-08-30__1.json", self._case_with(
+            "iter3-hold-margin", {"PL_RESIZER_HOLD_SLACK_MARGIN": 0.3},
+            ["200 hold timing violation(s)", "218 setup timing violation(s)"]))
+        self._write("aes__2026-08-30__2.json", _case("aes", "2026-08-30"))
+
+        history = request_review.attempt_history(
+            "aes", "aes__2026-08-30__2.json", refdb=self.refdb)
+        self.assertIn("iter3-hold-margin", history)
+        # The knob AND the number it produced. Either alone is what the
+        # reviewer already had.
+        self.assertIn("PL_RESIZER_HOLD_SLACK_MARGIN", history)
+        self.assertIn("200", history)
+
+    def test_the_case_being_reviewed_is_not_in_its_own_history(self):
+        # Its candidates are in the case file the reviewer is reading.
+        # Repeating them as "already tried" invites reading this run's
+        # own results as a previous run's.
+        self._write("aes__2026-08-30__1.json", self._case_with(
+            "only-run", {"CLOCK_PERIOD": 10}, ["1 setup timing violation(s)"]))
+        history = request_review.attempt_history(
+            "aes", "aes__2026-08-30__1.json", refdb=self.refdb)
+        self.assertIsNone(history)
+
+    def test_only_this_design_appears(self):
+        self._write("counter4__2026-08-29.json", _case(
+            "counter4", "2026-08-29", iterations=[{"iteration": 1, "results": [
+                {"tag": "c4", "overrides": {"FP_CORE_UTIL": 25},
+                 "verdict": {"passed": True}}]}]))
+        self._write("aes__2026-08-30.json", _case("aes", "2026-08-30"))
+        self.assertIsNone(request_review.attempt_history(
+            "aes", "aes__2026-08-30.json", refdb=self.refdb))
+
+    def test_a_passing_attempt_says_so(self):
+        # "Tried and passed" and "tried and failed" are opposite advice.
+        self._write("aes__2026-08-30__1.json", _case(
+            "aes", "2026-08-30", iterations=[{"iteration": 1, "results": [
+                {"tag": "good", "overrides": {"CLOCK_PERIOD": 20},
+                 "verdict": {"passed": True, "area_um2": 100.0}}]}]))
+        self._write("aes__2026-08-30__2.json", _case("aes", "2026-08-30"))
+        history = request_review.attempt_history(
+            "aes", "aes__2026-08-30__2.json", refdb=self.refdb)
+        self.assertIn("PASS", history)
+
+    def test_a_baseline_with_no_overrides_is_still_listed(self):
+        # "The defaults were tried" is information; dropping it makes the
+        # default look unexplored.
+        self._write("aes__2026-08-30__1.json", self._case_with(
+            "cand-baseline", {}, ["5 setup timing violation(s)"]))
+        self._write("aes__2026-08-30__2.json", _case("aes", "2026-08-30"))
+        history = request_review.attempt_history(
+            "aes", "aes__2026-08-30__2.json", refdb=self.refdb)
+        self.assertIn("cand-baseline", history)
+
+    def test_history_is_bounded(self):
+        # A design with many cases must not push the case's own data out
+        # of the reviewer's context with a wall of old attempts.
+        for i in range(30):
+            self._write(f"aes__2026-08-{i:02d}__x.json", self._case_with(
+                f"t{i}", {"CLOCK_PERIOD": i}, [f"{i} setup timing violation(s)"],
+                date=f"2026-08-{i:02d}"))
+        self._write("aes__2026-08-31.json", _case("aes", "2026-08-31"))
+        history = request_review.attempt_history(
+            "aes", "aes__2026-08-31.json", refdb=self.refdb)
+        # Rows, not lines: the block carries a fixed explanatory header,
+        # and the bound that matters is how many attempts it lists.
+        rows = [ln for ln in history.splitlines() if ln.startswith("- `")]
+        self.assertEqual(len(rows), request_review.MAX_HISTORY_ROWS)
+        # The most recent attempts are the ones kept.
+        self.assertIn("t29", history)
+
+
 class RealRequestTests(unittest.TestCase):
     """Against the real store, through the CLI the server calls."""
 

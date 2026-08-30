@@ -36,6 +36,7 @@ import case_retrieval
 import tool_retrieval
 import verify_diagnosis
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -131,6 +132,84 @@ def carried_diagnosis(design: str, case_filename: str,
     return None
 
 
+# Enough to show the shape of the search without burying the case the
+# reviewer is meant to read. aes reached four cases in one evening; a
+# design worked on for a week would otherwise arrive as a wall of old
+# attempts ahead of its own data.
+MAX_HISTORY_ROWS = 12
+
+
+def _outcome(result: dict) -> str:
+    """One line for what a candidate did, from its own recorded verdict."""
+    verdict = result.get("verdict") or {}
+    if verdict.get("passed"):
+        area = verdict.get("area_um2")
+        return "PASS" + (f", area {area:.0f}um2" if isinstance(area, (int, float)) else "")
+    text = "; ".join(verdict.get("violations") or [])
+    if not text:
+        return "FAIL (no verdict recorded)"
+    # The counts, not the sentences. A reviewer comparing attempts needs
+    # "200 hold" next to "172 hold"; the full violation prose for a
+    # dozen candidates would be longer than the case summary itself.
+    counts = re.findall(r"(\d+) (setup|hold|max-slew|max-fanout)", text)
+    if not counts:
+        return "FAIL"
+    return "FAIL: " + ", ".join(f"{n} {kind}" for n, kind in counts)
+
+
+def attempt_history(design: str, case_filename: str,
+                    refdb: Path | str = REFDB) -> str | None:
+    """What has already been tried for this design, and how it turned out.
+
+    Carrying the previous verdict was half the fix. A verdict is a
+    proposal; it says what someone thought was worth trying next and
+    says nothing about whether it worked. So the loop kept recommending
+    things it had already disproved — iteration 3 raised
+    PL/GRT_RESIZER_HOLD_SLACK_MARGIN to 0.3/0.25 and hold went from 172
+    violations to 200, and the next review proposed those same values,
+    calling them "verified in the earlier case".
+
+    The candidates are the record of what the proposals did, so they
+    travel too: each earlier candidate's overrides beside the counts its
+    verdict recorded. Newest first, bounded, and never including the
+    case being reviewed — its own candidates are in the file the
+    reviewer is already reading, and repeating them as history invites
+    reading this run's results as a previous run's.
+    """
+    cases_dir = Path(refdb) / "cases"
+    rows = []
+    earlier = sorted(p for p in cases_dir.glob(f"{design}__*.json")
+                     if p.name < case_filename)
+    for path in reversed(earlier):
+        try:
+            case = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        if case.get("design") != design:
+            continue
+        for iteration in case.get("iterations", []):
+            for result in iteration.get("results", []):
+                overrides = result.get("overrides")
+                rows.append(
+                    f"- `{result.get('tag')}` "
+                    f"{json.dumps(overrides or {}, sort_keys=True)} "
+                    f"-> {_outcome(result)}  ({path.name})")
+                if len(rows) >= MAX_HISTORY_ROWS:
+                    break
+            if len(rows) >= MAX_HISTORY_ROWS:
+                break
+        if len(rows) >= MAX_HISTORY_ROWS:
+            break
+
+    if not rows:
+        return None
+    return ("## Already tried for this design (newest first)\n\n"
+            "Each line is a real recorded run: the configuration, then what\n"
+            "its own verdict counted. A configuration listed here with a bad\n"
+            "outcome has been tested and failed — proposing it again needs a\n"
+            "reason this case supplies.\n\n" + "\n".join(rows))
+
+
 def cmd_request(args: argparse.Namespace) -> None:
     case_file, case = latest_case(args.design)
 
@@ -198,6 +277,11 @@ def cmd_request(args: argparse.Namespace) -> None:
         (case.get("diagnosis")
          or carried_diagnosis(args.design, case_file.name)
          or "(none recorded yet)"),
+        "",
+        # What the proposals above actually did. Without it a reviewer
+        # reads recommendations with no record of their outcomes, and
+        # re-proposes settings this design has already ruled out.
+        attempt_history(args.design, case_file.name) or "",
         "",
         "## What to do",
         "",
