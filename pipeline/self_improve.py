@@ -138,7 +138,21 @@ def budget_retry_command(design: str, case: dict) -> str | None:
             f"--max-iterations {suggested}")
 
 
-def scan_design(design: str) -> dict:
+def scan_design(design: str, write: bool = False) -> dict:
+    """One design's state. Writes a review request only if asked to.
+
+    `write` defaults off because every caller that is not the scheduled
+    run is a reader. GET /self-improve serves this to the dashboard on
+    every page load, and generating a review request as a side effect of
+    someone opening the console put three files into reference-db/
+    during one session of looking at the page — untracked work nobody
+    did, which someone then has to explain or delete. It also raced
+    itself when two tabs polled at once; request_review.py carries a
+    note about that.
+
+    Filing them on a schedule is still the point of this module (see its
+    docstring), so main() asks for it explicitly.
+    """
     case = latest_case(design)
     if case is None:
         return {"design": design, "status": "no reference-db case yet"}
@@ -158,15 +172,23 @@ def scan_design(design: str) -> dict:
     # wouldn't. Suggest the re-run instead of filing a false alarm.
     needs_review = is_open and not reviewed and not budget_exhausted
 
-    review_request_path = None
-    if needs_review:
+    # The request for this design's latest case, if one is already on
+    # disk. Reading it is a read — and without it the panel cannot tell
+    # "nobody has filed one" from "we did not look".
+    existing = REFDB / "reviews" / f"{design}__{case['date']}__request.md"
+    review_request_path = (
+        str(existing.relative_to(REPO_ROOT)) if existing.is_file() else None)
+
+    generated = None
+    if needs_review and write:
         result = subprocess.run(
             [sys.executable, str(REPO_ROOT / "pipeline" / "request_review.py"),
              "request", "--design", design],
             capture_output=True, text=True, cwd=REPO_ROOT / "pipeline",
         )
         if result.returncode == 0:
-            review_request_path = result.stdout.strip().rsplit(" ", 1)[-1]
+            generated = result.stdout.strip().rsplit(" ", 1)[-1]
+            review_request_path = generated
 
     if not is_open:
         status = "CLOSED"
@@ -194,7 +216,12 @@ def scan_design(design: str) -> dict:
         "ungrounded_diagnosis_references": ungrounded or None,
         "auto_repair_coverage": f"{covered}/{total}" if total else "n/a (nothing failed)",
         "patterns_matched": sorted(set(matched)),
-        "review_request_generated": review_request_path,
+        # Split deliberately: one says a request exists, the other says
+        # THIS scan created it. Reporting only the path made a read look
+        # like it had done work.
+        "review_request": review_request_path,
+        "review_request_generated": generated,
+        "needs_review": needs_review,
         "retry_with_more_budget": budget_retry_command(design, case) if budget_exhausted else None,
         # A budget-exhausted case tells us nothing about whether a new
         # propose_repairs() pattern is needed — the existing ones were
@@ -282,7 +309,7 @@ def ungrounded_reviews(designs: list[str]) -> list[dict]:
     return out
 
 
-def scan_all(designs: list[str] | None = None) -> dict:
+def scan_all(designs: list[str] | None = None, write: bool = False) -> dict:
     """The whole self-improvement scan as data, not printed text.
 
     main() has always produced this and thrown it away as terminal
@@ -292,7 +319,7 @@ def scan_all(designs: list[str] | None = None) -> dict:
     """
     if designs is None:
         designs = sorted(d.name for d in DESIGNS_DIR.iterdir() if d.is_dir())
-    reports = [scan_design(d) for d in designs]
+    reports = [scan_design(d, write=write) for d in designs]
     return {
         "designs": reports,
         "budget_retries": [
@@ -350,6 +377,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--design", help="scan only this design (default: all)")
+    # Filing review requests is what running this on a schedule is FOR
+    # (point 2 in the module docstring), so the CLI does it by default.
+    # It is off everywhere else — a dashboard poll is a read, and a read
+    # that writes leaves untracked files nobody chose to create.
+    ap.add_argument("--no-write", action="store_true",
+                    help="report only; do not file review requests")
     args = ap.parse_args()
 
     designs = [args.design] if args.design else sorted(
@@ -360,7 +393,7 @@ def main() -> None:
     promotion_candidates = []
     budget_retries = []
     for design in designs:
-        report = scan_design(design)
+        report = scan_design(design, write=not args.no_write)
         print(f"{design}:")
         for k, v in report.items():
             if k == "design" or v is None:
