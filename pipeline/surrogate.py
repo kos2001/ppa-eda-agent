@@ -73,16 +73,17 @@ MIN_SAMPLES = 8
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
-# moved 3 -> 4 -> 5 -> 2 -> 5 as technologies were added: down to 2 when
-# three designs each carried two sky130 libraries and near neighbours
-# were plentiful, back to 5 once a second foundry widened the spread
-# again (gf180mcu is 3.7-4.4x sky130's area on the same design).
-# completed stays at 1.
+# moved 3 -> 4 -> 5 -> 2 -> 5 as technologies were added; power_w sits
+# at 2 and completed at 1.
+#
+# A test asserts these against best_k() on the real store, which is why
+# none of them has gone stale while the data moved underneath.
 #
 # A test asserts this against best_k() on the real store, so the constant
 # cannot quietly go stale while the data moves under it.
 DEFAULT_K_BY_TARGET = {
     "area_um2": 5,
+    "power_w": 2,
     "completed": 1,
 }
 DEFAULT_K = 1
@@ -166,6 +167,11 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
                     "completed": verdict is not None,
                     "passed": bool(verdict and verdict.get("passed")),
                     "area_um2": (verdict or {}).get("area_um2"),
+                    # The metric CLOCK_PERIOD actually moves. Measured on
+                    # counter4: 10ns -> 4ns takes area up 6.9% and power
+                    # up 152%, so a dataset that records only area sees
+                    # almost nothing of what tightening a clock costs.
+                    "power_w": ((verdict or {}).get("power") or {}).get("total_w"),
                     "utilization": (verdict or {}).get("utilization"),
                     "stage": result.get("stage"),
                 }
@@ -196,7 +202,14 @@ MIN_SAMPLES_PER_SCL = 8
 # Numeric features a config can carry. Categorical values (SYNTH_STRATEGY)
 # are handled by exact match rather than by inventing an ordering — "AREA
 # 0" is not 0.0 on a scale with "DELAY 4".
-_NUMERIC = ("FP_CORE_UTIL", "PL_TARGET_DENSITY_PCT")
+# PL_TARGET_DENSITY_PCT has been in this list from the start and appears
+# in zero recorded rows — a feature nobody ever gave data to, the mirror
+# of the scl problem where data arrived for a feature that did not exist.
+#
+# CLOCK_PERIOD is the axis with the most leverage the dataset had never
+# seen: on counter4 it moves power 2.5x across 10ns -> 4ns and stops
+# completing at 3ns, so it carries information about both targets.
+_NUMERIC = ("FP_CORE_UTIL", "PL_TARGET_DENSITY_PCT", "CLOCK_PERIOD")
 
 
 def featurize(row: dict) -> dict:
@@ -210,6 +223,15 @@ def featurize(row: dict) -> dict:
         feats[key] = float(value) if isinstance(value, (int, float)) else None
     # An override wins; otherwise the design's own declared die area.
     # Both are known before the run, so neither leaks an outcome.
+    # Like DIE_AREA below: an override wins, otherwise the design's own
+    # declared value. Most designs fix the clock in config.json and
+    # never override it, so without the fallback every such row looks
+    # like a design with no clock at all.
+    if feats.get("CLOCK_PERIOD") is None:
+        declared_clk = (row.get("declared") or {}).get("CLOCK_PERIOD")
+        if isinstance(declared_clk, (int, float)):
+            feats["CLOCK_PERIOD"] = float(declared_clk)
+
     die = ov.get("DIE_AREA") or (row.get("declared") or {}).get("DIE_AREA")
     if isinstance(die, (list, tuple)) and len(die) == 4:
         try:
@@ -379,7 +401,7 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
 # It is also the more useful prediction. Knowing a config will crash
 # saves the whole 60-100 s run; knowing its area to within 3 um^2 saves
 # nothing, because you ran it to find out anyway.
-TARGETS = ("area_um2", "completed")
+TARGETS = ("area_um2", "power_w", "completed")
 
 
 def _is_boolean_target(field: str) -> bool:
