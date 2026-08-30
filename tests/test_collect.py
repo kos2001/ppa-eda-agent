@@ -136,16 +136,48 @@ class PreFloorplanAxisTests(unittest.TestCase):
     def test_every_other_design_is_still_swept(self):
         # A guard that swallows the healthy designs would be worse than
         # the redundant rows it exists to prevent.
+        #
+        # "Planned nothing" is not by itself the failure, which this test
+        # originally got wrong: a design whose whole cross-product is
+        # already recorded correctly plans nothing, and counter4 reached
+        # that state. The failure is planning nothing *before* dedup —
+        # that is the guard eating a design it should not.
         names = [p.name for p in collect.DESIGNS.iterdir()
                  if (p / "config.json").exists()
                  and p.name not in collect.SKIP
                  and p.name not in collect.NO_PRE_FLOORPLAN_AXIS]
         if not names:
             self.skipTest("no designs")
-        for name in names:
-            with self.subTest(design=name):
-                self.assertTrue(collect.plan([name]),
-                                f"{name} planned nothing")
+        real = collect.already_have
+        collect.already_have = lambda design: set()
+        try:
+            for name in names:
+                with self.subTest(design=name):
+                    self.assertTrue(collect.plan([name]),
+                                    f"{name} planned nothing before dedup")
+        finally:
+            collect.already_have = real
+
+    def test_a_fully_collected_design_plans_nothing(self):
+        # The other half of the distinction above: dedup, not the guard,
+        # is what empties a finished design. counter4 is in that state.
+        names = [p.name for p in collect.DESIGNS.iterdir()
+                 if (p / "config.json").exists()
+                 and p.name not in collect.SKIP
+                 and p.name not in collect.NO_PRE_FLOORPLAN_AXIS]
+        if not names:
+            self.skipTest("no designs")
+
+        class Everything:
+            def __contains__(self, item):
+                return True
+
+        real = collect.already_have
+        collect.already_have = lambda design: Everything()
+        try:
+            self.assertEqual(collect.plan([names[0]]), [])
+        finally:
+            collect.already_have = real
 
     def test_the_reason_travels_with_the_decision(self):
         # Kept as data, like SKIP, so nobody has to guess later whether
