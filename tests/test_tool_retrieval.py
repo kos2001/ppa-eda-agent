@@ -331,6 +331,40 @@ class TransferabilityTests(unittest.TestCase):
                     "pnr_excluded_cell_file_invalid", "pdk_load_failure"):
             self.assertNotIn(key, keys)
 
+    def test_a_total_batch_failure_is_its_own_signature(self):
+        # A batch where every run fails and no error mentions the sweep
+        # is the harness, not the design. That has happened twice here.
+        case = {"design": "x", "iterations": [{"results": [
+            {"tag": f"t{i}", "error": "exited 2"} for i in range(6)]}]}
+        self.assertIn("every_candidate_failed", tool_retrieval.case_keys(case))
+        ids = {h["id"] for h in tool_retrieval.retrieve(case, exclude_design="x")}
+        self.assertIn("a-whole-batch-failed-identically", ids)
+
+    def test_a_batch_with_any_success_is_not_that_signature(self):
+        # The distinction is the whole value. A design that mostly fails
+        # is a result; a batch that entirely fails is a bug.
+        case = {"design": "y", "iterations": [{"results": [
+            {"tag": "a", "verdict": {"area_um2": 1.0}},
+            {"tag": "b", "error": "x"},
+            {"tag": "c", "error": "x"},
+            {"tag": "d", "error": "x"}]}]}
+        self.assertNotIn("every_candidate_failed", tool_retrieval.case_keys(case))
+
+    def test_a_tiny_batch_is_not_flagged(self):
+        # Two failures is a coincidence, not a pattern.
+        case = {"design": "z", "iterations": [{"results": [
+            {"tag": "a", "error": "x"}, {"tag": "b", "error": "x"}]}]}
+        self.assertNotIn("every_candidate_failed", tool_retrieval.case_keys(case))
+
+    def test_the_contamination_warning_is_recorded(self):
+        # Failures from a harness bug must not be left in reference-db:
+        # they read as "this design does not build" and moved the
+        # completion win-rate from 0.82 to 0.56.
+        entry = next(e for e in tool_retrieval.MEASUREMENTS
+                     if e["id"] == "a-whole-batch-failed-identically")
+        self.assertIn("deleted from reference-db", entry["trap"])
+        self.assertIn("0.56", entry["evidence"])
+
     def test_the_suppression_trap_is_recorded(self):
         # The most expensive kind of guidance: a knob that looks like the
         # fix and is not. MAGIC_CAPTURE_ERRORS=false takes sram_wrapper
