@@ -83,6 +83,27 @@ MEASUREMENTS: list[dict] = [
                     "found delay cells inserted as slew repair.",
     },
     {
+        "id": "ask-sta-directly",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090", "override_changed_nothing",
+                 "max_cap_violation"],
+        "tool": "ppa_sta_query",
+        "cli": "python3 -c \"import sys;sys.path.insert(0,'pipeline');"
+               "import sta_path;print(sta_path.query(D,R,'report_power')['output'])\"",
+        "answers": "Anything OpenSTA can report about a completed run that no "
+                   "tool here wraps — power by group, check types, a pin's "
+                   "properties, the units the numbers are in.",
+        "trap": "Reach for it when a wrapped tool nearly answers the question "
+                "but not quite. Five config sweeps were run on sram_wrapper "
+                "before anyone asked STA directly, and the direct question "
+                "settled it in one command. Commands that modify are refused, "
+                "so this cannot repair anything — only ask.",
+        "evidence": "sram_wrapper: `report_checks -to u_sram/addr0[3]` showed "
+                    "repair_design fixing a slew violation with delay cells. "
+                    "That query existed in no tool until it was added as one, "
+                    "which is the argument for a general way to ask.",
+    },
+    {
         "id": "liberty-ceiling",
         "design": "sram_wrapper",
         "when": ["RSZ-0090"],
