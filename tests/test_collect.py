@@ -120,5 +120,45 @@ class EstimateTests(unittest.TestCase):
             self.assertGreater(seconds, 0, design)
 
 
+class PreFloorplanAxisTests(unittest.TestCase):
+    """A design that cannot floorplan learns nothing from synthesis.
+
+    Every axis this collector varies — SYNTH_STRATEGY, CLOCK_PERIOD, and
+    FP_CORE_UTIL where it applies — acts before the floorplan. A batch
+    proved the point by sweeping nine strategies across four
+    technologies on counter4_tinydie: all 36 failed, none at synthesis.
+    """
+
+    def test_a_design_that_cannot_floorplan_is_not_swept(self):
+        planned = collect.plan(["counter4_tinydie"])
+        self.assertEqual(planned, [])
+
+    def test_every_other_design_is_still_swept(self):
+        # A guard that swallows the healthy designs would be worse than
+        # the redundant rows it exists to prevent.
+        names = [p.name for p in collect.DESIGNS.iterdir()
+                 if (p / "config.json").exists()
+                 and p.name not in collect.SKIP
+                 and p.name not in collect.NO_PRE_FLOORPLAN_AXIS]
+        if not names:
+            self.skipTest("no designs")
+        for name in names:
+            with self.subTest(design=name):
+                self.assertTrue(collect.plan([name]),
+                                f"{name} planned nothing")
+
+    def test_the_reason_travels_with_the_decision(self):
+        # Kept as data, like SKIP, so nobody has to guess later whether
+        # the design is broken or merely uninformative here. It is not
+        # broken: it has 44 recorded rows from the axis that does move it.
+        reason = collect.NO_PRE_FLOORPLAN_AXIS["counter4_tinydie"]
+        self.assertIn("DIE_AREA", reason)
+
+    def test_it_is_kept_apart_from_designs_that_produce_nothing(self):
+        # SKIP means "no run completes". This means "runs complete, but
+        # not along these axes". Merging them would lose that.
+        self.assertNotIn("counter4_tinydie", collect.SKIP)
+
+
 if __name__ == "__main__":
     sys.exit(unittest.main())
