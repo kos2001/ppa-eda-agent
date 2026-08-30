@@ -137,6 +137,37 @@ const dict = {
   se_skipped: { en: "not run", ko: "미실행" },
   se_failed: { en: "Synthesis exploration failed", ko: "합성 탐색 실패" },
   tab_lineage: { en: "Data & RAG", ko: "데이터 & RAG" },
+  tab_progress: { en: "Progress", ko: "개선 추이" },
+  pg_intro: {
+    en: "Whether the attempts are making this better, over time. Two answers, because the store gives two — and neither is the obvious chart. See the warning below for why.",
+    ko: "시도를 거듭하며 실제로 나아지고 있는지를 시간축으로 봅니다. 답이 둘인 이유는 데이터가 둘을 말하기 때문이고, 어느 쪽도 가장 뻔한 그래프는 아닙니다 — 이유는 아래 경고를 보세요.",
+  },
+  pg_warn_title: { en: "the chart that is not here", ko: "여기 없는 그래프" },
+  pg_warn_body: {
+    en: "Plotting recorded area against time shows counter4 going 290um2 to 1029um2. That is not a regression: the later runs are on gf180mcu, a 5-metal process with larger cells than sky130's 6-metal. Nothing got worse — the axis changed underneath the line. Every series below holds one technology for that reason.",
+    ko: "기록된 면적을 그대로 시간축에 그리면 counter4가 290um2에서 1029um2로 나빠진 것처럼 보입니다. 하지만 이는 퇴보가 아닙니다 — 후반 실행은 sky130(6층 금속)이 아니라 gf180mcu(5층 금속) 공정이고, 이 공정의 셀이 원래 더 큽니다. 나빠진 게 아니라 축이 바뀐 것입니다. 아래 모든 계열이 기술을 하나로 고정하는 이유입니다.",
+  },
+  pg_coverage_title: { en: "what has been measured", ko: "측정한 범위" },
+  pg_coverage_note: {
+    en: "Distinct configurations, not recorded rows — the store holds {r} rows and {n} configurations, and the difference is re-runs of the same thing. This only ever rises, because a measurement once taken is not untaken.",
+    ko: "기록된 행이 아니라 서로 다른 설정의 수입니다 — 저장소에는 {r}행이 있고 설정은 {n}개이며, 차이는 같은 것의 재실행입니다. 이 값은 오르기만 합니다. 한 번 측정한 것은 되돌려지지 않기 때문입니다.",
+  },
+  pg_samples: { en: "configurations", ko: "설정" },
+  pg_designs: { en: "designs", ko: "설계" },
+  pg_techs: { en: "technologies", ko: "기술" },
+  pg_frontier_title: { en: "best result found, per technology", ko: "기술별 최고 기록" },
+  pg_frontier_note: {
+    en: "Best area found so far, so it never rises. Only candidates that passed signoff set a record — a failed one often has a smaller area, and being too small is frequently why it failed.",
+    ko: "지금까지 찾은 최고 기록이라 값이 올라가지 않습니다. 사인오프를 통과한 후보만 기록을 세웁니다 — 실패한 후보가 면적은 더 작은 경우가 많은데, 너무 작은 것이 실패 원인인 경우가 잦기 때문입니다.",
+  },
+  pg_attempts: { en: "{n} comparable runs", ko: "비교 가능한 실행 {n}회" },
+  pg_records: { en: "{n} record(s)", ko: "기록 경신 {n}회" },
+  pg_no_gain: { en: "no improvement yet", ko: "아직 개선 없음" },
+  pg_frontier_empty: {
+    en: "No technology has a passing candidate yet, so there is no record to improve on.",
+    ko: "아직 어떤 기술에서도 통과한 후보가 없어 경신할 기록 자체가 없습니다.",
+  },
+  pg_loading: { en: "Loading the record…", ko: "기록을 읽는 중…" },
   tab_manual: { en: "Manual", ko: "사용 안내" },
   man_title: { en: "How to use this console", ko: "이 콘솔 사용법" },
   man_lede: {

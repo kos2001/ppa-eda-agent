@@ -1,0 +1,141 @@
+.pg__intro {
+  max-width: 68ch;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+/* The correction sits above the charts rather than under them. A reader
+   who scrolls past it has already formed the wrong reading of the
+   numbers, and no caption below undoes that. */
+.pg__warn {
+  border: 1px solid var(--warn);
+  border-left-width: 3px;
+  border-radius: 4px;
+  padding: 0.6rem 0.75rem;
+  margin: 0.9rem 0 1.1rem;
+  max-width: 68ch;
+}
+.pg__warn-title {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-bottom: 0.3rem;
+}
+.pg__warn p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.pg__note {
+  margin: 0.7rem 0 0;
+  max-width: 68ch;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* from — sparkline — to. The endpoints are the reading; the line only
+   says how it got between them. */
+.pg__cov-row {
+  display: grid;
+  grid-template-columns: 8rem 4rem 1fr 5rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+}
+.pg__cov-label {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+.pg__cov-from,
+.pg__cov-to {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  text-align: right;
+}
+.pg__cov-from { color: var(--text-dim); }
+
+.pg__spark {
+  width: 100%;
+  height: 1.6rem;
+  overflow: visible;
+}
+.pg__spark polyline {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+}
+
+.pg__frontiers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.pg__frontier {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem 0.65rem;
+}
+.pg__frontier-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.pg__frontier-name {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.pg__frontier-tech {
+  margin-left: 0.45rem;
+  font-weight: 400;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+.pg__gain {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--good);
+}
+/* A series that found nothing says so in the muted colour rather than
+   showing "0.00%" in the colour of a win. */
+.pg__gain--none {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-style: italic;
+}
+
+.pg__frontier-body {
+  display: grid;
+  grid-template-columns: 5rem 1fr 5rem;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+.pg__area {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-align: right;
+}
+.pg__area--best { color: var(--text); }
+.pg__frontier-meta {
+  grid-column: 1 / -1;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
