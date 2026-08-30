@@ -91,7 +91,70 @@
   color: var(--text-dim);
 }
 
+/* The icon rail. Width and the label's presence are the only things
+   that change, so the same nav markup serves both states — a second set
+   of collapsed-only buttons would be two things to keep in step. */
+.app__sidebar--collapsed {
+  width: 3.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  align-items: center;
+}
+.app__sidebar--collapsed .app__nav-text,
+.app__sidebar--collapsed .app__nav-label,
+.app__sidebar--collapsed .app__brand > div:last-child {
+  display: none;
+}
+.app__sidebar--collapsed .app__nav-item {
+  justify-content: center;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+}
+.app__sidebar--collapsed .app__brand { justify-content: center; }
+.app__sidebar--collapsed .app__mark { width: 2.25rem; }
+.app__sidebar--collapsed .app__sidebar-footer,
+.app__sidebar--collapsed .app__sidebar-controls {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.app__collapse {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: -0.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.app__collapse:hover { color: var(--text); border-color: var(--text-dim); }
+.app__collapse:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.app__sidebar--collapsed .app__collapse { align-self: center; }
+
+/* Fixed width so the labels line up in a column, and so nothing shifts
+   sideways when the sidebar collapses — only the text goes. */
+.app__nav-icon {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+}
+.app__nav-text { min-width: 0; }
+
 .app__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   text-align: left;
   padding: 0.55rem 0.6rem;
   border: none;
