@@ -74,6 +74,26 @@ TECHNOLOGIES = [
      "scl": "gf180mcu_fd_sc_mcu9t5v0",
      "extra": {"PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells"},
      "needs": "pnr/gf180_9t_exclude.cells", "die_scale": 4.0},
+
+    # The metal stack, which nothing in the corpus has ever varied. All
+    # four gf180mcu variants were already installed and only D was used.
+    # Read from their tech-LEFs rather than assumed: A ships Metal1-3,
+    # B adds Metal4, C and D both reach Metal5 and differ only in how
+    # thick the top metal is (9K vs 11K angstroms, so different sheet
+    # resistance and capacitance on one layer nothing small routes on).
+    #
+    # The cells are identical across all four — same library, same
+    # netlist — so any difference in the result is the stack and nothing
+    # else. That makes A and B the interesting ones: routing layers are
+    # the resource place-and-route runs out of, and `completed` is the
+    # weakest target we have at 0.82. A design that fits on five layers
+    # and not on three is a fact this corpus currently cannot express.
+    {"name": "gf180mcu_7t_3lm", "pdk": "gf180mcuA",
+     "scl": "gf180mcu_fd_sc_mcu7t5v0", "extra": {}, "die_scale": 4.0},
+    {"name": "gf180mcu_7t_4lm", "pdk": "gf180mcuB",
+     "scl": "gf180mcu_fd_sc_mcu7t5v0", "extra": {}, "die_scale": 4.0},
+    {"name": "gf180mcu_7t_5lm_thin", "pdk": "gf180mcuC",
+     "scl": "gf180mcu_fd_sc_mcu7t5v0", "extra": {}, "die_scale": 4.0},
 ]
 
 CLOCK_PERIODS = (4, 6, 8, 12, 20)
