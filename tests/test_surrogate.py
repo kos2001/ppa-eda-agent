@@ -23,6 +23,7 @@ from surrogate import (
     scl_is_informative,  # noqa: E402
     MIN_SAMPLES, MIN_WIN_RATE, TARGETS, best_k, dataset_report, default_k,
     distance, evaluate, featurize, load_dataset, predict,
+    ROUTING_LAYERS, DEFAULT_PDK, _ranges,
 )
 
 
@@ -488,6 +489,67 @@ class TechnologyAxisTests(unittest.TestCase):
         b = {"design": "d", "overrides": {}, "scl": "sky130_fd_sc_hs"}
         self.assertEqual(distance(a, b, {}, use_scl=True), 1.0)
         self.assertIsNone(distance(a, b, {}, use_scl=False))
+
+
+class MetalStackTests(unittest.TestCase):
+    """The metal stack, which the corpus was blind to.
+
+    All four gf180mcu variants were installed and only D was ever run.
+    They ship genuinely different tech-LEFs — A has Metal1-3, B adds
+    Metal4, C and D reach Metal5 — and routing layers are the resource
+    place-and-route runs out of first. `pdk` was already on every row and
+    in the dedup key, but was not a feature, which is the same mistake
+    `scl` made before it.
+    """
+
+    def row(self, pdk, **kw):
+        return {"design": "d", "pdk": pdk, "overrides": {}, **kw}
+
+    def test_the_count_comes_from_what_the_pdk_ships(self):
+        # Counted from each installed tech-LEF, not guessed from the
+        # variant letter.
+        self.assertEqual(featurize(self.row("gf180mcuA"))["routing_layers"], 3)
+        self.assertEqual(featurize(self.row("gf180mcuB"))["routing_layers"], 4)
+        self.assertEqual(featurize(self.row("gf180mcuC"))["routing_layers"], 5)
+
+    def test_an_unknown_pdk_is_missing_not_zero(self):
+        # A stack nobody has measured is unknown. Calling it zero would
+        # put it at one end of the axis, further from three layers than
+        # six is — the same failure the numeric features avoid.
+        self.assertIsNone(featurize(self.row("some_new_pdk"))["routing_layers"])
+
+    def test_a_row_from_before_the_axis_existed_uses_the_default(self):
+        self.assertEqual(featurize({"overrides": {}})["routing_layers"],
+                         ROUTING_LAYERS[DEFAULT_PDK])
+
+    def test_the_stacks_are_ordered_not_merely_different(self):
+        # The whole reason for a number rather than a category: three
+        # layers must sit nearer four than five, so a run that did not
+        # fit on three can inform one being asked to fit on four.
+        rows = [self.row("gf180mcuA"), self.row("gf180mcuC")]
+        ranges = _ranges(rows)
+        near = distance(self.row("gf180mcuA"), self.row("gf180mcuB"), ranges)
+        far = distance(self.row("gf180mcuA"), self.row("gf180mcuC"), ranges)
+        self.assertLess(near, far)
+
+    def test_it_needs_no_gate_because_it_gates_itself(self):
+        # While every row shares one stack the feature must contribute
+        # nothing — _ranges drops a numeric feature whose values are all
+        # equal, so it switches itself on when a second stack arrives.
+        one = [self.row("gf180mcuD"), self.row("gf180mcuD")]
+        self.assertNotIn("routing_layers", _ranges(one))
+        two = [self.row("gf180mcuD"), self.row("gf180mcuA")]
+        self.assertIn("routing_layers", _ranges(two))
+
+    def test_two_stacks_are_still_separable_when_layer_counts_tie(self):
+        # C and D ship the same five layers and differ only in top-metal
+        # thickness, so this feature cannot tell them apart. That is
+        # correct — but it must not make them indistinguishable rows, or
+        # the dedup key would be the only thing keeping them separate.
+        c, d = self.row("gf180mcuC"), self.row("gf180mcuD")
+        self.assertEqual(featurize(c)["routing_layers"],
+                         featurize(d)["routing_layers"])
+        self.assertNotEqual(c["pdk"], d["pdk"])
 
 
 class WinRateIntervalTests(unittest.TestCase):
