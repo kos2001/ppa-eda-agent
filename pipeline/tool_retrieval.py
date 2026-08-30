@@ -210,6 +210,24 @@ MEASUREMENTS: list[dict] = [
                     "instance across three unrelated designs.",
     },
     {
+        "id": "hs-needs-a-bigger-die",
+        "design": "counter4_tinydie",
+        "when": ["scl_sky130_fd_sc_hs", "PDN-0185", "pdn-strap-width"],
+        "tool": "re-sweep DIE_AREA rather than reusing the hd floorplan",
+        "cli": "python3 pipeline/run_stage.py --design D --tag T "
+               "--override DIE_AREA=0,0,W,H",
+        "answers": "Whether a floorplan that worked for one library is "
+                   "big enough for another.",
+        "trap": "A die size carried over from sky130_fd_sc_hd will fail on "
+                "sky130_fd_sc_hs without saying why the library is the "
+                "reason. Sweep the size on the new library before concluding "
+                "anything about the design.",
+        "evidence": "counter4_tinydie: the smallest die that completes is "
+                    "48um on hd and 56um on hs, and at every size that "
+                    "completes on both, hs is about 50% larger (56um: 310.3 "
+                    "vs 468.3; 96um: 392.9 vs 532.3).",
+    },
+    {
         "id": "library-comparison",
         "design": "counter4_tinydie",
         "when": ["technology_question"],
