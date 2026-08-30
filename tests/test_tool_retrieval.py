@@ -237,6 +237,32 @@ class TransferabilityTests(unittest.TestCase):
         self.assertTrue(hits)
         self.assertNotIn("some_new_design", {h["design"] for h in hits})
 
+    def test_a_new_library_retrieves_both_kinds_of_failure(self):
+        # Two different things go wrong on sky130_fd_sc_hs and they need
+        # different answers: the cells carry a DRC rule the shipped
+        # exclusion list misses, and they are ~50% larger so a die size
+        # carried over from hd is too small. A generic entry-shape test
+        # does not notice either going missing.
+        case = {"design": "brand_new", "iterations": [{"results": [
+            {"tag": "t", "scl": "sky130_fd_sc_hs",
+             "error": "[PDN-0185] strap does not fit"},
+        ]}]}
+        ids = {h["id"] for h in tool_retrieval.retrieve(case,
+                                                        exclude_design="brand_new")}
+        self.assertIn("hs-needs-a-bigger-die", ids)
+        self.assertIn("hs-library-magic-drc", ids)
+
+    def test_guidance_comes_from_more_than_one_source_design(self):
+        # The measure of whether retrieval is worth anything: a design
+        # that has produced nothing still gets help, from somewhere else.
+        case = {"design": "brand_new", "iterations": [{"results": [
+            {"tag": "t", "scl": "sky130_fd_sc_hs",
+             "error": "[PDN-0185] strap does not fit"},
+        ]}]}
+        sources = {h["design"] for h in tool_retrieval.retrieve(
+            case, exclude_design="brand_new")}
+        self.assertGreater(len(sources), 1, sources)
+
     def test_the_index_is_no_longer_single_source(self):
         # With one source design, leave-one-out empties the index for
         # that design and the layer cannot help anyone.
