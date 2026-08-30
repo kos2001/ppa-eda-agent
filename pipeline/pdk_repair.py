@@ -80,6 +80,61 @@ def missing(pdk_family: str) -> list[Path]:
     return gaps
 
 
+# Parasitic-extraction rulesets, which OpenLane resolves as
+# RCX_RULESETS and validates during PDK load exactly like the file above.
+# Checked per PDK *variant* rather than per library, because the rules
+# describe the metal stack rather than the cells.
+RCX_CORNERS = ("min", "nom", "max")
+
+
+def variants(pdk_family: str) -> list[Path]:
+    root = PDK_ROOT / pdk_family / "versions"
+    if not root.is_dir():
+        return []
+    return [variant for version in sorted(root.iterdir())
+            for variant in sorted(p for p in version.iterdir() if p.is_dir())]
+
+
+def missing_rcx(pdk_family: str) -> list[Path]:
+    """Extraction rulesets a variant needs and does not ship.
+
+    Reported and never repaired, which is the whole point of it being a
+    separate function. drc_exclude.cells can be created because an empty
+    exclusion list is a truthful statement — nothing is excluded. An
+    extraction ruleset has no truthful empty form: a stub would make the
+    flow run and return parasitic values that are wrong, and nothing
+    downstream could tell them from measured ones. A PDK variant missing
+    these is unusable, and saying so is the only honest repair.
+
+    Found by adding gf180mcuA and gf180mcuB as technologies. Both ship
+    none of these; C and D ship all six. 34 runs failed identically
+    before anyone read the message, which names a variable nobody set.
+    """
+    gaps = []
+    for variant in variants(pdk_family):
+        tech = variant / "libs.tech" / "openlane"
+        if not tech.is_dir():
+            continue
+        # Matched by prefix, not by exact name. The two families ship
+        # different shapes: gf180mcuD has a bare
+        # `rules.openrcx.gf180mcuD.nom` alongside a `.nom.magic`, while
+        # sky130A has no bare file at all and ships `.nom.calibre`,
+        # `.nom.magic` and `.nom.spef_extractor`. An exact-name check
+        # reported sky130A — the default PDK, behind two hundred
+        # completed runs — as unusable. A check that condemns something
+        # demonstrably working is worse than no check, so this asks the
+        # question the failure actually poses: is there any ruleset for
+        # this corner, in any of the forms a PDK uses?
+        #
+        # A variant that ships none at all is the case seen here. A
+        # partial set would be just as fatal, so each corner is checked
+        # rather than the directory as a whole.
+        for corner in RCX_CORNERS:
+            if not list(tech.glob(f"rules.openrcx.{variant.name}.{corner}*")):
+                gaps.append(tech / f"rules.openrcx.{variant.name}.{corner}")
+    return gaps
+
+
 def repair(pdk_family: str, apply: bool = False) -> dict:
     """Report the gaps, and optionally fill them.
 
@@ -97,6 +152,9 @@ def repair(pdk_family: str, apply: bool = False) -> dict:
         "libraries_checked": len(scl_dirs(pdk_family)),
         "missing": [_short(p) for p in gaps],
         "written": [_short(p) for p in written],
+        # Never written, whatever `apply` says. See missing_rcx.
+        "unusable_variants": sorted({_short(p.parent.parent.parent)
+                                     for p in missing_rcx(pdk_family)}),
     }
 
 

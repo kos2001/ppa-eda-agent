@@ -106,26 +106,42 @@ TECHNOLOGIES = [
      "extra": {"PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells"},
      "needs": "pnr/gf180_9t_exclude.cells", "die_scale": 4.0},
 
-    # The metal stack, which nothing in the corpus has ever varied. All
-    # four gf180mcu variants were already installed and only D was used.
-    # Read from their tech-LEFs rather than assumed: A ships Metal1-3,
-    # B adds Metal4, C and D both reach Metal5 and differ only in how
-    # thick the top metal is (9K vs 11K angstroms, so different sheet
-    # resistance and capacitance on one layer nothing small routes on).
-    #
-    # The cells are identical across all four — same library, same
-    # netlist — so any difference in the result is the stack and nothing
-    # else. That makes A and B the interesting ones: routing layers are
-    # the resource place-and-route runs out of, and `completed` is the
-    # weakest target we have at 0.82. A design that fits on five layers
-    # and not on three is a fact this corpus currently cannot express.
-    {"name": "gf180mcu_7t_3lm", "pdk": "gf180mcuA",
-     "scl": "gf180mcu_fd_sc_mcu7t5v0", "extra": {}, "die_scale": 4.0},
-    {"name": "gf180mcu_7t_4lm", "pdk": "gf180mcuB",
-     "scl": "gf180mcu_fd_sc_mcu7t5v0", "extra": {}, "die_scale": 4.0},
-    {"name": "gf180mcu_7t_5lm_thin", "pdk": "gf180mcuC",
-     "scl": "gf180mcu_fd_sc_mcu7t5v0", "extra": {}, "die_scale": 4.0},
 ]
+
+# The metal stack was tried here as a fourth axis and is deliberately not
+# one. All four gf180mcu variants are installed and only D is used, which
+# looked like three free technologies: read from their tech-LEFs, A ships
+# Metal1-3, B adds Metal4, and C and D both reach Metal5 differing only
+# in top-metal thickness. Same cells, same netlist, so any difference in
+# the result would have been the stack and nothing else.
+#
+# Two measurements closed it, in the order they were made.
+#
+# A and B cannot run at all. Neither ships any OpenRCX ruleset —
+# `rules.openrcx.<variant>.{min,nom,max}` exist for C and D and do not
+# exist for A and B — and OpenLane validates PDK paths while loading the
+# PDK, so the flow quits before it creates a run directory. 34 runs of a
+# batch were spent discovering this. Unlike the drc_exclude.cells gap
+# pdk_repair fills, this one must not be stubbed: an empty exclusion list
+# is a truthful statement that nothing is excluded, while an empty or
+# invented extraction ruleset would produce parasitic values that are
+# wrong and indistinguishable from measured ones.
+#
+# C runs, and is D. Measured on counter4 at its declared config: area
+# 1029.55 against D's 1029.55 — identical to the last digit — and power
+# 0.0018737 against 0.0018649, 0.47% apart. The layer they differ on is
+# the top one, which a 421-cell design never routes on. Collecting the
+# cross-product there would add ~70 rows that a k-NN can predict
+# perfectly from their D twins, which is the tinydie lesson again in a
+# different costume: an easy row raises the score without adding a fact.
+#
+# What survived is the feature, not the axis. routing_layers stays in
+# surrogate.py because sky130 and gf180 genuinely differ there (6 against
+# 5), and it earns its place by measurement: removing it takes area from
+# 0.992 to 0.929 and power from 0.971 to 0.895, with intervals that do
+# not overlap. SCL already separates the four libraries, but it makes all
+# four equidistant; routing_layers is what makes two gf180 libraries
+# nearer each other than either is to sky130.
 
 CLOCK_PERIODS = (4, 6, 8, 12, 20)
 UTILISATIONS = (25, 45, 65)
