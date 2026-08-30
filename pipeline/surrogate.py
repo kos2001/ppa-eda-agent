@@ -73,16 +73,16 @@ MIN_SAMPLES = 8
 # scan, and a test fails when they drift apart rather than letting a
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
-# moved 3 -> 4 -> 5 -> 2 as the technology axis filled in. The drop back
-# to 2 is not a regression: with three designs carrying both libraries a
-# row now has close same-technology neighbours, and averaging five of
-# them reaches across the 50-70% gap that separates hd from hs. Fewer,
-# nearer neighbours beat more, further ones. completed stays at 1.
+# moved 3 -> 4 -> 5 -> 2 -> 5 as technologies were added: down to 2 when
+# three designs each carried two sky130 libraries and near neighbours
+# were plentiful, back to 5 once a second foundry widened the spread
+# again (gf180mcu is 3.7-4.4x sky130's area on the same design).
+# completed stays at 1.
 #
 # A test asserts this against best_k() on the real store, so the constant
 # cannot quietly go stale while the data moves under it.
 DEFAULT_K_BY_TARGET = {
-    "area_um2": 2,
+    "area_um2": 5,
     "completed": 1,
 }
 DEFAULT_K = 1
@@ -124,7 +124,8 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
                 # earlier — verified: recording counter4 at hd (290.3
                 # um2) and hs (444.4 um2) left one sample.
                 key = (design, json.dumps(overrides, sort_keys=True),
-                       result.get("scl") or DEFAULT_SCL)
+                       result.get("scl") or DEFAULT_SCL,
+                       result.get("pdk") or DEFAULT_PDK)
                 verdict = result.get("verdict")
                 # Later cases win: a re-run reflects the current
                 # toolchain, and mixing outcomes from different OpenLane
@@ -153,6 +154,15 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
                     # unable to see the difference — the feature existed
                     # and was always None.
                     "scl": result.get("scl"),
+                    # Carried for the same reason as scl, and because the
+                    # same omission happened twice: the field was
+                    # recorded on the result and never copied here, so
+                    # every gf180mcu row reported as sky130A. The SCL
+                    # already separates the two families for distance
+                    # purposes (a gf180mcu_fd_sc_* name exists in no
+                    # other PDK), so this is identity and reporting, not
+                    # a second feature.
+                    "pdk": result.get("pdk"),
                     "completed": verdict is not None,
                     "passed": bool(verdict and verdict.get("passed")),
                     "area_um2": (verdict or {}).get("area_um2"),
@@ -166,6 +176,9 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
 # axis. Stated so an old row and a new explicit one compare equal
 # instead of looking like different technologies.
 DEFAULT_SCL = "sky130_fd_sc_hd"
+
+# What every run used before the PDK became a candidate axis.
+DEFAULT_PDK = "sky130A"
 
 # How many rows a technology needs before it is allowed to separate
 # neighbourhoods. Measured, not chosen: with 42 hd rows and 3 hs rows,

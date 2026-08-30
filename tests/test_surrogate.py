@@ -366,6 +366,38 @@ class TechnologyAxisTests(unittest.TestCase):
             ])
             self.assertEqual(load_dataset(root)[0]["scl"], "sky130_fd_sc_hs")
 
+    def test_the_pdk_reaches_the_row_too(self):
+        # The same omission as scl, made twice: the field was recorded on
+        # the result and never copied onto the row, so every gf180mcu run
+        # reported as sky130A. Nothing separates the families in the
+        # distance function — the SCL name already does that — but a row
+        # that misreports its own foundry is wrong regardless.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [
+                {"tag": "gf", "overrides": {}, "pdk": "gf180mcuD",
+                 "scl": "gf180mcu_fd_sc_mcu7t5v0",
+                 "verdict": {"area_um2": 1069.1, "passed": True}},
+            ])
+            self.assertEqual(load_dataset(root)[0]["pdk"], "gf180mcuD")
+
+    def test_two_metal_stacks_of_one_pdk_are_two_samples(self):
+        # The collision the SCL alone cannot catch. gf180mcuA and
+        # gf180mcuD are different metal stacks (3 layers vs 5) and ship
+        # the *same* library name, so keying on design+overrides+scl
+        # would merge them and the later would replace the earlier —
+        # exactly the failure the scl key was added to prevent, one
+        # level down.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._case(tmp, [
+                {"tag": "a", "overrides": {}, "pdk": "gf180mcuA",
+                 "scl": "gf180mcu_fd_sc_mcu7t5v0",
+                 "verdict": {"area_um2": 1069.1, "passed": True}},
+                {"tag": "d", "overrides": {}, "pdk": "gf180mcuD",
+                 "scl": "gf180mcu_fd_sc_mcu7t5v0",
+                 "verdict": {"area_um2": 1102.4, "passed": True}},
+            ])
+            self.assertEqual(len(load_dataset(root)), 2)
+
     def test_a_thin_second_technology_is_held_back(self):
         # Measured: with 42 hd and 3 hs rows, switching the feature on
         # took area's win-rate from 0.96 to 0.88. A categorical with a

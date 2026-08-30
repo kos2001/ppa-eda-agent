@@ -1,0 +1,1520 @@
+{
+  "design": "counter4",
+  "date": "2026-08-30",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 1,
+    "has_macros": false,
+    "clock_domain_count": 1,
+    "port_count": 4,
+    "sequential_element_estimate": 4,
+    "power_domain_count": 1,
+    "notes": "Single-module 4-bit synchronous up-counter, synchronous reset, enable. Purely standard-cell, no macros \u2014 the regular/simple end of this pipeline's topology range, contrasted with sram_wrapper's macro-heavy case."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "gf180-7t-util25",
+          "overrides": {
+            "FP_CORE_UTIL": 25
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuD",
+          "verdict": {
+            "passed": false,
+            "violations": [],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1069.06,
+            "utilization": 0.649333,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0015955204144120216,
+              "leakage_w": 1.1019329448913595e-08,
+              "switching_w": 0.00027842167764902115,
+              "total_w": 0.0018739531515166163
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.00027,
+              "ir_drop_worst_v": 0.000523,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000522637,
+                  "voltage_worst_v": 4.99948,
+                  "nominal_v": 5.000002637000001,
+                  "drop_pct": 0.01045273448722783
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000458705,
+                  "voltage_worst_v": 0.000458705,
+                  "nominal_v": 0.00091741,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.488509913015133,
+                  "hold_ws_ns": 0.39446114158241646,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5114900869848666,
+                  "fmax_mhz": 284.7793885867546
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.169439578275111,
+                  "hold_ws_ns": 1.698876865049834,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.830560421724889,
+                  "fmax_mhz": 171.5100998308777
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.773601316014002,
+                  "hold_ws_ns": 0.7953152250771854,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.226398683985998,
+                  "fmax_mhz": 236.60806156055318
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.501668720764357,
+                  "hold_ws_ns": 0.38762083528963887,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.498331279235643,
+                  "fmax_mhz": 285.8505727960938
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.202614375456787,
+                  "hold_ws_ns": 1.6811646994809375,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.797385624543213,
+                  "fmax_mhz": 172.49154442418032
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.793004462319529,
+                  "hold_ws_ns": 0.7849492944476968,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.206995537680471,
+                  "fmax_mhz": 237.69932509872604
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.495746790983524,
+                  "hold_ws_ns": 0.3907290712684376,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5042532090164764,
+                  "fmax_mhz": 285.36750638538064
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.187690313048485,
+                  "hold_ws_ns": 1.6892154819716985,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.812309686951515,
+                  "fmax_mhz": 172.0486439745243
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.7842736682069535,
+                  "hold_ws_ns": 0.7896605814970892,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.2157263317930465,
+                  "fmax_mhz": 237.20704839364578
+                }
+              ],
+              "fmax_mhz": 171.5100998308777,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util25/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              55.865,
+              73.785
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "stage": "verification_ppa",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-7t-util35",
+          "overrides": {
+            "FP_CORE_UTIL": 35
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuD",
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "utilization 0.814 > target 0.75"
+            ],
+            "unverified": [
+              "KLayout DRC error(s)"
+            ],
+            "area_um2": 1029.55,
+            "utilization": 0.814236,
+            "worst_setup_wns": 0,
+            "timing_corners": [
+              {
+                "corner": "max_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "max_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "min_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ff_n40C_5v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_ss_125C_4v50",
+                "setup_wns": 0,
+                "hold_wns": 0
+              },
+              {
+                "corner": "nom_tt_025C_5v00",
+                "setup_wns": 0,
+                "hold_wns": 0
+              }
+            ],
+            "power": {
+              "internal_w": 0.0015965270576998591,
+              "leakage_w": 1.023282880652232e-08,
+              "switching_w": 0.00026836455799639225,
+              "total_w": 0.0018649018602445722
+            },
+            "power_domain": {
+              "ir_drop_avg_v": 0.000283,
+              "ir_drop_worst_v": 0.000455,
+              "voltage_worst_v": 5,
+              "supplies": [
+                {
+                  "net": "VDD",
+                  "drop_worst_v": 0.000455232,
+                  "voltage_worst_v": 4.99954,
+                  "nominal_v": 4.999995232,
+                  "drop_pct": 0.009104648682192984
+                },
+                {
+                  "net": "VSS",
+                  "drop_worst_v": 0.000418756,
+                  "voltage_worst_v": 0.000418756,
+                  "nominal_v": 0.000837512,
+                  "drop_pct": null
+                }
+              ]
+            },
+            "model_validity": null,
+            "operating_point": {
+              "clock_period_ns": 10.0,
+              "corners": [
+                {
+                  "corner": "max_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.488209264611562,
+                  "hold_ws_ns": 0.4306461975581976,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5117907353884377,
+                  "fmax_mhz": 284.7550082990325
+                },
+                {
+                  "corner": "max_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.168990604071254,
+                  "hold_ws_ns": 1.7636622661495545,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.831009395928746,
+                  "fmax_mhz": 171.49689395084965
+                },
+                {
+                  "corner": "max_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.773213182033616,
+                  "hold_ws_ns": 0.8504041600501998,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.226786817966384,
+                  "fmax_mhz": 236.58633450577614
+                },
+                {
+                  "corner": "min_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.500871580610132,
+                  "hold_ws_ns": 0.4131383685427623,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.4991284193898684,
+                  "fmax_mhz": 285.78545287410935
+                },
+                {
+                  "corner": "min_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.200790945109573,
+                  "hold_ws_ns": 1.7187290965815234,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.799209054890427,
+                  "fmax_mhz": 172.43730835271543
+                },
+                {
+                  "corner": "min_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.79186759391016,
+                  "hold_ws_ns": 0.8232844639049276,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.20813240608984,
+                  "fmax_mhz": 237.6351082852907
+                },
+                {
+                  "corner": "nom_ff_n40C_5v50",
+                  "voltage_v": 5.5,
+                  "setup_ws_ns": 6.495118848823036,
+                  "hold_ws_ns": 0.42100485400622323,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 3.5048811511769644,
+                  "fmax_mhz": 285.31637931979316
+                },
+                {
+                  "corner": "nom_ss_125C_4v50",
+                  "voltage_v": 4.5,
+                  "setup_ws_ns": 4.186361598095035,
+                  "hold_ws_ns": 1.7390980259234863,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 5.813638401904965,
+                  "fmax_mhz": 172.00932202324935
+                },
+                {
+                  "corner": "nom_tt_025C_5v00",
+                  "voltage_v": 5.0,
+                  "setup_ws_ns": 5.783393483368137,
+                  "hold_ws_ns": 0.8353935557546802,
+                  "setup_ok": true,
+                  "hold_ok": true,
+                  "min_period_ns": 4.216606516631863,
+                  "fmax_mhz": 237.15753320961497
+                }
+              ],
+              "fmax_mhz": 171.49689395084965,
+              "fmax_limiting_corner": "max_ss_125C_4v50",
+              "vmin_v": 4.5,
+              "vmin_is_lowest_analysed": true,
+              "failing_corners": [],
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            }
+          },
+          "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35",
+          "data": {
+            "circuit": {
+              "netlist_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/nl",
+              "netlist_powered_verilog": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/pnl",
+              "spice_netlist": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/spice"
+            },
+            "layout": {
+              "def": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/def",
+              "lef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/lef",
+              "gds": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/gds"
+            },
+            "constraint_pdk": {
+              "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+              "sdc": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/sdc"
+            },
+            "verification": {
+              "metrics_json": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/metrics.json",
+              "spef": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/spef",
+              "sdf": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/final/sdf"
+            }
+          },
+          "clocks": {
+            "declared_clocks": [
+              "clk"
+            ],
+            "constrained_clocks": [
+              "clk"
+            ],
+            "unconstrained_clocks": [],
+            "custom_sdc": false,
+            "warnings": [],
+            "note": "constraint coverage only \u2014 no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+          },
+          "netlist": {
+            "top": "counter4",
+            "source": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/gf180-7t-util35/06-yosys-synthesis/counter4.nl.v.json",
+            "ports": [
+              {
+                "name": "clk",
+                "direction": "input",
+                "bits": [
+                  2
+                ]
+              },
+              {
+                "name": "rst",
+                "direction": "input",
+                "bits": [
+                  3
+                ]
+              },
+              {
+                "name": "en",
+                "direction": "input",
+                "bits": [
+                  4
+                ]
+              },
+              {
+                "name": "count",
+                "direction": "output",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8
+                ]
+              }
+            ],
+            "cells": [
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$173",
+                "label": "173",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    9
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$174",
+                "label": "174",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    9
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    10
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$175",
+                "label": "175",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    5
+                  ],
+                  "B": [
+                    6
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    11
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$176",
+                "label": "176",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    6
+                  ],
+                  "A3": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    12
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$177",
+                "label": "177",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    11
+                  ],
+                  "A3": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    13
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$178",
+                "label": "178",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    7
+                  ],
+                  "A2": [
+                    12
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    14
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$179",
+                "label": "179",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "inputs": {
+                  "A1": [
+                    4
+                  ],
+                  "A2": [
+                    7
+                  ],
+                  "A3": [
+                    6
+                  ],
+                  "A4": [
+                    5
+                  ]
+                },
+                "outputs": {
+                  "Z": [
+                    15
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$180",
+                "label": "180",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    14
+                  ],
+                  "A3": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    16
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$181",
+                "label": "181",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "inputs": {
+                  "A1": [
+                    8
+                  ],
+                  "A2": [
+                    15
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    17
+                  ]
+                }
+              },
+              {
+                "name": "$abc$172$auto$blifparse.cc:396:parse_blif$182",
+                "label": "182",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "inputs": {
+                  "A1": [
+                    3
+                  ],
+                  "A2": [
+                    17
+                  ]
+                },
+                "outputs": {
+                  "ZN": [
+                    18
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$96",
+                "label": "96",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    10
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    5
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$97",
+                "label": "97",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    13
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    6
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$98",
+                "label": "98",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    16
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    7
+                  ]
+                }
+              },
+              {
+                "name": "$auto$ff.cc:266:slice$99",
+                "label": "99",
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "inputs": {
+                  "CLK": [
+                    2
+                  ],
+                  "D": [
+                    18
+                  ]
+                },
+                "outputs": {
+                  "Q": [
+                    8
+                  ]
+                }
+              }
+            ],
+            "net_names": {
+              "10": "$abc$172$auto$rtlil.cc:2739:MuxGate$159",
+              "13": "$abc$172$auto$rtlil.cc:2739:MuxGate$163",
+              "16": "$abc$172$auto$rtlil.cc:2739:MuxGate$167",
+              "18": "$abc$172$auto$rtlil.cc:2739:MuxGate$171",
+              "9": "$abc$172$new_n11",
+              "11": "$abc$172$new_n13",
+              "12": "$abc$172$new_n14",
+              "14": "$abc$172$new_n16",
+              "15": "$abc$172$new_n17",
+              "17": "$abc$172$new_n19",
+              "2": "clk",
+              "5": "count[0]",
+              "6": "count[1]",
+              "7": "count[2]",
+              "8": "count[3]",
+              "4": "en",
+              "3": "rst"
+            },
+            "cell_count": 14,
+            "truncated": false,
+            "cell_types": [
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__dffq_1",
+                "count": 4
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor2_1",
+                "count": 3
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__nor3_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__xnor2_1",
+                "count": 2
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and3_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__and4_1",
+                "count": 1
+              },
+              {
+                "type": "gf180mcu_fd_sc_mcu7t5v0__aoi21_1",
+                "count": 1
+              }
+            ]
+          },
+          "step_coverage": {
+            "declared": 78,
+            "executed": 74,
+            "missing": [
+              {
+                "step": "OpenROAD.RepairDesignPostGRT",
+                "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Odb.HeuristicDiodeInsertion",
+                "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "OpenROAD.ResizerTimingPostGRT",
+                "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+                "value": false,
+                "is_signoff": false
+              },
+              {
+                "step": "Yosys.EQY",
+                "gated_by": "RUN_EQY",
+                "value": false,
+                "is_signoff": true
+              }
+            ],
+            "missing_signoff": [
+              "Yosys.EQY"
+            ]
+          },
+          "equivalence": null,
+          "layout": {
+            "die": [
+              0.0,
+              0.0,
+              49.295,
+              67.215
+            ],
+            "cells": [],
+            "nets": []
+          },
+          "stage": "verification_ppa",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-7t-util45",
+          "overrides": {
+            "FP_CORE_UTIL": 45
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuD",
+          "error": "OpenLane run 'gf180-7t-util45' exited 2 \u2014 see runs/gf180-7t-util45/ for logs. Tail of output:\ns to                                                   \n'/design/runs/gf180-7t-util45/34-openroad-cts/counter4.sdc'\u2026                    \n[INFO] Legalizing\u2026                                                              \n[INFO DPL-0034] Detailed placement failed on the following 2 instances:         \n[INFO DPL-0035]  _13_                                                           \n[INFO DPL-0035]  _13_                                                           \n[00:10:56] ERROR    [DPL-0036] Detailed placement failed.        openroad.py:233\nError: dpl.tcl, 19 DPL-0036                                                     \nClassic - Stage 34 - Clock Tree Synthesis \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501               33/78 0:00:12\n[00:10:56] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[00:10:56] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[00:10:56] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[00:10:56] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[00:10:56] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.CTS failed with the following                      \n                    errors:                                                     \n                    [DPL-0036] Detailed placement failed.                       \n[00:10:56] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-7t-util55",
+          "overrides": {
+            "FP_CORE_UTIL": 55
+          },
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "pdk": "gf180mcuD",
+          "error": "OpenLane run 'gf180-7t-util55' exited 2 \u2014 see runs/gf180-7t-util55/ for logs. Tail of output:\nil55/34-openroad-cts/counter4.sdc'\u2026                    \n[INFO] Legalizing\u2026                                                              \n[INFO DPL-0034] Detailed placement failed on the following 3 instances:         \n[INFO DPL-0035]  clkbuf_1_1__f_clk                                              \n[INFO DPL-0035]  clkbuf_0_clk                                                   \n[INFO DPL-0035]  clkbuf_1_0__f_clk                                              \n[00:11:09] ERROR    [DPL-0036] Detailed placement failed.        openroad.py:233\nError: dpl.tcl, 19 DPL-0036                                                     \nClassic - Stage 34 - Clock Tree Synthesis \u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501               33/78 0:00:12\n[00:11:10] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[00:11:10] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[00:11:10] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[00:11:10] WARNING  [OpenROAD.STAMidPNR] [GRT-0097] No global        flow.py:675\n                    routing found for nets.                                     \n[00:11:10] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.CTS failed with the following                      \n                    errors:                                                     \n                    [DPL-0036] Detailed placement failed.                       \n[00:11:10] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-9t-util25",
+          "overrides": {
+            "FP_CORE_UTIL": 25
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "error": "OpenLane run 'gf180-9t-util25' exited 1 \u2014 see runs/gf180-9t-util25/ for logs. Tail of output:\nonfiguration variable                   __main__.py:157\n                    'CTS_CLK_BUFFER_LIST' is deprecated. Please                 \n                    check the docs for the usage on the                         \n                    replacement variable 'CTS_CLK_BUFFERS'.                     \n[00:11:10] WARNING  The configuration variable 'MAGIC_MAGICRC'   __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable 'MAGICRC'.                \n[00:11:10] WARNING  The configuration variable 'MAGIC_TECH_FILE' __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable                           \n                    'MAGIC_TECH'.                                               \n[00:11:10] WARNING  The configuration variable                   __main__.py:157\n                    'NETGEN_SETUP_FILE' is deprecated. Please                   \n                    check the docs for the usage on the                         \n                    replacement variable 'NETGEN_SETUP'.                        \n[00:11:10] ERROR    Errors have occurred while loading the PDK   __main__.py:158\n                    configuration files.                                        \n[00:11:10] ERROR    Path provided for variable                   __main__.py:160\n                    'PNR_EXCLUDED_CELL_FILE' is invalid:                        \n                    '/pdk/volare/gf180mcu/versions/0fe599b2afb67                \n                    08d281543108caf8310912f54af/gf180mcuD/libs.t                \n                    ech/openlane/gf180mcu_fd_sc_mcu9t5v0/drc_exc                \n                    lude.cells' does not exist                                  \n[00:11:10] ERROR    OpenLane will now quit. Please check your    __main__.py:162\n                    configuration.                                              \n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-9t-util35",
+          "overrides": {
+            "FP_CORE_UTIL": 35
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "error": "OpenLane run 'gf180-9t-util35' exited 1 \u2014 see runs/gf180-9t-util35/ for logs. Tail of output:\nonfiguration variable                   __main__.py:157\n                    'CTS_CLK_BUFFER_LIST' is deprecated. Please                 \n                    check the docs for the usage on the                         \n                    replacement variable 'CTS_CLK_BUFFERS'.                     \n[00:11:11] WARNING  The configuration variable 'MAGIC_MAGICRC'   __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable 'MAGICRC'.                \n[00:11:11] WARNING  The configuration variable 'MAGIC_TECH_FILE' __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable                           \n                    'MAGIC_TECH'.                                               \n[00:11:11] WARNING  The configuration variable                   __main__.py:157\n                    'NETGEN_SETUP_FILE' is deprecated. Please                   \n                    check the docs for the usage on the                         \n                    replacement variable 'NETGEN_SETUP'.                        \n[00:11:11] ERROR    Errors have occurred while loading the PDK   __main__.py:158\n                    configuration files.                                        \n[00:11:11] ERROR    Path provided for variable                   __main__.py:160\n                    'PNR_EXCLUDED_CELL_FILE' is invalid:                        \n                    '/pdk/volare/gf180mcu/versions/0fe599b2afb67                \n                    08d281543108caf8310912f54af/gf180mcuD/libs.t                \n                    ech/openlane/gf180mcu_fd_sc_mcu9t5v0/drc_exc                \n                    lude.cells' does not exist                                  \n[00:11:11] ERROR    OpenLane will now quit. Please check your    __main__.py:162\n                    configuration.                                              \n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-9t-util45",
+          "overrides": {
+            "FP_CORE_UTIL": 45
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "error": "OpenLane run 'gf180-9t-util45' exited 1 \u2014 see runs/gf180-9t-util45/ for logs. Tail of output:\nonfiguration variable                   __main__.py:157\n                    'CTS_CLK_BUFFER_LIST' is deprecated. Please                 \n                    check the docs for the usage on the                         \n                    replacement variable 'CTS_CLK_BUFFERS'.                     \n[00:11:11] WARNING  The configuration variable 'MAGIC_MAGICRC'   __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable 'MAGICRC'.                \n[00:11:11] WARNING  The configuration variable 'MAGIC_TECH_FILE' __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable                           \n                    'MAGIC_TECH'.                                               \n[00:11:11] WARNING  The configuration variable                   __main__.py:157\n                    'NETGEN_SETUP_FILE' is deprecated. Please                   \n                    check the docs for the usage on the                         \n                    replacement variable 'NETGEN_SETUP'.                        \n[00:11:11] ERROR    Errors have occurred while loading the PDK   __main__.py:158\n                    configuration files.                                        \n[00:11:11] ERROR    Path provided for variable                   __main__.py:160\n                    'PNR_EXCLUDED_CELL_FILE' is invalid:                        \n                    '/pdk/volare/gf180mcu/versions/0fe599b2afb67                \n                    08d281543108caf8310912f54af/gf180mcuD/libs.t                \n                    ech/openlane/gf180mcu_fd_sc_mcu9t5v0/drc_exc                \n                    lude.cells' does not exist                                  \n[00:11:11] ERROR    OpenLane will now quit. Please check your    __main__.py:162\n                    configuration.                                              \n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        },
+        {
+          "tag": "gf180-9t-util55",
+          "overrides": {
+            "FP_CORE_UTIL": 55
+          },
+          "scl": "gf180mcu_fd_sc_mcu9t5v0",
+          "pdk": "gf180mcuD",
+          "error": "OpenLane run 'gf180-9t-util55' exited 1 \u2014 see runs/gf180-9t-util55/ for logs. Tail of output:\nonfiguration variable                   __main__.py:157\n                    'CTS_CLK_BUFFER_LIST' is deprecated. Please                 \n                    check the docs for the usage on the                         \n                    replacement variable 'CTS_CLK_BUFFERS'.                     \n[00:11:11] WARNING  The configuration variable 'MAGIC_MAGICRC'   __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable 'MAGICRC'.                \n[00:11:11] WARNING  The configuration variable 'MAGIC_TECH_FILE' __main__.py:157\n                    is deprecated. Please check the docs for the                \n                    usage on the replacement variable                           \n                    'MAGIC_TECH'.                                               \n[00:11:11] WARNING  The configuration variable                   __main__.py:157\n                    'NETGEN_SETUP_FILE' is deprecated. Please                   \n                    check the docs for the usage on the                         \n                    replacement variable 'NETGEN_SETUP'.                        \n[00:11:11] ERROR    Errors have occurred while loading the PDK   __main__.py:158\n                    configuration files.                                        \n[00:11:11] ERROR    Path provided for variable                   __main__.py:160\n                    'PNR_EXCLUDED_CELL_FILE' is invalid:                        \n                    '/pdk/volare/gf180mcu/versions/0fe599b2afb67                \n                    08d281543108caf8310912f54af/gf180mcuD/libs.t                \n                    ech/openlane/gf180mcu_fd_sc_mcu9t5v0/drc_exc                \n                    lude.cells' does not exist                                  \n[00:11:11] ERROR    OpenLane will now quit. Please check your    __main__.py:162\n                    configuration.                                              \n",
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "max_iterations_reached",
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2",
+    "host": {
+      "arch": "arm64",
+      "system": "Darwin",
+      "cpu_count": 10,
+      "docker_platform": "native"
+    }
+  },
+  "constraints": {
+    "design": {
+      "design_name": "counter4",
+      "settings": [
+        {
+          "key": "CLOCK_PORT",
+          "label": "clock port",
+          "value": "clk"
+        },
+        {
+          "key": "CLOCK_PERIOD",
+          "label": "clock period (ns)",
+          "value": 10
+        },
+        {
+          "key": "FP_CORE_UTIL",
+          "label": "target core utilization (%)",
+          "value": 35
+        }
+      ],
+      "fixed_macros": [],
+      "power_connections": [],
+      "targets": {
+        "max_core_utilization": 0.75
+      }
+    },
+    "pdk": {
+      "source": "/Users/kos2001/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+      "manufacturing_grid_um": 0.005,
+      "database_units_per_um": 1000.0,
+      "sites": [
+        {
+          "name": "unithd",
+          "width_um": 0.46,
+          "height_um": 2.72,
+          "class": "CORE"
+        },
+        {
+          "name": "unithddbl",
+          "width_um": 0.46,
+          "height_um": 5.44,
+          "class": "CORE"
+        }
+      ],
+      "routing_layers": [
+        {
+          "name": "li1",
+          "direction": "vertical",
+          "pitch_um": null,
+          "min_width_um": 0.17,
+          "min_spacing_um": 0.17,
+          "min_area_um2": 0.0561,
+          "thickness_um": 0.1,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 12.8
+        },
+        {
+          "name": "met1",
+          "direction": "horizontal",
+          "pitch_um": 0.34,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.083,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met2",
+          "direction": "vertical",
+          "pitch_um": 0.46,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.0676,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met3",
+          "direction": "horizontal",
+          "pitch_um": 0.68,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met4",
+          "direction": "vertical",
+          "pitch_um": 0.92,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met5",
+          "direction": "horizontal",
+          "pitch_um": 3.4,
+          "min_width_um": 1.6,
+          "min_spacing_um": 1.6,
+          "min_area_um2": 4.0,
+          "thickness_um": 1.2,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 0.0285
+        }
+      ]
+    }
+  },
+  "synthesis_exploration": null,
+  "layout_image": "layouts/counter4__2026-08-30__gf180-7t-util25.png",
+  "layout_image_tag": "gf180-7t-util25"
+}
