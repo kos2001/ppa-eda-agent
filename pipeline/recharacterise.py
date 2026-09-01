@@ -179,3 +179,38 @@ def main() -> None:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# --- Why a learned model does not close this -------------------------
+#
+# Asked whether RL or a surrogate could close sram_wrapper, three real
+# projects were checked rather than recalled:
+#
+#   google-research/circuit_training (Apache-2.0, 1.7k stars, pushed
+#     2026-02-11) places "netlists with hundreds of macros and millions
+#     of stdcells". sram_wrapper has one macro instance and 72 sequential
+#     elements. Its premise is not this design.
+#
+#   circuitnet/CircuitNet (BSD-3, 506 stars, pushed 2026-05-17) predicts
+#     congestion, DRC, IR-drop and net delay from LEF/DEF. Its datasets
+#     are N28, N14 and N45; there is no sky130 data and no macro-pin slew
+#     target. Using it here would mean building the dataset first, which
+#     is the work, not the shortcut.
+#
+#   TILOS-AI-Institute/MacroPlacement (BSD-3, 348 stars) is benchmarks
+#     and reproductions for macro placement quality, not a slew model.
+#
+# The deeper reason is in this file: 0.04ns is where the macro's timing
+# table stops. A model that predicted slew perfectly would predict a
+# violation of a limit that exists because nobody measured above it.
+# Predicting the number better does not create the measurement.
+#
+# And there is nothing to train on. Of 406 recorded configurations three
+# are macro designs and none passed, so a classifier's best strategy is
+# to predict "fails" always — right every time, useless every time.
+# tests/test_learned_model_fit.py pins both facts.
+#
+# Where a learned model does have a claim here is the cheaper question,
+# which candidates are worth running, and surrogate.py already answers
+# it: 99% of folds on area and 98% on power, against 65% on pass/fail.
+# The weak one is the one a search would need.
