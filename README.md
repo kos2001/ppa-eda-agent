@@ -131,6 +131,22 @@ correction of an earlier, unverified guess) in
 `reference-db/cases/sram_wrapper__2026-08-21.json`. Left open rather than
 forced past; see the design spec's "Second vertical slice" section.
 
+`pipeline/recharacterise.py` traces where that 0.04 ns comes from, and
+it is not a limit the SRAM imposes: OpenRAM's default `slew_scales`
+`[0.25, 1, 8]` times sky130's `rise_time` 0.005 ns is exactly the
+`index_1` axis in the macro's own liberty. The number records where
+characterisation stopped. So raising `max_transition` in the .lib (as
+this design's `.relaxed.lib` does) is extrapolation rather than a fix,
+and is anyway short of the 0.209 ns this design actually reaches — 5.2x
+the ceiling. Closing it means characterising the macro over the slew
+range it will really see, which [OpenRAM](https://github.com/VLSIDA/OpenRAM)
+exposes as `slew_scales` and
+[sky130_sram_macros](https://github.com/VLSIDA/sky130_sram_macros)
+regenerates from. The module reports the ceiling, its source, how far
+past it a run sits and the grid that would cover it; it does not run
+OpenRAM, since regeneration is a SPICE sweep of hours producing a new
+GDS/LEF/lib set that has to be verified before anything trusts it.
+
 ### Human-in-the-loop review + self-improvement loop
 
 When `propose_repairs()` can't auto-repair a failure, escalate to a real
