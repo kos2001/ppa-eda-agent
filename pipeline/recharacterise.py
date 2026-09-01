@@ -51,6 +51,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -87,6 +88,59 @@ def slew_scales_for(worst_slew_ns: float,
     needed = (worst_slew_ns * TOP_MARGIN) / rise_time_ns
     scales.append(round(needed))
     return sorted(set(scales))
+
+
+def keeps_original_points(scales: list[float]) -> bool:
+    """Whether a proposed grid still contains OpenRAM's default points.
+
+    A wider grid that dropped them would reach the target slew by
+    discarding characterisation that already exists — a regression
+    wearing the shape of a fix.
+    """
+    return all(p in scales for p in OPENRAM_DEFAULT_SLEW_SCALES)
+
+
+def verify_regenerated(lib_path: Path | str, target_slew_ns: float,
+                       rise_time_ns: float = SKY130_RISE_TIME_NS) -> dict:
+    """Is this liberty good enough to time the design with?
+
+    The acceptance check for a regenerated macro, written before the
+    regeneration so the bar is set in advance. Two conditions, both
+    read out of the file rather than taken on trust:
+
+      * its characterisation reaches `target_slew_ns`, and
+      * `max_transition` moved with it, so the pin attribute agrees with
+        the table underneath it.
+
+    Returns every failure rather than the first, because a macro that
+    fails both is a different problem from one that fails one.
+    """
+    failures = []
+    ceiling = model_validity.characterisation_ceiling(lib_path)
+    if ceiling is None:
+        failures.append("no index_1: this file states no characterisation "
+                        "ceiling at all")
+        return {"ok": False, "ceiling_ns": None, "failures": failures}
+
+    if ceiling < target_slew_ns:
+        failures.append(
+            f"ceiling {ceiling}ns is below the target {target_slew_ns}ns — "
+            f"the grid does not reach the slew this design produces")
+
+    text = Path(lib_path).read_text(errors="ignore")
+    declared = {float(v) for v in re.findall(
+        r"max_transition\s*:\s*([\d.]+)\s*;", text)}
+    # The pin attribute records where characterisation stopped. If the
+    # table grew and the attribute did not, the timer still refuses the
+    # slew and nothing was gained.
+    stale = {d for d in declared if d < target_slew_ns}
+    if stale:
+        failures.append(
+            f"max_transition still declares {sorted(stale)} below the target "
+            f"— the attribute did not move with the table")
+
+    return {"ok": not failures, "ceiling_ns": ceiling,
+            "target_slew_ns": target_slew_ns, "failures": failures}
 
 
 def analyse(lib_path: Path | str, worst_slew_ns: float | None = None,
