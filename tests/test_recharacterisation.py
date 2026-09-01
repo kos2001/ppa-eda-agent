@@ -138,5 +138,41 @@ class ReportTests(unittest.TestCase):
         self.assertFalse(report["needs_recharacterisation"])
 
 
+class VerifyRegeneratedTests(unittest.TestCase):
+    """The check that decides whether a regenerated macro is usable.
+
+    Written before the regeneration, so the acceptance criteria are
+    fixed in advance rather than after seeing what came out. A
+    regenerated macro is a new GDS/LEF/lib, not a patched number, and
+    two things have to hold before the timer is allowed to trust it:
+    the grid must actually reach the slew the design produces, and it
+    must still contain the points that were already measured.
+    """
+
+    def setUp(self):
+        _requires_pdk(self)
+
+    def test_the_current_macro_fails_the_check_it_is_meant_to_fail(self):
+        # The negative control. If this passed today the check would be
+        # measuring nothing.
+        got = recharacterise.verify_regenerated(MACRO_LIB, target_slew_ns=0.24)
+        self.assertFalse(got["ok"])
+        self.assertIn("ceiling", " ".join(got["failures"]).lower())
+
+    def test_it_accepts_a_grid_that_covers_the_target(self):
+        got = recharacterise.verify_regenerated(
+            MACRO_LIB, target_slew_ns=0.02)
+        self.assertTrue(got["ok"], got["failures"])
+
+    def test_it_rejects_a_grid_that_dropped_the_original_points(self):
+        # Replacing [0.00125, 0.005, 0.04] with a coarser grid would
+        # reach the target while discarding characterisation that
+        # already exists. That is a regression, not a fix.
+        kept = recharacterise.keeps_original_points([0.25, 1, 8, 48])
+        dropped = recharacterise.keeps_original_points([0.25, 48])
+        self.assertTrue(kept)
+        self.assertFalse(dropped)
+
+
 if __name__ == "__main__":
     unittest.main()
