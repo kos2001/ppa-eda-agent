@@ -32,7 +32,7 @@ CASES = ROOT / "reference-db" / "cases"
 
 def case(name: str) -> dict | None:
     hits = sorted(CASES.glob(f"{name}__*.json"))
-    return json.loads(hits[-1].read_text()) if hits else None
+    return json.loads(hits[-1].read_text(encoding="utf-8")) if hits else None
 
 
 class EntryShapeTests(unittest.TestCase):
@@ -368,12 +368,30 @@ class TransferabilityTests(unittest.TestCase):
     def test_the_suppression_trap_is_recorded(self):
         # The most expensive kind of guidance: a knob that looks like the
         # fix and is not. MAGIC_CAPTURE_ERRORS=false takes sram_wrapper
-        # from an abort to 2,831,364 DRC errors on a GDS built from a
-        # macro Magic could not read.
+        # from an abort to 2,831,364 DRC errors, which this entry used to
+        # record as proof the abort was correct. It is not proof: that
+        # count is GDS-based DRC, and the second knob that makes DRC read
+        # LEF/DEF instead was never tried. Both halves have to be in the
+        # trap or the entry teaches the stopping point as the answer.
         entry = next(e for e in tool_retrieval.MEASUREMENTS
                      if e["id"] == "unreadable-macro-gds")
         self.assertIn("MAGIC_CAPTURE_ERRORS", entry["trap"])
         self.assertIn("2,831,364", entry["trap"])
+        self.assertIn("MAGIC_DRC_USE_GDS", entry["trap"])
+
+    def test_the_unknown_layers_are_identified_not_just_counted(self):
+        # "Layers no sky130 tool configuration defines" was wrong, and it
+        # closed the case. All five are in sky130gds.tech as mask-prep
+        # and boundary layers, so the entry must name that file and say
+        # what the layers are — otherwise the next reader repeats the
+        # two-file comparison that produced the wrong conclusion.
+        entry = next(e for e in tool_retrieval.MEASUREMENTS
+                     if e["id"] == "unreadable-macro-gds")
+        self.assertIn("sky130gds.tech", entry["cli"])
+        self.assertIn("sky130gds.tech", entry["evidence"])
+        for layer_name in ("CNTMADD", "CFOMDROP", "CP1MDROP", "CP1MADD",
+                           "BOUND2"):
+            self.assertIn(layer_name, entry["evidence"])
 
     def test_the_index_is_no_longer_single_source(self):
         # With one source design, leave-one-out empties the index for
@@ -385,7 +403,7 @@ class ReviewRequestTests(unittest.TestCase):
     def test_the_request_carries_the_measurement_block(self):
         # Where an agent's context actually comes from. Without this the
         # block exists and nothing reads it.
-        src = (ROOT / "pipeline" / "request_review.py").read_text()
+        src = (ROOT / "pipeline" / "request_review.py").read_text(encoding="utf-8")
         self.assertIn("tool_retrieval.guidance_block", src)
 
     def test_a_generated_request_contains_it(self):
@@ -393,7 +411,7 @@ class ReviewRequestTests(unittest.TestCase):
                       .glob("sram_wrapper__*__request.md"))
         if not hits:
             self.skipTest("no generated request")
-        text = hits[-1].read_text()
+        text = hits[-1].read_text(encoding="utf-8")
         self.assertIn("Measurements that apply", text)
         self.assertIn("trap", text)
 
@@ -463,11 +481,11 @@ class DataLineageTests(unittest.TestCase):
             self.assertIn("clears_threshold", row["interval"])
 
     def test_the_server_exposes_it(self):
-        src = (ROOT / "server" / "index.mjs").read_text()
+        src = (ROOT / "server" / "index.mjs").read_text(encoding="utf-8")
         self.assertIn('"/data-lineage"', src)
         self.assertIn("data_lineage", src)
 
     def test_the_page_is_reachable_from_the_sidebar(self):
-        app = (ROOT / "dashboard" / "src" / "App.tsx").read_text()
+        app = (ROOT / "dashboard" / "src" / "App.tsx").read_text(encoding="utf-8")
         self.assertIn("DataLineage", app)
         self.assertIn('"lineage"', app)

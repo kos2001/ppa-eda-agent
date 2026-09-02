@@ -4,7 +4,26 @@
     "max_core_utilization": 0.75
   },
   "candidates": [
-    { "tag": "cand-baseline", "overrides": {} }
+    { "tag": "cand-baseline", "overrides": {} },
+    {
+      "tag": "G-capture",
+      "overrides": { "MAGIC_CAPTURE_ERRORS": false }
+    },
+    {
+      "tag": "H-lefdrc",
+      "overrides": {
+        "MAGIC_CAPTURE_ERRORS": false,
+        "MAGIC_DRC_USE_GDS": false
+      }
+    },
+    {
+      "tag": "I-klayoutgds",
+      "overrides": {
+        "MAGIC_CAPTURE_ERRORS": false,
+        "MAGIC_DRC_USE_GDS": false,
+        "PRIMARY_GDSII_STREAMOUT_TOOL": "klayout"
+      }
+    }
   ],
   "max_iterations": 1
 }
