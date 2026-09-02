@@ -87,11 +87,11 @@ def latest_case(design: str) -> dict | None:
     index_file = REFDB / "index.json"
     if not index_file.exists():
         return None
-    index = json.loads(index_file.read_text())
+    index = json.loads(index_file.read_text(encoding="utf-8"))
     case_files = index.get(design, [])
     if not case_files:
         return None
-    return json.loads((REFDB / "cases" / sorted(case_files)[-1]).read_text())
+    return json.loads((REFDB / "cases" / sorted(case_files)[-1]).read_text(encoding="utf-8"))
 
 
 def auto_repair_coverage(case: dict) -> tuple[int, int, list[str]]:
@@ -124,7 +124,7 @@ def budget_retry_command(design: str, case: dict) -> str | None:
     """
     run_spec_path = DESIGNS_DIR / design / "run_spec.json"
     try:
-        used = json.loads(run_spec_path.read_text()).get("max_iterations", 3)
+        used = json.loads(run_spec_path.read_text(encoding="utf-8")).get("max_iterations", 3)
     except (OSError, json.JSONDecodeError):
         return None
     iterations_run = len(case.get("iterations", []))
@@ -177,14 +177,15 @@ def scan_design(design: str, write: bool = False) -> dict:
     # "nobody has filed one" from "we did not look".
     existing = REFDB / "reviews" / f"{design}__{case['date']}__request.md"
     review_request_path = (
-        str(existing.relative_to(REPO_ROOT)) if existing.is_file() else None)
+        existing.relative_to(REPO_ROOT).as_posix() if existing.is_file() else None)
 
     generated = None
     if needs_review and write:
         result = subprocess.run(
             [sys.executable, str(REPO_ROOT / "pipeline" / "request_review.py"),
              "request", "--design", design],
-            capture_output=True, text=True, cwd=REPO_ROOT / "pipeline",
+            capture_output=True, text=True, encoding="utf-8",
+            cwd=REPO_ROOT / "pipeline",
         )
         if result.returncode == 0:
             generated = result.stdout.strip().rsplit(" ", 1)[-1]

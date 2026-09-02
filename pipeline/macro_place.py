@@ -13,10 +13,15 @@ stub — `def get_script_path(self): raise NotImplementedError()`. That
 conclusion was right about OpenLane and wrong about the toolchain. The
 OpenROAD binary inside the very same image ships the real thing:
 
-    rtl_macro_placer     Hier-RTLMP (OpenROAD src/mpl2), the hierarchical
+    rtl_macro_placer     Hier-RTLMP (OpenROAD src/mpl -- renamed from
+                         src/mpl2 upstream in Jan 2025, before this
+                         image's Feb 2025 cut; the Tcl command name
+                         itself did not change), the hierarchical
                          automatic macro placer
     macro_placement      the simulated-annealing placer
-    place_macro          place one macro explicitly
+    place_macro          place one macro explicitly -- gained `-dont_snap`
+                         and `-check_overlap` flags upstream shortly
+                         before this image's cut too, not yet used here
     write_macro_placement
 
 So this drives OpenROAD directly, exactly as odb_query.py already does
@@ -130,7 +135,8 @@ def autoplace(run_dir: Path | str, halo_um: float = 5.0,
     script = work / "_macro_place.py"
     script.write_text(
         f"PLACER = {placer!r}\nHALO = {halo_um!r}\nWL_WEIGHT = {wirelength_weight!r}\n"
-        + _OR_SCRIPT
+        + _OR_SCRIPT,
+        encoding="utf-8",
     )
     linked = work / "design.odb"
     created = False
@@ -145,7 +151,7 @@ def autoplace(run_dir: Path | str, halo_um: float = 5.0,
     ]
     try:
         print(f"$ {' '.join(cmd)}", file=sys.stderr)
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
         marker = "###JSON###"
         if marker not in result.stdout:
             raise MacroPlaceError(

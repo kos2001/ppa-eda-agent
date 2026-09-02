@@ -96,13 +96,13 @@ class CallSiteTests(unittest.TestCase):
     def test_no_module_hardcodes_a_platform(self):
         root = Path(__file__).resolve().parent.parent / "pipeline"
         for name in self.MODULES:
-            text = (root / name).read_text()
+            text = (root / name).read_text(encoding="utf-8")
             self.assertNotIn('"--platform", "linux/amd64"', text, name)
 
     def test_every_docker_caller_imports_the_chooser(self):
         root = Path(__file__).resolve().parent.parent / "pipeline"
         for name in self.MODULES:
-            text = (root / name).read_text()
+            text = (root / name).read_text(encoding="utf-8")
             if '"docker", "run"' not in text:
                 continue
             self.assertIn("platform_args", text, name)

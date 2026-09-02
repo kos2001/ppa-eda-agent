@@ -27,7 +27,7 @@ class TestSingleSourceOfTruth(unittest.TestCase):
         for py in PIPELINE.glob("*.py"):
             if py.name == "toolchain.py":
                 continue
-            if re.search(r'["\']ghcr\.io/\S+openlane', py.read_text()):
+            if re.search(r'["\']ghcr\.io/\S+openlane', py.read_text(encoding="utf-8")):
                 offenders.append(py.name)
         self.assertEqual(offenders, [], f"{offenders} pin the image directly")
 

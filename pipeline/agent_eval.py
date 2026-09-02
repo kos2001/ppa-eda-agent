@@ -194,7 +194,7 @@ def run(designs: list[str], server: str, guidance: bool = False) -> dict:
         if path is None:
             rows.append({"design": design, "error": "no recorded case"})
             continue
-        case = json.loads(path.read_text())
+        case = json.loads(path.read_text(encoding="utf-8"))
         answer, seconds = ask(server, prompt_for(case, guidance))
         row = {"design": design, "case": path.name, "guidance": guidance,
                "seconds": round(seconds, 1)}

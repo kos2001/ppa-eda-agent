@@ -119,7 +119,7 @@ def query(run_dir: Path) -> dict:
         "openroad", "-no_init", "-exit", "-python", "/work/_odb_query.py",
     ]
     script_path = work / "_odb_query.py"
-    script_path.write_text(_OR_SCRIPT)
+    script_path.write_text(_OR_SCRIPT, encoding="utf-8")
     linked = work / "design.odb"
     created_link = False
     if not linked.exists():
@@ -127,7 +127,7 @@ def query(run_dir: Path) -> dict:
         created_link = True
     try:
         print(f"$ {' '.join(cmd)}", file=sys.stderr)
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
         marker = "###JSON###"
         if marker not in result.stdout:
             raise RuntimeError(

@@ -72,7 +72,7 @@ def build_graph(netlist_json: Path | str, design_name: str | None = None) -> dic
     path = Path(netlist_json)
     if not path.is_file():
         raise NetlistError(f"netlist JSON not found: {path}")
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     modules = data.get("modules") or {}
     if not modules:
         raise NetlistError(f"{path}: no modules")

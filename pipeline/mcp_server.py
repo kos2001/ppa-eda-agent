@@ -301,7 +301,7 @@ def _tool_orchestrate(args: dict) -> dict:
     # "Graph engineering" doc section).
     design_dir = REPO_ROOT / "pipeline" / "designs" / args["design"]
     run_spec_path = design_dir / "run_spec.json"
-    run_spec = json.loads(run_spec_path.read_text())
+    run_spec = json.loads(run_spec_path.read_text(encoding="utf-8"))
     design_name = run_spec.get("design_name", args["design"])
     max_iterations = args.get("max_iterations") or run_spec.get("max_iterations", 3)
     max_parallel = max(1, args.get("max_parallel", 1))
@@ -341,12 +341,12 @@ def _tool_request_review(args: dict) -> dict:
     case_file, case = request_review.latest_case(args["design"])
     review_file = out_file / f"{args['design']}__{case['date']}__request.md"
     return {"review_request_file": str(review_file),
-            "content": review_file.read_text() if review_file.exists() else None}
+            "content": review_file.read_text(encoding="utf-8") if review_file.exists() else None}
 
 
 def _tool_apply_review(args: dict) -> dict:
     tmp_path = REPO_ROOT / "pipeline" / f".mcp_review_response_{os.getpid()}.txt"
-    tmp_path.write_text(args["response_text"])
+    tmp_path.write_text(args["response_text"], encoding="utf-8")
     try:
         ns = SimpleNamespace(design=args["design"], agent=args["agent"], response_file=tmp_path)
         request_review.cmd_apply(ns)
@@ -408,7 +408,7 @@ def _tool_tech_compare(args: dict) -> dict:
     run_spec_path = design_dir / "run_spec.json"
     targets = {}
     if run_spec_path.exists():
-        targets = json.loads(run_spec_path.read_text()).get("targets", {})
+        targets = json.loads(run_spec_path.read_text(encoding="utf-8")).get("targets", {})
     report = tech_compare.compare(design_dir, args["variants"], targets)
     report["report_file"] = str(tech_compare.write_report(report))
     return report
@@ -496,7 +496,12 @@ MAX_INLINE_IMAGE_BYTES = 4 * 1024 * 1024
 
 def _content(out: dict) -> list[dict]:
     """A tool result as MCP content, with any image actually attached."""
-    blocks = [{"type": "text", "text": json.dumps(out, indent=2, default=str)}]
+    # ensure_ascii=False: this text is read by a human and pasted into a
+    # later Bash call (see the _path handling below), not transported as
+    # wire-protocol JSON -- \uXXXX-escaping a real path (e.g. one under a
+    # non-ASCII username) makes it unreadable and unusable as a path.
+    blocks = [{"type": "text",
+               "text": json.dumps(out, indent=2, default=str, ensure_ascii=False)}]
     if not isinstance(out, dict):
         return blocks
     for key, value in out.items():

@@ -245,7 +245,7 @@ class RealRequestTests(unittest.TestCase):
         later = cases / "aes__2026-08-30__134751.json"
         if not (earlier.exists() and later.exists()):
             self.skipTest("the two aes cases are not both present")
-        if not json.loads(earlier.read_text()).get("diagnosis"):
+        if not json.loads(earlier.read_text(encoding="utf-8")).get("diagnosis"):
             self.skipTest("the earlier aes case has no recorded review")
 
         out = subprocess.run(
@@ -254,7 +254,7 @@ class RealRequestTests(unittest.TestCase):
             capture_output=True, text=True, cwd=ROOT / "pipeline", timeout=120)
         self.assertEqual(out.returncode, 0, out.stderr[-500:])
         written = ROOT / out.stdout.strip().rsplit(" ", 1)[-1]
-        body = written.read_text()
+        body = written.read_text(encoding="utf-8")
         # The line that was false: a design whose previous run was
         # reviewed is not being seen for the first time.
         self.assertNotIn("(none recorded yet)", body)

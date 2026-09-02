@@ -141,7 +141,7 @@ def load_library(path: Path | str) -> Library:
     path = Path(path)
     if not path.is_file():
         raise LibertyError(f"liberty file not found: {path}")
-    txt = path.read_text(errors="replace")
+    txt = path.read_text(encoding="utf-8", errors="replace")
     time_unit_ns, cap_unit_pf = _parse_units(txt, path)
 
     dm = re.search(r"default_max_transition\s*:\s*([\d.]+)\s*;", txt)
@@ -245,7 +245,7 @@ def wire_cap_per_um(tlef: Path | str, layer: str) -> float:
     tlef = Path(tlef)
     if not tlef.is_file():
         raise LibertyError(f"tech LEF not found: {tlef}")
-    txt = tlef.read_text(errors="replace")
+    txt = tlef.read_text(encoding="utf-8", errors="replace")
     m = re.search(rf"^LAYER {re.escape(layer)}\s*$(.*?)^END {re.escape(layer)}",
                   txt, re.S | re.M)
     if not m:

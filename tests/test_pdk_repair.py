@@ -100,7 +100,7 @@ class RepairTests(unittest.TestCase):
         pdk_repair.repair("fam", apply=True)
         written = (self.tmp / "fam" / "versions" / "abc123" / "variantA"
                    / "libs.tech" / "openlane" / "x_fd_sc_9t"
-                   / "drc_exclude.cells").read_text()
+                   / "drc_exclude.cells").read_text(encoding="utf-8")
         self.assertIn("not shipped by the PDK", written)
         self.assertIn("Empty on purpose", written)
 
@@ -110,9 +110,9 @@ class RepairTests(unittest.TestCase):
         # DRC regression.
         path = (self.tmp / "fam" / "versions" / "abc123" / "variantA"
                 / "libs.tech" / "openlane" / "x_fd_sc_7t" / "drc_exclude.cells")
-        before = path.read_text()
+        before = path.read_text(encoding="utf-8")
         pdk_repair.repair("fam", apply=True)
-        self.assertEqual(path.read_text(), before)
+        self.assertEqual(path.read_text(encoding="utf-8"), before)
 
     def test_applying_twice_changes_nothing(self):
         first = pdk_repair.repair("fam", apply=True)

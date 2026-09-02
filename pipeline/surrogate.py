@@ -126,7 +126,7 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
     seen: dict[tuple[str, str], dict] = {}
     for path in sorted(cases_dir.glob("*.json")):
         try:
-            case = json.loads(path.read_text())
+            case = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
         design = case.get("design")
