@@ -87,7 +87,7 @@ def extra_lef_paths(design_dir: Path) -> list[Path]:
     config_file = design_dir / "config.json"
     if not config_file.exists():
         return []
-    config = json.loads(config_file.read_text())
+    config = json.loads(config_file.read_text(encoding="utf-8"))
     paths = []
     for macro in config.get("MACROS", {}).values():
         for lef in macro.get("lef", []):
@@ -110,7 +110,7 @@ def read_topology(design_dir: Path) -> dict | None:
     topology_file = design_dir / "topology.json"
     if not topology_file.exists():
         return None
-    return json.loads(topology_file.read_text())
+    return json.loads(topology_file.read_text(encoding="utf-8"))
 
 
 # Real error-text fingerprints, mapped to the PROCESS_STAGES id where
@@ -1158,7 +1158,7 @@ def clock_period(design_dir: Path) -> float | None:
     cfg = design_dir / "config.json"
     if not cfg.exists():
         return None
-    value = json.loads(cfg.read_text()).get("CLOCK_PERIOD")
+    value = json.loads(cfg.read_text(encoding="utf-8")).get("CLOCK_PERIOD")
     return float(value) if isinstance(value, (int, float, str)) and str(value).strip() else None
 
 
@@ -1238,17 +1238,17 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "layout_image": capture_layout_image(design_name, design_dir, subject),
         "layout_image_tag": subject["tag"] if subject else None,
     }
-    case_file.write_text(json.dumps(case, indent=2))
+    case_file.write_text(json.dumps(case, indent=2), encoding="utf-8")
 
     index_file = REFDB / "index.json"
-    index = json.loads(index_file.read_text()) if index_file.exists() else {}
+    index = json.loads(index_file.read_text(encoding="utf-8")) if index_file.exists() else {}
     existing = index.get(design_name, [])
     # A rerun on the same day overwrites case_file in place (same name) —
     # don't duplicate the index entry for it.
     if case_file.name not in existing:
         existing.append(case_file.name)
     index[design_name] = existing
-    index_file.write_text(json.dumps(index, indent=2))
+    index_file.write_text(json.dumps(index, indent=2), encoding="utf-8")
     return case_file
 
 
@@ -1389,7 +1389,7 @@ def main():
                           f"failures are common (see screen_candidates())")
     args = ap.parse_args()
 
-    run_spec = json.loads(args.run_spec.read_text())
+    run_spec = json.loads(args.run_spec.read_text(encoding="utf-8"))
     design_name = run_spec.get("design_name", args.design.name)
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
 

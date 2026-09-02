@@ -71,7 +71,7 @@ def parse_path(rpt: Path) -> dict | None:
     stages: list[dict] = []
     slack = met = None
     arrival = None
-    for line in rpt.read_text(errors="replace").splitlines():
+    for line in rpt.read_text(encoding="utf-8", errors="replace").splitlines():
         if startpoint is None and line.startswith("Startpoint:"):
             startpoint = line.split(":", 1)[1].strip()
         elif endpoint is None and line.startswith("Endpoint:"):
@@ -124,7 +124,7 @@ def parse_drv(rpt: Path) -> dict | None:
     between reporting a failure and being able to reason about one."""
     if not rpt.exists():
         return None
-    text = rpt.read_text(errors="replace")
+    text = rpt.read_text(encoding="utf-8", errors="replace")
     counts = {}
     for kind in ("slew", "fanout", "cap"):
         m = re.search(rf"max {kind} violation count (\d+)", text)

@@ -61,7 +61,7 @@ SWEPT = ("SYNTH_STRATEGY", "CLOCK_PERIOD", "FP_CORE_UTIL", "DIE_AREA",
 def declared_config(design: str) -> dict:
     path = DESIGNS / design / "config.json"
     try:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return {}
 
@@ -69,7 +69,7 @@ def declared_config(design: str) -> dict:
 def resolved(run_dir: Path) -> dict | None:
     path = run_dir / "resolved.json"
     try:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return None
 
@@ -144,7 +144,7 @@ def recover(design: str, write: bool = False) -> dict:
     spec = {"targets": {}}
     spec_path = design_dir / "run_spec.json"
     if spec_path.is_file():
-        spec["targets"] = json.loads(spec_path.read_text()).get("targets", {})
+        spec["targets"] = json.loads(spec_path.read_text(encoding="utf-8")).get("targets", {})
 
     rows, skipped = [], 0
     for item in recoverable(design):
@@ -179,7 +179,7 @@ def recover(design: str, write: bool = False) -> dict:
         case_file = orchestrator.write_case(
             design, design_dir, [{"iteration": 1, "results": rows}],
             orchestrator.pick_winner(rows), "recovered_from_run_dirs")
-        out["case_file"] = str(case_file.relative_to(REPO_ROOT))
+        out["case_file"] = case_file.relative_to(REPO_ROOT).as_posix()
     return out
 
 

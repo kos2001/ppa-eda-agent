@@ -273,10 +273,19 @@ class ImageContentTests(unittest.TestCase):
 
     def test_the_path_is_still_reported(self):
         # A human, and a later Bash call, both need it.
+        import json
         import mcp_server
         path = self._png()
         blocks = mcp_server._content({"png_path": str(path)})
-        self.assertIn(str(path), blocks[0]["text"])
+        # Not a raw substring check: the path is inside a JSON string, so
+        # a Windows path's backslashes are doubled there (JSON string
+        # escaping, not a platform quirk to work around) -- comparing
+        # against how json.dumps() would itself render this string is
+        # what "still reported" actually means, on any OS.
+        # ensure_ascii=False matches _content()'s own encoding choice --
+        # see its comment -- so a non-ASCII path (e.g. under a non-ASCII
+        # username) is compared in the same readable form it is reported in.
+        self.assertIn(json.dumps(str(path), ensure_ascii=False)[1:-1], blocks[0]["text"])
 
     def test_a_non_image_path_is_not_attached(self):
         import mcp_server

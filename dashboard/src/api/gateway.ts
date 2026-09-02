@@ -1,7 +1,10 @@
 import type { Lang } from "../i18n";
 const STORAGE_KEY = "ppa-eda-agent-dashboard:gateway-key";
 export const GATEWAY_BASE_URL = "http://127.0.0.1:8700";
-export const MODEL = "ppa-eda-analyst";
+// Renamed to match the real hermes-agent profile server/hermes-gateway.mjs
+// actually serves now (see its own comment) -- was "ppa-eda-analyst" back
+// when the gateway was a documented but unbuilt aspiration.
+export const MODEL = "ppa-agent";
 const LOCAL_SERVER_URL = "http://127.0.0.1:8123";
 
 export function getStoredKey(): string | null {
