@@ -41,7 +41,7 @@ class TestLayerProperties(unittest.TestCase):
         """Loading the .lyp is impossible if the PDK isn't mounted — the
         original bug was exactly that the render container saw only its
         temp work directory."""
-        src = (PIPELINE / "render_layout.py").read_text()
+        src = (PIPELINE / "render_layout.py").read_text(encoding="utf-8")
         self.assertIn('f"{PDK_ROOT}:/pdk:ro"', src)
 
 

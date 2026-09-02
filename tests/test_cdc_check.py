@@ -35,7 +35,7 @@ def make_run(log_text: str) -> Path:
     d = Path(tempfile.mkdtemp())
     step = d / "13-openroad-floorplan"
     step.mkdir()
-    (step / "openroad-floorplan.log").write_text(log_text)
+    (step / "openroad-floorplan.log").write_text(log_text, encoding="utf-8")
     return d
 
 
@@ -76,7 +76,7 @@ class LogReadingTests(unittest.TestCase):
         d = make_run(REAL_LOG)
         second = d / "20-openroad-generatepdn"
         second.mkdir()
-        (second / "openroad-generatepdn.log").write_text(REAL_LOG)
+        (second / "openroad-generatepdn.log").write_text(REAL_LOG, encoding="utf-8")
         self.assertEqual(cdc_check.constrained_clocks(d), ["clk_a"])
         self.assertEqual(len(cdc_check.multi_clock_warnings(d)), 1)
 

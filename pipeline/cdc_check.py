@@ -53,7 +53,7 @@ def declared_clock_ports(design_dir: Path | str) -> list[str]:
     cfg_path = Path(design_dir) / "config.json"
     if not cfg_path.is_file():
         return []
-    raw = json.loads(cfg_path.read_text()).get("CLOCK_PORT")
+    raw = json.loads(cfg_path.read_text(encoding="utf-8")).get("CLOCK_PORT")
     if raw is None:
         return []
     if isinstance(raw, list):
@@ -71,7 +71,7 @@ def constrained_clocks(run_dir: Path | str) -> list[str]:
     found: list[str] = []
     for log in sorted(Path(run_dir).glob("*/*.log")):
         try:
-            text = log.read_text(errors="replace")
+            text = log.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
         for name in _USING_CLOCK.findall(text):
@@ -85,7 +85,7 @@ def multi_clock_warnings(run_dir: Path | str) -> list[str]:
     seen: list[str] = []
     for log in sorted(Path(run_dir).glob("*/*.log")):
         try:
-            text = log.read_text(errors="replace")
+            text = log.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
         for w in _MULTI_CLOCK_WARNING.findall(text):
@@ -105,7 +105,7 @@ def has_custom_sdc(design_dir: Path | str) -> bool:
     cfg_path = Path(design_dir) / "config.json"
     if not cfg_path.is_file():
         return False
-    cfg = json.loads(cfg_path.read_text())
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     return any(cfg.get(k) for k in ("PNR_SDC_FILE", "SIGNOFF_SDC_FILE",
                                      "FALLBACK_SDC_FILE", "BASE_SDC_FILE"))
 

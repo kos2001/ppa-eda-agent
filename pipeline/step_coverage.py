@@ -87,7 +87,7 @@ def read_gating(run_dir: Path | str) -> dict:
     if not path.is_file():
         return {}
     try:
-        resolved = json.loads(path.read_text())
+        resolved = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return {}
     return {k: v for k, v in resolved.items() if k.startswith("RUN_")}

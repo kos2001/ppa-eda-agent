@@ -25,6 +25,7 @@ Both are derived from the case store at read time. Nothing is recorded
 to support this page.
 """
 import json
+import os
 import re
 import subprocess
 import unittest
@@ -41,15 +42,22 @@ STAMP = re.compile(r"__(\d{4}-\d{2}-\d{2})(?:__(\d{6}))?\.json$")
 # has its own copy of these two strings, and the point of reading them
 # from the pipeline is that the test fails if the two ever disagree
 # about what an unlabelled row means.
-_surrogate = (ROOT / "pipeline" / "surrogate.py").read_text()
+_surrogate = (ROOT / "pipeline" / "surrogate.py").read_text(encoding="utf-8")
 DEFAULT_SCL = re.search(r'^DEFAULT_SCL = "([^"]+)"', _surrogate, re.M).group(1)
 DEFAULT_PDK = re.search(r'^DEFAULT_PDK = "([^"]+)"', _surrogate, re.M).group(1)
 
 
 def _harness() -> dict:
-    out = subprocess.run(
-        ["npx", "tsx", str(HARNESS), str(CASES)],
-        cwd=ROOT / "dashboard", capture_output=True, text=True, timeout=300)
+    try:
+        out = subprocess.run(
+            ["npx", "tsx", str(HARNESS), str(CASES)],
+            cwd=ROOT / "dashboard", capture_output=True, text=True,
+            encoding="utf-8", timeout=300,
+            shell=(os.name == "nt"))
+    except FileNotFoundError as e:
+        # See test_case_grouping._harness()'s identical comment: on
+        # Windows npx is npx.cmd, which needs a shell to exec at all.
+        raise unittest.SkipTest(f"npx unavailable: {e}")
     if out.returncode == 0:
         return json.loads(out.stdout)
     # Skip only when the toolchain is absent, never when the code under
@@ -65,7 +73,7 @@ def _rows() -> list[dict]:
     for path in sorted(CASES.glob("*.json")):
         stamp = STAMP.search(path.name)
         at = f"{stamp.group(1)}T{stamp.group(2) or '000000'}"
-        case = json.loads(path.read_text())
+        case = json.loads(path.read_text(encoding="utf-8"))
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
                 out.append({

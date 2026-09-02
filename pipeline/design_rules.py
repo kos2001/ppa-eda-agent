@@ -64,7 +64,7 @@ def read_pdk_rules(tlef: Path | str) -> dict:
     tlef = Path(tlef)
     if not tlef.is_file():
         raise DesignRuleError(f"tech LEF not found: {tlef}")
-    txt = tlef.read_text(errors="replace")
+    txt = tlef.read_text(encoding="utf-8", errors="replace")
 
     grid = _num(txt, r"^MANUFACTURINGGRID\s+([\d.]+)\s*;")
     dbu = _num(txt, r"^\s*DATABASE MICRONS\s+([\d.]+)\s*;")
@@ -156,7 +156,7 @@ def read_design_constraints(design_dir: Path | str) -> dict:
     cfg_path = design_dir / "config.json"
     if not cfg_path.is_file():
         raise DesignRuleError(f"no config.json in {design_dir}")
-    cfg = json.loads(cfg_path.read_text())
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
 
     settings = [
         {"key": k, "label": _CONSTRAINT_KEYS[k], "value": cfg[k]}
@@ -177,7 +177,7 @@ def read_design_constraints(design_dir: Path | str) -> dict:
     targets = {}
     spec_path = design_dir / "run_spec.json"
     if spec_path.is_file():
-        targets = json.loads(spec_path.read_text()).get("targets", {})
+        targets = json.loads(spec_path.read_text(encoding="utf-8")).get("targets", {})
 
     return {
         "design_name": cfg.get("DESIGN_NAME"),

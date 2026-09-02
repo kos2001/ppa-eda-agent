@@ -48,7 +48,7 @@ class RealConfigTests(unittest.TestCase):
         """
         seen = 0
         for design in DESIGNS:
-            die = json.loads((design / "config.json").read_text()).get("DIE_AREA")
+            die = json.loads((design / "config.json").read_text(encoding="utf-8")).get("DIE_AREA")
             if die is None:
                 continue
             seen += 1
@@ -58,7 +58,7 @@ class RealConfigTests(unittest.TestCase):
 
     def test_die_area_survives_featurization_for_every_real_design(self):
         for design in DESIGNS:
-            cfg = json.loads((design / "config.json").read_text())
+            cfg = json.loads((design / "config.json").read_text(encoding="utf-8"))
             if "DIE_AREA" not in cfg:
                 continue
             feats = surrogate.featurize({"overrides": cfg})
@@ -71,7 +71,7 @@ class RealConfigTests(unittest.TestCase):
         the other's neighbour."""
         rows = []
         for design in DESIGNS:
-            cfg = json.loads((design / "config.json").read_text())
+            cfg = json.loads((design / "config.json").read_text(encoding="utf-8"))
             if "DIE_AREA" in cfg:
                 rows.append({"design": "x", "overrides": {"DIE_AREA": cfg["DIE_AREA"]}})
         if len(rows) < 2:
@@ -92,7 +92,7 @@ class RealConfigTests(unittest.TestCase):
         found_multi = False
         for design in DESIGNS:
             ports = cdc_check.declared_clock_ports(design)
-            cfg = json.loads((design / "config.json").read_text())
+            cfg = json.loads((design / "config.json").read_text(encoding="utf-8"))
             if "CLOCK_PORT" in cfg:
                 self.assertTrue(ports, design.name)
             if len(ports) > 1:
@@ -105,7 +105,7 @@ class RealConfigTests(unittest.TestCase):
             spec_file = design / "run_spec.json"
             if not spec_file.is_file():
                 continue
-            spec = json.loads(spec_file.read_text())
+            spec = json.loads(spec_file.read_text(encoding="utf-8"))
             has_work = bool(spec.get("candidates") or spec.get("sweeps")
                             or spec.get("explore_synthesis"))
             self.assertTrue(has_work, f"{design.name} has nothing to run")

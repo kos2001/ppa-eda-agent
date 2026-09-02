@@ -225,13 +225,13 @@ class TestRealCommittedCasesAreGrounded(unittest.TestCase):
         index_file = verify_diagnosis.REFDB / "index.json"
         if not index_file.exists():
             self.skipTest("no reference-db index (fresh checkout)")
-        index = json.loads(index_file.read_text())
+        index = json.loads(index_file.read_text(encoding="utf-8"))
         for design, names in index.items():
             for name in names:
                 path = verify_diagnosis.REFDB / "cases" / name
                 if not path.exists():
                     continue
-                report = verify_diagnosis.verify_case(json.loads(path.read_text()))
+                report = verify_diagnosis.verify_case(json.loads(path.read_text(encoding="utf-8")))
                 if not report["checked"]:
                     continue
                 self.assertEqual(report["ungrounded_error_codes"], [],

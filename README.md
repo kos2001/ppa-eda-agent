@@ -254,22 +254,43 @@ produces a genuine timing violation.
 
 ### Diagnosis page (live agent, via hermes-gateway)
 
-The `ppa-eda-analyst` subagent is also wired up as a hermes-agent profile
-so the dashboard can call it as a live, streaming diagnostic assistant —
-not just a static report parser.
+The `ppa-eda-analyst` subagent's diagnostic knowledge is also wired up as a
+real [Hermes Agent](https://github.com/NousResearch/hermes-agent) profile
+named `ppa-agent`, fronted by `server/hermes-gateway.mjs` — a real,
+dependency-free OpenAI-compatible reverse proxy this repo ships, not a
+description of one to build yourself.
 
-1. A hermes-gateway instance (local OpenAI-compatible reverse proxy in
-   front of hermes-agent instances) must be running with a
-   `ppa-eda-analyst` upstream registered — set up as its own hermes
-   profile pointed at this repo's agent definition. This is
-   environment-specific; there's no public setup doc to link here.
-2. On the Diagnosis page, paste your gateway client key (from
-   `GATEWAY_CLIENT_KEYS` in the gateway's `.env`) — stored only in this
-   browser's `localStorage`.
-3. Run a simulation on the Simulate tab, then click "Diagnose this
-   result." The diagnosis streams in live (SSE), and you'll get a browser
-   notification (and a badge on the Diagnosis nav tab) when it's done,
-   even if you've switched to another tab.
+1. Install Hermes Agent (e.g. via
+   [Hermes Desktop](https://github.com/NousResearch/hermes-desktop)) and
+   get at least the default profile talking to a real model provider —
+   any provider works, the profile just needs working auth.
+2. Create the `ppa-agent` profile as a clone of a working one, so it
+   inherits real credentials instead of needing its own:
+   `hermes profile create ppa-agent --clone`. Its persona lives at
+   `~/.hermes/profiles/ppa-agent/SOUL.md` (or `%LOCALAPPDATA%\hermes\
+   profiles\ppa-agent\SOUL.md` on Windows) — replace it with the PPA
+   diagnostic checklist (see that subagent's own `.claude/agents/
+   ppa-eda-analyst.md` for the source content this was adapted from).
+3. Put a shared secret in this repo's own `.env` (gitignored, see
+   `.env.example`): `PPA_EDA_GATEWAY_KEY=<anything long and random>`.
+   Both `server/index.mjs` and `server/hermes-gateway.mjs` read the same
+   value from the same file — nothing to keep in sync by hand.
+4. Run `node server/hermes-gateway.mjs` (listens on `127.0.0.1:8700` by
+   default). It shells out to the real `hermes` CLI per request — no new
+   dependency, matching this repo's own style — so each diagnosis really
+   does cost one real LLM call through whatever provider the profile is
+   configured with.
+5. On the Diagnosis page, paste the same key as `PPA_EDA_GATEWAY_KEY`
+   (or set it in `server/index.mjs`'s own environment so the dashboard
+   never has to handle it — see `.env.example`) — stored only in this
+   browser's `localStorage` if pasted.
+6. Run a simulation on the Simulate tab, then click "Diagnose this
+   result." The diagnosis streams in (as one real SSE chunk — `hermes
+   chat --oneshot` only returns a complete answer when the process
+   exits, so this doesn't token-stream the way a raw model API call
+   would), and you'll get a browser notification (and a badge on the
+   Diagnosis nav tab) when it's done, even if you've switched to another
+   tab.
 
 ## Status
 

@@ -94,7 +94,7 @@ def render_gds_png(run_dir: Path, output_path: Path, size: int = 900) -> Path:
         tmp_path = Path(tmp)
         shutil.copy(gds_path, tmp_path / "layout.gds")
         (tmp_path / "render.py").write_text(
-            _KLAYOUT_SCRIPT.format(size=size, lyp=LYP_IN_CONTAINER))
+            _KLAYOUT_SCRIPT.format(size=size, lyp=LYP_IN_CONTAINER), encoding="utf-8")
 
         cmd = [
             "docker", "run", "--rm", *platform_args(),
@@ -105,7 +105,7 @@ def render_gds_png(run_dir: Path, output_path: Path, size: int = 900) -> Path:
             "klayout", "-z", "-r", "/work/render.py",
         ]
         print(f"$ {' '.join(cmd)}", file=sys.stderr)
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
         sys.stderr.write(result.stderr)
 
         rendered = tmp_path / "out.png"

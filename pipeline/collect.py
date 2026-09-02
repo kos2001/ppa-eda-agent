@@ -191,7 +191,7 @@ def recorded_seconds() -> dict:
     per: dict[str, list] = {}
     for path in sorted(cases.glob("*.json")):
         try:
-            case = json.loads(path.read_text())
+            case = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
         for iteration in case.get("iterations", []):
@@ -243,7 +243,7 @@ def estimate(items: list[dict], parallel: int) -> dict:
 
 def declared(design: str) -> dict:
     path = DESIGNS / design / "config.json"
-    return json.loads(path.read_text()) if path.is_file() else {}
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
 
 def already_have(design: str) -> set:
@@ -325,7 +325,7 @@ def run_one(item: dict) -> dict:
     spec = {"targets": {}}
     spec_path = design_dir / "run_spec.json"
     if spec_path.is_file():
-        spec["targets"] = json.loads(spec_path.read_text()).get("targets", {})
+        spec["targets"] = json.loads(spec_path.read_text(encoding="utf-8")).get("targets", {})
     started = time.time()
     result = orchestrator.run_candidate(design_dir, spec, item)
     result["design"] = item["design"]
@@ -373,7 +373,7 @@ def collect(designs: list[str], parallel: int, limit: int | None) -> dict:
         case_file = orchestrator.write_case(
             design, DESIGNS / design, [{"iteration": 1, "results": results}],
             orchestrator.pick_winner(results), "max_iterations_reached")
-        written.append(str(case_file.relative_to(REPO_ROOT)))
+        written.append(case_file.relative_to(REPO_ROOT).as_posix())
         print(f"  wrote {case_file.name} ({len(results)} runs)",
               file=sys.stderr, flush=True)
 

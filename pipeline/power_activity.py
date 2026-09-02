@@ -256,7 +256,7 @@ def measure(design_dir: Path | str, run_dir: Path | str,
         IMAGE, "sh", "-c", script,
     ]
     print(f"$ docker run … {top} power activity", file=sys.stderr)
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     out = proc.stdout
 
     if "###COMPILE_FAILED###" in out:
@@ -280,11 +280,11 @@ def measure(design_dir: Path | str, run_dir: Path | str,
 
     pins = _ANNOTATED.search(out)
     return {
-        "testbench": str(tb.relative_to(REPO_ROOT)),
-        "netlist": str(netlist.relative_to(REPO_ROOT)),
+        "testbench": tb.relative_to(REPO_ROOT).as_posix(),
+        "netlist": netlist.relative_to(REPO_ROOT).as_posix(),
         "annotated_pins": int(pins.group(1)) if pins else 0,
-        "parasitics": str(spef.relative_to(REPO_ROOT)) if spef else None,
-        "constraints": str(sdc.relative_to(REPO_ROOT)) if sdc else "bare clock",
+        "parasitics": spef.relative_to(REPO_ROOT).as_posix() if spef else None,
+        "constraints": sdc.relative_to(REPO_ROOT).as_posix() if sdc else "bare clock",
         # Recorded because it is the difference between a number that
         # can be compared with score()'s and one that cannot.
         "corner": corner,

@@ -114,7 +114,7 @@ def classic_steps() -> list[str]:
             ["docker", "run", "--rm", OPENLANE_IMAGE, "python3", "-c",
              "from openlane.flows import Flow\n"
              "print('\\n'.join(s.id for s in Flow.factory.get('Classic').Steps))"],
-            capture_output=True, text=True, timeout=300,
+            capture_output=True, text=True, encoding="utf-8", timeout=300,
         )
         _CLASSIC_STEPS = [l.strip() for l in out.stdout.splitlines() if l.strip()]
     except Exception:  # noqa: BLE001 - reporting field, not a gate

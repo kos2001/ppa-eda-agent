@@ -113,7 +113,7 @@ def macro_libs(design_dir: Path) -> list[Path]:
     if not cfg.is_file():
         return []
     out = []
-    for spec in (json.loads(cfg.read_text()).get("MACROS") or {}).values():
+    for spec in (json.loads(cfg.read_text(encoding="utf-8")).get("MACROS") or {}).values():
         for entry in (spec.get("lib") or {}).values():
             for raw in (entry if isinstance(entry, list) else [entry]):
                 raw = str(raw)
@@ -185,13 +185,13 @@ def trace(design_dir: Path | str, run_dir: Path | str, pin: str,
         spef_cmd="read_spef /work/p.spef" if got["spef"] else 'puts "###NO_SPEF###"',
         sdc_cmd="read_sdc /work/c.sdc" if got["sdc"] else 'puts "###NO_SDC###"',
     )
-    (work / "probe.tcl").write_text(script)
+    (work / "probe.tcl").write_text(script, encoding="utf-8")
 
     cmd = ["docker", "run", "--rm", *platform_args(),
            "-v", f"{find_pdk_root()}:/pdkv", "-v", f"{work}:/work",
            IMAGE, "sta", "-no_init", "-exit", "/work/probe.tcl"]
     print(f"$ docker run … report_checks -to {pin}", file=sys.stderr)
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     out = proc.stdout
 
     if "###PATH###" not in out:
@@ -310,13 +310,13 @@ def query(design_dir: Path | str, run_dir: Path | str, tcl: str,
         spef_cmd="read_spef /work/p.spef" if got["spef"] else 'puts "###NO_SPEF###"',
         sdc_cmd="read_sdc /work/c.sdc" if got["sdc"] else 'puts "###NO_SDC###"',
     ).split("puts \"###PATH###\"")[0] + 'puts "###OUT###"\n' + tcl + "\nexit\n"
-    (work / "query.tcl").write_text(script)
+    (work / "query.tcl").write_text(script, encoding="utf-8")
 
     cmd = ["docker", "run", "--rm", *platform_args(),
            "-v", f"{find_pdk_root()}:/pdkv", "-v", f"{work}:/work",
            IMAGE, "sta", "-no_init", "-exit", "/work/query.tcl"]
     print("$ docker run … sta query", file=sys.stderr)
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     out = proc.stdout
     if "###OUT###" not in out:
         raise StaPathError(f"OpenSTA produced no output:\n{out[-800:]}")

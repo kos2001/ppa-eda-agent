@@ -57,7 +57,7 @@ DESIGN_INVARIANT_KEYS = ("DESIGN_NAME", "VERILOG_FILES", "CLOCK_PORT",
 
 
 def design_invariants(design_dir: Path) -> dict:
-    config = json.loads((design_dir / "config.json").read_text())
+    config = json.loads((design_dir / "config.json").read_text(encoding="utf-8"))
     return {k: config[k] for k in DESIGN_INVARIANT_KEYS if k in config}
 
 
@@ -76,7 +76,7 @@ def cells_used(run_dir: Path) -> dict:
     actually built."""
     counts: dict[str, int] = {}
     for netlist in (run_dir / "final" / "nl").glob("*.v"):
-        for match in re.finditer(r"\bsky130_fd_sc_([a-z]+)__", netlist.read_text()):
+        for match in re.finditer(r"\bsky130_fd_sc_([a-z]+)__", netlist.read_text(encoding="utf-8")):
             lib = f"sky130_fd_sc_{match.group(1)}"
             counts[lib] = counts.get(lib, 0) + 1
     return counts
@@ -189,7 +189,7 @@ def write_report(report: dict) -> Path:
     out_dir = REFDB / "tech"
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{report['design']}__{report['date']}.json"
-    path.write_text(json.dumps(report, indent=2))
+    path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return path
 
 
@@ -204,7 +204,7 @@ def main() -> None:
     run_spec_path = args.design / "run_spec.json"
     targets = {}
     if run_spec_path.exists():
-        targets = json.loads(run_spec_path.read_text()).get("targets", {})
+        targets = json.loads(run_spec_path.read_text(encoding="utf-8")).get("targets", {})
 
     report = compare(args.design.resolve(), args.variants, targets)
     print_report(report)

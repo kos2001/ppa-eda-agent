@@ -230,10 +230,10 @@ def load_corpus(root: Path | str = REPO_ROOT) -> list[dict]:
         if not path.is_file():
             continue
         try:
-            text = path.read_text(errors="replace")
+            text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        docs.extend(_split_sections(text, str(path.relative_to(root))))
+        docs.extend(_split_sections(text, path.relative_to(root).as_posix()))
 
     for pattern in CORPUS_PY_GLOBS:
         for path in sorted(root.glob(pattern)):
@@ -245,13 +245,13 @@ def load_corpus(root: Path | str = REPO_ROOT) -> list[dict]:
             if path.name == Path(__file__).name:
                 continue
             try:
-                tree = ast.parse(path.read_text(errors="replace"))
+                tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
             except (OSError, SyntaxError):
                 # A module that will not parse is skipped rather than
                 # indexed from its raw text: half a docstring and a
                 # stack trace is not a passage.
                 continue
-            source = str(path.relative_to(root))
+            source = path.relative_to(root).as_posix()
             doc = ast.get_docstring(tree)
             if doc and len(doc) >= MIN_DOCSTRING:
                 # The first line is the module's own one-sentence
@@ -277,7 +277,7 @@ def _comment_blocks(path: Path, source: str) -> list[dict]:
     """
     out: list[dict] = []
     try:
-        lines = path.read_text(errors="replace").splitlines()
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     except OSError:
         return out
 
@@ -368,7 +368,7 @@ def store_facts(refdb: Path | str = REFDB) -> dict:
 
     for path in sorted(cases_dir.glob("*.json")):
         try:
-            case = json.loads(path.read_text())
+            case = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
         cases += 1

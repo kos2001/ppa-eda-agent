@@ -112,7 +112,7 @@ def find_liberty(run_dir: Path) -> Path:
     scl = "sky130_fd_sc_hd"
     resolved = run_dir / "resolved.json"
     if resolved.exists():
-        scl = json.loads(resolved.read_text()).get("STD_CELL_LIBRARY", scl)
+        scl = json.loads(resolved.read_text(encoding="utf-8")).get("STD_CELL_LIBRARY", scl)
     lib_dir = PDK_ROOT / "sky130A" / "libs.ref" / scl / "lib"
     for lib in sorted(lib_dir.glob("*tt_025C_1v80.lib")):
         return lib
@@ -131,7 +131,7 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None) -> dict:
 
     netlist = find_netlist(run_dir)
     liberty = find_liberty(run_dir)
-    top = top or json.loads((design_dir / "config.json").read_text())["DESIGN_NAME"]
+    top = top or json.loads((design_dir / "config.json").read_text(encoding="utf-8"))["DESIGN_NAME"]
 
     with tempfile.TemporaryDirectory() as tmp:
         work = Path(tmp)
@@ -142,12 +142,12 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None) -> dict:
             shutil.copy(f, work / f"rtl{i}.v")
             rtl_args.append(f"/work/rtl{i}.v")
         (work / "eq.ys").write_text(
-            _YS.format(rtl_args=" ".join(rtl_args), top=top))
+            _YS.format(rtl_args=" ".join(rtl_args), top=top), encoding="utf-8")
 
         cmd = ["docker", "run", "--rm", *platform_args(),
                "-v", f"{work}:/work", IMAGE, "yosys", "-s", "/work/eq.ys"]
         print(f"$ {' '.join(cmd)}", file=sys.stderr)
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
 
     out = result.stdout + result.stderr
     proven = unproven = None

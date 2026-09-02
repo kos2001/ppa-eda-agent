@@ -61,7 +61,7 @@ def case_files() -> dict:
     index_file = REFDB / "index.json"
     if not index_file.exists():
         return {}
-    return json.loads(index_file.read_text())
+    return json.loads(index_file.read_text(encoding="utf-8"))
 
 
 def diagnosis_text(case: dict) -> str:
@@ -120,7 +120,7 @@ def main() -> int:
     print("(reference groundedness only — NOT a correctness check; see module docstring)\n")
     for design in designs:
         for name in index.get(design, []):
-            case = json.loads((REFDB / "cases" / name).read_text())
+            case = json.loads((REFDB / "cases" / name).read_text(encoding="utf-8"))
             report = verify_case(case)
             if not report["checked"]:
                 print(f"{name}: skipped — {report['reason']}")
