@@ -248,11 +248,11 @@ class StoreFactTests(unittest.TestCase):
         rows = sum(
             len(it.get("results", []))
             for path in cases
-            for it in json.loads(path.read_text()).get("iterations", []))
+            for it in json.loads(path.read_text(encoding="utf-8")).get("iterations", []))
         self.assertEqual(self.facts["candidate_runs"], rows)
 
     def test_every_design_is_summarised(self):
-        designs = {json.loads(p.read_text())["design"]
+        designs = {json.loads(p.read_text(encoding="utf-8"))["design"]
                    for p in (ROOT / "reference-db" / "cases").glob("*.json")}
         self.assertEqual({d["design"] for d in self.facts["designs"]}, designs)
 
@@ -304,7 +304,7 @@ class CliTests(unittest.TestCase):
     def _run(self, question):
         out = subprocess.run(
             [sys.executable, str(ROOT / "pipeline" / "service_qa.py"), question],
-            capture_output=True, text=True, timeout=120)
+            capture_output=True, text=True, encoding="utf-8", timeout=120)
         self.assertEqual(out.returncode, 0, out.stderr[-800:])
         return json.loads(out.stdout)
 

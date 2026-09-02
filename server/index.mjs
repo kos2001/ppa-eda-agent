@@ -463,7 +463,11 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
 // dashboard's existing "paste your own key" flow (api/gateway.ts) still
 // works standalone for anyone who'd rather not set the server env var.
 const GATEWAY_BASE_URL = process.env.PPA_EDA_GATEWAY_BASE_URL || "http://127.0.0.1:8700";
-const GATEWAY_MODEL = "ppa-eda-analyst";
+// The hermes-agent profile this repo actually ships now — see
+// server/hermes-gateway.mjs — was "ppa-eda-analyst" while the gateway
+// was a documented but unbuilt aspiration; renamed to match the real
+// profile name once one existed.
+const GATEWAY_MODEL = process.env.PPA_EDA_GATEWAY_MODEL || "ppa-agent";
 
 function gatewayKey() {
   return (process.env.PPA_EDA_GATEWAY_KEY || "").trim();

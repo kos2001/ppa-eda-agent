@@ -84,7 +84,7 @@ def stored() -> dict:
     raw = 0
     for path in files:
         try:
-            case = json.loads(path.read_text())
+            case = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
         raw += sum(len(it.get("results", []))

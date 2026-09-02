@@ -73,7 +73,7 @@ def read_results(run_dir: Path | str, clock_period_ns: float | None = None) -> l
         state_file = child / "state_out.json"
         if not state_file.is_file():
             continue
-        metrics = (json.loads(state_file.read_text()).get("metrics") or {})
+        metrics = (json.loads(state_file.read_text(encoding="utf-8")).get("metrics") or {})
         if not metrics:
             continue
         ws = metrics.get("timing__setup__ws")
@@ -122,7 +122,8 @@ def explore(design_dir: Path | str, tag: str = "synth-explore",
     ]
     print(f"$ {' '.join(cmd)}", file=sys.stderr)
     proc = subprocess.Popen(cmd, cwd=design_dir, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, text=True, bufsize=1)
+                            stderr=subprocess.STDOUT, text=True,
+                            encoding="utf-8", bufsize=1)
     assert proc.stdout is not None
     captured = []
     for line in proc.stdout:
@@ -199,7 +200,7 @@ def main():
     if period is None:
         cfg = args.design / "config.json"
         if cfg.exists():
-            value = json.loads(cfg.read_text()).get("CLOCK_PERIOD")
+            value = json.loads(cfg.read_text(encoding="utf-8")).get("CLOCK_PERIOD")
             period = float(value) if isinstance(value, (int, float)) else None
 
     if args.read_only:

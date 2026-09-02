@@ -43,11 +43,11 @@ def cells_in_library() -> set:
     if lib is None:
         return set()
     return set(re.findall(r'cell\s*\(\s*"?(sky130_fd_sc_hd__[\w]+)"?\s*\)',
-                          lib.read_text(errors="ignore")))
+                          lib.read_text(encoding="utf-8", errors="ignore")))
 
 
 def excluded() -> list:
-    return [ln.strip() for ln in EXCLUDE.read_text().splitlines()
+    return [ln.strip() for ln in EXCLUDE.read_text(encoding="utf-8").splitlines()
             if ln.strip() and not ln.startswith("#")]
 
 
@@ -100,7 +100,7 @@ class ExclusionFileTests(unittest.TestCase):
         pdk_list = sorted(PDK.rglob("*/openlane/sky130_fd_sc_hd/drc_exclude.cells"))
         if not pdk_list:
             self.skipTest("no PDK exclusion list")
-        base = {ln.strip() for ln in pdk_list[0].read_text().splitlines()
+        base = {ln.strip() for ln in pdk_list[0].read_text(encoding="utf-8").splitlines()
                 if ln.strip() and not ln.startswith("#")}
         self.assertEqual(sorted(base - set(excluded())), [])
 
@@ -110,7 +110,7 @@ class DesignConfigTests(unittest.TestCase):
         cfg = DESIGN / "config.json"
         if not cfg.is_file():
             self.skipTest("sram_wrapper not present")
-        self.cfg = json.loads(cfg.read_text())
+        self.cfg = json.loads(cfg.read_text(encoding="utf-8"))
 
     def test_the_design_actually_uses_the_list(self):
         # Verified via an override during the investigation, then moved
@@ -135,7 +135,7 @@ class RtlTests(unittest.TestCase):
         self.rtl = DESIGN / "src" / "sram_wrapper.v"
         if not self.rtl.is_file():
             self.skipTest("sram_wrapper not present")
-        self.text = self.rtl.read_text()
+        self.text = self.rtl.read_text(encoding="utf-8")
         # Comments only, stripped: the comment explaining the change
         # quotes the expression it removed, and a plain substring search
         # cannot tell an explanation from the code it describes.

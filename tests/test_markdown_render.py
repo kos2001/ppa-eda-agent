@@ -27,6 +27,7 @@ index.css itself rather than from numbers copied into a comment, so the
 test fails if someone edits a colour without redoing the arithmetic.
 """
 import json
+import os
 import re
 import subprocess
 import sys
@@ -56,7 +57,7 @@ def contrast(a: str, b: str) -> float:
 
 
 def _tokens(selector: str) -> dict:
-    css = CSS.read_text()
+    css = CSS.read_text(encoding="utf-8")
     m = re.search(selector + r"\s*\{(.*?)\n\}", css, re.S)
     if not m:
         raise AssertionError(f"no block for {selector}")
@@ -150,7 +151,7 @@ class ContrastTests(unittest.TestCase):
         # The palette is declared twice — once under prefers-color-scheme
         # and once under [data-theme="dark"]. They must not drift, or the
         # toggle and the OS setting render differently.
-        css = CSS.read_text()
+        css = CSS.read_text(encoding="utf-8")
         media = _tokens(r':root:not\(\[data-theme="light"\]\)')
         explicit = _tokens(r':root\[data-theme="dark"\]')
         self.assertEqual(media, explicit)
@@ -184,7 +185,7 @@ class CriticalColourTests(unittest.TestCase):
         out = []
         for path in (ROOT / "dashboard" / "src").rglob("*.css"):
             selector = ""
-            for i, line in enumerate(path.read_text().splitlines(), 1):
+            for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
                 stripped = line.strip()
                 if stripped and stripped[0] in ".#a-zA-Z" and "{" in stripped:
                     selector = stripped.split("{")[0].strip()
@@ -211,10 +212,10 @@ class TokenReferenceTests(unittest.TestCase):
         # just does not apply, so the element renders unstyled and
         # nothing says why. Cheap to check, and this session added a
         # stylesheet built entirely out of these references.
-        defined = set(re.findall(r"--([\w-]+)\s*:", CSS.read_text()))
+        defined = set(re.findall(r"--([\w-]+)\s*:", CSS.read_text(encoding="utf-8")))
         missing = set()
         for path in (ROOT / "dashboard" / "src").rglob("*.css"):
-            for used in re.findall(r"var\(\s*--([\w-]+)", path.read_text()):
+            for used in re.findall(r"var\(\s*--([\w-]+)", path.read_text(encoding="utf-8")):
                 if used not in defined:
                     missing.add(f"{path.name}: --{used}")
         self.assertEqual(missing, set())
@@ -223,7 +224,7 @@ class TokenReferenceTests(unittest.TestCase):
         # Markdown.css must inherit both palettes rather than carrying a
         # third one, which is how a component ends up readable in one
         # theme and not the other.
-        md = (ROOT / "dashboard" / "src" / "components" / "Markdown.css").read_text()
+        md = (ROOT / "dashboard" / "src" / "components" / "Markdown.css").read_text(encoding="utf-8")
         literals = re.findall(r"(?<!-)#[0-9a-fA-F]{3,8}\b", md)
         self.assertEqual(literals, [], f"hard-coded colours: {literals}")
 
@@ -238,9 +239,16 @@ def _real_request() -> Path | None:
 
 
 def _parse(path: Path) -> dict:
-    out = subprocess.run(
-        ["npx", "tsx", str(HARNESS), str(path)],
-        cwd=ROOT / "dashboard", capture_output=True, text=True, timeout=180)
+    try:
+        out = subprocess.run(
+            ["npx", "tsx", str(HARNESS), str(path)],
+            cwd=ROOT / "dashboard", capture_output=True, text=True,
+            encoding="utf-8", timeout=180,
+            shell=(os.name == "nt"))
+    except FileNotFoundError as e:
+        # See test_case_grouping._harness()'s identical comment: on
+        # Windows npx is npx.cmd, which needs a shell to exec at all.
+        raise unittest.SkipTest(f"npx unavailable: {e}")
     if out.returncode != 0:
         raise unittest.SkipTest(f"tsx unavailable: {out.stderr[-300:]}")
     return json.loads(out.stdout)
@@ -341,7 +349,7 @@ class ParserTests(unittest.TestCase):
     def test_the_whole_document_is_accounted_for(self):
         # A parser that silently drops blocks would still pass the
         # counts above. This checks nothing fell on the floor.
-        text = self.path.read_text()
+        text = self.path.read_text(encoding="utf-8")
         non_empty = [ln for ln in text.splitlines() if ln.strip()]
         self.assertGreater(self.got["total"], 0)
         self.assertLessEqual(self.got["total"], len(non_empty))

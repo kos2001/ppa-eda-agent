@@ -26,6 +26,7 @@ case — so it is derived rather than recorded, and these tests pin the
 derivation against the real store.
 """
 import json
+import os
 import subprocess
 import unittest
 from pathlib import Path
@@ -36,9 +37,20 @@ CASES = ROOT / "reference-db" / "cases"
 
 
 def _harness() -> dict:
-    out = subprocess.run(
-        ["npx", "tsx", str(HARNESS), str(CASES)],
-        cwd=ROOT / "dashboard", capture_output=True, text=True, timeout=300)
+    try:
+        out = subprocess.run(
+            ["npx", "tsx", str(HARNESS), str(CASES)],
+            cwd=ROOT / "dashboard", capture_output=True, text=True,
+            encoding="utf-8", timeout=300,
+            # npx is npx.cmd on Windows, which subprocess can't exec
+            # directly without a shell -- shell=True there actually runs
+            # it instead of just being a more elaborate way to skip.
+            shell=(os.name == "nt"))
+    except FileNotFoundError as e:
+        # Belt and suspenders: still the right verdict (toolchain
+        # absent, not code-under-test broken) if shell=True's own
+        # resolution ever fails too.
+        raise unittest.SkipTest(f"npx unavailable: {e}")
     if out.returncode == 0:
         return json.loads(out.stdout)
     # Skip only when the toolchain is absent, never when the code under
@@ -51,7 +63,7 @@ def _harness() -> dict:
 
 
 def _case(name: str) -> dict:
-    return json.loads((CASES / name).read_text())
+    return json.loads((CASES / name).read_text(encoding="utf-8"))
 
 
 class RecordedAtTests(unittest.TestCase):

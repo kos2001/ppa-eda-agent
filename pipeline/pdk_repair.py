@@ -145,7 +145,12 @@ def repair(pdk_family: str, apply: bool = False) -> dict:
     written = []
     if apply:
         for path in gaps:
-            path.write_text(STUB_HEADER)
+            # Explicit encoding, not the platform default: STUB_HEADER has
+            # a real em-dash, and open()'s default is the OS locale
+            # (cp949 on a Korean-locale Windows box), which can't encode
+            # it -- request_review.py hit the identical bug for real, see
+            # its own comment on this.
+            path.write_text(STUB_HEADER, encoding="utf-8")
             written.append(path)
     return {
         "pdk_family": pdk_family,
@@ -167,7 +172,7 @@ def _short(path: Path) -> str:
     written the files.
     """
     try:
-        return str(path.relative_to(REPO_ROOT))
+        return path.relative_to(REPO_ROOT).as_posix()
     except ValueError:
         return str(path)
 

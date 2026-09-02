@@ -63,7 +63,7 @@ def characterisation_ceiling(lib_path: Path | str) -> float | None:
     about the file rather than a ceiling of zero — returning 0.0 there
     would mark every pin extrapolated.
     """
-    text = Path(lib_path).read_text(errors="ignore")
+    text = Path(lib_path).read_text(encoding="utf-8", errors="ignore")
     tops = []
     for m in _INDEX_1.finditer(text):
         parts = [p.strip() for p in m.group(1).split(",") if p.strip()]
@@ -84,7 +84,7 @@ def macro_ceilings(design_dir: Path | str) -> dict[str, float]:
     cfg_path = design_dir / "config.json"
     if not cfg_path.is_file():
         return {}
-    cfg = json.loads(cfg_path.read_text())
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     out: dict[str, float] = {}
     for macro, spec in (cfg.get("MACROS") or {}).items():
         libs = spec.get("lib") or {}
@@ -162,7 +162,7 @@ def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
     worst: dict[str, dict] = {}
     for rpt in reports:
         corner = rpt.parent.name
-        for row in parse_slews(rpt.read_text(errors="ignore")):
+        for row in parse_slews(rpt.read_text(encoding="utf-8", errors="ignore")):
             inst = row["pin"].split("/", 1)[0]
             ceiling = ceilings.get(inst)
             if ceiling is None or row["slew_ns"] <= ceiling:

@@ -234,24 +234,35 @@ MEASUREMENTS: list[dict] = [
         "id": "unreadable-macro-gds",
         "design": "sram_wrapper",
         "when": ["magic_read_failure", "unknown_layer_datatype"],
-        "tool": "compare the two layer maps before reaching for a knob",
+        "tool": "look the layers up in all THREE maps, not two, before "
+                "reaching for a knob",
         "cli": "grep -E '<layer>[[:space:]]+<type>' "
                "$PDK/libs.tech/magic/sky130A.tech "
+               "$PDK/libs.tech/magic/sky130gds.tech "
                "$PDK/libs.tech/klayout/tech/sky130A.map",
-        "answers": "Whether a Magic read error is a tool quirk or geometry no "
-                   "sky130 tool configuration defines.",
-        "trap": "MAGIC_CAPTURE_ERRORS=false looks like the fix, and OpenLane's "
-                "own description invites it by saying the fatal determination "
-                "is heuristic and not guaranteed. It is not the fix. Magic then "
-                "streams out a GDS built from a macro it could not read, and "
-                "the run reaches DRC and reports 2,831,364 violations. The "
-                "abort was correct.",
+        "answers": "Whether the layers Magic cannot read are circuit geometry "
+                   "or mask-prep — which decides whether the read failure "
+                   "matters at all.",
+        "trap": "Two knobs in sequence, and stopping after the first reads as "
+                "proof the abort was right. MAGIC_CAPTURE_ERRORS=false alone "
+                "takes the run to step 66 and reports 2,831,364 DRC "
+                "violations, which looks damning. That count comes from "
+                "GDS-based DRC. MAGIC_DRC_USE_GDS=false — OpenLane's own "
+                "documented workaround for OpenRAM sky130 macros, which runs "
+                "DRC on DEF/LEF so the macro is only an abstract — was never "
+                "tried here, so the 2.8M number was never the test it looked "
+                "like.",
         "evidence": "sram_wrapper: five layers (22/21, 22/22, 33/42, 33/43, "
-                    "235/0) in the SRAM macro's GDS appear in neither Magic's "
-                    "techfile nor KLayout's map. KLayout ignores unmapped "
-                    "layers and streams out fine at step 57; Magic fails at 59. "
-                    "MAGIC_MACRO_STD_CELL_SOURCE=PDK only moved the failure "
-                    "from 61 to 59.",
+                    "235/0) in the SRAM macro's GDS are in neither sky130A.tech "
+                    "nor KLayout's sky130A.map, which was recorded as 'layers "
+                    "no sky130 tool configuration defines'. They are all in "
+                    "open_pdks' sky130gds.tech, in its cifoutput section: mask "
+                    "ADD/DROP layers (CNTMADD, CFOMDROP, CP1MDROP, CP1MADD) "
+                    "and a cell boundary (BOUND2). None is drawn device or "
+                    "interconnect geometry, so Magic dropping them loses no "
+                    "circuit. Absence from the DRC techfile is by design, not "
+                    "a PDK gap. VLSIDA's openram_testchip taped out with this "
+                    "same macro.",
     },
     {
         "id": "library-blocked-by-a-missing-file",
@@ -502,7 +513,7 @@ def main() -> None:
     else:
         raise SystemExit("--design or --case required")
 
-    case = json.loads(path.read_text())
+    case = json.loads(path.read_text(encoding="utf-8"))
     if args.markdown:
         print(guidance_block(case))
     else:

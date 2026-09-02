@@ -37,7 +37,7 @@ def parse_lef_sizes(lef_paths: list[Path]) -> dict[str, tuple[float, float]]:
         if not lef_path.exists():
             continue
         current_macro = None
-        for line in lef_path.read_text(errors="replace").splitlines():
+        for line in lef_path.read_text(encoding="utf-8", errors="replace").splitlines():
             m = _SIZE_RE.match(line.strip())
             if m:
                 current_macro = m.group(1)
@@ -66,7 +66,7 @@ def parse_def(def_path: Path, cell_sizes: dict[str, tuple[float, float]]) -> dic
     OpenROAD/TritonRoute actually placed/routed, converted from DEF
     database units (typically 1000/micron) to real microns.
     """
-    text = def_path.read_text(errors="replace")
+    text = def_path.read_text(encoding="utf-8", errors="replace")
 
     units_m = _UNITS_RE.search(text)
     dbu_per_um = int(units_m.group(1)) if units_m else 1000

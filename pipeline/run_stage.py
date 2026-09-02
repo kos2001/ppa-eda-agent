@@ -137,7 +137,7 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     captured: list[str] = []
     proc = subprocess.Popen(
         cmd, cwd=design_dir, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT, text=True, bufsize=1,
+        stderr=subprocess.STDOUT, text=True, encoding="utf-8", bufsize=1,
     )
     assert proc.stdout is not None
     for line in proc.stdout:
@@ -168,9 +168,9 @@ def read_metrics(run_dir: Path) -> dict:
     # under final/ if signoff ran) has the fullest picture.
     final = run_dir / "final" / "metrics.json"
     if final.exists():
-        return json.loads(final.read_text())
+        return json.loads(final.read_text(encoding="utf-8"))
     latest = max(candidates, key=lambda p: p.stat().st_mtime)
-    return json.loads(latest.read_text())
+    return json.loads(latest.read_text(encoding="utf-8"))
 
 
 def main():
