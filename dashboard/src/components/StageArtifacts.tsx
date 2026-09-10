@@ -3,6 +3,7 @@ import { useLang } from "../i18n";
 import ConstraintsView from "./Constraints";
 import OperatingPointView from "./OperatingPoint";
 import SchematicView from "./SchematicView";
+import SignoffStrip from "./SignoffStrip";
 import { verdictPill } from "./PipelineTab";
 import "./StageArtifacts.css";
 
@@ -211,15 +212,23 @@ function Verdicts({ candidates }: { candidates: CandidateResult[] }) {
                   <span className={`pill ${verdictPill(v).cls}`}>
                     {verdictPill(v).text}
                   </span>
+                  {v.signoff_checks && v.signoff_checks.length > 0 && (
+                    <SignoffStrip checks={v.signoff_checks} source={v.metrics_source} />
+                  )}
                   {!v.passed && v.violations.length > 0 && (
                     <div className="sa__viol">{v.violations.join("; ")}</div>
                   )}
                   {(v.unverified?.length ?? 0) > 0 && (
                     <div className="sa__unverified">
                       {t("sa_unverified").replace("{n}", String(v.unverified!.length))}
-                      <div className="sa__unverified-list">
-                        {v.unverified!.join("; ")}
-                      </div>
+                      {/* The strip above already names each never-run
+                          check on hover; the list stays for cases
+                          recorded before the strip's data existed. */}
+                      {!v.signoff_checks && (
+                        <div className="sa__unverified-list">
+                          {v.unverified!.join("; ")}
+                        </div>
+                      )}
                     </div>
                   )}
                 </td>

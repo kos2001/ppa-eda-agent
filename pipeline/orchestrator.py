@@ -352,12 +352,18 @@ def score(metrics: dict, targets: dict) -> dict:
     # DRC" both block a pass, but they are different facts and a reader
     # needs to tell them apart — the same distinction this pipeline draws
     # between a measured limit and an assumed one.
+    # The same facts, one row per check, so a reader can see all 23 at
+    # once — clean, violated, or never run — instead of reconstructing
+    # the clean ones as "whatever is in neither list". count is None
+    # when the check never ran; that is the only way None appears.
+    signoff_checks = []
     for key, label in SIGNOFF_METRICS:
         count = metrics.get(key)
         if count is None:
             unverified.append(label)
         elif count:
             violations.append(f"{count} {label}")
+        signoff_checks.append({"key": key, "label": label, "count": count})
 
     max_util = targets.get("max_core_utilization")
     util = metrics.get("design__instance__utilization__stdcell")
@@ -368,7 +374,14 @@ def score(metrics: dict, targets: dict) -> dict:
     # corner (timing__setup__wns__corner:<name>) — a negative value on
     # any of them is a real timing violation at that corner.
     setup_wns_keys = [k for k in metrics if k.startswith("timing__setup__wns__corner:")]
-    worst_wns = min((metrics[k] for k in setup_wns_keys), default=0)
+    # A source with no corner breakdown (iEDA reports one liberty set,
+    # per clock — see ieda_metrics.py) carries only the design-level
+    # key, which OpenLane also emits. Read it when the corners are
+    # absent; never let it override them when they are present.
+    if setup_wns_keys:
+        worst_wns = min(metrics[k] for k in setup_wns_keys)
+    else:
+        worst_wns = metrics.get("timing__setup__wns", 0)
     if worst_wns < 0:
         violations.append(f"worst setup WNS {worst_wns} (timing violation)")
 
@@ -380,7 +393,10 @@ def score(metrics: dict, targets: dict) -> dict:
     # fixed after fabrication, which makes this the worst thing the
     # verdict could have been silent about.
     hold_wns_keys = [k for k in metrics if k.startswith("timing__hold__wns__corner:")]
-    worst_hold = min((metrics[k] for k in hold_wns_keys), default=0)
+    if hold_wns_keys:
+        worst_hold = min(metrics[k] for k in hold_wns_keys)
+    else:
+        worst_hold = metrics.get("timing__hold__wns", 0)
     if worst_hold < 0:
         violations.append(f"worst hold WNS {worst_hold} (hold violation)")
 
@@ -459,6 +475,10 @@ def score(metrics: dict, targets: dict) -> dict:
         "passed": not violations and not unverified,
         "violations": violations,
         "unverified": unverified,
+        "signoff_checks": signoff_checks,
+        # Which tool's numbers these are. OpenLane's metrics.json has no
+        # such key; a second source (ieda_metrics.py) sets it.
+        "metrics_source": metrics.get("metrics__source", "OpenLane metrics.json"),
         "area_um2": metrics.get("design__instance__area"),
         "utilization": util,
         "worst_setup_wns": worst_wns,
