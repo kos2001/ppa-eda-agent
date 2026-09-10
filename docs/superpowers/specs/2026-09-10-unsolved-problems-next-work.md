@@ -10,6 +10,26 @@ unverified다.
 에서 나왔다. 그래서 아래 항목 대부분은 **러너가 있어야 진행**되고, 그 자체가
 §7의 문제다.
 
+## 진행 상황 (2026-09-10, 같은 날 착수)
+
+착수 순서대로 진행한 결과. 측정은 전부 이 머신의 WSL 러너(§7 해결)에서
+나왔고 케이스는 reference-db에 있다.
+
+| # | 상태 | 무엇이 바뀌었나 |
+|---|---|---|
+| 7 | **해결** | WSL Ubuntu의 Docker를 러너로 세움. PDK 15 GB(sky130 + gf180mcu, 같은 volare 해시) 직접 내려받음(GitHub API 한도 우회). counter4 전체 플로우 45 s. 컨테이너가 root로 쓰는 run dir을 호스트에 돌려주는 `claim_run_dir()` 추가 |
+| 2 | **해결** | `run_spec.json`의 `expected_outcome: "fail"`. cdc_twoclock은 "expected to fail (negative control)"로 분류되어 review 백로그·패턴 승격 후보에서 빠짐 |
+| 11 | **해결** | Action Center 행과 매뉴얼이 설계별 실측 중앙값 소요시간을 표시(스토어에서 계산). `run_candidate()`가 모든 런에 `seconds`를 기록 |
+| — | **발견·수정** | operating point가 후보의 `CLOCK_PERIOD` override가 아니라 config.json의 period로 계산되고 있었음: 저장된 84개(6개 설계)의 Fmax가 최대 2.5x 틀림. `run_clock_period()`로 고치고 `repair_operating_points.py`로 재계산, 이전 값을 기록으로 남김 |
+| 10 | **해결** | 패턴 #4: setup만 실패한 완주 런은 자기 min_period × 1.05로 `CLOCK_PERIOD`를 올려 재시도. aes(11.2 → 12 ns)와 gcd@gf180(12 → 13.2 ns) 두 설계·두 기술에서 setup이 닫힘 |
+| — | **발견·수정** | propose_repairs()가 수리 후보에서 `pdk`/`scl`을 떨어뜨려, gf180 후보의 수리 런이 sky130에서 돌고 "gf180 pass"로 기록될 뻔함(area 12,133 → 3,458 µm²가 단서). `_repaired()`가 기술을 복사 |
+| 1 | **해결** | `gf180_drc.py`: OpenLane 2.3.10이 sky130 외에서 건너뛰는 KLayout DRC를 PDK가 싣는 GF180 룰덱으로 직접 실행. 덱의 `pmap` 로거(이미지에 없음)만 패치. gcd@gf180mcuD: 전체 덱 47 s, 0건 |
+| 5 | **해결** | gcd@gf180mcuD **첫 pass** (`gcd__2026-09-10__035620`): DELAY 2, 13.2 ns, `MAX_FANOUT_CONSTRAINT 12`. 남았던 위반은 CTS 리프 버퍼의 fanout 11 > 10이었고 `CTS_SINK_CLUSTERING_SIZE` 10·8은 둘 다 11-sink 클러스터를 그대로 냄(목표값이지 상한이 아님) |
+| 3 | 진행 중 | iter5: `RUN_POST_GRT_DESIGN_REPAIR`/`RESIZER_TIMING`을 켜도 hold 264 → 279/272, max-slew 570 → 532/545 — 빠진 스텝 문제가 아님. 코너별로 보면 max-slew 532/376/186은 세 ss 코너에만, hold도 ss에만. iter6(진행 중): 라이브러리 자체 한계인 `MAX_TRANSITION_CONSTRAINT 1.5`, 그리고 측정된 −0.32 ns를 덮는 hold margin |
+| 4 | 진행 중 | SynthesisExploration(9개 전략, 한 번): AREA 3가 slack 최선, AREA 2가 면적 최선. iter2(진행 중): 측정된 22.45 ns × 1.05 = 23.6 ns, AREA 0/AREA 3, post-GRT repair 켬 |
+| 6 | 진행 중 | G/H/I Magic 사다리 실행 중. 불리언 override는 counter4에서 검증됨(`40-openroad-repairdesignpostgrt` 실행 확인) |
+| 8, 9 | 미착수 | 테스트벤치 4개; surrogate 재측정은 #1·#2 이후 |
+
 ## 요약표
 
 | # | 문제 | 규모 (측정) | 성격 | 막힌 이유 |
