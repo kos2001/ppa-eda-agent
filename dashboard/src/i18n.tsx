@@ -122,6 +122,10 @@ const dict = {
   signoff_clean: { en: "clean", ko: "통과" },
   signoff_violated: { en: "violated", ko: "위반" },
   signoff_never: { en: "never checked", ko: "미검사" },
+  candidate_layout_loading: { en: "loading the real DEF layout…", ko: "실제 DEF 레이아웃을 불러오는 중…" },
+  candidate_layout_error: { en: "the layout could not be loaded from the server", ko: "서버에서 레이아웃을 불러오지 못했습니다" },
+  candidate_netlist_loading: { en: "loading the gate-level netlist…", ko: "게이트 레벨 넷리스트를 불러오는 중…" },
+  candidate_netlist_error: { en: "the netlist could not be loaded from the server", ko: "서버에서 넷리스트를 불러오지 못했습니다" },
   ledger_title: { en: "What still fails, run by run", ko: "실행별로 남은 위반" },
   ledger_sub: {
     en: "{n} runs, oldest left. Closed since the first run: {closed}. Still failing in the latest: {open}.",

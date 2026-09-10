@@ -3246,6 +3246,46 @@ and layers that never get a sky130 name are neither coloured by it nor
 hidden by name. Those images were and remain KLayout-default colours.
 Left as a named gap rather than papered over with a copied layer map.
 
+## Why the pages were slow, measured, and what moved
+
+Reported as "the page takes a while to load". Measured against the
+running server before touching anything:
+
+    GET /reference-db     179.9 MB   0.92 s on the wire, then a browser
+                                     JSON.parse of 180 MB on every load
+    GET /self-improve      15.5 KB   8.28 s
+    GET /data-lineage       4.7 KB   7.54 s
+
+Where the 180 MB was: of 205 MB of case JSON on disk, `result.layout`
+(the parsed DEF — every cell, every routed segment) is 183.5 MB and
+`result.netlist` (the Yosys graph) 18.5 MB. Everything the record, the
+ledger, the verdicts and the health page draw fits in the remaining
+~3 MB, and the list read none of the other 202 MB: a layout is looked
+at only when one candidate row is expanded, a netlist only on one
+stage's schematic.
+
+Where the 8 seconds were: each python report loads every case file
+whole before it can count anything — 1.7 s of JSON parsing alone —
+and both ran again on every visit, for a store that changes only when
+a run finishes.
+
+What changed. The list endpoint serves each case without those two
+fields and with `layout_deferred` / `netlist_deferred` flags; a new
+`/reference-db/candidate?file=&tag=` serves one candidate's layout and
+netlist when a reader opens them, and the two components that show
+them fetch on open and say so while they wait. The two report
+endpoints are cached keyed by the case count and newest case mtime,
+so a finished run invalidates them and nothing else does. Measured
+after:
+
+    GET /reference-db       2.9 MB   0.82 s cold / 7 ms warm
+    GET /self-improve      15.5 KB   7.6 s cold / 1 ms warm
+    GET /data-lineage       4.7 KB   7.6 s cold / 1 ms warm
+    GET /reference-db/candidate (one aes candidate)   8.65 MB   46 ms
+
+The cold report cost is unchanged by design: it is the real
+computation, paid once per store change instead of once per page view.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.
