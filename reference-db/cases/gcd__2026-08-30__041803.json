@@ -35,7 +35,15 @@
       "name": "AI Feedback / Repair / Optimization"
     }
   ],
-  "topology": null,
+  "topology": {
+    "module_count": 10,
+    "has_macros": false,
+    "clock_domain_count": 1,
+    "port_count": 8,
+    "sequential_element_estimate": 35,
+    "power_domain_count": 1,
+    "notes": "Derived by topology_derive.py from gcd's config.json, its Verilog sources and the Yosys netlist of run c-hs-synth_strategyDELAY_4 (274 cells, 35 sequential by cell name). Not hand-written; no judgement of datapath/control character is made."
+  },
   "iterations": [
     {
       "iteration": 1,
