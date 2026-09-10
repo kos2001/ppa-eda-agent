@@ -1804795,5 +1804795,20 @@
   },
   "synthesis_exploration": null,
   "layout_image": "layouts/aes__2026-09-10__iter6-slew1p5.png",
-  "layout_image_tag": "iter6-slew1p5"
+  "layout_image_tag": "iter6-slew1p5",
+  "diagnosis": "\n\n[2026-09-10T04:48:28Z] hold-path-trace subagent verdict (dispatched via human-in-the-loop review, not self-assessed):\nHold at the ss corners, traced instead of swept (2026-09-10, WSL runner, run iter6-slew1p5 of aes__2026-09-10__044137).\n\nWHAT THE STORE SAYS. With MAX_TRANSITION_CONSTRAINT 1.5 the max-slew DRVs went from 570 to 0 and setup stayed at 0 violations at 12 ns. Hold remained: 263 endpoints, worst -0.276 ns, and per corner in iter5 114/99/66 at max_ss/nom_ss/min_ss with zero at every tt and ff corner. Hold margin 0.3/0.25 (iter3), hold-first (iter3), post-GRT repair and post-GRT timing (iter5), margin 0.4 with no buffer cap (iter6) all left it there or made it worse.\n\nWHAT OPENSTA SAYS (sta_path.query, ss_100C_1v60 liberty, the run's own SPEF and SDC, report_checks -path_delay min):\n  Startpoint text_in[96] (input port)  ->  input254 clkbuf_1  ->  _22043_ mux2_1  ->  _22204_/D\n    input external delay 2.000, data arrival 2.374\n    clock network delay (propagated) 2.355, clock uncertainty 0.250, library hold -0.067 -> required 2.538\n    slack -0.163\n  Startpoint text_in[42]: the same shape, slack -0.163.\n  Every violating path at this corner starts at an input port; all of them are text_in[*] (18 of 18 with -slack_max 0). No register-to-register path violates hold.\n\nWHAT THAT MEANS. The SDC (final/sdc/aes_cipher_top.sdc) declares every input as arriving 2.000 ns after the ideal clock edge (set_input_delay 2.0000, from IO_DELAY_CONSTRAINT 20 in resolved.json). At the ss corner the clock reaches the capturing flop 2.355 ns after that edge (propagated CTS insertion delay), plus 0.25 ns uncertainty. An input that really arrived 2.0 ns after the edge would be captured by the previous clock at these flops - which is what the check reports. The violation is between two constraints (the assumed input arrival and the measured clock insertion delay at ss), not inside the placed logic; the input-to-flop path is a buffer and a mux, 0.37 ns, and there is nothing in it for the resizer to slow down without inserting pure delay on 128 inputs - which is what it was asked to do with margin 0.4 and which produced a worse run. That the resizer found 63 hold endpoints against signoff's 263 is the same thing seen from the tt-ish repair view versus max-RC ss signoff.\n\nWHAT WOULD SETTLE IT, AS A LADDER. (a) IO_DELAY_CONSTRAINT 30: input delay ~3.0 ns, above 2.355 + 0.25 + 0.067 - 0.37 = 2.30 ns, one variable. If hold goes to 0 the diagnosis is confirmed; setup on input paths has 12 - 3.0 ns for a 0.4 ns path, so nothing to trade. (b) the same plus RUN_HEURISTIC_DIODE_INSERTION for the 22 antenna violations (a step every aes run has skipped, per step_coverage) and MAX_FANOUT_CONSTRAINT 16 for the 13 fanout DRVs, the knob gcd on gf180 closed on. Written into run_spec_iter7.json.\n\nWHAT IS NOT CLAIMED. That 2.0 ns or 3.0 ns is the right input delay for aes - that number belongs to whatever drives the chip and no run measures it. What is measured is that the design closes hold at ss for any input arrival later than ~2.3 ns after the clock edge, and that OpenLane's default TIMING_VIOLATION_CORNERS ['*tt*'] would never have looked here at all (resolved.json); this pipeline judges all nine corners, which is why aes has been OPEN.",
+  "human_in_the_loop": [
+    {
+      "agent": "hold-path-trace",
+      "reviewed_at": "2026-09-10T04:48:28Z",
+      "summary": "Hold at the ss corners, traced instead of swept (2026-09-10, WSL runner, run iter6-slew1p5 of aes__2026-09-10__044137).\n\nWHAT THE STORE SAYS. With MAX_TRANSITION_CONSTRAINT 1.5 the max-slew DRVs went from 570 to 0 and setup stayed at 0 violations at 12 ns. Hold remained: 263 endp\u2026",
+      "grounding": {
+        "checked": true,
+        "cited_error_codes": [],
+        "ungrounded_error_codes": [],
+        "cited_candidate_tags": [],
+        "ungrounded_candidate_tags": []
+      }
+    }
+  ]
 }
