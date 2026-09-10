@@ -70,6 +70,63 @@ class SignatureTests(unittest.TestCase):
         self.assertEqual(case_signatures(c), {"GRT-0097", "RSZ-0090"})
 
 
+class SignoffSignatureTests(unittest.TestCase):
+    """A run the tools finished and the gate rejected has no error code.
+
+    Measured on the store on 2026-09-10: 18 cases (every aes, gcd and
+    riscv32i run) had no signature, so no review of them could be
+    grounded, while gcd's own clk5 -> clk8 setup history was precedent
+    for aes's setup failures. The verdict's violations are the
+    fingerprint those runs do have.
+    """
+
+    def _case_with(self, violations, **kw):
+        c = case("d", "1", **kw)
+        c["iterations"][0]["results"][0]["verdict"] = {
+            "passed": False, "violations": violations}
+        return c
+
+    def test_each_kind_of_rejection_is_one_signature(self):
+        from case_retrieval import signoff_signatures
+        got = signoff_signatures({"violations": [
+            "481 setup timing violation(s)", "122 hold timing violation(s)",
+            "15 routing antenna violation(s)", "544 max-slew (DRV) violation(s)",
+            "worst setup WNS -1.18 (timing violation)",
+        ]})
+        self.assertEqual(got, {"signoff:setup", "signoff:hold",
+                               "signoff:antenna", "signoff:max-slew"})
+
+    def test_a_slack_alone_still_names_setup(self):
+        from case_retrieval import signoff_signatures
+        self.assertEqual(signoff_signatures({"violations": ["worst setup WNS -0.2 (timing violation)"]}),
+                         {"signoff:setup"})
+
+    def test_a_pass_yields_nothing(self):
+        from case_retrieval import signoff_signatures
+        self.assertEqual(signoff_signatures({"passed": True, "violations": []}), set())
+        self.assertEqual(signoff_signatures(None), set())
+
+    def test_a_gate_rejected_case_now_has_a_signature(self):
+        c = self._case_with(["135 setup timing violation(s)"])
+        self.assertEqual(case_signatures(c), {"signoff:setup"})
+
+    def test_two_designs_rejected_the_same_way_are_precedent_for_each_other(self):
+        aes = self._case_with(["481 setup timing violation(s)"])
+        aes["design"], aes["_file"] = "aes", "cases/aes__1.json"
+        gcd = self._case_with(["135 setup timing violation(s)"], winner="clk8")
+        gcd["design"], gcd["_file"] = "gcd", "cases/gcd__1.json"
+        hits = similar(aes, [aes, gcd])
+        self.assertEqual([h["design"] for h in hits], ["gcd"])
+        self.assertEqual(hits[0]["shared_signatures"], ["signoff:setup"])
+
+    def test_a_tool_error_and_a_gate_rejection_do_not_match_each_other(self):
+        tool = case("d", "2", error="[RSZ-0090] max transition")
+        gate = self._case_with(["544 max-slew (DRV) violation(s)"])
+        # Same underlying physics, different evidence; without a shared
+        # code or a near topology they stay apart, as before.
+        self.assertEqual(similar(gate, [gate, tool]), [])
+
+
 class TopologyTests(unittest.TestCase):
     def test_identical_topology_is_zero(self):
         self.assertEqual(topology_distance(TOPO_SMALL, TOPO_SMALL), 0.0)
