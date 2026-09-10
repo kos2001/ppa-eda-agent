@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
-import { fetchFeedback, sendFeedback, type FeedbackEntry } from "../api/referenceDb";
+import {
+  fetchFeedback,
+  fetchReferenceDb,
+  sendFeedback,
+  type FeedbackEntry,
+  type PipelineCase,
+} from "../api/referenceDb";
 import { useLang, type DictKey } from "../i18n";
+import { formatSeconds, runCosts } from "./runCost";
 import "./ManualPage.css";
 
 // How to operate this console, and somewhere to say it did not help.
@@ -25,6 +32,67 @@ interface Step {
   q: DictKey;
   a: DictKey;
   where?: DictKey;
+  // A live table under the answer, for the questions whose honest
+  // answer is a number the store keeps changing.
+  table?: "cost";
+}
+
+// Per-design run cost, from the store, for the "how long" question.
+//
+// Fetches the cases itself rather than being handed them: the manual is
+// lazy-loaded and mounted with no props, and threading the pipeline
+// page's case list through App for one table would couple two pages
+// that otherwise share nothing.
+function RunCostTable() {
+  const { t } = useLang();
+  const [cases, setCases] = useState<PipelineCase[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    fetchReferenceDb()
+      .then((db) => {
+        if (live) setCases(Object.values(db.designs).flat());
+      })
+      .catch((e) => {
+        if (live) setError(String(e));
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  if (error) return <p className="man__cost-note">{t("man_cost_unavailable")}</p>;
+  if (!cases) return <p className="man__cost-note">…</p>;
+
+  const rows = Object.values(runCosts(cases)).sort(
+    (a, b) => b.medianSeconds - a.medianSeconds,
+  );
+  if (rows.length === 0) {
+    return <p className="man__cost-note">{t("man_cost_none")}</p>;
+  }
+  return (
+    <table className="man__cost">
+      <thead>
+        <tr>
+          <th>{t("man_cost_design")}</th>
+          <th>{t("man_cost_median")}</th>
+          <th>{t("man_cost_runs")}</th>
+          <th>{t("man_cost_host")}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.design}>
+            <td>{r.design}</td>
+            <td className="man__cost-num">{formatSeconds(r.medianSeconds)}</td>
+            <td className="man__cost-num">{r.runs}</td>
+            <td>{r.hosts.join(", ") || "—"}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 }
 
 // A section's kind picks its card's accent colour — the same
@@ -43,8 +111,10 @@ const SECTIONS: { title: DictKey; kind: SectionKind; steps: Step[] }[] = [
       { q: "man_q_watch", a: "man_a_watch", where: "man_w_watch" },
       // Added because the first feedback entry this page ever received
       // asked for it: the manual said where every control was and never
-      // what a run costs.
-      { q: "man_q_howlong", a: "man_a_howlong" },
+      // what a run costs. The answer is a table computed from the store
+      // (see RunCostTable) — the typed sentence it replaced said "about
+      // 27 s for counter4" and could not say anything about aes.
+      { q: "man_q_howlong", a: "man_a_howlong", table: "cost" },
     ],
   },
   {
@@ -203,6 +273,7 @@ export default function ManualPage() {
                     {step.where && (
                       <span className="man__where">{t(step.where)}</span>
                     )}
+                    {step.table === "cost" && <RunCostTable />}
                   </dd>
                 </div>
               ))}

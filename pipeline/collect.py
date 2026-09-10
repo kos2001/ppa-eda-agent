@@ -40,7 +40,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -326,10 +325,9 @@ def run_one(item: dict) -> dict:
     spec_path = design_dir / "run_spec.json"
     if spec_path.is_file():
         spec["targets"] = json.loads(spec_path.read_text(encoding="utf-8")).get("targets", {})
-    started = time.time()
+    # `seconds` is stamped by run_candidate itself now, for every caller.
     result = orchestrator.run_candidate(design_dir, spec, item)
     result["design"] = item["design"]
-    result["seconds"] = round(time.time() - started, 1)
     return result
 
 

@@ -235,9 +235,15 @@ const dict = {
   man_w_run: { en: "Layout Pipeline → Action Center, top of the page", ko: "레이아웃 파이프라인 → 맨 위 Action Center" },
   man_q_howlong: { en: "How long does a run take?", ko: "실행은 얼마나 걸리나요?" },
   man_a_howlong: {
-    en: "Measured on a 10-core arm64 Mac running the container natively, per candidate: about 27 s for counter4 (14 instances). The same run took 68 s while the pipeline was forcing x86 emulation, so any timing is a property of the machine as much as the design — each case now records its architecture. Design size moves this less than the step count does — every candidate pays for all 78 steps. If you only need an area-versus-slack comparison across synthesis strategies, the exploration flow gives all nine in about 9 seconds and only the chosen few get full runs.",
-    ko: "10코어 arm64 Mac에서 컨테이너를 네이티브로 돌린 실측: counter4(인스턴스 14개) 후보 하나당 약 27초입니다. 파이프라인이 x86 에뮬레이션을 강제하던 때는 같은 실행이 68초였으므로, 실행 시간은 설계만큼이나 기계의 속성입니다 — 이제 케이스마다 아키텍처를 기록합니다. 설계 크기보다 단계 수가 더 지배적입니다 — 후보마다 78단계를 전부 치릅니다. 합성 전략별 면적·슬랙 비교만 필요하다면 탐색 플로우가 9개 전부를 약 9초에 내놓고, 선택된 몇 개만 전체 실행합니다.",
+    en: "Per candidate, the table below is the median wall-clock of every timed run in the store for that design, with the machine it ran on — a number is a property of the machine as much as the design (the same counter4 run took 68 s under x86 emulation and 28 s native). Small designs land in seconds; aes and riscv32i take tens of minutes each, and longer under contention. Every candidate pays for all 78 steps, so a run_spec with nine candidates costs nine of these. If you only need an area-versus-slack comparison across synthesis strategies, the exploration flow gives all nine in about 9 seconds and only the chosen few get full runs.",
+    ko: "아래 표는 설계별로 저장소에 기록된 모든 실측 실행의 중앙값 소요시간과 실행한 기계입니다 — 실행 시간은 설계만큼이나 기계의 속성입니다(같은 counter4 실행이 x86 에뮬레이션에서는 68초, 네이티브에서는 28초). 작은 설계는 초 단위, aes와 riscv32i는 각각 수십 분이고 동시 실행 시 더 길어집니다. 후보마다 78단계를 전부 치르므로 후보 9개짜리 run_spec은 이 값의 9배입니다. 합성 전략별 면적·슬랙 비교만 필요하다면 탐색 플로우가 9개 전부를 약 9초에 내놓고, 선택된 몇 개만 전체 실행합니다.",
   },
+  man_cost_design: { en: "design", ko: "설계" },
+  man_cost_median: { en: "median / candidate", ko: "후보당 중앙값" },
+  man_cost_runs: { en: "timed runs", ko: "실측 횟수" },
+  man_cost_host: { en: "machine", ko: "기계" },
+  man_cost_none: { en: "no timed run recorded yet — the first collect.py batch fills this in", ko: "아직 실측된 실행이 없습니다 — 첫 collect.py 배치가 채웁니다" },
+  man_cost_unavailable: { en: "reference-db unreachable — start server/index.mjs to see measured run times", ko: "reference-db에 연결할 수 없습니다 — server/index.mjs를 켜면 실측 실행 시간이 보입니다" },
   man_q_watch: { en: "Can I see it running?", ko: "실행 중인 걸 볼 수 있나요?" },
   man_a_watch: {
     en: "Yes. A live panel appears under the button showing the current candidate and which of the 78 steps it is on, with elapsed time. On a design's first run there is no denominator yet — no earlier run has been observed reaching the end — so it shows the step number and a moving bar instead of a percentage nobody measured.",
@@ -468,6 +474,8 @@ const dict = {
   ac_title: { en: "What the agent needs from you", ko: "에이전트가 당신에게 필요한 것" },
   ac_needing: { en: "{n} design(s) waiting on you", ko: "당신을 기다리는 설계 {n}개" },
   ac_all_clear: { en: "nothing waiting — every design is closed", ko: "대기 중 없음 — 모든 설계 완료" },
+  ac_cost: { en: "≈ {s} per candidate · median of {n} timed runs", ko: "후보당 ≈ {s} · 실측 {n}회 중앙값" },
+  ac_cost_none: { en: "no timed run recorded for this design yet", ko: "이 설계는 아직 실측된 실행이 없습니다" },
   ac_starting: { en: "starting {d}…", ko: "{d} 시작 중…" },
 
   ac_state_review: { en: "NEEDS YOUR JUDGEMENT", ko: "당신의 판단 필요" },
