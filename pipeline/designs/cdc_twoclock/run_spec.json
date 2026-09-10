@@ -1,5 +1,7 @@
 {
   "design_name": "cdc_twoclock",
+  "expected_outcome": "fail",
+  "expected_outcome_reason": "Negative control for the CDC signoff gate (see src/cdc_twoclock.v). OpenLane's base.sdc constrains only the first CLOCK_PORT, so every run is unverified for clk_b by construction; an OPEN case here is the gate working, not the design being stuck. self_improve.py keeps it out of the review backlog for that reason.",
   "targets": {
     "max_core_utilization": 0.75,
     "max_ir_drop_pct": 5.0

@@ -84,6 +84,40 @@ class TestBudgetRetryCommand(unittest.TestCase):
             self_improve.budget_retry_command("no-such-design", _case()))
 
 
+class TestExpectedOutcome(unittest.TestCase):
+    """Guards the negative-control exemption from the review backlog.
+
+    cdc_twoclock is built to fail (its RTL header says so) and has never
+    passed, yet before this it was filed as "needs review" on every
+    scan — four review requests for a design working as intended,
+    sitting next to the designs that genuinely need a person.
+    """
+
+    def test_the_real_negative_control_declares_itself(self):
+        # Reads the committed run_spec: if someone removes the marker,
+        # this fails deliberately rather than the backlog silently
+        # regrowing.
+        self.assertEqual(self_improve.expected_outcome("cdc_twoclock"), "fail")
+
+    def test_ordinary_designs_declare_nothing(self):
+        self.assertIsNone(self_improve.expected_outcome("counter4"))
+        self.assertIsNone(self_improve.expected_outcome("no-such-design"))
+
+    def test_expected_failure_is_not_a_review_case(self):
+        report = self_improve.scan_design("cdc_twoclock")
+        self.assertIn("expected to fail", report["status"])
+        self.assertFalse(report["needs_review"])
+        self.assertFalse(report["pattern_promotion_candidate"])
+        self.assertEqual(report["expected_outcome"], "fail")
+
+    def test_expected_failure_is_still_reported_not_hidden(self):
+        # Excluding it from the backlog must not mean dropping it from
+        # the scan: the panel should still show the control exists and
+        # is still failing, or nobody notices when it starts passing.
+        names = [d["design"] for d in self_improve.scan_all()["designs"]]
+        self.assertIn("cdc_twoclock", names)
+
+
 class TestScanningDoesNotWrite(unittest.TestCase):
     """Reading the scan must not change the repository.
 
