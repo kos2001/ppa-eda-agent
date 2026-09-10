@@ -25,10 +25,12 @@ unverified다.
 | — | **발견·수정** | propose_repairs()가 수리 후보에서 `pdk`/`scl`을 떨어뜨려, gf180 후보의 수리 런이 sky130에서 돌고 "gf180 pass"로 기록될 뻔함(area 12,133 → 3,458 µm²가 단서). `_repaired()`가 기술을 복사 |
 | 1 | **해결** | `gf180_drc.py`: OpenLane 2.3.10이 sky130 외에서 건너뛰는 KLayout DRC를 PDK가 싣는 GF180 룰덱으로 직접 실행. 덱의 `pmap` 로거(이미지에 없음)만 패치. gcd@gf180mcuD: 전체 덱 47 s, 0건 |
 | 5 | **해결** | gcd@gf180mcuD **첫 pass** (`gcd__2026-09-10__035620`): DELAY 2, 13.2 ns, `MAX_FANOUT_CONSTRAINT 12`. 남았던 위반은 CTS 리프 버퍼의 fanout 11 > 10이었고 `CTS_SINK_CLUSTERING_SIZE` 10·8은 둘 다 11-sink 클러스터를 그대로 냄(목표값이지 상한이 아님) |
-| 3 | 진행 중 | iter5: `RUN_POST_GRT_DESIGN_REPAIR`/`RESIZER_TIMING`을 켜도 hold 264 → 279/272, max-slew 570 → 532/545 — 빠진 스텝 문제가 아님. 코너별로 보면 max-slew 532/376/186은 세 ss 코너에만, hold도 ss에만. iter6(진행 중): 라이브러리 자체 한계인 `MAX_TRANSITION_CONSTRAINT 1.5`, 그리고 측정된 −0.32 ns를 덮는 hold margin |
-| 4 | 진행 중 | SynthesisExploration(9개 전략, 한 번): AREA 3가 slack 최선, AREA 2가 면적 최선. iter2(진행 중): 측정된 22.45 ns × 1.05 = 23.6 ns, AREA 0/AREA 3, post-GRT repair 켬 |
-| 6 | 진행 중 | G/H/I Magic 사다리 실행 중. 불리언 override는 counter4에서 검증됨(`40-openroad-repairdesignpostgrt` 실행 확인) |
-| 8, 9 | 미착수 | 테스트벤치 4개; surrogate 재측정은 #1·#2 이후 |
+| 3 | **원인 확정**, 검증 런 진행 중 | iter5: post-GRT repair 스텝을 켜도 hold 264 → 279/272, max-slew 570 → 532/545 — 빠진 스텝 문제가 아님. iter6: `MAX_TRANSITION_CONSTRAINT 1.5`(라이브러리 자체 한계; OpenLane 기본 0.75)로 **max-slew 570 → 0**, setup 0 유지. 남은 hold 263은 OpenSTA로 추적: **전부 `text_in[*]` 입력 포트 경로** — SDC의 입력 도착 가정 2.0 ns(`IO_DELAY_CONSTRAINT 20`) vs ss 코너 클록 삽입지연 2.355 + 불확실성 0.25 ns. reg-to-reg 위반 없음. 코어가 아니라 제약 둘의 충돌. iter7(진행 중): `IO_DELAY_CONSTRAINT 30` 한 변수 |
+| 4 | 진행 중 | SynthesisExploration 9개 전략 한 번에: AREA 3가 slack 최선. iter2: 측정 22.45 × 1.05 = 23.6 ns에서 **AREA 3는 9개 코너 setup/hold 모두 통과**, DRV만 남음(max-slew 389, max-cap 102, fanout 163, antenna 53). AREA 0은 여전히 setup −1.66 ns. iter3(진행 중): AREA 3 + `MAX_TRANSITION 1.5` (+ fanout 16) |
+| 6 | **Magic 블로커 해결** | G/H/I 사다리 실측: G는 알려진 2,831,364(GDS 기반 Magic DRC), H는 KLayout DRC "multiple top cells"로 사망, **I(KLayout streamout + LEF 기반 Magic DRC)는 step 74까지 도달 — Magic DRC 382, KLayout DRC(매크로 포함 실제 GDS) 0, LVS 0, XOR 0**. 382는 전부 `nwell.4`이고 매크로 안에는 0개: LEF 추상은 셀 안 tap을 못 보므로 표준셀 행마다 발생하는 아티팩트. `magic_abstract_drc.py`가 이 모양(LEF 모드·nwell.4만·매크로 밖)만 `unverified`로 재분류. 남은 것은 특성화 천장(플랜 B) 하나뿐 |
+| 8 | **절반 착수** | counter4·gcd 테스트벤치 작성, 게이트 넷리스트에서 각각 0 오류. 실측 power: counter4 vectorless 대비 **+29.8%**(조합 +391%), gcd **−43.4%**(조합 −83%) — 방향이 설계마다 달라 추정치는 어느 쪽으로도 믿을 수 없음. aes·riscv32i 벤치는 미작성 |
+| 9 | 재측정 | 오늘 케이스 반영 후 area 예측은 여전히 평균 대비 우세(MAE 277 vs 2063, 99% folds); pass/fail 라벨은 gf180 1/167로 아직 툴 갭에 지배됨 — #1이 gcd 외 설계로 퍼져야 바뀜 |
+| — | 발견 | OpenLane 자체 signoff 정책은 `TIMING_VIOLATION_CORNERS ['*tt*']`(resolved.json) — aes는 그 기준으로는 이미 통과. 이 파이프라인은 9개 코너 전부를 판정하며, 그것이 aes가 OPEN인 이유. 선택은 유지하되 케이스에 명시 |
 
 ## 요약표
 
