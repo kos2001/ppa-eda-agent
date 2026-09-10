@@ -1073,6 +1073,25 @@ def setup_period_repair(result: dict) -> float | None:
     return round(repaired, 3)
 
 
+def _repaired(result: dict, iteration: int, overrides: dict) -> dict:
+    """A repair candidate built from the failed one — same technology.
+
+    The repair used to carry only the tag and the overrides, and the
+    first non-sky130 candidate to reach this function showed what that
+    loses: gcd on gf180mcuD failed setup at 12 ns, the repair proposed
+    13.2 ns with no `pdk`/`scl`, run_candidate() defaulted to
+    sky130A/sky130_fd_sc_hd, and the sky130 run passed under a tag that
+    said gf180. Area 12,133 -> 3,458 um^2 for a 1.2 ns period change was
+    the tell. The technology is part of the candidate, not of the
+    override set, so it has to be copied explicitly.
+    """
+    cand = {"tag": f"{result['tag']}-iter{iteration}", "overrides": overrides}
+    for key in ("pdk", "scl"):
+        if result.get(key):
+            cand[key] = result[key]
+    return cand
+
+
 def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
     """Mechanically proposes a repaired candidate set from real failures."""
     next_candidates = []
@@ -1109,20 +1128,14 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 continue  # already at floor, no repair to propose
             new_overrides = dict(overrides)
             new_overrides["FP_CORE_UTIL"] = repaired
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif PDN_STRAP_ERROR in error and isinstance(util_override, (int, float)):
             repaired = max(MIN_CORE_UTIL, util_override - UTIL_STEP_DOWN)
             if repaired == util_override:
                 continue  # already at floor, no repair to propose
             new_overrides = dict(overrides)
             new_overrides["FP_CORE_UTIL"] = repaired
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif DIE_TOO_SMALL_ERROR in error and isinstance(die_area_override, list) \
                 and len(die_area_override) == 4:
             x0, y0, x1, y1 = die_area_override
@@ -1132,10 +1145,7 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
                 y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
             ]
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif PDN_STRAP_ERROR in error and isinstance(die_area_override, list) \
                 and len(die_area_override) == 4:
             # Same PDN strap failure as pattern #1, but this candidate has
@@ -1151,19 +1161,13 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
                 y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
             ]
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif (period := setup_period_repair(r)) is not None:
             # Pattern #3 above: setup is the only failure and the run
             # measured the period it needs.
             new_overrides = dict(overrides)
             new_overrides["CLOCK_PERIOD"] = period
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         # Other failure/violation modes (DRC/LVS errors, hold or DRV
         # violations, unrecognized run errors) are not auto-repaired —
         # flagged in the iteration summary instead so a person or

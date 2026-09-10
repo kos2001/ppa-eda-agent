@@ -46,9 +46,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -191,33 +193,45 @@ def run(run_dir: Path | str, pdk: str, threads: int = 4,
         raise FileNotFoundError(f"no KLayout DRC deck at {deck}")
     gds = final_gds(run_dir)
     topcell = topcell_name(run_dir, gds)
-    work = run_dir / WORK_DIR
-    build_runset(deck, work)
     report_name = f"{gds.stem}_main.lyrdb"
 
-    # Container paths: the run dir is mounted at /run, so every path
-    # KLayout sees is inside it and the report lands beside the runset.
+    # The runset is assembled in a host temp dir and copied into the run
+    # by the container. OpenLane runs as root inside the image, so the
+    # run directory it wrote is root-owned and the host user cannot
+    # create anything in it — measured: the first attempt died with
+    # PermissionError before KLayout ran. Inside the container the same
+    # mkdir is allowed, and the report then lives beside the run's own
+    # step directories, readable from the host.
+    staging = Path(tempfile.mkdtemp(prefix="gf180drc-"))
+    build_runset(deck, staging)
     sw = switches(variant,
                   input_path=f"/run/{gds.relative_to(run_dir).as_posix()}",
                   topcell=topcell,
                   report=f"/run/{WORK_DIR}/{report_name}",
                   threads=threads)
+    klayout = " ".join(
+        ["klayout", "-b", "-r", f"/run/{WORK_DIR}/main.drc"]
+        + [f"-rd {k}={shlex.quote(v)}" for k, v in sw.items()])
+    script = (f"mkdir -p /run/{WORK_DIR} && cp /work/*.drc /run/{WORK_DIR}/ && "
+              f"cd /run/{WORK_DIR} && {klayout} > /run/{WORK_DIR}/klayout.log 2>&1")
     cmd = ["docker", "run", "--rm", *platform_args(),
            "-v", f"{PDK_ROOT}:/pdk:ro",
            "-v", f"{run_dir}:/run",
-           "-w", f"/run/{WORK_DIR}",
-           IMAGE, "klayout", "-b", "-r", f"/run/{WORK_DIR}/main.drc"]
-    for k, v in sw.items():
-        cmd += ["-rd", f"{k}={v}"]
+           "-v", f"{staging}:/work:ro",
+           IMAGE, "sh", "-c", script]
     print(f"$ docker run … klayout -b -r main.drc (gf180mcu variant {variant}, "
           f"{topcell})", file=sys.stderr)
-    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
-                          errors="replace", timeout=timeout_s)
-    (work / "klayout.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
+                              errors="replace", timeout=timeout_s)
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+    work = run_dir / WORK_DIR
     report = work / report_name
     if proc.returncode != 0 or not report.is_file():
         raise RuntimeError(f"KLayout DRC did not produce {report.name} "
-                           f"(exit {proc.returncode}); see {work / 'klayout.log'}")
+                           f"(exit {proc.returncode}); see {work / 'klayout.log'}: "
+                           f"{(proc.stdout + proc.stderr)[-400:]}")
     result = count_violations(report)
     result.update({
         "report": str(report),
@@ -226,7 +240,6 @@ def run(run_dir: Path | str, pdk: str, threads: int = 4,
         "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py "
                   "would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)",
     })
-    (work / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     return result
 
 
