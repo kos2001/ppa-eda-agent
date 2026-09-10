@@ -43,7 +43,7 @@ module counter4_tb;
     // Count freely through three full wraps.
     en = 1;
     for (i = 0; i < 48; i = i + 1) begin
-      @(posedge clk); #1;
+      @(negedge clk);
       expected = expected + 4'd1;
       if (count !== expected) errors = errors + 1;
       $display("count %0d expected %0d (%s)", count, expected,
@@ -53,7 +53,7 @@ module counter4_tb;
     // Enable toggling every cycle: the incrementer at half rate.
     for (i = 0; i < 32; i = i + 1) begin
       en = i[0];
-      @(posedge clk); #1;
+      @(negedge clk);
       if (en) expected = expected + 4'd1;
       if (count !== expected) errors = errors + 1;
       $display("count %0d expected %0d (%s)", count, expected,
@@ -69,7 +69,7 @@ module counter4_tb;
              count === expected ? "ok " : "err");
     en = 1;
     for (i = 0; i < 16; i = i + 1) begin
-      @(posedge clk); #1;
+      @(negedge clk);
       expected = expected + 4'd1;
       if (count !== expected) errors = errors + 1;
     end
