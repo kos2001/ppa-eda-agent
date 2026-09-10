@@ -1178,7 +1178,8 @@ def collect_constraints(design_dir: Path) -> dict | None:
 
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
                winner: dict | None, stop_reason: str | None = None,
-               exploration: dict | None = None) -> Path:
+               exploration: dict | None = None,
+               expected_outcome: str | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     (REFDB / "layouts").mkdir(exist_ok=True)
@@ -1217,6 +1218,12 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "winner_tag": winner["tag"] if winner else None,
         "outcome": outcome,
         "stop_reason": stop_reason,
+        # run_spec's declared intent, when it has one: "fail" marks a
+        # negative control whose OPEN outcome is the design working.
+        # Copied into the case so a reader of this file alone — or a
+        # scan of the store — can tell that from a design that is stuck
+        # (self_improve.expected_outcome()).
+        "expected_outcome": expected_outcome,
         # Which toolchain produced these numbers. Recorded so two cases
         # can be compared knowingly rather than on the assumption that
         # whatever was installed at the time was the same build.
@@ -1401,7 +1408,8 @@ def main():
 
     case_file = write_case(design_name, args.design, all_iterations, winner,
                             stop_reason,
-                            exploration=exploration)
+                            exploration=exploration,
+                            expected_outcome=run_spec.get("expected_outcome"))
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
     print(f"stop reason: {stop_reason}")
     print(f"case written to: {case_file}")

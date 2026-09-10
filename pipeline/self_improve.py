@@ -83,6 +83,31 @@ KNOWN_PATTERNS = {
 }
 
 
+def expected_outcome(design: str) -> str | None:
+    """What the design's own run_spec says a run *should* do — "fail"
+    for a negative control, None for everything else.
+
+    cdc_twoclock exists to prove the CDC gate can fail (its RTL header
+    says so), and it has never passed: 105 recorded runs, every one
+    unverified for the same declared-but-unconstrained `clk_b`. That is
+    the design working as intended, yet every scan filed it as "OPEN,
+    needs review" and a fourth review request sat in the backlog next to
+    aes and riscv32i, which genuinely need a person. A backlog that mixes
+    "stuck" with "correct" trains people to skim it — the same false
+    alarm the budget-vs-stuck split above exists to prevent.
+
+    Read from run_spec.json rather than from the case, because the
+    intent belongs to the design, not to one run of it.
+    """
+    run_spec_path = DESIGNS_DIR / design / "run_spec.json"
+    try:
+        spec = json.loads(run_spec_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    value = spec.get("expected_outcome")
+    return str(value) if value else None
+
+
 def latest_case(design: str) -> dict | None:
     index_file = REFDB / "index.json"
     if not index_file.exists():
@@ -165,12 +190,19 @@ def scan_design(design: str, write: bool = False) -> dict:
     # since we can't tell which kind of OPEN they were.
     stop_reason = case.get("stop_reason")
     budget_exhausted = stop_reason == "max_iterations_reached"
+    expected = expected_outcome(design)
+    # An OPEN case on a design declared to fail is the design doing its
+    # job (see expected_outcome()). Nothing to review, nothing to
+    # promote — but it is reported, not hidden, so the panel still shows
+    # the negative control is present and still failing.
+    expected_fail = is_open and expected == "fail"
 
     # A budget-exhausted case is not a review case (see this module's
     # docstring): propose_repairs() was still producing candidates, so
     # a human/subagent has nothing to add that another iteration
     # wouldn't. Suggest the re-run instead of filing a false alarm.
-    needs_review = is_open and not reviewed and not budget_exhausted
+    needs_review = (is_open and not reviewed and not budget_exhausted
+                    and not expected_fail)
 
     # The request for this design's latest case, if one is already on
     # disk. Reading it is a read — and without it the panel cannot tell
@@ -193,6 +225,8 @@ def scan_design(design: str, write: bool = False) -> dict:
 
     if not is_open:
         status = "CLOSED"
+    elif expected_fail:
+        status = "OPEN, expected to fail (negative control)"
     elif reviewed:
         status = "OPEN, reviewed"
     elif budget_exhausted:
@@ -214,6 +248,7 @@ def scan_design(design: str, write: bool = False) -> dict:
         "date": case["date"],
         "status": status,
         "stop_reason": stop_reason,
+        "expected_outcome": expected,
         "ungrounded_diagnosis_references": ungrounded or None,
         "auto_repair_coverage": f"{covered}/{total}" if total else "n/a (nothing failed)",
         "patterns_matched": sorted(set(matched)),
@@ -227,7 +262,8 @@ def scan_design(design: str, write: bool = False) -> dict:
         # A budget-exhausted case tells us nothing about whether a new
         # propose_repairs() pattern is needed — the existing ones were
         # still firing. Only a reviewed, genuinely-stuck case does.
-        "pattern_promotion_candidate": is_open and reviewed and not budget_exhausted,
+        "pattern_promotion_candidate": (is_open and reviewed and not budget_exhausted
+                                        and not expected_fail),
     }
 
 
