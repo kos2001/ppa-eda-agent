@@ -1,0 +1,29 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "iter6-slew1p5",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5
+      }
+    },
+    {
+      "tag": "iter6-slew1p5-hold0p4",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "PL_RESIZER_HOLD_SLACK_MARGIN": 0.4,
+        "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.4,
+        "PL_RESIZER_HOLD_MAX_BUFFER_PCT": 100,
+        "GRT_RESIZER_HOLD_MAX_BUFFER_PCT": 100
+      }
+    }
+  ],
+  "max_iterations": 1,
+  "_why": "Read from iter5's own metrics (aes__2026-09-10), per corner: max-slew 532 at max_ss_100C_1v60, 376 nom_ss, 186 min_ss, 9 max_tt, 0 at every ff corner; hold 114/99/66 at the three ss corners and 0 elsewhere. The worst slew pins are antenna-diode nets and flop D pins at 1.37 ns against MAX_TRANSITION_CONSTRAINT 0.75 — OpenLane's default for sky130, while the library's own max_transition is 1.5 ns. The resizer (RSZ_CORNERS defaults to all nine STA corners) found 63 hold endpoints and inserted 63 buffers; signoff then counted 279 at ss, so the repair is seeing a different picture than signoff (estimated vs extracted parasitics), and the post-GRT steps (iter5) did not close the gap. First candidate: the constraint the library actually imposes, one variable. Second: the same plus a hold margin that covers the measured -0.32 ns and no buffer budget cap (default 50% of instances), so the resizer is allowed to reach what signoff measures. iter3's margin 0.3/0.25 was tried at CLOCK_PERIOD 10 while setup was still open; at 12 ns setup has 0 violations to trade against.",
+  "_policy_note": "OpenLane's own checkers use TIMING_VIOLATION_CORNERS ['*tt*'] (resolved.json), so by the flow's default policy iter5 would already have passed timing; this pipeline judges all nine corners (score() reads the global counts). Recorded so the stricter gate is a visible choice rather than an accident."
+}
