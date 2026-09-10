@@ -60,6 +60,25 @@ if lyp and os.path.exists(lyp):
     view.load_layer_props(lyp)
     loaded_lyp = True
 
+# Hide the annotation layers, which are not manufactured geometry and
+# which the PDK's .lyp lists AFTER the metals, so KLayout paints them on
+# top. Measured on spm's c-hd-synth_strategyAREA_3 GDS: areaid.standardc
+# (81/4, solid magenta in sky130A.lyp) covers 73% of the die and
+# prBoundary (235/4) covers 100%, while met1 covers 19% and met2 does
+# not reach the top fourteen layers by area. Every standard cell
+# carries an areaid.standardc rectangle over its whole footprint, so
+# with it visible the image is a magenta wash with the routing
+# underneath it — which is what the dashboard was showing. This is the
+# same thing a person does by hand in KLayout before looking at a
+# routed block: switch off areaid/prBoundary/text.
+hidden = []
+for lp in view.each_layer():
+    name = lp.name or ""
+    if name.startswith(("areaid.", "prBoundary.")) or ".label" in name or name.startswith("text."):
+        lp.visible = False
+        hidden.append(name)
+print("HIDDEN=" + str(len(hidden)))
+
 view.zoom_fit()
 view.save_image("/work/out.png", {size}, {size})
 # Reported so the caller can tell a correctly-coloured render from a
