@@ -4,6 +4,7 @@ import ConstraintsView from "./Constraints";
 import OperatingPointView from "./OperatingPoint";
 import SchematicView from "./SchematicView";
 import SignoffStrip from "./SignoffStrip";
+import { ViolationChips } from "./ClosureLedger";
 import { verdictPill } from "./PipelineTab";
 import "./StageArtifacts.css";
 
@@ -216,7 +217,7 @@ function Verdicts({ candidates }: { candidates: CandidateResult[] }) {
                     <SignoffStrip checks={v.signoff_checks} source={v.metrics_source} />
                   )}
                   {!v.passed && v.violations.length > 0 && (
-                    <div className="sa__viol">{v.violations.join("; ")}</div>
+                    <div className="sa__viol"><ViolationChips violations={v.violations} /></div>
                   )}
                   {(v.unverified?.length ?? 0) > 0 && (
                     <div className="sa__unverified">

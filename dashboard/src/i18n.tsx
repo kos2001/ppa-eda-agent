@@ -122,6 +122,20 @@ const dict = {
   signoff_clean: { en: "clean", ko: "통과" },
   signoff_violated: { en: "violated", ko: "위반" },
   signoff_never: { en: "never checked", ko: "미검사" },
+  ledger_title: { en: "What still fails, run by run", ko: "실행별로 남은 위반" },
+  ledger_sub: {
+    en: "{n} runs, oldest left. Closed since the first run: {closed}. Still failing in the latest: {open}.",
+    ko: "{n}회 실행, 왼쪽이 가장 오래된 것. 첫 실행 이후 해결됨: {closed}. 최신 실행에서 여전히 실패: {open}.",
+  },
+  ledger_show_table: { en: "show as table", ko: "표로 보기" },
+  ledger_show_map: { en: "show as map", ko: "맵으로 보기" },
+  ledger_run: { en: "run", ko: "실행" },
+  ledger_candidate: { en: "best candidate", ko: "최선 후보" },
+  ledger_candidates: { en: "candidate(s)", ko: "후보" },
+  ledger_note: {
+    en: "each cell is the run's best candidate; counts come from its recorded verdict",
+    ko: "각 칸은 그 실행의 최선 후보이며, 수치는 기록된 판정에서 읽은 것입니다",
+  },
   sa_unverified: {
     en: "{n} signoff check(s) never ran for this candidate, so it cannot be called clean — absent is not the same as zero.",
     ko: "이 후보는 사인오프 검사 {n}개가 아예 실행되지 않아 깨끗하다고 판정할 수 없습니다 — 부재는 0이 아닙니다.",
