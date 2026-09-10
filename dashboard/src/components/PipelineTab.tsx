@@ -18,6 +18,7 @@ import {
 } from "./caseGrouping";
 import { askReview, cachedReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
+import SignoffStrip from "./SignoffStrip";
 import { useLang, type DictKey } from "../i18n";
 import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
@@ -603,7 +604,9 @@ function CandidateRow({
           {v && !v.passed && v.violations.length > 0
             ? v.violations.join("; ")
             : v && (v.unverified?.length ?? 0) > 0
-              ? `${t("verdict_never_ran")}: ${v.unverified!.join("; ")}`
+              ? v.signoff_checks && v.signoff_checks.length > 0
+                ? <SignoffStrip checks={v.signoff_checks} compact />
+                : `${t("verdict_never_ran")}: ${v.unverified!.join("; ")}`
               : v?.worst_setup_wns != null
                 ? `WNS ${v.worst_setup_wns}`
                 : "—"}

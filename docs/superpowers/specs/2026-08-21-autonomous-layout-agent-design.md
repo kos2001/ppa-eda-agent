@@ -3108,6 +3108,81 @@ at that load (0.0372 ns); the pins are instead driven by unbuffered
 constraint already satisfied. Five repair levers were tried and all were
 null, one of them byte-identical.
 
+## Two things from the Chinese open-source track, and one correction
+
+Surveyed what the Chinese open-source EDA track actually consists of
+(2026-09-10): XiangShan is the centre of gravity, iEDA (OSCC-Project)
+is the netlist-to-GDS flow with three tapeouts, CircuitNet is the
+AI4EDA dataset, and the Agentic-EDA survey (arXiv 2512.23189) names
+"no unified evaluation metric" as the field's first open problem. The
+commercial vendors (Empyrean, Primarius, X-EPIC, UniVista) publish
+nothing open. Two of those touch problems this pipeline has; both were
+adopted with their limits written down rather than force-fitted.
+
+**A correction first.** The survey notes said iEDA's last commit was
+2025-12. Reading the repository directly puts it at 2026-03-11
+(`scripts(ihp130): fix configs and add patched Liberty files`). The
+"stalled code, active papers" reading was wrong by a quarter; the
+project is slow, not stopped.
+
+**iEDA's feature JSON as a second source for score()**
+(`pipeline/ieda_metrics.py`). score() is tool-specific in exactly one
+place — the metric key names — so a second tool's report can feed the
+same gate if its keys are mapped. iEDA's keys were read from the C++
+that writes the files (`src/feature/parser/feature_parser_*.cpp`,
+`feature_builder.cpp`), not guessed: areas in µm², lengths in µm,
+usage as a fraction of core area; a summary file with capitalised root
+keys, one file per tool step keyed by step name, an eval file keyed by
+wire model. What the mapping found is the actual result:
+
+  - At that commit `buildSummaryDRC()` and `buildSummarySTA()` are
+    commented-out bodies. The only violation count iEDA's JSON carries
+    is the detailed router's own. No LVS, no Magic/KLayout DRC, no
+    antenna, no DRV counts, no IR drop.
+  - Timing is per clock, not per PVT corner. Mapped to OpenLane's
+    unsuffixed `timing__setup__wns`, which score() now reads when no
+    `__corner:` key exists — never to an invented corner name.
+  - So a clean iEDA run scores 22 of 23 signoff checks as never
+    checked, and does not pass. That is the correct verdict, and the
+    reason the adapter is worth having: the gate does not soften for
+    a tool that reports less.
+
+Not run against a real iEDA binary — none is installed here. The
+fixtures in `tests/test_ieda_metrics.py` are shaped from the writer's
+source; the key names are verified, the values are not, and the
+module says so in `NOT_YET`.
+
+**CircuitNet's input layout from a run** (`pipeline/export_circuitnet.py`).
+CircuitNet's `feature_extraction/process_data.py` reads one directory
+per design holding `detailed_route.def.gz`, a LEF list, and the DEF's
+`UNITS DISTANCE MICRONS` as `--unit`. This writes that layout from
+completed runs, one root per standard-cell library because a root has
+one LEF set and one unit (sky130 DEF says 1000, gf180mcu says 2000 —
+mixing them in one root would silently mis-scale half the designs).
+Verified on the 37 completed runs on this machine across four
+libraries; every LEF resolved, no run failed.
+
+What it does not give: CircuitNet's DRC, congestion and IR-drop *label*
+maps come from Innovus report formats (`verify_drc`,
+`dumpNanoCongestArea`, `report_power_rail_results`) that OpenLane does
+not write. The export covers the feature side — macro region, cell
+density, RUDY, placement, pin positions, all computable from DEF+LEF —
+and records the scalar signoff results from metrics.json as labels of a
+different kind. Translating OpenROAD's DRC/congestion output into
+Innovus's report shapes is the work that would close it, not done.
+
+**Signoff coverage, drawn.** score() now records every check as a row
+(`signoff_checks`: key, label, count, with `null` only when the check
+never ran) plus `metrics_source`. `SignoffStrip` in the dashboard draws
+one cell per check — filled for clean, red only for a real rejection,
+outlined for never-run, per the colour rule in `ActionCenter.css`.
+Rendering it against three real runs showed something the text lists
+had not made visible: every gf180mcu run in the store has exactly one
+outlined cell, KLayout DRC, which OpenLane does not run for that PDK.
+Those runs have always been "not passed" for that reason; now the
+reason is one hover away instead of a sentence in a list. Cases
+recorded before this field existed keep the text rendering.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

@@ -118,6 +118,10 @@ const dict = {
   },
   sa_none_stopped: { en: "No candidate stopped at this gate.", ko: "이 관문에서 멈춘 후보가 없습니다." },
   verdict_never_ran: { en: "never checked", ko: "검사되지 않음" },
+  signoff_title: { en: "signoff checks", ko: "사인오프 검사" },
+  signoff_clean: { en: "clean", ko: "통과" },
+  signoff_violated: { en: "violated", ko: "위반" },
+  signoff_never: { en: "never checked", ko: "미검사" },
   sa_unverified: {
     en: "{n} signoff check(s) never ran for this candidate, so it cannot be called clean — absent is not the same as zero.",
     ko: "이 후보는 사인오프 검사 {n}개가 아예 실행되지 않아 깨끗하다고 판정할 수 없습니다 — 부재는 0이 아닙니다.",

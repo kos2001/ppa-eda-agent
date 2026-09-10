@@ -76,9 +76,24 @@ export interface OperatingPoint {
   note: string;
 }
 
+// One row per signoff check score() gated on, in the order it reads
+// them. count is null only when the check never ran — the same fact
+// `unverified` records, but per check, so the clean ones are visible
+// too rather than implied by absence from both lists.
+export interface SignoffCheck {
+  key: string;
+  label: string;
+  count: number | null;
+}
+
 export interface CandidateVerdict {
   passed: boolean;
   violations: string[];
+  // Optional: cases written before these were recorded have none.
+  signoff_checks?: SignoffCheck[];
+  // Which tool's metrics the verdict was built from ("OpenLane
+  // metrics.json", or "iEDA feature JSON" via pipeline/ieda_metrics.py).
+  metrics_source?: string;
   // Signoff checks whose metric was absent from metrics.json — the step
   // did not run. These block a pass just as firmly as a violation, but
   // are kept apart because "never checked" and "checked, found errors"
