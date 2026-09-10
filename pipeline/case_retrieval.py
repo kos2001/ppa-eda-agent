@@ -65,14 +65,58 @@ def signatures(text: str) -> set[str]:
     return found
 
 
+# A run that completes the flow and fails the signoff gate has no tool
+# error to fingerprint — the tools all exited 0; it is score() that said
+# no. Measured on the store (2026-09-10): 18 cases across aes, gcd and
+# riscv32i had no signature at all, so every review of them started
+# cold, while gcd's own clk5 -> clk8 history was sitting there as the
+# precedent for aes's setup problem. These name what the verdict
+# counted, in the vocabulary score() writes; the matcher is a substring
+# of the label so a reworded label around the same noun still matches.
+_SIGNOFF_KINDS = (
+    ("setup timing violation", "signoff:setup"),
+    ("worst setup WNS", "signoff:setup"),
+    ("hold timing violation", "signoff:hold"),
+    ("worst hold WNS", "signoff:hold"),
+    ("max-slew", "signoff:max-slew"),
+    ("max-capacitance", "signoff:max-cap"),
+    ("max-fanout", "signoff:max-fanout"),
+    ("antenna violation", "signoff:antenna"),
+    ("DRC error", "signoff:drc"),
+    ("LVS", "signoff:lvs"),
+    ("power-grid violation", "signoff:power-grid"),
+    ("illegal layout overlap", "signoff:overlap"),
+    ("XOR difference", "signoff:xor"),
+    ("unmapped instance", "signoff:unmapped"),
+    ("disconnected pin", "signoff:disconnected"),
+    ("synthesis check error", "signoff:synth-check"),
+    ("lint error", "signoff:lint"),
+    ("utilization", "signoff:utilization"),
+    ("IR drop", "signoff:ir-drop"),
+)
+
+
+def signoff_signatures(verdict: dict | None) -> set[str]:
+    """Fingerprints of a gate rejection: one per kind of check the
+    verdict counted against the candidate. A passing verdict, or one
+    with no violations, yields nothing."""
+    found = set()
+    for v in (verdict or {}).get("violations", []) or []:
+        for needle, label in _SIGNOFF_KINDS:
+            if needle in v:
+                found.add(label)
+    return found
+
+
 def case_signatures(case: dict) -> set[str]:
-    """Every fingerprint anywhere in a case — candidate errors and the
-    recorded diagnosis alike, since a diagnosis usually quotes the code
-    that caused it."""
+    """Every fingerprint anywhere in a case — candidate errors, gate
+    rejections and the recorded diagnosis alike, since a diagnosis
+    usually quotes the code that caused it."""
     found = set()
     for iteration in case.get("iterations", []):
         for result in iteration.get("results", []):
             found |= signatures(result.get("error", ""))
+            found |= signoff_signatures(result.get("verdict"))
     found |= signatures(case.get("diagnosis", "") or "")
     return found
 

@@ -1,0 +1,179 @@
+/* Closure ledger — one design's runs as a heatmap of what still
+   failed. One hue for magnitude (the critical hue, light -> dark),
+   mixed against the surface so the same ramp is legible in both
+   themes; the count is printed in every cell so colour ranks and text
+   tells. Clean and never-checked reuse SignoffStrip's two non-failure
+   states so the vocabulary is one vocabulary. */
+
+.ledger {
+  margin: 0.4rem 0 0.8rem;
+  padding: 0.6rem 0.7rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.ledger__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.ledger__title {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ledger__sub {
+  font-size: 0.72rem;
+  color: var(--text);
+  flex: 1 1 20rem;
+}
+
+.ledger__toggle {
+  font: inherit;
+  font-size: 0.66rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.ledger__toggle:hover { color: var(--text); border-color: var(--text-dim); }
+
+.ledger__scroll { overflow-x: auto; }
+
+.ledger__grid {
+  display: grid;
+  gap: 2px;
+  align-items: stretch;
+  min-width: max-content;
+}
+
+.ledger__corner { }
+
+.ledger__col-head,
+.ledger__row-head {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.ledger__col-head {
+  text-align: center;
+  padding: 0 0.15rem 0.2rem;
+  align-self: end;
+}
+
+.ledger__col-head--passed { color: var(--good); }
+
+.ledger__row-head {
+  display: flex;
+  align-items: center;
+  padding-right: 0.5rem;
+}
+
+.ledger__cell {
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.ledger__cell--viol {
+  /* Fill is set inline by the component: the critical hue mixed against
+     the surface at a strength that is data, not a token. */
+}
+
+/* Past the midpoint the fill is dark enough that the page's ink stops
+   reading on it; the component switches the ink to the surface colour. */
+.ledger__cell--dark { color: var(--surface); }
+
+.ledger__cell--clean {
+  background: color-mix(in oklab, var(--good) 22%, var(--surface));
+  border: 1px solid color-mix(in oklab, var(--good) 45%, var(--surface));
+}
+
+.ledger__cell--never {
+  background: transparent;
+  border: 1px dashed var(--warn);
+  color: var(--warn);
+}
+
+.ledger__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.45rem;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  align-items: center;
+}
+
+.ledger__swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  vertical-align: -1px;
+  margin-right: 0.15rem;
+  box-sizing: border-box;
+}
+.ledger__swatch--clean { background: color-mix(in oklab, var(--good) 22%, var(--surface)); border: 1px solid color-mix(in oklab, var(--good) 45%, var(--surface)); }
+.ledger__swatch--viol-low { background: color-mix(in oklab, var(--critical) 18%, var(--surface)); }
+.ledger__swatch--viol-high { background: var(--critical); }
+.ledger__swatch--never { border: 1px dashed var(--warn); }
+.ledger__note { margin-left: auto; font-style: italic; }
+
+.ledger__table {
+  border-collapse: collapse;
+  font-size: 0.66rem;
+}
+.ledger__table th,
+.ledger__table td {
+  padding: 0.15rem 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.ledger__table th:first-child,
+.ledger__table td:first-child,
+.ledger__table th:nth-child(2),
+.ledger__table td:nth-child(2) { text-align: left; }
+
+/* Violation chips: counts as facts, one chip per kind. Text carries
+   identity; the critical hue is a hairline, not a fill. */
+.vchips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.vchips__viol {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1.3;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid color-mix(in oklab, var(--critical) 55%, var(--surface));
+  border-radius: 3px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.vchips__viol strong { color: var(--critical); font-weight: 600; }
+
+.vchips__other {
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}

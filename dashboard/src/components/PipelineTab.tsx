@@ -19,6 +19,7 @@ import {
 import { askReview, cachedReview, translateStream, translateViaServer } from "../api/gateway";
 import { useAgent } from "../agentContext";
 import SignoffStrip from "./SignoffStrip";
+import ClosureLedger, { ViolationChips } from "./ClosureLedger";
 import { useLang, type DictKey } from "../i18n";
 import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
@@ -602,7 +603,7 @@ function CandidateRow({
         <td>{v?.utilization != null ? v.utilization.toFixed(3) : "—"}</td>
         <td>
           {v && !v.passed && v.violations.length > 0
-            ? v.violations.join("; ")
+            ? <ViolationChips violations={v.violations} />
             : v && (v.unverified?.length ?? 0) > 0
               ? v.signoff_checks && v.signoff_checks.length > 0
                 ? <SignoffStrip checks={v.signoff_checks} compact />
@@ -1057,6 +1058,7 @@ function DesignGroupSection({
       </button>
       {open && (
         <div className="pipeline__group-body">
+          <ClosureLedger cases={group.cases} />
           {group.cases.map((c, index) => (
             <CaseCard
               // The case file, not `${design}__${date}`: the store keeps
