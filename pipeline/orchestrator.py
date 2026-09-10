@@ -21,6 +21,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import re
 import sys
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -793,14 +794,23 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})}"
           f"{f', pdk: {pdk}' if pdk else ''}"
           f"{f', scl: {scl}' if scl else ''} ===", file=sys.stderr)
+    # Timed here, for every caller. collect.py stamped `seconds` on its
+    # own runs and nothing else did, so the store could say what a
+    # counter4 candidate costs and nothing about aes — every aes case
+    # came through orchestrate() or was recovered from a run directory.
+    # The one design the manual's first feedback asked about was the
+    # one with no number.
+    started = time.time()
     try:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
                             scl=scl, pdk=pdk)
-        return score_run_dir(design_dir, run_dir, run_spec, cand, tag,
-                             scl, pdk, verify_fn)
+        result = score_run_dir(design_dir, run_dir, run_spec, cand, tag,
+                               scl, pdk, verify_fn)
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
-        return {"tag": tag, "overrides": cand.get("overrides", {}),
-                "scl": scl, "pdk": pdk, "error": str(e)}
+        result = {"tag": tag, "overrides": cand.get("overrides", {}),
+                  "scl": scl, "pdk": pdk, "error": str(e)}
+    result["seconds"] = round(time.time() - started, 1)
+    return result
 
 
 # Cheap pre-flight cutoff, stopping just past placement/PDN. Measured on

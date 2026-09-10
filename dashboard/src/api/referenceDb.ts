@@ -270,6 +270,9 @@ export interface CandidateResult {
   clocks?: ClockCoverage;
   netlist?: NetlistGraph | null;
   produced_by_feedback?: boolean;
+  // Wall-clock of this candidate's flow, written by collect.py's
+  // run_one(). Optional: orchestrator.py's own runs do not record it.
+  seconds?: number | null;
 }
 
 export interface IterationResult {
@@ -337,6 +340,20 @@ export interface PipelineCase {
   synthesis_exploration?: SynthesisExploration | null;
   diagnosis?: string;
   human_in_the_loop?: HumanInTheLoopEntry[];
+  // run_spec's declared intent, copied in by write_case(): "fail" marks a
+  // negative control whose OPEN outcome is the design working.
+  expected_outcome?: string | null;
+  // Which build produced these numbers, and on what machine
+  // (toolchain.py's toolchain_info()). Optional: older cases predate it.
+  toolchain?: {
+    openlane_image?: string;
+    host?: {
+      arch?: string;
+      system?: string;
+      cpu_count?: number;
+      docker_platform?: string;
+    };
+  } | null;
 }
 
 export interface ReferenceDb {

@@ -5,6 +5,7 @@ import {
 } from "../api/referenceDb";
 import { useLang, type DictKey } from "../i18n";
 import LiveRun from "./LiveRun";
+import { formatSeconds, runCosts, type RunCost } from "./runCost";
 import "./ActionCenter.css";
 
 // What the agent needs from a human, in one place.
@@ -91,10 +92,12 @@ export function deriveActions(
 
 function ActionRow({
   action,
+  cost,
   onRun,
   onOpenCase,
 }: {
   action: DesignAction;
+  cost: RunCost | undefined;
   onRun: (design: string, maxIterations?: number) => void;
   onOpenCase: (design: string) => void;
 }) {
@@ -114,6 +117,16 @@ function ActionRow({
       <p className="ac__ask">
         {t(copy.ask).replace("{n}", String(nextBudget))}
         {action.kind === "review" && action.reviewed && ` ${t("ac_already_reviewed")}`}
+      </p>
+      {/* What pressing the button costs, from this design's own timed
+          runs. Next to the button because that is where the question
+          is asked; the manual repeats the same numbers as a table. */}
+      <p className="ac__cost">
+        {cost
+          ? t("ac_cost")
+              .replace("{s}", formatSeconds(cost.medianSeconds))
+              .replace("{n}", String(cost.runs))
+          : t("ac_cost_none")}
       </p>
       <div className="ac__do">
         {action.kind === "review" && (
@@ -164,6 +177,7 @@ export default function ActionCenter({
 
   const actions = deriveActions(designs, cases);
   const needing = actions.filter((a) => a.kind !== "done").length;
+  const costs = runCosts(cases);
 
   async function handleRun(design: string, maxIterations?: number) {
     setBusy(design);
@@ -205,6 +219,7 @@ export default function ActionCenter({
           <ActionRow
             key={a.design}
             action={a}
+            cost={costs[a.design]}
             onRun={handleRun}
             onOpenCase={onOpenCase}
           />
