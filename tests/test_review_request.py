@@ -24,6 +24,7 @@ recorded review from the design's earlier cases when its own case has
 none.
 """
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -258,7 +259,16 @@ class RealRequestTests(unittest.TestCase):
         # The line that was false: a design whose previous run was
         # reviewed is not being seen for the first time.
         self.assertNotIn("(none recorded yet)", body)
-        self.assertIn("aes__2026-08-30.json", body)
+        # Which earlier case it carries from is the newest reviewed one,
+        # and the store keeps growing (three aes cases from 2026-09-10
+        # each carry a diagnosis now), so the test asks for the fact —
+        # a real, diagnosed aes case is cited — not for a date it
+        # pinned on the day it was written.
+        m = re.search(r"carried from an earlier case of this design, (aes__[^\s)]+\.json)", body)
+        self.assertIsNotNone(m, body[:800])
+        cited = cases / m.group(1)
+        self.assertTrue(cited.exists(), cited)
+        self.assertTrue(json.loads(cited.read_text(encoding="utf-8")).get("diagnosis"))
 
 
 if __name__ == "__main__":
