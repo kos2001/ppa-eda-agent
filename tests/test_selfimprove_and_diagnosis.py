@@ -51,6 +51,26 @@ class TestAutoRepairCoverage(unittest.TestCase):
         covered, total, _ = self_improve.auto_repair_coverage(case)
         self.assertEqual((covered, total), (0, 1))
 
+    def test_a_completed_run_s_verdict_pattern_counts_as_covered(self):
+        """propose_repairs() reads two patterns off the verdict of a
+        completed run, not off error text. Counting those as uncovered
+        reported 0/2 on aes while the loop was proposing from its own
+        measured min_period."""
+        case = _case(iterations=[{"iteration": 1, "results": [
+            {"tag": "u", "verdict": {"passed": False,
+                                     "violations": ["utilization 0.8 > target 0.75"]}},
+            {"tag": "clk", "verdict": {"passed": False,
+                                       "violations": ["3 setup timing violation(s)"],
+                                       "operating_point": {"corners": [{"min_period_ns": 11.4}]}}},
+            {"tag": "hold", "verdict": {"passed": False,
+                                        "violations": ["3 setup timing violation(s)",
+                                                       "36 hold timing violation(s)"],
+                                        "operating_point": {"corners": [{"min_period_ns": 11.4}]}}},
+        ]}])
+        covered, total, matched = self_improve.auto_repair_coverage(case)
+        self.assertEqual((covered, total), (2, 3))
+        self.assertEqual(len(matched), 2)
+
     def test_nothing_failed_is_zero_of_zero(self):
         case = _case(iterations=[{"iteration": 1, "results": [
             {"tag": "a", "verdict": {"passed": True}}]}])
@@ -82,6 +102,40 @@ class TestBudgetRetryCommand(unittest.TestCase):
         a plausible-looking invented one."""
         self.assertIsNone(
             self_improve.budget_retry_command("no-such-design", _case()))
+
+
+class TestExpectedOutcome(unittest.TestCase):
+    """Guards the negative-control exemption from the review backlog.
+
+    cdc_twoclock is built to fail (its RTL header says so) and has never
+    passed, yet before this it was filed as "needs review" on every
+    scan — four review requests for a design working as intended,
+    sitting next to the designs that genuinely need a person.
+    """
+
+    def test_the_real_negative_control_declares_itself(self):
+        # Reads the committed run_spec: if someone removes the marker,
+        # this fails deliberately rather than the backlog silently
+        # regrowing.
+        self.assertEqual(self_improve.expected_outcome("cdc_twoclock"), "fail")
+
+    def test_ordinary_designs_declare_nothing(self):
+        self.assertIsNone(self_improve.expected_outcome("counter4"))
+        self.assertIsNone(self_improve.expected_outcome("no-such-design"))
+
+    def test_expected_failure_is_not_a_review_case(self):
+        report = self_improve.scan_design("cdc_twoclock")
+        self.assertIn("expected to fail", report["status"])
+        self.assertFalse(report["needs_review"])
+        self.assertFalse(report["pattern_promotion_candidate"])
+        self.assertEqual(report["expected_outcome"], "fail")
+
+    def test_expected_failure_is_still_reported_not_hidden(self):
+        # Excluding it from the backlog must not mean dropping it from
+        # the scan: the panel should still show the control exists and
+        # is still failing, or nobody notices when it starts passing.
+        names = [d["design"] for d in self_improve.scan_all()["designs"]]
+        self.assertIn("cdc_twoclock", names)
 
 
 class TestScanningDoesNotWrite(unittest.TestCase):

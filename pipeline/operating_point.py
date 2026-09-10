@@ -82,6 +82,25 @@ def corner_timing(metrics: dict) -> list[dict]:
     return out
 
 
+def metrics_from_corners(corners: list[dict]) -> dict:
+    """The per-corner slack keys a recorded operating point was built
+    from, rebuilt from its own `corners` list.
+
+    Exists so a stored operating point can be recomputed from the case
+    file alone — the metrics.json it came from lives in a run directory
+    that is gitignored and, for every case in the store, on another
+    machine. The slacks are measurements and are kept; only the period
+    they are compared against changes.
+    """
+    out: dict = {}
+    for c in corners:
+        if isinstance(c.get("setup_ws_ns"), (int, float)):
+            out[f"{_SETUP_WS}{c['corner']}"] = c["setup_ws_ns"]
+        if isinstance(c.get("hold_ws_ns"), (int, float)):
+            out[f"{_HOLD_WS}{c['corner']}"] = c["hold_ws_ns"]
+    return out
+
+
 def operating_point(metrics: dict, clock_period_ns: float | None) -> dict | None:
     """Fmax and Vmin for a completed run, or None when not derivable.
 

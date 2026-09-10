@@ -19,8 +19,10 @@ score them consistently, not to invent optimization strategy itself.
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import math
 import re
 import sys
+import time
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -29,6 +31,8 @@ import cdc_check
 import def_layout
 import design_rules
 import equiv_check
+import gf180_drc
+import magic_abstract_drc
 import netlist_graph
 import model_validity
 import operating_point
@@ -692,7 +696,22 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     one code path producing results rather than two.
     """
     metrics = read_metrics(run_dir)
+    # OpenLane 2.3.10's KLayout.DRC step skips every PDK but sky130 and
+    # writes no klayout__drc_error__count, so score() filed all 170
+    # gf180mcu runs in the store as unverified. The PDK ships the deck;
+    # gf180_drc.py runs it. A failure to run it leaves the metric absent
+    # — still unverified, still honest — and records why.
+    klayout_drc = None
+    if pdk and pdk.startswith("gf180mcu") and "klayout__drc_error__count" not in metrics:
+        try:
+            klayout_drc = gf180_drc.run(run_dir, pdk)
+            metrics = {**metrics, "klayout__drc_error__count": klayout_drc["count"]}
+        except Exception as e:  # noqa: BLE001 - recorded, never a silent zero
+            klayout_drc = {"error": f"{type(e).__name__}: {e}"}
+            print(f"  (gf180mcu KLayout DRC not run for {tag}: {e})", file=sys.stderr)
     verdict = score(metrics, run_spec.get("targets", {}))
+    if klayout_drc is not None:
+        verdict["klayout_drc"] = klayout_drc
     # Clock-domain coverage needs the run's logs, which score() never
     # sees — it reads metrics.json only. Folded into the same
     # `unverified` list because an unconstrained domain is exactly
@@ -712,12 +731,24 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     models = model_validity.check(design_dir, run_dir)
     verdict["unverified"] += model_validity.unverified(models)
     verdict["model_validity"] = models
+    # A Magic DRC count taken on DEF/LEF abstracts (MAGIC_DRC_USE_GDS=
+    # false) that is nothing but nwell.4 on standard-cell rows is a
+    # check Magic could not run on geometry, not a bad layout — measured
+    # on sram_wrapper, 382 of them with KLayout DRC on the GDS at zero.
+    # Moved to `unverified`, which still blocks a pass.
+    try:
+        abstract = magic_abstract_drc.check(run_dir, PDK_ROOT)
+    except Exception as e:  # noqa: BLE001 - a classifier must never lose a run
+        abstract = {"abstract_artefact": False, "error": f"{type(e).__name__}: {e}"}
+    magic_abstract_drc.apply_to_verdict(verdict, abstract)
     verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
     # Fmax/Vmin, derived from per-corner slack the run already
-    # measured. Needs the clock period, which lives in config.json
-    # and never reaches score().
-    verdict["operating_point"] = operating_point.operating_point(
-        metrics, clock_period(design_dir))
+    # measured. Needs the clock period the run was actually constrained
+    # to — see run_clock_period() for why that is not config.json's.
+    period, period_source = run_clock_period(design_dir, run_dir, cand)
+    verdict["operating_point"] = operating_point.operating_point(metrics, period)
+    if verdict["operating_point"] is not None:
+        verdict["operating_point"]["period_source"] = period_source
     # Power measured against a real workload, when the design has a
     # testbench to provide one. score()'s figure is OpenSTA's
     # default-activity estimate, which on spm understates
@@ -793,14 +824,23 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     print(f"\n=== candidate '{tag}' — overrides: {cand.get('overrides', {})}"
           f"{f', pdk: {pdk}' if pdk else ''}"
           f"{f', scl: {scl}' if scl else ''} ===", file=sys.stderr)
+    # Timed here, for every caller. collect.py stamped `seconds` on its
+    # own runs and nothing else did, so the store could say what a
+    # counter4 candidate costs and nothing about aes — every aes case
+    # came through orchestrate() or was recovered from a run directory.
+    # The one design the manual's first feedback asked about was the
+    # one with no number.
+    started = time.time()
     try:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
                             scl=scl, pdk=pdk)
-        return score_run_dir(design_dir, run_dir, run_spec, cand, tag,
-                             scl, pdk, verify_fn)
+        result = score_run_dir(design_dir, run_dir, run_spec, cand, tag,
+                               scl, pdk, verify_fn)
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
-        return {"tag": tag, "overrides": cand.get("overrides", {}),
-                "scl": scl, "pdk": pdk, "error": str(e)}
+        result = {"tag": tag, "overrides": cand.get("overrides", {}),
+                  "scl": scl, "pdk": pdk, "error": str(e)}
+    result["seconds"] = round(time.time() - started, 1)
+    return result
 
 
 # Cheap pre-flight cutoff, stopping just past placement/PDN. Measured on
@@ -1001,6 +1041,67 @@ DIE_AREA_GROWTH_FACTOR = 2  # doubles width/height each iteration; simple
                             # and matches the real counter4_tinydie case
                             # (8x8um -> 16x16um converged in one step)
 
+# 3. aes__2026-08-30__145637: a candidate that completes the flow and
+#    fails setup — and only setup. The repair is not a guess: the run
+#    itself measured the period it needs. operating_point() derives
+#    min_period per corner from the run's own slack, and aes showed the
+#    relationship holds end to end: 481 setup violations at 6 ns, 3 at
+#    11.2 ns (ss min_period 11.45), 0 at 12 ns. The margin covers the
+#    fact that re-closing at a new period changes synthesis and sizing,
+#    so the measured min_period is a floor rather than an exact answer
+#    (operating_point.py's first stated limit).
+#
+#    Fires only when setup is the *whole* failure. Hold does not move
+#    with the period (aes at 12 ns: setup 0, hold 264), and DRV or
+#    antenna counts have their own causes — proposing a period change
+#    against those would burn a run to learn what the case already says.
+SETUP_PERIOD_MARGIN = 0.05
+SETUP_PERIOD_STEP_NS = 0.1  # OpenLane takes any float; rounded up to a
+                            # tenth so tags stay readable and two runs a
+                            # rounding error apart are not both made.
+
+
+def setup_period_repair(result: dict) -> float | None:
+    """The CLOCK_PERIOD a setup-only failure measured itself needing,
+    or None when this result is not that case."""
+    if result.get("error"):
+        return None
+    verdict = result.get("verdict") or {}
+    violations = verdict.get("violations") or []
+    if not violations or any("setup" not in v for v in violations):
+        return None
+    op = verdict.get("operating_point") or {}
+    period = op.get("clock_period_ns")
+    needed = [c["min_period_ns"] for c in op.get("corners", [])
+              if isinstance(c.get("min_period_ns"), (int, float))]
+    if not isinstance(period, (int, float)) or not needed:
+        return None
+    worst = max(needed)
+    if worst <= period:
+        return None  # slack says it fits; the violation is not a period problem
+    repaired = worst * (1 + SETUP_PERIOD_MARGIN)
+    repaired = math.ceil(repaired / SETUP_PERIOD_STEP_NS) * SETUP_PERIOD_STEP_NS
+    return round(repaired, 3)
+
+
+def _repaired(result: dict, iteration: int, overrides: dict) -> dict:
+    """A repair candidate built from the failed one — same technology.
+
+    The repair used to carry only the tag and the overrides, and the
+    first non-sky130 candidate to reach this function showed what that
+    loses: gcd on gf180mcuD failed setup at 12 ns, the repair proposed
+    13.2 ns with no `pdk`/`scl`, run_candidate() defaulted to
+    sky130A/sky130_fd_sc_hd, and the sky130 run passed under a tag that
+    said gf180. Area 12,133 -> 3,458 um^2 for a 1.2 ns period change was
+    the tell. The technology is part of the candidate, not of the
+    override set, so it has to be copied explicitly.
+    """
+    cand = {"tag": f"{result['tag']}-iter{iteration}", "overrides": overrides}
+    for key in ("pdk", "scl"):
+        if result.get(key):
+            cand[key] = result[key]
+    return cand
+
 
 def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
     """Mechanically proposes a repaired candidate set from real failures."""
@@ -1038,20 +1139,14 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 continue  # already at floor, no repair to propose
             new_overrides = dict(overrides)
             new_overrides["FP_CORE_UTIL"] = repaired
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif PDN_STRAP_ERROR in error and isinstance(util_override, (int, float)):
             repaired = max(MIN_CORE_UTIL, util_override - UTIL_STEP_DOWN)
             if repaired == util_override:
                 continue  # already at floor, no repair to propose
             new_overrides = dict(overrides)
             new_overrides["FP_CORE_UTIL"] = repaired
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif DIE_TOO_SMALL_ERROR in error and isinstance(die_area_override, list) \
                 and len(die_area_override) == 4:
             x0, y0, x1, y1 = die_area_override
@@ -1061,10 +1156,7 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
                 y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
             ]
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
+            next_candidates.append(_repaired(r, iteration, new_overrides))
         elif PDN_STRAP_ERROR in error and isinstance(die_area_override, list) \
                 and len(die_area_override) == 4:
             # Same PDN strap failure as pattern #1, but this candidate has
@@ -1080,14 +1172,17 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
                 y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
             ]
-            next_candidates.append({
-                "tag": f"{r['tag']}-iter{iteration}",
-                "overrides": new_overrides,
-            })
-        # Other failure/violation modes (DRC/LVS errors, timing violations,
-        # unrecognized run errors) are not auto-repaired — flagged in the
-        # iteration summary instead so a person or feedback-optimizer can
-        # look at them.
+            next_candidates.append(_repaired(r, iteration, new_overrides))
+        elif (period := setup_period_repair(r)) is not None:
+            # Pattern #3 above: setup is the only failure and the run
+            # measured the period it needs.
+            new_overrides = dict(overrides)
+            new_overrides["CLOCK_PERIOD"] = period
+            next_candidates.append(_repaired(r, iteration, new_overrides))
+        # Other failure/violation modes (DRC/LVS errors, hold or DRV
+        # violations, unrecognized run errors) are not auto-repaired —
+        # flagged in the iteration summary instead so a person or
+        # feedback-optimizer can look at them.
     return next_candidates
 
 
@@ -1162,6 +1257,40 @@ def clock_period(design_dir: Path) -> float | None:
     return float(value) if isinstance(value, (int, float, str)) and str(value).strip() else None
 
 
+def run_clock_period(design_dir: Path, run_dir: Path | None,
+                     cand: dict | None) -> tuple[float | None, str]:
+    """The clock period a run was actually constrained to, and where
+    that number came from.
+
+    Slack is measured against the period the tool was given, so
+    min_period = period - slack is only right with *that* period. The
+    operating point used config.json's CLOCK_PERIOD for every run, and
+    90 of the 356 recorded operating points belonged to candidates that
+    overrode it: aes at 12 ns with +0.856 ns of slack was recorded as
+    Fmax 207.5 MHz (10 - 0.856 = 9.14 ns) when its critical path is
+    12 - 0.856 = 11.14 ns, 89.7 MHz. Every period sweep in the store
+    carried the same error, up to 2.5x on spm's 25 ns candidate.
+
+    Precedence is what the tool used, then what we asked for, then what
+    the design declares — resolved.json is OpenLane's own record of the
+    configuration it ran, and recover_runs.py already trusts it over
+    the tag for the same reason.
+    """
+    if run_dir is not None:
+        try:
+            resolved = json.loads((Path(run_dir) / "resolved.json")
+                                  .read_text(encoding="utf-8"))
+            value = resolved.get("CLOCK_PERIOD")
+            if isinstance(value, (int, float)):
+                return float(value), "resolved.json"
+        except (OSError, json.JSONDecodeError, ValueError, TypeError):
+            pass
+    override = ((cand or {}).get("overrides") or {}).get("CLOCK_PERIOD")
+    if isinstance(override, (int, float)):
+        return float(override), "override"
+    return clock_period(design_dir), "config.json"
+
+
 def collect_constraints(design_dir: Path) -> dict | None:
     """The rules this run was held to, or None with the reason recorded.
 
@@ -1178,7 +1307,8 @@ def collect_constraints(design_dir: Path) -> dict | None:
 
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
                winner: dict | None, stop_reason: str | None = None,
-               exploration: dict | None = None) -> Path:
+               exploration: dict | None = None,
+               expected_outcome: str | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     (REFDB / "layouts").mkdir(exist_ok=True)
@@ -1217,6 +1347,12 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "winner_tag": winner["tag"] if winner else None,
         "outcome": outcome,
         "stop_reason": stop_reason,
+        # run_spec's declared intent, when it has one: "fail" marks a
+        # negative control whose OPEN outcome is the design working.
+        # Copied into the case so a reader of this file alone — or a
+        # scan of the store — can tell that from a design that is stuck
+        # (self_improve.expected_outcome()).
+        "expected_outcome": expected_outcome,
         # Which toolchain produced these numbers. Recorded so two cases
         # can be compared knowingly rather than on the assumption that
         # whatever was installed at the time was the same build.
@@ -1401,7 +1537,8 @@ def main():
 
     case_file = write_case(design_name, args.design, all_iterations, winner,
                             stop_reason,
-                            exploration=exploration)
+                            exploration=exploration,
+                            expected_outcome=run_spec.get("expected_outcome"))
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
     print(f"stop reason: {stop_reason}")
     print(f"case written to: {case_file}")

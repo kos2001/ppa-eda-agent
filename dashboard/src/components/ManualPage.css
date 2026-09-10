@@ -99,6 +99,21 @@
 
 /* Where the control is. An answer that explains a concept without
    naming the button has answered half a question. */
+.man__cost {
+  margin: 0.5rem 0 0;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  width: 100%;
+}
+.man__cost th,
+.man__cost td {
+  text-align: left;
+  padding: 0.2rem 0.6rem 0.2rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.man__cost th { font-weight: 600; color: var(--text-dim); }
+.man__cost-num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.man__cost-note { margin: 0.4rem 0 0; font-size: 0.78rem; color: var(--text-dim); }
 .man__where {
   display: block;
   margin-top: 0.3rem;

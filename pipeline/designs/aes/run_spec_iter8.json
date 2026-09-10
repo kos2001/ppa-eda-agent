@@ -1,0 +1,27 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "iter8-io25",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25
+      }
+    },
+    {
+      "tag": "iter8-io25-fanout16",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16
+      }
+    }
+  ],
+  "max_iterations": 2,
+  "_why": "iter7 (aes__2026-09-10__052614) confirmed the hold diagnosis: IO_DELAY_CONSTRAINT 30 took hold from 263 to 0 at every corner and left 8 setup endpoints short by 0.225 ns on input paths — the assumed arrival moved 1.0 ns later when 0.3 ns would have covered the measured -0.276 ns hold slack. 25 sits between: enough over the 2.30 ns the ss clock insertion delay needs, and 0.5 ns given back to input-side setup against a 0.225 ns shortfall. The second candidate adds MAX_FANOUT_CONSTRAINT 16 alone for the 17 fanout DRVs; heuristic diode insertion is left out for good — with it, iter7 measured 1,158 fanout violations and +39% area."
+}

@@ -66,6 +66,9 @@ doesn't happen again).
 Not RL- or surrogate-model-driven — there isn't enough reference-db data
 to train either honestly, and real runs are still cheap enough not to
 need them. Not a full SRAM bitcell flow — standard-cell digital layout
-first, on purpose. Not trying to cover every EDA failure mode — three
+first, on purpose. Not trying to cover every EDA failure mode — four
 real patterns, found by hitting them for real, is the actual state, not
-an aspiration rounded up.
+an aspiration rounded up. (The fourth, relaxing CLOCK_PERIOD to the
+min_period a setup-only failure measured for itself, was promoted from
+aes's record on 2026-09-10 — the same bar as the other three: a real run
+showed the repair working before it became a pattern.)

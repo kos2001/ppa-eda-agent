@@ -1,0 +1,25 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "iter5-postgrt-repair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "RUN_POST_GRT_DESIGN_REPAIR": true
+      }
+    },
+    {
+      "tag": "iter5-postgrt-repair-timing",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "RUN_POST_GRT_DESIGN_REPAIR": true,
+        "RUN_POST_GRT_RESIZER_TIMING": true
+      }
+    }
+  ],
+  "max_iterations": 1,
+  "_why": "iter4 at 12 ns closed setup (481 -> 0 across iterations) and left 264 hold violations at the ss corners plus 570 max-slew DRVs. Hold margin (iter3) and hold-first made both worse. step_coverage records that every aes run so far skipped OpenROAD.RepairDesignPostGRT and ResizerTimingPostGRT because RUN_POST_GRT_DESIGN_REPAIR / RUN_POST_GRT_RESIZER_TIMING default to false; nothing in this repo has ever turned them on. The first candidate adds only post-GRT design repair (the step that exists to fix post-route slew/cap DRVs); the second adds post-GRT timing repair on top. One variable each, so the ladder says which step moved what. Boolean overrides were verified to reach OpenLane on counter4 (bool-check run: 40-openroad-repairdesignpostgrt executed)."
+}

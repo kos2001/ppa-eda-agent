@@ -138,7 +138,7 @@
             },
             "model_validity": null,
             "operating_point": {
-              "clock_period_ns": 10.0,
+              "clock_period_ns": 4.0,
               "corners": [
                 {
                   "corner": "max_ff_n40C_1v95",
@@ -147,8 +147,8 @@
                   "hold_ws_ns": 0.16101104238953753,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.167603380362753,
-                  "fmax_mhz": 139.51664830391186
+                  "min_period_ns": 1.1676033803627521,
+                  "fmax_mhz": 856.4552114343135
                 },
                 {
                   "corner": "max_ss_100C_1v60",
@@ -157,8 +157,8 @@
                   "hold_ws_ns": 1.0967661533846427,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 9.095895627486414,
-                  "fmax_mhz": 109.93969598531365
+                  "min_period_ns": 3.095895627486414,
+                  "fmax_mhz": 323.0083052935183
                 },
                 {
                   "corner": "max_tt_025C_1v80",
@@ -167,8 +167,8 @@
                   "hold_ws_ns": 0.41860738282789134,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.638975890285093,
-                  "fmax_mhz": 130.90759996660745
+                  "min_period_ns": 1.638975890285093,
+                  "fmax_mhz": 610.1371020326932
                 },
                 {
                   "corner": "min_ff_n40C_1v95",
@@ -177,8 +177,8 @@
                   "hold_ws_ns": 0.15501289579590724,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.156336170656383,
-                  "fmax_mhz": 139.73630865754583
+                  "min_period_ns": 1.1563361706563828,
+                  "fmax_mhz": 864.8004147724272
                 },
                 {
                   "corner": "min_ss_100C_1v60",
@@ -187,8 +187,8 @@
                   "hold_ws_ns": 1.0753293004850897,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 9.062490570042918,
-                  "fmax_mhz": 110.3449424053044
+                  "min_period_ns": 3.062490570042918,
+                  "fmax_mhz": 326.53161769114797
                 },
                 {
                   "corner": "min_tt_025C_1v80",
@@ -197,8 +197,8 @@
                   "hold_ws_ns": 0.4077071851082673,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.621185009901524,
-                  "fmax_mhz": 131.21319042915104
+                  "min_period_ns": 1.6211850099015241,
+                  "fmax_mhz": 616.8327451169457
                 },
                 {
                   "corner": "nom_ff_n40C_1v95",
@@ -207,8 +207,8 @@
                   "hold_ws_ns": 0.15802518074708907,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.162487916609814,
-                  "fmax_mhz": 139.61629138403143
+                  "min_period_ns": 1.1624879166098139,
+                  "fmax_mhz": 860.2239952018765
                 },
                 {
                   "corner": "nom_ss_100C_1v60",
@@ -217,8 +217,8 @@
                   "hold_ws_ns": 1.0855570083441035,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 9.080791486898423,
-                  "fmax_mhz": 110.12255940936197
+                  "min_period_ns": 3.0807914868984243,
+                  "fmax_mhz": 324.59191225782905
                 },
                 {
                   "corner": "nom_tt_025C_1v80",
@@ -227,16 +227,23 @@
                   "hold_ws_ns": 0.413098650312933,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.630787551157691,
-                  "fmax_mhz": 131.04807246904505
+                  "min_period_ns": 1.6307875511576908,
+                  "fmax_mhz": 613.2006583506866
                 }
               ],
-              "fmax_mhz": 109.93969598531365,
+              "fmax_mhz": 323.0083052935183,
               "fmax_limiting_corner": "max_ss_100C_1v60",
               "vmin_v": 1.6,
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
-              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+              "period_source": "override",
+              "repaired": {
+                "at": "2026-09-10",
+                "previous_clock_period_ns": 10.0,
+                "previous_fmax_mhz": 109.93969598531365,
+                "reason": "operating point had been computed against config.json's CLOCK_PERIOD rather than this candidate's override"
+              }
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/clk4",
@@ -1680,7 +1687,7 @@
             },
             "model_validity": null,
             "operating_point": {
-              "clock_period_ns": 10.0,
+              "clock_period_ns": 5.0,
               "corners": [
                 {
                   "corner": "max_ff_n40C_1v95",
@@ -1689,8 +1696,8 @@
                   "hold_ws_ns": 0.14905505029921068,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.858402040412342,
-                  "fmax_mhz": 145.80655874467777
+                  "min_period_ns": 1.8584020404123414,
+                  "fmax_mhz": 538.096697191594
                 },
                 {
                   "corner": "max_ss_100C_1v60",
@@ -1699,8 +1706,8 @@
                   "hold_ws_ns": 0.8565831064685037,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.940139881443721,
-                  "fmax_mhz": 125.94236561713751
+                  "min_period_ns": 2.940139881443721,
+                  "fmax_mhz": 340.119871952814
                 },
                 {
                   "corner": "max_tt_025C_1v80",
@@ -1709,8 +1716,8 @@
                   "hold_ws_ns": 0.3577461761419949,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.160741313698076,
-                  "fmax_mhz": 139.650345710305
+                  "min_period_ns": 2.160741313698076,
+                  "fmax_mhz": 462.8041282223253
                 },
                 {
                   "corner": "min_ff_n40C_1v95",
@@ -1719,8 +1726,8 @@
                   "hold_ws_ns": 0.14282850306737976,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.847325344982385,
-                  "fmax_mhz": 146.04242527088107
+                  "min_period_ns": 1.8473253449823859,
+                  "fmax_mhz": 541.3231636301374
                 },
                 {
                   "corner": "min_ss_100C_1v60",
@@ -1729,8 +1736,8 @@
                   "hold_ws_ns": 0.8448721961177942,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.913247614491475,
-                  "fmax_mhz": 126.37036634222174
+                  "min_period_ns": 2.913247614491475,
+                  "fmax_mhz": 343.2595276232831
                 },
                 {
                   "corner": "min_tt_025C_1v80",
@@ -1739,8 +1746,8 @@
                   "hold_ws_ns": 0.3472944252702755,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.1445673621733015,
-                  "fmax_mhz": 139.96648772527084
+                  "min_period_ns": 2.1445673621733015,
+                  "fmax_mhz": 466.29451591886647
                 },
                 {
                   "corner": "nom_ff_n40C_1v95",
@@ -1749,8 +1756,8 @@
                   "hold_ws_ns": 0.14607435119397275,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.852535843828919,
-                  "fmax_mhz": 145.93137822118135
+                  "min_period_ns": 1.8525358438289197,
+                  "fmax_mhz": 539.8006215810361
                 },
                 {
                   "corner": "nom_ss_100C_1v60",
@@ -1759,8 +1766,8 @@
                   "hold_ws_ns": 0.8522864877305364,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.926507230494186,
-                  "fmax_mhz": 126.15897152694
+                  "min_period_ns": 2.926507230494186,
+                  "fmax_mhz": 341.70426424373966
                 },
                 {
                   "corner": "nom_tt_025C_1v80",
@@ -1769,16 +1776,23 @@
                   "hold_ws_ns": 0.3527726544067695,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 7.1523953228967185,
-                  "fmax_mhz": 139.81330097886706
+                  "min_period_ns": 2.1523953228967185,
+                  "fmax_mhz": 464.59866798734186
                 }
               ],
-              "fmax_mhz": 125.94236561713751,
+              "fmax_mhz": 340.119871952814,
               "fmax_limiting_corner": "max_ss_100C_1v60",
               "vmin_v": 1.6,
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
-              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+              "period_source": "override",
+              "repaired": {
+                "at": "2026-09-10",
+                "previous_clock_period_ns": 10.0,
+                "previous_fmax_mhz": 125.94236561713751,
+                "reason": "operating point had been computed against config.json's CLOCK_PERIOD rather than this candidate's override"
+              }
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/clk5",
@@ -3207,7 +3221,7 @@
             },
             "model_validity": null,
             "operating_point": {
-              "clock_period_ns": 10.0,
+              "clock_period_ns": 6.0,
               "corners": [
                 {
                   "corner": "max_ff_n40C_1v95",
@@ -3216,8 +3230,8 @@
                   "hold_ws_ns": 0.14905505029921068,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 5.858402151434647,
-                  "fmax_mhz": 170.69500764045586
+                  "min_period_ns": 1.858402151434647,
+                  "fmax_mhz": 538.0966650453032
                 },
                 {
                   "corner": "max_ss_100C_1v60",
@@ -3226,8 +3240,8 @@
                   "hold_ws_ns": 0.8565831064685037,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.940140214510638,
-                  "fmax_mhz": 144.08930786573623
+                  "min_period_ns": 2.9401402145106377,
+                  "fmax_mhz": 340.11983342312874
                 },
                 {
                   "corner": "max_tt_025C_1v80",
@@ -3236,8 +3250,8 @@
                   "hold_ws_ns": 0.3577461761419949,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.160741646764993,
-                  "fmax_mhz": 162.3181196902
+                  "min_period_ns": 2.1607416467649934,
+                  "fmax_mhz": 462.80405688351226
                 },
                 {
                   "corner": "min_ff_n40C_1v95",
@@ -3246,8 +3260,8 @@
                   "hold_ws_ns": 0.14282850306737976,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 5.847325678049303,
-                  "fmax_mhz": 171.0183518174765
+                  "min_period_ns": 1.8473256780493026,
+                  "fmax_mhz": 541.3230660313008
                 },
                 {
                   "corner": "min_ss_100C_1v60",
@@ -3256,8 +3270,8 @@
                   "hold_ws_ns": 0.8448721961177942,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.913247947558392,
-                  "fmax_mhz": 144.64980969663878
+                  "min_period_ns": 2.913247947558392,
+                  "fmax_mhz": 343.25948837897755
                 },
                 {
                   "corner": "min_tt_025C_1v80",
@@ -3266,8 +3280,8 @@
                   "hold_ws_ns": 0.3472944252702755,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.1445674731956075,
-                  "fmax_mhz": 162.7453851491242
+                  "min_period_ns": 2.144567473195607,
+                  "fmax_mhz": 466.2944917792239
                 },
                 {
                   "corner": "nom_ff_n40C_1v95",
@@ -3276,8 +3290,8 @@
                   "hold_ws_ns": 0.14607435119397275,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 5.852536176895836,
-                  "fmax_mhz": 170.8660945912164
+                  "min_period_ns": 1.8525361768958364,
+                  "fmax_mhz": 539.8005245304462
                 },
                 {
                   "corner": "nom_ss_100C_1v60",
@@ -3286,8 +3300,8 @@
                   "hold_ws_ns": 0.8522864877305364,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.926507563561103,
-                  "fmax_mhz": 144.37290233548424
+                  "min_period_ns": 2.9265075635611026,
+                  "fmax_mhz": 341.70422535424996
                 },
                 {
                   "corner": "nom_tt_025C_1v80",
@@ -3296,16 +3310,23 @@
                   "hold_ws_ns": 0.3527726544067695,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 6.152395878008246,
-                  "fmax_mhz": 162.53830537376544
+                  "min_period_ns": 2.1523958780082464,
+                  "fmax_mhz": 464.5985481654824
                 }
               ],
-              "fmax_mhz": 144.08930786573623,
+              "fmax_mhz": 340.11983342312874,
               "fmax_limiting_corner": "max_ss_100C_1v60",
               "vmin_v": 1.6,
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
-              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+              "period_source": "override",
+              "repaired": {
+                "at": "2026-09-10",
+                "previous_clock_period_ns": 10.0,
+                "previous_fmax_mhz": 144.08930786573623,
+                "reason": "operating point had been computed against config.json's CLOCK_PERIOD rather than this candidate's override"
+              }
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/clk6",
@@ -4734,7 +4755,7 @@
             },
             "model_validity": null,
             "operating_point": {
-              "clock_period_ns": 10.0,
+              "clock_period_ns": 8.0,
               "corners": [
                 {
                   "corner": "max_ff_n40C_1v95",
@@ -4743,8 +4764,8 @@
                   "hold_ws_ns": 0.1443404603362266,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 3.8457378370345765,
-                  "fmax_mhz": 260.0281252585573
+                  "min_period_ns": 1.8457378370345765,
+                  "fmax_mhz": 541.7887524084315
                 },
                 {
                   "corner": "max_ss_100C_1v60",
@@ -4753,8 +4774,8 @@
                   "hold_ws_ns": 0.8538986981413422,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 4.905644251892292,
-                  "fmax_mhz": 203.84682391395634
+                  "min_period_ns": 2.9056442518922916,
+                  "fmax_mhz": 344.15775411898863
                 },
                 {
                   "corner": "max_tt_025C_1v80",
@@ -4763,8 +4784,8 @@
                   "hold_ws_ns": 0.36896486910081594,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 4.1408733169989915,
-                  "fmax_mhz": 241.4949512932041
+                  "min_period_ns": 2.1408733169989915,
+                  "fmax_mhz": 467.0991001941994
                 },
                 {
                   "corner": "min_ff_n40C_1v95",
@@ -4773,8 +4794,8 @@
                   "hold_ws_ns": 0.13776000174971154,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 3.8367721197233458,
-                  "fmax_mhz": 260.635755472521
+                  "min_period_ns": 1.8367721197233458,
+                  "fmax_mhz": 544.4333509105201
                 },
                 {
                   "corner": "min_ss_100C_1v60",
@@ -4783,8 +4804,8 @@
                   "hold_ws_ns": 0.8429883141251792,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 4.885981313391655,
-                  "fmax_mhz": 204.66717653200345
+                  "min_period_ns": 2.885981313391655,
+                  "fmax_mhz": 346.50259007560334
                 },
                 {
                   "corner": "min_tt_025C_1v80",
@@ -4793,8 +4814,8 @@
                   "hold_ws_ns": 0.35941067805873944,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 4.128864256246587,
-                  "fmax_mhz": 242.1973545114963
+                  "min_period_ns": 2.1288642562465867,
+                  "fmax_mhz": 469.7340363838444
                 },
                 {
                   "corner": "nom_ff_n40C_1v95",
@@ -4803,8 +4824,8 @@
                   "hold_ws_ns": 0.1411383272424646,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 3.841124194102961,
-                  "fmax_mhz": 260.34044968794234
+                  "min_period_ns": 1.841124194102961,
+                  "fmax_mhz": 543.146411960125
                 },
                 {
                   "corner": "nom_ss_100C_1v60",
@@ -4813,8 +4834,8 @@
                   "hold_ws_ns": 0.8494419852386963,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 4.895801902456024,
-                  "fmax_mhz": 204.25663046095488
+                  "min_period_ns": 2.895801902456024,
+                  "fmax_mhz": 345.32748913241176
                 },
                 {
                   "corner": "nom_tt_025C_1v80",
@@ -4823,16 +4844,23 @@
                   "hold_ws_ns": 0.36410503420652746,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 4.134728454428508,
-                  "fmax_mhz": 241.85385111057252
+                  "min_period_ns": 2.134728454428508,
+                  "fmax_mhz": 468.4436551756705
                 }
               ],
-              "fmax_mhz": 203.84682391395634,
+              "fmax_mhz": 344.15775411898863,
               "fmax_limiting_corner": "max_ss_100C_1v60",
               "vmin_v": 1.6,
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
-              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+              "period_source": "override",
+              "repaired": {
+                "at": "2026-09-10",
+                "previous_clock_period_ns": 10.0,
+                "previous_fmax_mhz": 203.84682391395634,
+                "reason": "operating point had been computed against config.json's CLOCK_PERIOD rather than this candidate's override"
+              }
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/clk8",
@@ -6309,7 +6337,7 @@
             },
             "model_validity": null,
             "operating_point": {
-              "clock_period_ns": 10.0,
+              "clock_period_ns": 12.0,
               "corners": [
                 {
                   "corner": "max_ff_n40C_1v95",
@@ -6318,8 +6346,8 @@
                   "hold_ws_ns": 0.1443404603362266,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 0.8457383921461048,
-                  "fmax_mhz": 1182.3987290708756
+                  "min_period_ns": 2.845738392146105,
+                  "fmax_mhz": 351.4026457104699
                 },
                 {
                   "corner": "max_ss_100C_1v60",
@@ -6328,8 +6356,8 @@
                   "hold_ws_ns": 0.9539942439375437,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 1.9056443629145967,
-                  "fmax_mhz": 524.7568851044931
+                  "min_period_ns": 3.9056443629145967,
+                  "fmax_mhz": 256.03969718680366
                 },
                 {
                   "corner": "max_tt_025C_1v80",
@@ -6338,8 +6366,8 @@
                   "hold_ws_ns": 0.36896486910081594,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 1.1408738721105198,
-                  "fmax_mhz": 876.521081291909
+                  "min_period_ns": 3.14087387211052,
+                  "fmax_mhz": 318.38273064051657
                 },
                 {
                   "corner": "min_ff_n40C_1v95",
@@ -6348,8 +6376,8 @@
                   "hold_ws_ns": 0.13776000174971154,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 0.8367722307456518,
-                  "fmax_mhz": 1195.0683390973613
+                  "min_period_ns": 2.8367722307456518,
+                  "fmax_mhz": 352.51332100679366
                 },
                 {
                   "corner": "min_ss_100C_1v60",
@@ -6358,8 +6386,8 @@
                   "hold_ws_ns": 0.9321768065743856,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 1.8859818685031833,
-                  "fmax_mhz": 530.2277909986769
+                  "min_period_ns": 3.8859818685031833,
+                  "fmax_mhz": 257.335220245169
                 },
                 {
                   "corner": "min_tt_025C_1v80",
@@ -6368,8 +6396,8 @@
                   "hold_ws_ns": 0.35941067805873944,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 1.128864811358115,
-                  "fmax_mhz": 885.8456654317356
+                  "min_period_ns": 3.128864811358115,
+                  "fmax_mhz": 319.6047321603326
                 },
                 {
                   "corner": "nom_ff_n40C_1v95",
@@ -6378,8 +6406,8 @@
                   "hold_ws_ns": 0.1411383272424646,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 0.8411251933037125,
-                  "fmax_mhz": 1188.8836619817203
+                  "min_period_ns": 2.8411251933037125,
+                  "fmax_mhz": 351.97322608553606
                 },
                 {
                   "corner": "nom_ss_100C_1v60",
@@ -6388,8 +6416,8 @@
                   "hold_ws_ns": 0.9440515303370115,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 1.8958024575675516,
-                  "fmax_mhz": 527.4811180923726
+                  "min_period_ns": 3.8958024575675516,
+                  "fmax_mhz": 256.68652630410236
                 },
                 {
                   "corner": "nom_tt_025C_1v80",
@@ -6398,16 +6426,23 @@
                   "hold_ws_ns": 0.36410503420652746,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": 1.1347294536292587,
-                  "fmax_mhz": 881.2673336376815
+                  "min_period_ns": 3.1347294536292587,
+                  "fmax_mhz": 319.00679621402156
                 }
               ],
-              "fmax_mhz": 524.7568851044931,
+              "fmax_mhz": 256.03969718680366,
               "fmax_limiting_corner": "max_ss_100C_1v60",
               "vmin_v": 1.6,
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
-              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+              "period_source": "override",
+              "repaired": {
+                "at": "2026-09-10",
+                "previous_clock_period_ns": 10.0,
+                "previous_fmax_mhz": 524.7568851044931,
+                "reason": "operating point had been computed against config.json's CLOCK_PERIOD rather than this candidate's override"
+              }
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/clk12",
@@ -7884,7 +7919,7 @@
             },
             "model_validity": null,
             "operating_point": {
-              "clock_period_ns": 10.0,
+              "clock_period_ns": 16.0,
               "corners": [
                 {
                   "corner": "max_ff_n40C_1v95",
@@ -7893,8 +7928,8 @@
                   "hold_ws_ns": 0.14735918458113337,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -2.1452575878472313,
-                  "fmax_mhz": null
+                  "min_period_ns": 3.8547424121527687,
+                  "fmax_mhz": 259.42070651655484
                 },
                 {
                   "corner": "max_ss_100C_1v60",
@@ -7903,8 +7938,8 @@
                   "hold_ws_ns": 0.9475813735213355,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -1.070516372514918,
-                  "fmax_mhz": null
+                  "min_period_ns": 4.929483627485082,
+                  "fmax_mhz": 202.86100443144767
                 },
                 {
                   "corner": "max_tt_025C_1v80",
@@ -7913,8 +7948,8 @@
                   "hold_ws_ns": 0.377490660526097,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -1.8452486727560924,
-                  "fmax_mhz": null
+                  "min_period_ns": 4.154751327243908,
+                  "fmax_mhz": 240.68829184618352
                 },
                 {
                   "corner": "min_ff_n40C_1v95",
@@ -7923,8 +7958,8 @@
                   "hold_ws_ns": 0.14186749399008505,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -2.1551163685847285,
-                  "fmax_mhz": null
+                  "min_period_ns": 3.8448836314152715,
+                  "fmax_mhz": 260.0858948836139
                 },
                 {
                   "corner": "min_ss_100C_1v60",
@@ -7933,8 +7968,8 @@
                   "hold_ws_ns": 0.9250273031605053,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -1.0939358617479193,
-                  "fmax_mhz": null
+                  "min_period_ns": 4.906064138252081,
+                  "fmax_mhz": 203.82937764777722
                 },
                 {
                   "corner": "min_tt_025C_1v80",
@@ -7943,8 +7978,8 @@
                   "hold_ws_ns": 0.36325998792743447,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -1.8594524224456457,
-                  "fmax_mhz": null
+                  "min_period_ns": 4.140547577554354,
+                  "fmax_mhz": 241.51394985072423
                 },
                 {
                   "corner": "nom_ff_n40C_1v95",
@@ -7953,8 +7988,8 @@
                   "hold_ws_ns": 0.1446950933358972,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -2.150330863124042,
-                  "fmax_mhz": null
+                  "min_period_ns": 3.849669136875958,
+                  "fmax_mhz": 259.7625833402164
                 },
                 {
                   "corner": "nom_ss_100C_1v60",
@@ -7963,8 +7998,8 @@
                   "hold_ws_ns": 0.9351133465575703,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -1.0818948265715012,
-                  "fmax_mhz": null
+                  "min_period_ns": 4.918105173428499,
+                  "fmax_mhz": 203.3303405959662
                 },
                 {
                   "corner": "nom_tt_025C_1v80",
@@ -7973,16 +8008,23 @@
                   "hold_ws_ns": 0.3704330280701026,
                   "setup_ok": true,
                   "hold_ok": true,
-                  "min_period_ns": -1.852312355927742,
-                  "fmax_mhz": null
+                  "min_period_ns": 4.147687644072258,
+                  "fmax_mhz": 241.09819393684765
                 }
               ],
-              "fmax_mhz": null,
-              "fmax_limiting_corner": null,
+              "fmax_mhz": 202.86100443144767,
+              "fmax_limiting_corner": "max_ss_100C_1v60",
               "vmin_v": 1.6,
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
-              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+              "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+              "period_source": "override",
+              "repaired": {
+                "at": "2026-09-10",
+                "previous_clock_period_ns": 10.0,
+                "previous_fmax_mhz": null,
+                "reason": "operating point had been computed against config.json's CLOCK_PERIOD rather than this candidate's override"
+              }
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/clk16",

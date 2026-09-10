@@ -229,7 +229,14 @@ class LoadTests(unittest.TestCase):
         sram = [c for c in corpus if c["design"] == "sram_wrapper"]
         if len(sram) < 2:
             self.skipTest("need at least two sram_wrapper cases")
-        target = sorted(sram, key=lambda c: c["date"])[-1]
+        # The case that failed at the resizer precheck, not simply the
+        # newest: sram_wrapper's 2026-09-10 case ran the Magic ladder on
+        # the relaxed liberty and never hit RSZ-0090, so "latest" is no
+        # longer the failure this test is about.
+        with_rsz = [c for c in sram if "RSZ-0090" in case_signatures(c)]
+        if len(with_rsz) < 2:
+            self.skipTest("need two sram_wrapper cases that hit RSZ-0090")
+        target = sorted(with_rsz, key=lambda c: c["date"])[-1]
         got = similar(target, corpus)
         self.assertTrue(got, "expected prior sram_wrapper cases to match")
         self.assertIn("RSZ-0090", got[0]["shared_signatures"])
