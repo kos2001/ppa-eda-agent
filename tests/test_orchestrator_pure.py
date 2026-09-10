@@ -458,6 +458,25 @@ class TestProposeRepairs(unittest.TestCase):
             {"corner": "max_ss_100C_1v60", "min_period_ns": 9.0}])
         self.assertEqual(orchestrator.propose_repairs([r], 1), [])
 
+    def test_a_repair_keeps_the_technology_it_failed_on(self):
+        """gcd on gf180mcuD failed setup at 12 ns; the repair proposed
+        13.2 ns with no pdk/scl, ran on sky130A/hd by default, and
+        'passed' under a tag that said gf180 (area 12,133 -> 3,458 um^2
+        was the tell). Every pattern must copy the technology through."""
+        r = self._setup_only()
+        r["pdk"], r["scl"] = "gf180mcuD", "gf180mcu_fd_sc_mcu7t5v0"
+        got = orchestrator.propose_repairs([r], 1)
+        self.assertEqual(got[0]["pdk"], "gf180mcuD")
+        self.assertEqual(got[0]["scl"], "gf180mcu_fd_sc_mcu7t5v0")
+        pdn = [{"tag": "u55", "overrides": {"FP_CORE_UTIL": 55}, "scl": "sky130_fd_sc_hs",
+                "error": "[PDN-0185] Insufficient width (17.48 um)"}]
+        self.assertEqual(orchestrator.propose_repairs(pdn, 1)[0]["scl"], "sky130_fd_sc_hs")
+
+    def test_a_sky130_default_repair_carries_no_phantom_technology(self):
+        got = orchestrator.propose_repairs([self._setup_only()], 1)
+        self.assertNotIn("pdk", got[0])
+        self.assertNotIn("scl", got[0])
+
     def test_a_crashed_run_is_never_a_period_repair(self):
         r = self._setup_only()
         r["error"] = "some tool crash"
