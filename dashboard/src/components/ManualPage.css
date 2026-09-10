@@ -109,11 +109,11 @@
 .man__cost td {
   text-align: left;
   padding: 0.2rem 0.6rem 0.2rem 0;
-  border-bottom: 1px solid var(--line, #ddd);
+  border-bottom: 1px solid var(--border);
 }
-.man__cost th { font-weight: 600; color: var(--muted, #777); }
+.man__cost th { font-weight: 600; color: var(--text-dim); }
 .man__cost-num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.man__cost-note { margin: 0.4rem 0 0; font-size: 0.78rem; color: var(--muted, #777); }
+.man__cost-note { margin: 0.4rem 0 0; font-size: 0.78rem; color: var(--text-dim); }
 .man__where {
   display: block;
   margin-top: 0.3rem;
