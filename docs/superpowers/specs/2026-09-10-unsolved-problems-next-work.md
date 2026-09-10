@@ -25,12 +25,22 @@ unverified다.
 | — | **발견·수정** | propose_repairs()가 수리 후보에서 `pdk`/`scl`을 떨어뜨려, gf180 후보의 수리 런이 sky130에서 돌고 "gf180 pass"로 기록될 뻔함(area 12,133 → 3,458 µm²가 단서). `_repaired()`가 기술을 복사 |
 | 1 | **해결** | `gf180_drc.py`: OpenLane 2.3.10이 sky130 외에서 건너뛰는 KLayout DRC를 PDK가 싣는 GF180 룰덱으로 직접 실행. 덱의 `pmap` 로거(이미지에 없음)만 패치. gcd@gf180mcuD: 전체 덱 47 s, 0건 |
 | 5 | **해결** | gcd@gf180mcuD **첫 pass** (`gcd__2026-09-10__035620`): DELAY 2, 13.2 ns, `MAX_FANOUT_CONSTRAINT 12`. 남았던 위반은 CTS 리프 버퍼의 fanout 11 > 10이었고 `CTS_SINK_CLUSTERING_SIZE` 10·8은 둘 다 11-sink 클러스터를 그대로 냄(목표값이지 상한이 아님) |
-| 3 | **원인 확정**, 검증 런 진행 중 | iter5: post-GRT repair 스텝을 켜도 hold 264 → 279/272, max-slew 570 → 532/545 — 빠진 스텝 문제가 아님. iter6: `MAX_TRANSITION_CONSTRAINT 1.5`(라이브러리 자체 한계; OpenLane 기본 0.75)로 **max-slew 570 → 0**, setup 0 유지. 남은 hold 263은 OpenSTA로 추적: **전부 `text_in[*]` 입력 포트 경로** — SDC의 입력 도착 가정 2.0 ns(`IO_DELAY_CONSTRAINT 20`) vs ss 코너 클록 삽입지연 2.355 + 불확실성 0.25 ns. reg-to-reg 위반 없음. 코어가 아니라 제약 둘의 충돌. iter7(진행 중): `IO_DELAY_CONSTRAINT 30` 한 변수 |
-| 4 | 진행 중 | SynthesisExploration 9개 전략 한 번에: AREA 3가 slack 최선. iter2: 측정 22.45 × 1.05 = 23.6 ns에서 **AREA 3는 9개 코너 setup/hold 모두 통과**, DRV만 남음(max-slew 389, max-cap 102, fanout 163, antenna 53). AREA 0은 여전히 setup −1.66 ns. iter3(진행 중): AREA 3 + `MAX_TRANSITION 1.5` (+ fanout 16) |
+| 3 | **원인 확정·검증됨** | iter5: post-GRT repair 스텝을 켜도 hold 264 → 279/272, max-slew 570 → 532/545 — 빠진 스텝 문제가 아님. iter6: `MAX_TRANSITION_CONSTRAINT 1.5`(라이브러리 자체 한계; OpenLane 기본 0.75)로 **max-slew 570 → 0**, setup 0 유지. 남은 hold 263은 OpenSTA로 추적: **전부 `text_in[*]` 입력 포트 경로** — SDC의 입력 도착 가정 2.0 ns(`IO_DELAY_CONSTRAINT 20`) vs ss 코너 클록 삽입지연 2.355 + 불확실성 0.25 ns. reg-to-reg 위반 없음. iter7: `IO_DELAY_CONSTRAINT 30` 한 변수로 **hold 263 → 0 (9개 코너 전부)**. 남은 것: 입력 쪽 setup 8건(−0.225 ns), antenna 8, fanout 17. iter8(실행 중): `IO_DELAY 25`(+ fanout 16). 음성 결과: `RUN_HEURISTIC_DIODE_INSERTION`은 모든 핀에 diode를 붙여 fanout 위반 1,158건·면적 +39% — fanout 제약과 같이 쓰면 안 됨 |
+| 4 | **타이밍 닫힘**, DRV 남음 | SynthesisExploration 9개 전략 한 번에: AREA 3가 slack 최선. iter2: 측정 22.45 × 1.05 = 23.6 ns에서 **AREA 3는 9개 코너 setup/hold 모두 통과**. iter3: + `MAX_TRANSITION 1.5` → max-slew 389 → 4(fanout 16 추가 시 0), fanout 157 → 62, antenna 51 → 19; **max-cap 102 → 152**가 새로 남은 축. AREA 0은 여전히 setup −1.66 ns라 폐기. 다음 rung은 max-cap(`MAX_CAPACITANCE_CONSTRAINT`는 라이브러리 값 대비 확인 필요)과 antenna |
 | 6 | **Magic 블로커 해결** | G/H/I 사다리 실측: G는 알려진 2,831,364(GDS 기반 Magic DRC), H는 KLayout DRC "multiple top cells"로 사망, **I(KLayout streamout + LEF 기반 Magic DRC)는 step 74까지 도달 — Magic DRC 382, KLayout DRC(매크로 포함 실제 GDS) 0, LVS 0, XOR 0**. 382는 전부 `nwell.4`이고 매크로 안에는 0개: LEF 추상은 셀 안 tap을 못 보므로 표준셀 행마다 발생하는 아티팩트. `magic_abstract_drc.py`가 이 모양(LEF 모드·nwell.4만·매크로 밖)만 `unverified`로 재분류. 남은 것은 특성화 천장(플랜 B) 하나뿐 |
 | 8 | **절반 착수** | counter4·gcd 테스트벤치 작성, 게이트 넷리스트에서 각각 0 오류. 실측 power: counter4 vectorless 대비 **+29.8%**(조합 +391%), gcd **−43.4%**(조합 −83%) — 방향이 설계마다 달라 추정치는 어느 쪽으로도 믿을 수 없음. aes·riscv32i 벤치는 미작성 |
 | 9 | 재측정 | 오늘 케이스 반영 후 area 예측은 여전히 평균 대비 우세(MAE 277 vs 2063, 99% folds); pass/fail 라벨은 gf180 1/167로 아직 툴 갭에 지배됨 — #1이 gcd 외 설계로 퍼져야 바뀜 |
 | — | 발견 | OpenLane 자체 signoff 정책은 `TIMING_VIOLATION_CORNERS ['*tt*']`(resolved.json) — aes는 그 기준으로는 이미 통과. 이 파이프라인은 9개 코너 전부를 판정하며, 그것이 aes가 OPEN인 이유. 선택은 유지하되 케이스에 명시 |
+
+### 하루가 끝난 뒤 남은 것
+
+- **aes**: iter8 결과(입력 도착 25%) 회수. 그 뒤 antenna 8·fanout 17.
+- **riscv32i**: max-cap 102–152 — 라이브러리 `max_capacitance` 대비 OpenLane 기본 `MAX_CAPACITANCE_CONSTRAINT`를 aes의 slew처럼 확인. antenna는 diode 삽입이 아닌 다른 길(`GRT_ANTENNA_ITERS`, `RUN_ANTENNA_REPAIR`).
+- **gf180 확산**: gcd가 닫혔으니 counter4·spm·cdc_twoclock을 같은 두 수(period from measurement, fanout 12)로 재실행하면 gf180 pass 라벨이 쌓이고 #9의 pass/fail 모델이 처음으로 의미 있는 데이터를 얻는다.
+- **sram_wrapper**: I-klayoutgds의 세 override를 config.json으로 승격; 남은 블로커는 특성화 천장뿐 → OpenRAM 재생성(플랜 B) 실행.
+- **#8 나머지**: aes·riscv32i 테스트벤치.
+- **sta_path/gf180_drc의 run dir 쓰기**: `claim_run_dir()` 이후 생성된 런은 문제없음; 그 전 런은 컨테이너 `chown`으로 한 번 회수.
+- 브랜치 `work/unsolved-problems-2026-09-10`는 push하지 않았다 — 전체 테스트 718개 통과 확인 후 PR.
 
 ## 요약표
 
