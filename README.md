@@ -147,6 +147,30 @@ past it a run sits and the grid that would cover it; it does not run
 OpenRAM, since regeneration is a SPICE sweep of hours producing a new
 GDS/LEF/lib set that has to be verified before anything trusts it.
 
+### A second metrics source, and a dataset export
+
+`score()` gates on 23 signoff checks by OpenLane's metric key names,
+and now records each as a row (`signoff_checks`) that the dashboard
+draws as a strip — clean, violated, or never run. Two things use that
+seam, both from a survey of the Chinese open-source EDA track (see the
+spec's "Two things from the Chinese open-source track"):
+
+- `pipeline/ieda_metrics.py` maps iEDA's `feature_summary` JSON onto
+  those keys, with the key names read from iEDA's writer source. The
+  honest result: iEDA's JSON carries one of the 23 checks (the router's
+  own violation count), so a clean iEDA run scores 22 as never checked
+  and does not pass. Not yet run against a real iEDA binary.
+- `pipeline/export_circuitnet.py` stages completed runs' DEF/LEF in the
+  layout CircuitNet's `process_data.py` reads, one root per standard-
+  cell library so DEF units never mix. Feature side only — CircuitNet's
+  DRC/congestion/IR label maps come from Innovus reports this flow does
+  not produce.
+
+```sh
+python3 pipeline/export_circuitnet.py --design spm --out /tmp/circuitnet
+python3 pipeline/ieda_metrics.py result/feature/*.json --targets designs/gcd/run_spec.json
+```
+
 ### Human-in-the-loop review + self-improvement loop
 
 When `propose_repairs()` can't auto-repair a failure, escalate to a real

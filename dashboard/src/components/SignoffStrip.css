@@ -1,0 +1,69 @@
+/* Signoff coverage strip: one cell per check score() gated on.
+   Colour follows the rule stated in ActionCenter.css — red names a
+   real failure and nothing else. A check that never ran is a fact the
+   verdict refuses to conflate with a failure, so it is drawn as an
+   outline with no fill, in both themes. */
+
+.signoff {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.signoff__cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.signoff__cell {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  border: 1px solid var(--border-strong);
+  box-sizing: border-box;
+}
+
+.signoff--compact .signoff__cell {
+  width: 7px;
+  height: 7px;
+}
+
+.signoff__cell--clean {
+  background: var(--good);
+  border-color: var(--good);
+}
+
+.signoff__cell--violated {
+  background: var(--critical);
+  border-color: var(--critical);
+}
+
+.signoff__cell--never {
+  background: transparent;
+  border-color: var(--warn);
+}
+
+.signoff__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.signoff--compact .signoff__legend {
+  gap: 0.45rem;
+}
+
+.signoff__count--clean { color: var(--good); }
+.signoff__count--violated { color: var(--critical); }
+.signoff__count--never { color: var(--warn); }
+
+.signoff__source {
+  margin-left: auto;
+  font-family: var(--mono);
+  opacity: 0.8;
+}
