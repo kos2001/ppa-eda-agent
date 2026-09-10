@@ -1,0 +1,28 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "iter7-io30",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 30
+      }
+    },
+    {
+      "tag": "iter7-io30-diodes-fanout16",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 30,
+        "RUN_HEURISTIC_DIODE_INSERTION": true,
+        "MAX_FANOUT_CONSTRAINT": 16
+      }
+    }
+  ],
+  "max_iterations": 1,
+  "_why": "Traced, not swept (see the aes__2026-09-10__044137 review): every ss-corner hold violation starts at a text_in[*] input port. The SDC assumes inputs arrive 2.0 ns after the ideal clock edge (IO_DELAY_CONSTRAINT 20), while at ss the clock reaches the capturing flops 2.355 ns after it, plus 0.25 ns uncertainty; the input path itself is a buffer and a mux, 0.37 ns. No register-to-register path violates. Candidate one moves the assumed input arrival to ~3.0 ns, above 2.355 + 0.25 + 0.067 - 0.37 = 2.30 ns, one variable. Candidate two adds the two knobs for what is left after hold: heuristic diode insertion for the 22 antenna violations (a step every aes run has skipped) and MAX_FANOUT_CONSTRAINT 16 for the 13 fanout DRVs. Whether 3.0 ns is the right input delay for aes is a question about the system around the chip, not one a run can answer; what a run can answer is whether the design closes at ss once the two constraints agree."
+}

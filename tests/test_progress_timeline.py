@@ -129,7 +129,9 @@ class CoverageTests(unittest.TestCase):
             by_day[point["at"][:10]] = point["samples"]
         self.assertEqual(by_day["2026-08-29"], 40)
         self.assertGreaterEqual(by_day["2026-08-30"], 400)
-        self.assertEqual(by_day["2026-08-30"], self.curve[-1]["samples"])
+        # The curve ends on whatever day the store last grew — pinning
+        # 2026-08-30 here broke the first day after it (2026-09-10).
+        self.assertEqual(by_day[max(by_day)], self.curve[-1]["samples"])
 
 
 class FrontierTests(unittest.TestCase):

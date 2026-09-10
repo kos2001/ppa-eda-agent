@@ -1,0 +1,27 @@
+{
+  "design_name": "riscv32i",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "iter3-area3-clk23p6-slew1p5",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 3",
+        "CLOCK_PERIOD": 23.6,
+        "RUN_POST_GRT_DESIGN_REPAIR": true,
+        "MAX_TRANSITION_CONSTRAINT": 1.5
+      }
+    },
+    {
+      "tag": "iter3-area3-clk23p6-slew1p5-fanout16",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 3",
+        "CLOCK_PERIOD": 23.6,
+        "RUN_POST_GRT_DESIGN_REPAIR": true,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "MAX_FANOUT_CONSTRAINT": 16
+      }
+    }
+  ],
+  "max_iterations": 2,
+  "_why": "iter2 (riscv32i__2026-09-10): AREA 3 at 23.6 ns closes setup and hold at all nine corners; what is left is DRVs — 389 max-slew, 102 max-cap, 163 max-fanout, 53 antenna. On aes the same day, MAX_TRANSITION_CONSTRAINT 1.5 (the sky130_fd_sc_hd liberty's own max_transition, against OpenLane's 0.75 default) took max-slew from 570 to 0 without touching setup. First candidate applies that one change. The second also relaxes MAX_FANOUT_CONSTRAINT to 16 — the register file's decode nets are the fanout offenders and gcd on gf180 closed its last violation the same way (the limit is OpenLane's default, not the PDK's). AREA 0 is dropped: it still misses setup by 1.66 ns at the measured period."
+}

@@ -1,0 +1,24 @@
+{
+  "design_name": "riscv32i",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "iter2-area0-clk23p6-postgrt",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 0",
+        "CLOCK_PERIOD": 23.6,
+        "RUN_POST_GRT_DESIGN_REPAIR": true
+      }
+    },
+    {
+      "tag": "iter2-area3-clk23p6-postgrt",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 3",
+        "CLOCK_PERIOD": 23.6,
+        "RUN_POST_GRT_DESIGN_REPAIR": true
+      }
+    }
+  ],
+  "max_iterations": 2,
+  "_why": "The only recorded riscv32i run (c-hd-clock_period20, AREA 0, 20 ns) measured its ss-corner min_period at 22.45 ns (WNS -2.451) and carried 162 max-slew, 81 max-fanout and 18 antenna violations. The period here is that measurement plus 5% — the same rule propose_repairs() applies — and RUN_POST_GRT_DESIGN_REPAIR is on because the DRVs are what that step exists to fix and no riscv32i run has ever executed it. AREA 3 is the strategy OpenLane's SynthesisExploration ranked best for slack on this design (2026-09-10, 9 strategies in one pass: AREA 3 ws -8.64 / 11,315 gates vs AREA 0 ws -15.65 / 5,423 gates, pre-PnR at 20 ns); AREA 0 is the one with a post-route measurement. Two candidates, so the strategy question gets a post-route answer instead of a pre-PnR guess."
+}
