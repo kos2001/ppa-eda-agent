@@ -17,6 +17,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
+import run_stage  # noqa: E402
 from run_stage import (  # noqa: E402
     IgnoredOverrideError, reject_ignored_overrides,
 )
@@ -56,6 +57,30 @@ class GuardFiresTests(unittest.TestCase):
         log = "An unknown key 'K' was provided."
         with self.assertRaises(IgnoredOverrideError):
             reject_ignored_overrides(["K=a=b"], log, "t")
+
+
+class OwnershipTests(unittest.TestCase):
+    """A Linux Docker engine leaves run directories root-owned; macOS's
+    Docker Desktop does not, and every earlier run happened there. The
+    chown must only be attempted where it is needed, and must never be
+    able to fail a run."""
+
+    def test_windows_and_root_need_nothing(self):
+        import os
+        if os.name != "posix":
+            self.assertFalse(run_stage.needs_ownership_fix())
+        elif os.getuid() == 0:
+            self.assertFalse(run_stage.needs_ownership_fix())
+        else:
+            self.assertTrue(run_stage.needs_ownership_fix())
+
+    def test_a_missing_run_dir_is_not_an_error(self):
+        import pathlib
+        import tempfile
+        design = pathlib.Path(tempfile.mkdtemp())
+        # Whatever the host, no run directory means nothing to claim and
+        # no container is started.
+        run_stage.claim_run_dir(design, "never-ran")
 
 
 class GuardStaysQuietTests(unittest.TestCase):

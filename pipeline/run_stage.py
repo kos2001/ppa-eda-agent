@@ -18,6 +18,7 @@ Requires:
 """
 import argparse
 import json
+import os
 import re
 import shlex
 import subprocess
@@ -149,6 +150,7 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     returncode = proc.wait()
     output = "".join(captured)
 
+    claim_run_dir(design_dir, tag)
     reject_ignored_overrides(overrides, output, tag)
     if returncode != 0:
         raise RuntimeError(
@@ -156,6 +158,47 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
             f"see runs/{tag}/ for logs. Tail of output:\n{output[-2000:]}"
         )
     return design_dir / "runs" / tag
+
+
+def needs_ownership_fix() -> bool:
+    """True on a Linux host where the container's root is not us.
+
+    On Docker Desktop (macOS) bind-mounted files come back owned by the
+    calling user, and every earlier run of this pipeline happened there.
+    On a Linux Docker engine OpenLane's root inside the image writes a
+    root-owned run directory, and the host user then cannot create
+    anything in it: sta_path's `_sta_path/`, gf180_drc's work dir and
+    any later tool that keeps its artefacts beside the run all fail with
+    PermissionError. Measured on the WSL runner the first time each of
+    them was tried.
+    """
+    return os.name == "posix" and hasattr(os, "getuid") and os.getuid() != 0
+
+
+def claim_run_dir(design_dir: Path, tag: str) -> None:
+    """Hands a finished run directory back to the host user.
+
+    Done by a second, trivial container rather than sudo: the image's
+    root already owns the files, so it can chown them, and nothing on
+    the host needs elevated rights. Non-fatal — a run that cost real
+    OpenLane time must not be lost because the chown did not happen; a
+    later writer will fail loudly with the same PermissionError instead.
+    """
+    if not needs_ownership_fix():
+        return
+    run_dir = design_dir / "runs" / tag
+    if not run_dir.exists():
+        return
+    owner = f"{os.getuid()}:{os.getgid()}"
+    try:
+        subprocess.run(
+            ["docker", "run", "--rm", *platform_args(),
+             "-v", f"{design_dir}:/design", IMAGE,
+             "chown", "-R", owner, f"/design/runs/{tag}"],
+            capture_output=True, text=True, encoding="utf-8", timeout=600,
+        )
+    except (OSError, subprocess.SubprocessError) as e:
+        print(f"  (could not chown runs/{tag} to {owner}: {e})", file=sys.stderr)
 
 
 def read_metrics(run_dir: Path) -> dict:
