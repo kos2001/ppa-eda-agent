@@ -51,6 +51,26 @@ class TestAutoRepairCoverage(unittest.TestCase):
         covered, total, _ = self_improve.auto_repair_coverage(case)
         self.assertEqual((covered, total), (0, 1))
 
+    def test_a_completed_run_s_verdict_pattern_counts_as_covered(self):
+        """propose_repairs() reads two patterns off the verdict of a
+        completed run, not off error text. Counting those as uncovered
+        reported 0/2 on aes while the loop was proposing from its own
+        measured min_period."""
+        case = _case(iterations=[{"iteration": 1, "results": [
+            {"tag": "u", "verdict": {"passed": False,
+                                     "violations": ["utilization 0.8 > target 0.75"]}},
+            {"tag": "clk", "verdict": {"passed": False,
+                                       "violations": ["3 setup timing violation(s)"],
+                                       "operating_point": {"corners": [{"min_period_ns": 11.4}]}}},
+            {"tag": "hold", "verdict": {"passed": False,
+                                        "violations": ["3 setup timing violation(s)",
+                                                       "36 hold timing violation(s)"],
+                                        "operating_point": {"corners": [{"min_period_ns": 11.4}]}}},
+        ]}])
+        covered, total, matched = self_improve.auto_repair_coverage(case)
+        self.assertEqual((covered, total), (2, 3))
+        self.assertEqual(len(matched), 2)
+
     def test_nothing_failed_is_zero_of_zero(self):
         case = _case(iterations=[{"iteration": 1, "results": [
             {"tag": "a", "verdict": {"passed": True}}]}])

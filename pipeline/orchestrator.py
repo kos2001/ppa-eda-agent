@@ -19,6 +19,7 @@ score them consistently, not to invent optimization strategy itself.
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import math
 import re
 import sys
 import time
@@ -1013,6 +1014,48 @@ DIE_AREA_GROWTH_FACTOR = 2  # doubles width/height each iteration; simple
                             # and matches the real counter4_tinydie case
                             # (8x8um -> 16x16um converged in one step)
 
+# 3. aes__2026-08-30__145637: a candidate that completes the flow and
+#    fails setup — and only setup. The repair is not a guess: the run
+#    itself measured the period it needs. operating_point() derives
+#    min_period per corner from the run's own slack, and aes showed the
+#    relationship holds end to end: 481 setup violations at 6 ns, 3 at
+#    11.2 ns (ss min_period 11.45), 0 at 12 ns. The margin covers the
+#    fact that re-closing at a new period changes synthesis and sizing,
+#    so the measured min_period is a floor rather than an exact answer
+#    (operating_point.py's first stated limit).
+#
+#    Fires only when setup is the *whole* failure. Hold does not move
+#    with the period (aes at 12 ns: setup 0, hold 264), and DRV or
+#    antenna counts have their own causes — proposing a period change
+#    against those would burn a run to learn what the case already says.
+SETUP_PERIOD_MARGIN = 0.05
+SETUP_PERIOD_STEP_NS = 0.1  # OpenLane takes any float; rounded up to a
+                            # tenth so tags stay readable and two runs a
+                            # rounding error apart are not both made.
+
+
+def setup_period_repair(result: dict) -> float | None:
+    """The CLOCK_PERIOD a setup-only failure measured itself needing,
+    or None when this result is not that case."""
+    if result.get("error"):
+        return None
+    verdict = result.get("verdict") or {}
+    violations = verdict.get("violations") or []
+    if not violations or any("setup" not in v for v in violations):
+        return None
+    op = verdict.get("operating_point") or {}
+    period = op.get("clock_period_ns")
+    needed = [c["min_period_ns"] for c in op.get("corners", [])
+              if isinstance(c.get("min_period_ns"), (int, float))]
+    if not isinstance(period, (int, float)) or not needed:
+        return None
+    worst = max(needed)
+    if worst <= period:
+        return None  # slack says it fits; the violation is not a period problem
+    repaired = worst * (1 + SETUP_PERIOD_MARGIN)
+    repaired = math.ceil(repaired / SETUP_PERIOD_STEP_NS) * SETUP_PERIOD_STEP_NS
+    return round(repaired, 3)
+
 
 def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
     """Mechanically proposes a repaired candidate set from real failures."""
@@ -1096,10 +1139,19 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
                 "tag": f"{r['tag']}-iter{iteration}",
                 "overrides": new_overrides,
             })
-        # Other failure/violation modes (DRC/LVS errors, timing violations,
-        # unrecognized run errors) are not auto-repaired — flagged in the
-        # iteration summary instead so a person or feedback-optimizer can
-        # look at them.
+        elif (period := setup_period_repair(r)) is not None:
+            # Pattern #3 above: setup is the only failure and the run
+            # measured the period it needs.
+            new_overrides = dict(overrides)
+            new_overrides["CLOCK_PERIOD"] = period
+            next_candidates.append({
+                "tag": f"{r['tag']}-iter{iteration}",
+                "overrides": new_overrides,
+            })
+        # Other failure/violation modes (DRC/LVS errors, hold or DRV
+        # violations, unrecognized run errors) are not auto-repaired —
+        # flagged in the iteration summary instead so a person or
+        # feedback-optimizer can look at them.
     return next_candidates
 
 
