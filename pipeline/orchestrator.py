@@ -112,9 +112,20 @@ def read_topology(design_dir: Path) -> dict | None:
     in reference-db/ or the dashboard even though the file existed.
     """
     topology_file = design_dir / "topology.json"
-    if not topology_file.exists():
+    if topology_file.exists():
+        return json.loads(topology_file.read_text(encoding="utf-8"))
+    # No hand-written file: derive one from the design's own config,
+    # sources and a completed run's Yosys netlist rather than record
+    # null. aes, gcd and riscv32i went 19 cases without a topology this
+    # way, and the retrieval fallback that compares topologies had
+    # nothing to compare. Derivation needs a run with a netlist; on the
+    # first run of a brand-new design there may be none yet, and then
+    # null is still the honest value.
+    try:
+        import topology_derive
+        return topology_derive.derive(design_dir)
+    except (FileNotFoundError, OSError, ValueError, KeyError):
         return None
-    return json.loads(topology_file.read_text(encoding="utf-8"))
 
 
 # Real error-text fingerprints, mapped to the PROCESS_STAGES id where
