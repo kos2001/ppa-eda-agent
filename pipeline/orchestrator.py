@@ -31,6 +31,7 @@ import cdc_check
 import def_layout
 import design_rules
 import equiv_check
+import gf180_drc
 import netlist_graph
 import model_validity
 import operating_point
@@ -694,7 +695,22 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     one code path producing results rather than two.
     """
     metrics = read_metrics(run_dir)
+    # OpenLane 2.3.10's KLayout.DRC step skips every PDK but sky130 and
+    # writes no klayout__drc_error__count, so score() filed all 170
+    # gf180mcu runs in the store as unverified. The PDK ships the deck;
+    # gf180_drc.py runs it. A failure to run it leaves the metric absent
+    # — still unverified, still honest — and records why.
+    klayout_drc = None
+    if pdk and pdk.startswith("gf180mcu") and "klayout__drc_error__count" not in metrics:
+        try:
+            klayout_drc = gf180_drc.run(run_dir, pdk)
+            metrics = {**metrics, "klayout__drc_error__count": klayout_drc["count"]}
+        except Exception as e:  # noqa: BLE001 - recorded, never a silent zero
+            klayout_drc = {"error": f"{type(e).__name__}: {e}"}
+            print(f"  (gf180mcu KLayout DRC not run for {tag}: {e})", file=sys.stderr)
     verdict = score(metrics, run_spec.get("targets", {}))
+    if klayout_drc is not None:
+        verdict["klayout_drc"] = klayout_drc
     # Clock-domain coverage needs the run's logs, which score() never
     # sees — it reads metrics.json only. Folded into the same
     # `unverified` list because an unconstrained domain is exactly
