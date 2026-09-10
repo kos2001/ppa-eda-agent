@@ -715,10 +715,12 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     verdict["model_validity"] = models
     verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
     # Fmax/Vmin, derived from per-corner slack the run already
-    # measured. Needs the clock period, which lives in config.json
-    # and never reaches score().
-    verdict["operating_point"] = operating_point.operating_point(
-        metrics, clock_period(design_dir))
+    # measured. Needs the clock period the run was actually constrained
+    # to — see run_clock_period() for why that is not config.json's.
+    period, period_source = run_clock_period(design_dir, run_dir, cand)
+    verdict["operating_point"] = operating_point.operating_point(metrics, period)
+    if verdict["operating_point"] is not None:
+        verdict["operating_point"]["period_source"] = period_source
     # Power measured against a real workload, when the design has a
     # testbench to provide one. score()'s figure is OpenSTA's
     # default-activity estimate, which on spm understates
@@ -1170,6 +1172,40 @@ def clock_period(design_dir: Path) -> float | None:
         return None
     value = json.loads(cfg.read_text(encoding="utf-8")).get("CLOCK_PERIOD")
     return float(value) if isinstance(value, (int, float, str)) and str(value).strip() else None
+
+
+def run_clock_period(design_dir: Path, run_dir: Path | None,
+                     cand: dict | None) -> tuple[float | None, str]:
+    """The clock period a run was actually constrained to, and where
+    that number came from.
+
+    Slack is measured against the period the tool was given, so
+    min_period = period - slack is only right with *that* period. The
+    operating point used config.json's CLOCK_PERIOD for every run, and
+    90 of the 356 recorded operating points belonged to candidates that
+    overrode it: aes at 12 ns with +0.856 ns of slack was recorded as
+    Fmax 207.5 MHz (10 - 0.856 = 9.14 ns) when its critical path is
+    12 - 0.856 = 11.14 ns, 89.7 MHz. Every period sweep in the store
+    carried the same error, up to 2.5x on spm's 25 ns candidate.
+
+    Precedence is what the tool used, then what we asked for, then what
+    the design declares — resolved.json is OpenLane's own record of the
+    configuration it ran, and recover_runs.py already trusts it over
+    the tag for the same reason.
+    """
+    if run_dir is not None:
+        try:
+            resolved = json.loads((Path(run_dir) / "resolved.json")
+                                  .read_text(encoding="utf-8"))
+            value = resolved.get("CLOCK_PERIOD")
+            if isinstance(value, (int, float)):
+                return float(value), "resolved.json"
+        except (OSError, json.JSONDecodeError, ValueError, TypeError):
+            pass
+    override = ((cand or {}).get("overrides") or {}).get("CLOCK_PERIOD")
+    if isinstance(override, (int, float)):
+        return float(override), "override"
+    return clock_period(design_dir), "config.json"
 
 
 def collect_constraints(design_dir: Path) -> dict | None:
