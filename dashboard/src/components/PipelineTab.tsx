@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  fetchCandidateDetail,
   fetchReferenceDb,
   applyReview,
   layoutImageUrl,
@@ -545,14 +546,33 @@ function PowerSummary({ verdict }: { verdict: CandidateVerdict }) {
 
 function CandidateRow({
   candidate,
+  caseFile,
   expanded,
   onToggle,
 }: {
   candidate: CandidateResult;
+  caseFile: string | null | undefined;
   expanded: boolean;
   onToggle: () => void;
 }) {
   const { t } = useLang();
+  // The layout is fetched when the row is opened, not with the list:
+  // it is 183 MB across the store and read only here. Held per row so
+  // closing and reopening does not fetch it twice.
+  const [layout, setLayout] = useState(candidate.layout ?? null);
+  const [layoutState, setLayoutState] = useState<"idle" | "loading" | "error">("idle");
+  // A ref, not the state, guards the request: putting the state in the
+  // effect's dependencies made the effect re-run on its own
+  // "loading" transition and its cleanup cancel the response.
+  const layoutRequested = useRef(false);
+  useEffect(() => {
+    if (!expanded || layout || !candidate.layout_deferred || !caseFile || layoutRequested.current) return;
+    layoutRequested.current = true;
+    setLayoutState("loading");
+    fetchCandidateDetail(caseFile, candidate.tag)
+      .then((d) => { setLayout(d.layout); setLayoutState(d.layout ? "idle" : "error"); })
+      .catch(() => setLayoutState("error"));
+  }, [expanded, layout, candidate.layout_deferred, candidate.tag, caseFile]);
   const stageBadge = candidate.stage && (
     <span className="pipeline__stage-badge" title={STAGE_SHORT_LABEL[candidate.stage].full}>
       {STAGE_SHORT_LABEL[candidate.stage].short}
@@ -620,11 +640,17 @@ function CandidateRow({
       {expanded && candidate.data && (
         <tr className="pipeline__detail-row">
           <td colSpan={6}>
-            {candidate.layout && (
+            {layout && (
               <>
                 <span className="tab__meta-label">placement &amp; routing — real DEF output</span>
-                <LayoutView layout={candidate.layout} />
+                <LayoutView layout={layout} />
               </>
+            )}
+            {!layout && layoutState === "loading" && (
+              <span className="tab__meta-label">{t("candidate_layout_loading")}</span>
+            )}
+            {!layout && layoutState === "error" && (
+              <span className="tab__meta-label">{t("candidate_layout_error")}</span>
             )}
             {v && <TimingCorners corners={v.timing_corners} />}
             {v && <PowerSummary verdict={v} />}
@@ -1239,6 +1265,7 @@ function CaseCard({
                   <CandidateRow
                     key={c.tag}
                     candidate={c}
+                    caseFile={pipelineCase.file}
                     expanded={expandedTags.has(c.tag)}
                     onToggle={() => toggle(c.tag)}
                   />

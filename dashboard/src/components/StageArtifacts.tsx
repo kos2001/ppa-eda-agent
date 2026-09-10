@@ -1,4 +1,5 @@
-import type { CandidateResult, PipelineCase, ProcessStageId } from "../api/referenceDb";
+import { useEffect, useRef, useState } from "react";
+import { fetchCandidateDetail, type CandidateResult, type NetlistGraph, type PipelineCase, type ProcessStageId } from "../api/referenceDb";
 import { useLang } from "../i18n";
 import ConstraintsView from "./Constraints";
 import OperatingPointView from "./OperatingPoint";
@@ -329,6 +330,37 @@ export function overriddenConstraints(
   return out;
 }
 
+// The netlist graph is fetched when this stage is opened, not with the
+// list: 18.5 MB across the store, read only here. The first candidate
+// that has one is used, as before.
+function LazySchematic({
+  pipelineCase,
+  candidates,
+}: {
+  pipelineCase: PipelineCase;
+  candidates: CandidateResult[];
+}) {
+  const { t } = useLang();
+  const inline = candidates.find((c) => c.netlist?.cells?.length)?.netlist;
+  const deferred = candidates.find((c) => c.netlist_deferred);
+  const [graph, setGraph] = useState<NetlistGraph | null | undefined>(inline);
+  const [state, setState] = useState<"idle" | "loading" | "error">("idle");
+  // A ref guards the request (see CandidateRow for why the state must
+  // not be in the dependency list).
+  const requested = useRef(false);
+  useEffect(() => {
+    if (graph || !deferred || !pipelineCase.file || requested.current) return;
+    requested.current = true;
+    setState("loading");
+    fetchCandidateDetail(pipelineCase.file, deferred.tag)
+      .then((d) => { setGraph(d.netlist); setState(d.netlist ? "idle" : "error"); })
+      .catch(() => setState("error"));
+  }, [graph, deferred, pipelineCase.file]);
+  if (!graph && state === "loading") return <p className="sa__lede">{t("candidate_netlist_loading")}</p>;
+  if (!graph && state === "error") return <p className="sa__lede">{t("candidate_netlist_error")}</p>;
+  return <SchematicView graph={graph ?? undefined} />;
+}
+
 export default function StageArtifacts({
   stage,
   stageName,
@@ -349,9 +381,7 @@ export default function StageArtifacts({
               Extraction" and listed file paths for both while showing
               neither — the layout got a rendered view long ago, the
               circuit never did. */}
-          <SchematicView
-            graph={candidates.find((c) => c.netlist?.cells?.length)?.netlist}
-          />
+          <LazySchematic pipelineCase={pipelineCase} candidates={candidates} />
         </>
       )}
       {stage === "topology" && <Topology pipelineCase={pipelineCase} />}
