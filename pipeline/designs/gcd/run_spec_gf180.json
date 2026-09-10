@@ -3,12 +3,20 @@
   "targets": { "max_core_utilization": 0.75 },
   "candidates": [
     {
-      "tag": "gf180-7t-delay2-clk12",
+      "tag": "gf180-7t-delay2-clk13p2-cts10",
       "pdk": "gf180mcuD",
       "scl": "gf180mcu_fd_sc_mcu7t5v0",
-      "overrides": { "SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 12 }
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 2",
+        "CLOCK_PERIOD": 13.2,
+        "CTS_SINK_CLUSTERING_SIZE": 10
+      }
     }
   ],
   "max_iterations": 3,
-  "_why": "gcd on gf180mcu failed setup at 10 ns under every SYNTH_STRATEGY (WNS -1.17 ns at DELAY 2, gcd__2026-08-30__045044); the sweep was over the wrong axis. This starts from the best strategy at the period the 2026-08-30 run measured it needing (10 + 1.17 = 11.2 ns, +5%), and leaves propose_repairs() two iterations to relax further from what each run measures. It is also the first gf180mcu run that gets a KLayout DRC count (gf180_drc.py) instead of a permanent 'never checked'."
+  "_why": "Measured on 2026-09-10 (WSL runner, gcd__2026-09-10): at 12 ns gcd/gf180mcuD/7t fails setup by 0.504 ns; propose_repairs() relaxed it to 13.2 ns and setup closed with one violation left — max fanout on clkbuf_2_3__f_clk/Z, a CTS leaf buffer driving 11 sinks against MAX_FANOUT_CONSTRAINT 10. The resizer does not re-buffer clock nets, so the knob is CTS's own cluster size: CTS_SINK_CLUSTERING_SIZE 10 caps a leaf cluster at ten sinks. One variable against the last run.",
+  "_history": [
+    "gf180-7t-delay2-clk12: {SYNTH_STRATEGY: DELAY 2, CLOCK_PERIOD: 12} -> 7 setup, WNS -0.504",
+    "gf180-7t-delay2-clk12-iter1 (auto): CLOCK_PERIOD 13.2 -> setup 0, 1 max-fanout (clkbuf_2_3__f_clk/Z, 11 > 10)"
+  ]
 }

@@ -98,6 +98,21 @@ class RunsetTests(unittest.TestCase):
         # antenna and density are opt-in in the driver and stay out here.
         self.assertEqual(gf180_drc.rule_tables(deck), ["metal1", "via1"])
 
+    def test_the_pmap_log_formatter_is_removed(self):
+        """The deck's logger runs `pmap` for a memory figure; the image
+        has no pmap and the deck died at its first log line before any
+        rule ran. Only that expression changes."""
+        line = ('  "#{datetime}: Memory Usage (" + `pmap #{Process.pid} | tail -1`'
+                '[10, 40].strip + ") : #{msg}\n"')
+        text, patched = gf180_drc.patch_runset("logger.formatter = proc do\n" + line + "end\n")
+        self.assertTrue(patched)
+        self.assertNotIn("pmap", text)
+        self.assertIn('"#{datetime}: #{msg}', text)
+        self.assertIn("logger.formatter = proc do", text)
+        untouched, patched = gf180_drc.patch_runset("nothing here\n")
+        self.assertFalse(patched)
+        self.assertEqual(untouched, "nothing here\n")
+
     def test_the_real_pdk_deck_is_where_this_expects_when_installed(self):
         deck = gf180_drc.deck_dir("gf180mcuD")
         try:
