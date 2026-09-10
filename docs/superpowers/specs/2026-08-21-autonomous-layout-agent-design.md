@@ -3211,6 +3211,21 @@ for aes's setup problem. `case_retrieval` now also fingerprints what the
 verdict counted (`signoff:setup`, `signoff:hold`, …). Measured: cases
 with a signature 24 → 52, without precedent 18 → 0.
 
+The same 18 had a second gap underneath: none of aes, gcd or riscv32i
+had a `topology.json`, so their 19 cases carried `topology: null` and
+the fallback that compares topologies had nothing to compare either.
+`pipeline/topology_derive.py` reads every field from an artefact —
+`module` declarations in the sources, CLOCK_PORT and MACROS from
+config.json, ports and flip-flop count from a completed run's Yosys
+JSON netlist — and on counter4, which has a hand-written file,
+reproduces it field for field. It wrote the three missing files and
+backfilled the 19 cases (only the null field, through the same
+`json.dumps(indent=2)`); `read_topology()` now derives rather than
+records null when a design has no file and a run with a netlist
+exists. The Yosys JSON is read whole: `netlist_graph`'s stored graph is
+capped, and on aes the cap sampled 400 of 11,616 cells and found 0
+flops where the netlist has 562. Topology recorded: 50 → 69 of 69.
+
 **The layout render was a magenta wash.** Asked whether a GDS render
 "drawn across many layers" is the normal way to look at one: yes, a GDS
 view overlays every layer, that is what it is. But the wash was not the

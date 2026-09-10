@@ -35,7 +35,15 @@
       "name": "AI Feedback / Repair / Optimization"
     }
   ],
-  "topology": null,
+  "topology": {
+    "module_count": 6,
+    "has_macros": false,
+    "clock_domain_count": 1,
+    "port_count": 7,
+    "sequential_element_estimate": 562,
+    "power_domain_count": 1,
+    "notes": "Derived by topology_derive.py from aes's config.json, its Verilog sources and the Yosys netlist of run iter4-delay0-clk12 (11616 cells, 562 sequential by cell name). Not hand-written; no judgement of datapath/control character is made."
+  },
   "iterations": [
     {
       "iteration": 1,
