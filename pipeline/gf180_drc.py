@@ -100,16 +100,37 @@ def rule_tables(deck: Path) -> list[str]:
     )
 
 
+# main.drc's log formatter shells out to procps' `pmap` for a memory
+# figure on every log line. The nix-built image has no pmap, the
+# backtick returns nil, and the deck dies at its first logger.info with
+# "undefined method `strip' for nil:NilClass" — measured on the first
+# real gcd run, before a single rule was evaluated. The line is
+# cosmetic; it is replaced with the same message minus the memory
+# figure. Nothing else in the deck is touched.
+_PMAP_LINE = ('"#{datetime}: Memory Usage (" + `pmap #{Process.pid} | tail -1`'
+              '[10, 40].strip + ") : #{msg}')
+_PMAP_REPLACEMENT = '"#{datetime}: #{msg}'
+
+
+def patch_runset(text: str) -> tuple[str, bool]:
+    """Drops the pmap-based memory figure from the deck's logger.
+    Returns (text, patched)."""
+    if _PMAP_LINE in text:
+        return text.replace(_PMAP_LINE, _PMAP_REPLACEMENT), True
+    return text, False
+
+
 def build_runset(deck: Path, work: Path) -> Path:
     """Mirrors generate_drc_run_template() with no tables named: main +
     every default table + tail, and layers_def.drc alongside."""
     work.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(deck / "rule_decks" / "layers_def.drc", work / "layers_def.drc")
     runset = work / "main.drc"
-    with runset.open("wb") as out:
-        for name in ["main"] + rule_tables(deck) + ["tail"]:
-            with (deck / "rule_decks" / f"{name}.drc").open("rb") as src:
-                shutil.copyfileobj(src, out)
+    parts = []
+    for name in ["main"] + rule_tables(deck) + ["tail"]:
+        parts.append((deck / "rule_decks" / f"{name}.drc").read_text(encoding="utf-8"))
+    text, _ = patch_runset("".join(parts))
+    runset.write_text(text, encoding="utf-8")
     return runset
 
 
