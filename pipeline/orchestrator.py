@@ -32,6 +32,7 @@ import def_layout
 import design_rules
 import equiv_check
 import gf180_drc
+import magic_abstract_drc
 import netlist_graph
 import model_validity
 import operating_point
@@ -730,6 +731,16 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     models = model_validity.check(design_dir, run_dir)
     verdict["unverified"] += model_validity.unverified(models)
     verdict["model_validity"] = models
+    # A Magic DRC count taken on DEF/LEF abstracts (MAGIC_DRC_USE_GDS=
+    # false) that is nothing but nwell.4 on standard-cell rows is a
+    # check Magic could not run on geometry, not a bad layout — measured
+    # on sram_wrapper, 382 of them with KLayout DRC on the GDS at zero.
+    # Moved to `unverified`, which still blocks a pass.
+    try:
+        abstract = magic_abstract_drc.check(run_dir, PDK_ROOT)
+    except Exception as e:  # noqa: BLE001 - a classifier must never lose a run
+        abstract = {"abstract_artefact": False, "error": f"{type(e).__name__}: {e}"}
+    magic_abstract_drc.apply_to_verdict(verdict, abstract)
     verdict["passed"] = not verdict["violations"] and not verdict["unverified"]
     # Fmax/Vmin, derived from per-corner slack the run already
     # measured. Needs the clock period the run was actually constrained
