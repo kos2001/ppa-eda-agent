@@ -30,9 +30,21 @@ import tool_retrieval  # noqa: E402
 CASES = ROOT / "reference-db" / "cases"
 
 
-def case(name: str) -> dict | None:
+def case(name: str, with_signature: str | None = None) -> dict | None:
+    """The latest case of a design — or, with `with_signature`, the
+    latest one whose failure signatures include that key.
+
+    The RSZ-0090 tests below are about the case that failed that way.
+    sram_wrapper's newest case (2026-09-10, the Magic ladder on the
+    relaxed liberty) never reaches the resizer precheck, so "latest"
+    stopped being that case the day the store grew; the tests pick the
+    failure they are about rather than pinning a date."""
     hits = sorted(CASES.glob(f"{name}__*.json"))
-    return json.loads(hits[-1].read_text(encoding="utf-8")) if hits else None
+    for path in reversed(hits):
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+        if with_signature is None or with_signature in tool_retrieval.case_keys(loaded):
+            return loaded
+    return None
 
 
 class EntryShapeTests(unittest.TestCase):
@@ -77,7 +89,7 @@ class EntryShapeTests(unittest.TestCase):
 
 class RetrievalTests(unittest.TestCase):
     def setUp(self):
-        self.sram = case("sram_wrapper")
+        self.sram = case("sram_wrapper", with_signature="RSZ-0090")
         if self.sram is None:
             self.skipTest("no sram_wrapper case")
 
@@ -113,7 +125,7 @@ class LeaveOneOutTests(unittest.TestCase):
     """The guard that keeps the A/B honest."""
 
     def setUp(self):
-        self.sram = case("sram_wrapper")
+        self.sram = case("sram_wrapper", with_signature="RSZ-0090")
         if self.sram is None:
             self.skipTest("no sram_wrapper case")
 
