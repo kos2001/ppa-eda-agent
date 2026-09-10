@@ -394,15 +394,74 @@ class TestProposeRepairs(unittest.TestCase):
         self.assertEqual(len(got), 1)
         self.assertLess(got[0]["overrides"]["FP_CORE_UTIL"], 35)
 
-    def test_a_non_utilization_violation_is_not_guessed_at(self):
-        """A timing violation has no proven mechanical repair here, so it
-        must still escalate. Repairing only what is actually known is the
-        whole point of this function staying narrow."""
+    def test_a_setup_violation_without_a_measured_period_is_not_guessed_at(self):
+        """A timing violation with no operating point behind it has no
+        measured repair, so it must still escalate. Repairing only what
+        is actually known is the whole point of this function staying
+        narrow."""
         verdict = {"passed": False, "area_um2": 1.0, "utilization": 0.4,
                     "worst_setup_wns": -0.5, "power": None,
                     "violations": ["worst setup WNS -0.5 (timing violation)"]}
         results = [{"tag": "t", "overrides": {"FP_CORE_UTIL": 35}, "verdict": verdict}]
         self.assertEqual(orchestrator.propose_repairs(results, 1), [])
+
+    # The aes__2026-08-30__145637 measurement pattern #3 is built on:
+    # 11.2 ns, ss corner short by 0.253 ns, so min_period 11.453.
+    def _setup_only(self, tag="clk11p2", period=11.2, violations=None, corners=None):
+        verdict = {
+            "passed": False, "area_um2": 134194.0, "utilization": 0.37,
+            "worst_setup_wns": -0.25288, "power": {"total_w": 0.1},
+            "violations": violations if violations is not None else [
+                "3 setup timing violation(s)",
+                "worst setup WNS -0.25288127863057097 (timing violation)"],
+            "operating_point": {
+                "clock_period_ns": period,
+                "corners": corners if corners is not None else [
+                    {"corner": "max_ss_100C_1v60", "min_period_ns": 11.45288},
+                    {"corner": "nom_tt_025C_1v80", "min_period_ns": 7.9},
+                ],
+            },
+        }
+        return {"tag": tag, "overrides": {"SYNTH_STRATEGY": "DELAY 0",
+                                          "CLOCK_PERIOD": period},
+                "verdict": verdict}
+
+    def test_setup_only_failure_relaxes_the_period_to_what_was_measured(self):
+        """The run measured the period it needs; the repair is that
+        number plus margin, rounded up to a tenth — 11.453 * 1.05 =
+        12.03 -> 12.1 ns. On the real aes run, 12 ns closed setup."""
+        got = orchestrator.propose_repairs([self._setup_only()], 1)
+        self.assertEqual(len(got), 1)
+        self.assertEqual(got[0]["overrides"]["CLOCK_PERIOD"], 12.1)
+        self.assertEqual(got[0]["overrides"]["SYNTH_STRATEGY"], "DELAY 0")
+        self.assertEqual(got[0]["tag"], "clk11p2-iter1")
+
+    def test_hold_alongside_setup_is_not_a_period_problem(self):
+        """aes at 12 ns: setup 0, hold 264. Relaxing the period does not
+        touch hold, so a run with both must escalate rather than spend a
+        flow on a change the case already shows will not close it."""
+        r = self._setup_only(violations=[
+            "3 setup timing violation(s)", "36 hold timing violation(s)",
+            "worst setup WNS -0.25288127863057097 (timing violation)"])
+        self.assertEqual(orchestrator.propose_repairs([r], 1), [])
+
+    def test_drv_alongside_setup_is_not_a_period_problem(self):
+        r = self._setup_only(violations=[
+            "3 setup timing violation(s)", "431 max-slew (DRV) violation(s)"])
+        self.assertEqual(orchestrator.propose_repairs([r], 1), [])
+
+    def test_a_period_the_slack_says_already_fits_is_not_relaxed(self):
+        """min_period below the period means the violation count came
+        from somewhere the corner slack does not explain — a repair from
+        that number would be a guess dressed as a measurement."""
+        r = self._setup_only(corners=[
+            {"corner": "max_ss_100C_1v60", "min_period_ns": 9.0}])
+        self.assertEqual(orchestrator.propose_repairs([r], 1), [])
+
+    def test_a_crashed_run_is_never_a_period_repair(self):
+        r = self._setup_only()
+        r["error"] = "some tool crash"
+        self.assertEqual(orchestrator.propose_repairs([r], 1), [])
 
     def test_passing_candidates_are_not_repaired(self):
         results = [{"tag": "ok", "overrides": {}, "verdict": {"passed": True}}]

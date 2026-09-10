@@ -83,6 +83,25 @@ KNOWN_PATTERNS = {
 }
 
 
+def _setup_only(verdict: dict) -> bool:
+    violations = verdict.get("violations") or []
+    return bool(violations) and all("setup" in v for v in violations)
+
+
+# Patterns that read the verdict of a *completed* run rather than error
+# text. Same hand-sync rule as KNOWN_PATTERNS: these mirror
+# propose_repairs()'s conditions so coverage is counted, not decided,
+# here. Before this, both verdict-based repairs counted as "no pattern"
+# — coverage reported 0/2 on aes while the loop was in fact proposing
+# candidates from its measured min_period.
+VERDICT_PATTERNS = {
+    "utilization over target (FP_CORE_UTIL)":
+        lambda v: any(x.startswith("utilization ") for x in v.get("violations") or []),
+    "setup-only miss with a measured min_period (CLOCK_PERIOD)":
+        lambda v: _setup_only(v) and bool((v.get("operating_point") or {}).get("corners")),
+}
+
+
 def expected_outcome(design: str) -> str | None:
     """What the design's own run_spec says a run *should* do — "fail"
     for a negative control, None for everything else.
@@ -133,11 +152,14 @@ def auto_repair_coverage(case: dict) -> tuple[int, int, list[str]]:
                 continue
             total += 1
             error = r.get("error", "")
-            for name, pattern in KNOWN_PATTERNS.items():
-                if pattern in error:
-                    covered += 1
-                    matched.append(name)
-                    break
+            hit = next((name for name, pattern in KNOWN_PATTERNS.items()
+                        if pattern in error), None)
+            if hit is None and not error:
+                hit = next((name for name, matches in VERDICT_PATTERNS.items()
+                            if matches(r.get("verdict") or {})), None)
+            if hit:
+                covered += 1
+                matched.append(hit)
     return covered, total, matched
 
 
