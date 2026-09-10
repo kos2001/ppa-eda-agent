@@ -284,6 +284,12 @@ export interface CandidateResult {
   stage?: ProcessStageId;
   clocks?: ClockCoverage;
   netlist?: NetlistGraph | null;
+  // The list endpoint leaves `layout` and `netlist` out — together they
+  // were 202 of the 205 MB the browser parsed to draw a list that reads
+  // neither — and sets these when the case has them. Fetch on demand
+  // with fetchCandidateDetail().
+  layout_deferred?: boolean;
+  netlist_deferred?: boolean;
   produced_by_feedback?: boolean;
   // Wall-clock of this candidate's flow, written by collect.py's
   // run_one(). Optional: orchestrator.py's own runs do not record it.
@@ -385,6 +391,20 @@ export async function fetchReferenceDb(): Promise<ReferenceDb> {
 }
 
 const LOCAL_SERVER_URL = "http://127.0.0.1:8123";
+
+// One candidate's layout and netlist, when the reader opens them.
+export async function fetchCandidateDetail(
+  file: string,
+  tag: string,
+): Promise<{ layout: LayoutSummary | null; netlist: NetlistGraph | null }> {
+  const res = await fetch(
+    `${LOCAL_SERVER_URL}/reference-db/candidate?file=${encodeURIComponent(file)}&tag=${encodeURIComponent(tag)}`);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  }
+  return data;
+}
 
 // URL for a case's stored layout render — layout_image is already a
 // reference-db-relative path ("layouts/<...>.png"), and the server

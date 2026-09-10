@@ -180,7 +180,7 @@ async function readCaseFileCached(fileName) {
   const filePath = path.join(refDbDir, "cases", fileName);
   const { mtimeMs } = await stat(filePath);
   const cached = caseFileCache.get(fileName);
-  if (cached && cached.mtimeMs === mtimeMs) return cached.data;
+  if (cached && cached.mtimeMs === mtimeMs) return cached;
   const raw = await readFile(filePath, "utf-8");
   // The name is attached here rather than left for the caller because
   // it is the only thing that identifies a case. A case records `date`,
@@ -190,8 +190,84 @@ async function readCaseFileCached(fileName) {
   // has to order cases in time, or key a list by them, reads the time
   // out of this name.
   const data = { ...JSON.parse(raw), file: fileName };
-  caseFileCache.set(fileName, { mtimeMs, data });
-  return data;
+  const entry = { mtimeMs, data, light: lightCase(data) };
+  caseFileCache.set(fileName, entry);
+  return entry;
+}
+
+// The list view without the two fields that are almost all of the bytes.
+//
+// Measured on the store at 69 cases: the full list is 205 MB of JSON, of
+// which `result.layout` (parsed DEF: every cell and every routed
+// segment) is 183.5 MB and `result.netlist` (the Yosys graph) 18.5 MB.
+// Everything the record, the ledger, the verdicts and the health page
+// draw fits in the remaining ~3 MB. The browser was downloading and
+// JSON.parse-ing the 205 MB on every load and every refresh to show a
+// list that reads none of it; a layout is looked at only when one
+// candidate row is expanded, a netlist only on one stage's schematic.
+// Those two are served per candidate by /reference-db/candidate and
+// fetched when the reader opens them. The flags say they exist so the
+// UI can offer them without guessing.
+function lightCase(data) {
+  const iterations = (data.iterations ?? []).map((it) => ({
+    ...it,
+    results: (it.results ?? []).map((r) => {
+      const { layout, netlist, ...rest } = r;
+      return {
+        ...rest,
+        layout_deferred: layout != null,
+        netlist_deferred: netlist != null && !netlist.error,
+      };
+    }),
+  }));
+  return { ...data, iterations };
+}
+
+// One candidate's heavy fields, on demand.
+async function candidateDetail(fileName, tag) {
+  const { data } = await readCaseFileCached(fileName);
+  for (const it of data.iterations ?? []) {
+    for (const r of it.results ?? []) {
+      if (r.tag === tag) return { layout: r.layout ?? null, netlist: r.netlist ?? null };
+    }
+  }
+  return null;
+}
+
+// Output of the two python status reports, keyed by the store's state.
+//
+// Each report loads every case file whole (the 205 MB above; 1.7 s of
+// JSON parsing alone in python) before it can count anything, so
+// /self-improve took 8.3 s and /data-lineage 7.5 s on every visit to the
+// health and lineage pages, for a store that changes only when a run
+// finishes. Keyed by the newest case mtime and the case count: a new or
+// rewritten case moves the key, nothing else does.
+const reportCache = new Map(); // route -> {key, body}
+
+async function storeKey() {
+  let newest = 0;
+  let count = 0;
+  try {
+    const names = await readdir(path.join(refDbDir, "cases"));
+    for (const name of names) {
+      if (!name.endsWith(".json")) continue;
+      const { mtimeMs } = await stat(path.join(refDbDir, "cases", name));
+      if (mtimeMs > newest) newest = mtimeMs;
+      count += 1;
+    }
+  } catch {
+    return null;
+  }
+  return `${count}:${newest}`;
+}
+
+async function cachedReport(route, produce) {
+  const key = await storeKey();
+  const hit = reportCache.get(route);
+  if (key !== null && hit && hit.key === key) return hit.body;
+  const body = await produce();
+  if (key !== null) reportCache.set(route, { key, body });
+  return body;
 }
 
 async function loadReferenceDb() {
@@ -206,7 +282,7 @@ async function loadReferenceDb() {
     Object.entries(index).map(async ([designName, caseFiles]) => {
       const cases = await Promise.all(caseFiles.map(async (fileName) => {
         try {
-          return await readCaseFileCached(fileName);
+          return (await readCaseFileCached(fileName)).light;
         } catch (err) {
           console.error(`[reference-db] failed to read ${fileName}`, err);
           return null;
@@ -674,6 +750,28 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // One candidate's layout and netlist — the heavy fields the list
+  // leaves out (see lightCase).
+  if (req.method === "GET" && req.url?.startsWith("/reference-db/candidate")) {
+    const params = new URL(req.url, "http://localhost").searchParams;
+    const file = params.get("file") ?? "";
+    const tag = params.get("tag") ?? "";
+    if (!file.endsWith(".json") || file.includes("/") || file.includes("..") || !tag) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "file and tag are required" }));
+      return;
+    }
+    try {
+      const detail = await candidateDetail(file, tag);
+      res.writeHead(detail ? 200 : 404, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify(detail ?? { error: `no candidate ${tag} in ${file}` }));
+    } catch (err) {
+      res.writeHead(404, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/reference-db") {
     try {
       const data = await loadReferenceDb();
@@ -1015,13 +1113,13 @@ const server = createServer(async (req, res) => {
   // produces them.
   if (req.method === "GET" && req.url === "/self-improve") {
     try {
-      const { stdout } = await execFileAsync(
+      const stdout = await cachedReport("/self-improve", async () => (await execFileAsync(
         "python3",
         ["-c",
          "import sys, json; sys.path.insert(0, '.'); import self_improve; " +
          "print(json.dumps(self_improve.scan_all()))"],
         { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
-      );
+      )).stdout);
       res.writeHead(200, { ...headers, "Content-Type": "application/json" });
       res.end(stdout);
     } catch (err) {
@@ -1037,13 +1135,13 @@ const server = createServer(async (req, res) => {
   // where does it go", which had no answer anywhere in the console.
   if (req.method === "GET" && req.url === "/data-lineage") {
     try {
-      const { stdout } = await execFileAsync(
+      const stdout = await cachedReport("/data-lineage", async () => (await execFileAsync(
         "python3",
         ["-c",
          "import sys, json; sys.path.insert(0, '.'); import data_lineage; " +
          "print(json.dumps(data_lineage.report(), default=str))"],
         { cwd: pipelineDir, timeout: 180_000, maxBuffer: 32 * 1024 * 1024 }
-      );
+      )).stdout);
       res.writeHead(200, { ...headers, "Content-Type": "application/json" });
       res.end(stdout);
     } catch (err) {
