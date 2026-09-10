@@ -3183,6 +3183,54 @@ Those runs have always been "not passed" for that reason; now the
 reason is one hover away instead of a sentence in a list. Cases
 recorded before this field existed keep the text rendering.
 
+## Three things the record was not showing
+
+**What still fails, run by run.** aes had eight recorded runs and every
+row in the record read "OPEN · 0 PASS · 2 FAIL". True, and silent about
+whether the loop was getting anywhere. The answer was in every case
+file in prose: setup 481 → 88 → 218 → 3 → 0 → 0 → 8 → 0, max-slew
+1058 → 0, hold up to 314 and then 0, while max-fanout and antenna never
+moved. `ClosureLedger` draws that at the top of each design's group —
+one column per run, one row per kind of check the design has ever
+failed, the cell the count the run's best candidate still had. One hue
+on a square-root scale (counts span 1 to 1158; a linear ramp drew
+everything under 100 as one tint), the number printed in every cell,
+and a table view. Counts are parsed from the `${count} ${label}` strings
+score() wrote; a kind absent from a verdict is absent, never 0, because
+a check that was not gated on the day a case was scored is not a check
+that passed. `ViolationChips` replaces the sentence in the candidate
+tables with the same counts.
+
+**Gate rejections had no fingerprint.** The health page said 24 of 69
+cases carry a failure signature and 18 found no precedent — every aes,
+gcd and riscv32i run. Those runs did not fail in a tool; the tools all
+exited 0 and score() said no, and retrieval keyed on tool error codes
+had nothing to key on. So every review of them started cold, while
+gcd's own clk5 → clk8 setup history sat in the store as the precedent
+for aes's setup problem. `case_retrieval` now also fingerprints what the
+verdict counted (`signoff:setup`, `signoff:hold`, …). Measured: cases
+with a signature 24 → 52, without precedent 18 → 0.
+
+**The layout render was a magenta wash.** Asked whether a GDS render
+"drawn across many layers" is the normal way to look at one: yes, a GDS
+view overlays every layer, that is what it is. But the wash was not the
+routing. Measured with KLayout on spm's c-hd-synth_strategyAREA_3 GDS:
+`areaid.standardc` (81/4, solid magenta in sky130A.lyp) covers 73% of
+the die and `prBoundary` (235/4) 100%, while met1 covers 19% and met2
+does not reach the top fourteen layers by area. Every standard cell
+carries an areaid.standardc rectangle over its whole footprint, and the
+.lyp lists it after the metals, so KLayout painted it on top. Neither is
+manufactured geometry. `render_layout.py` now hides areaid, prBoundary
+and text layers before saving — what a person does by hand in KLayout
+before looking at a routed block — and reports how many it hid. The 24
+stored images whose GDS is still on disk were re-rendered; the other
+36 keep the old render, since the GDS they came from is gone. Of the
+24, the 6 gf180mcu ones came out byte-identical: the render still
+loads sky130A.lyp for every PDK, this PDK tree ships no gf180 .lyp,
+and layers that never get a sky130 name are neither coloured by it nor
+hidden by name. Those images were and remain KLayout-default colours.
+Left as a named gap rather than papered over with a copied layer map.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

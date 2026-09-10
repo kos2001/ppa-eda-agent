@@ -37,6 +37,20 @@ class TestLayerProperties(unittest.TestCase):
         # correct one rather than both looking equally authoritative.
         self.assertIn("LYP_LOADED=", script)
 
+    def test_render_script_hides_annotation_layers(self):
+        # Measured on spm's c-hd-synth_strategyAREA_3 GDS: areaid.standardc
+        # (81/4, solid magenta in sky130A.lyp) covers 73% of the die and
+        # prBoundary 100%, and the .lyp lists both after the metals, so
+        # KLayout painted a magenta wash over the routing. Neither is
+        # manufactured geometry; hiding them is what a person does by
+        # hand before looking at a routed block.
+        script = render_layout._KLAYOUT_SCRIPT
+        self.assertIn("lp.visible = False", script)
+        self.assertIn('"areaid."', script)
+        self.assertIn('"prBoundary."', script)
+        # Reported, like LYP_LOADED, so a render can say what it hid.
+        self.assertIn("HIDDEN=", script)
+
     def test_pdk_is_mounted_into_the_render_container(self):
         """Loading the .lyp is impossible if the PDK isn't mounted — the
         original bug was exactly that the render container saw only its
