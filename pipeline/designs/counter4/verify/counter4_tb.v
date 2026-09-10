@@ -36,8 +36,8 @@ module counter4_tb;
     en = 0;
     expected = 4'd0;
     errors = 0;
-    @(posedge clk); #1;
-    @(posedge clk); #1;
+    @(negedge clk);
+    @(negedge clk);
     rst = 0;
 
     // Count freely through three full wraps.
@@ -62,7 +62,7 @@ module counter4_tb;
 
     // Synchronous reset in the middle of a count.
     rst = 1;
-    @(posedge clk); #1;
+    @(negedge clk);
     rst = 0;
     expected = 4'd0;
     $display("count %0d expected %0d (%s)", count, expected,
