@@ -257,5 +257,22 @@
   },
   "synthesis_exploration": null,
   "layout_image": "layouts/sram_wrapper__2026-09-10__cand-baseline.png",
-  "layout_image_tag": "cand-baseline"
+  "layout_image_tag": "cand-baseline",
+  "diagnosis": "\n\n[2026-09-10T04:27:45Z] magic-ladder-measurement subagent verdict (dispatched via human-in-the-loop review, not self-assessed):\nMagic ladder G/H/I, run on 2026-09-10 (WSL runner, sram_wrapper__2026-09-10). The 2026-09-02 entry proposed it unmeasured; this is the measurement.\n\nWHAT EACH RUNG DID.\n  cand-baseline                      Magic fatal at streamout (step 58), as every earlier run.\n  G-capture   MAGIC_CAPTURE_ERRORS=false\n                                     Reaches step 74. Stopped by the known 2,831,364 Magic DRC errors\n                                     (GDS-based DRC over the macro internals). KLayout DRC 0, LVS 0, XOR 0.\n  H-lefdrc    + MAGIC_DRC_USE_GDS=false\n                                     Dies at step 63 KLayout DRC, before Magic DRC runs: sky130A_mr.drc\n                                     refuses the Magic-streamed GDS with \"The layout has multiple top\n                                     cells\". A new blocker, not the one the rung was for.\n  I-klayoutgds + PRIMARY_GDSII_STREAMOUT_TOOL=klayout\n                                     Reaches step 74. Magic DRC 382, KLayout DRC 0 on the full GDS\n                                     including the macro, LVS 0, XOR 0, setup/hold WNS 0 (extrapolated,\n                                     see below), 16 max-slew violations, 4,033 instances.\n\nTHE 382. Every one is nwell.4 (\"All nwells must contain metal-connected N+ taps\") and none of the 382\nboxes lies inside the macro's bbox (110,150)-(589.78,547.5); they are strips 5.44 um apart in the\nstandard-cell rows left of the macro (x 5.33-100.01). With MAGIC_DRC_USE_GDS=false Magic checks\nDEF+LEF, and a standard cell's LEF is an abstract: the tap inside a tapvpwrvgnd cell is not in it, so\nevery row's nwell looks untapped. The same design's KLayout DRC, which reads the real GDS, reports\nzero. So the 382 are an artefact of abstract-based DRC on standard cells, not of the macro and not of\nthe wrapper's layout. This is a claim about where the errors are, which was measured, and about what\nLEF abstracts contain, which is what LEF is.\n\nWHAT THIS SETTLES. \"sram_wrapper cannot reach signoff with this macro and this PDK version\" is now\nmeasured false twice over: the run reaches step 74, and the GDS-based signoff that reads the macro\nwhole (KLayout DRC, LVS, XOR) is clean. Boolean overrides reach OpenLane 2.3.10 as \"false\"/\"true\"\n(also confirmed on counter4: RUN_POST_GRT_DESIGN_REPAIR=true executed step 40).\n\nWHAT IT DOES NOT SETTLE. The characterisation ceiling. The 16 max-slew violations are the macro's\naddr/wmask pins against the relaxed liberty, timing on those paths is extrapolated past 0.04 ns, and\nmodel_validity keeps the run unverified. The recharacterisation plan (2026-09-02) is unchanged and is\nnow the only thing between this design and a verified pass.\n\nNEXT, MECHANICAL. Keep I-klayoutgds's three overrides as the design's config. For the verdict: Magic\nDRC in LEF mode reporting only nwell.4 outside every macro is the abstract artefact above and should be\nrecorded as such (unverified by Magic, verified by KLayout on GDS) rather than as 382 violations; that\nis a scoring change and belongs in a commit with a test, not in this note. H's multiple-top-cells\nfailure is worth one look only if a Magic-streamed GDS is ever wanted again; KLayout streamout is the\none to ship.",
+  "human_in_the_loop": [
+    {
+      "agent": "magic-ladder-measurement",
+      "reviewed_at": "2026-09-10T04:27:45Z",
+      "summary": "Magic ladder G/H/I, run on 2026-09-10 (WSL runner, sram_wrapper__2026-09-10). The 2026-09-02 entry proposed it unmeasured; this is the measurement.\n\nWHAT EACH RUNG DID.\n  cand-baseline                      Magic fatal at streamout (step 58), as every earlier run.\n  G-capture   MA\u2026",
+      "grounding": {
+        "checked": true,
+        "cited_error_codes": [],
+        "ungrounded_error_codes": [],
+        "cited_candidate_tags": [
+          "cand-baseline"
+        ],
+        "ungrounded_candidate_tags": []
+      }
+    }
+  ]
 }
