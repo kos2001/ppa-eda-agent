@@ -1,0 +1,14 @@
+{
+  "design_name": "gcd",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "gf180-7t-delay2-clk12",
+      "pdk": "gf180mcuD",
+      "scl": "gf180mcu_fd_sc_mcu7t5v0",
+      "overrides": { "SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 12 }
+    }
+  ],
+  "max_iterations": 3,
+  "_why": "gcd on gf180mcu failed setup at 10 ns under every SYNTH_STRATEGY (WNS -1.17 ns at DELAY 2, gcd__2026-08-30__045044); the sweep was over the wrong axis. This starts from the best strategy at the period the 2026-08-30 run measured it needing (10 + 1.17 = 11.2 ns, +5%), and leaves propose_repairs() two iterations to relax further from what each run measures. It is also the first gf180mcu run that gets a KLayout DRC count (gf180_drc.py) instead of a permanent 'never checked'."
+}
