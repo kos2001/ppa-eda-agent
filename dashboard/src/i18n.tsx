@@ -126,6 +126,14 @@ const dict = {
   candidate_layout_error: { en: "the layout could not be loaded from the server", ko: "서버에서 레이아웃을 불러오지 못했습니다" },
   candidate_netlist_loading: { en: "loading the gate-level netlist…", ko: "게이트 레벨 넷리스트를 불러오는 중…" },
   candidate_netlist_error: { en: "the netlist could not be loaded from the server", ko: "서버에서 넷리스트를 불러오지 못했습니다" },
+  prediction_label: { en: "surrogate expected", ko: "대리 모델 예측" },
+  prediction_area: { en: "area", ko: "면적" },
+  prediction_power: { en: "power", ko: "전력" },
+  prediction_refused: { en: "refused", ko: "예측 보류" },
+  prediction_hint: {
+    en: "Nearest-neighbour prediction from earlier runs of this design, made before the run and scored against what it measured. Decides nothing.",
+    ko: "이 설계의 이전 실행에서 최근접 이웃으로 예측한 값. 실행 전에 기록하고 실행 결과와 대조합니다. 판정에는 관여하지 않습니다.",
+  },
   ledger_title: { en: "What still fails, run by run", ko: "실행별로 남은 위반" },
   ledger_sub: {
     en: "{n} runs, oldest left. Closed since the first run: {closed}. Still failing in the latest: {open}.",
