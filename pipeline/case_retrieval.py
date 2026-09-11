@@ -211,6 +211,123 @@ def similar(target: dict, corpus: list[dict], top: int = 3) -> list[dict]:
 EXCERPT_CHARS = 900
 
 
+_COUNTED = re.compile(r"^(\d+)\s+(.*)$")
+
+
+def signoff_counts(verdict: dict | None) -> dict[str, int]:
+    """Count per signoff kind from a verdict's violations — the same
+    kinds signoff_signatures() names, with the number the gate counted."""
+    out: dict[str, int] = {}
+    for v in (verdict or {}).get("violations", []) or []:
+        m = _COUNTED.match(v)
+        if not m:
+            continue
+        for needle, label in _SIGNOFF_KINDS:
+            if needle in m.group(2):
+                out[label] = out.get(label, 0) + int(m.group(1))
+                break
+    return out
+
+
+def best_candidate(case: dict) -> dict | None:
+    """The candidate a case is judged by: a passing one if any, else the
+    one the gate counted fewest violations against."""
+    best = None
+    for iteration in case.get("iterations", []):
+        for result in iteration.get("results", []):
+            v = result.get("verdict")
+            if not v:
+                continue
+            total = -1 if v.get("passed") else sum(signoff_counts(v).values())
+            if best is None or total < best[0]:
+                best = (total, result)
+    return best[1] if best else None
+
+
+def closures(target: dict, corpus: list[dict]) -> dict:
+    """For each signoff kind the target still fails, every place in the
+    store where that kind went from failing to clean between two runs
+    of one design — and, when there is none, that fact.
+
+    This is the question a stuck review actually asks: not "which case
+    looks most like mine" but "has anyone ever made THIS go away". The
+    two differ. On 2026-09-10 aes's top-3 precedent was three other
+    aes runs sharing three failures, while gcd's max-fanout closure
+    (MAX_FANOUT_CONSTRAINT 12, one shared failure) never ranked. Kept
+    apart from similar() rather than folded into its ranking, because
+    a case that shares more failures is still the better whole-case
+    precedent; this answers the per-failure question beside it.
+
+    A closure records the overrides of the run that closed the kind,
+    not a diff: the store keeps overrides as the difference from the
+    design's own config.json, so they already are the knobs that run
+    turned. Nothing is inferred about which of them did it.
+    """
+    best = best_candidate(target)
+    remaining = signoff_counts(best.get("verdict") if best else None)
+    by_design: dict[str, list[dict]] = {}
+    for case in corpus:
+        by_design.setdefault(case.get("design"), []).append(case)
+    out: dict = {"remaining": remaining, "closed_elsewhere": {}, "never_closed": []}
+    for kind in remaining:
+        found = []
+        for design, cases in by_design.items():
+            seq = sorted(cases, key=lambda c: c.get("_file") or "")
+            prev = None
+            for case in seq:
+                cand = best_candidate(case)
+                if not cand:
+                    continue
+                counts = signoff_counts(cand.get("verdict"))
+                if prev is not None and prev[1].get(kind, 0) > 0 and counts.get(kind, 0) == 0:
+                    found.append({
+                        "design": design,
+                        "from_case": prev[0].get("_file"),
+                        "from_count": prev[1][kind],
+                        "to_case": case.get("_file"),
+                        "candidate": cand.get("tag"),
+                        "overrides": cand.get("overrides") or {},
+                        "still_failing": {k: n for k, n in counts.items() if n},
+                    })
+                prev = (case, counts)
+        if found:
+            out["closed_elsewhere"][kind] = found
+        else:
+            out["never_closed"].append(kind)
+    return out
+
+
+def closures_block(target: dict, corpus: list[dict]) -> str:
+    """The closures, as markdown for the review request."""
+    c = closures(target, corpus)
+    if not c["remaining"]:
+        return ""
+    lines = ["## What closed each remaining failure, anywhere in the store", ""]
+    lines.append(
+        "Per kind of check this case's best candidate still fails: every "
+        "recorded run of any design where that kind went from failing to "
+        "clean, with the overrides that run used. A kind with no closure "
+        "anywhere is named as such — the store cannot advise on it, and "
+        "the next step is a real run, not a search.")
+    lines.append("")
+    for kind, n in c["remaining"].items():
+        hits = c["closed_elsewhere"].get(kind)
+        if not hits:
+            lines.append(f"- **{kind}** ({n} now): never closed in any recorded run of any design.")
+            continue
+        lines.append(f"- **{kind}** ({n} now): closed {len(hits)} time(s)")
+        for h in hits:
+            ov = ", ".join(f"{k}={json.dumps(v)}" for k, v in h["overrides"].items()) or "no overrides"
+            left = (", ".join(f"{k} {v}" for k, v in h["still_failing"].items())
+                    or "nothing else")
+            lines.append(
+                f"  - {h['design']}: {h['from_count']} -> 0 in `{h['candidate']}` "
+                f"({ov}); still failing after: {left}  "
+                f"[{h['from_case']} -> {h['to_case']}]")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def precedent_block(target: dict, corpus: list[dict], top: int = 3) -> str:
     """The retrieved precedent, as markdown for the review request."""
     hits = similar(target, corpus, top)
@@ -218,7 +335,8 @@ def precedent_block(target: dict, corpus: list[dict], top: int = 3) -> str:
         return ("## Precedent from reference-db\n\n"
                 "No prior case shares this one's failure signature or "
                 "topology. This appears to be new — treat it as such "
-                "rather than reaching for a familiar fix.\n")
+                "rather than reaching for a familiar fix.\n"
+                + closures_block(target, corpus))
 
     lines = ["## Precedent from reference-db (retrieved, not assumed)", ""]
     lines.append(
@@ -250,6 +368,9 @@ def precedent_block(target: dict, corpus: list[dict], top: int = 3) -> str:
                 excerpt += f"\n\n[...truncated; full text in {hit['file']}]"
             lines += ["", "```", excerpt, "```"]
         lines.append("")
+    closing = closures_block(target, corpus)
+    if closing:
+        lines += [closing]
     return "\n".join(lines)
 
 
