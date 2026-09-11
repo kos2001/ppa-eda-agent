@@ -3240,11 +3240,17 @@ and text layers before saving — what a person does by hand in KLayout
 before looking at a routed block — and reports how many it hid. The 24
 stored images whose GDS is still on disk were re-rendered; the other
 36 keep the old render, since the GDS they came from is gone. Of the
-24, the 6 gf180mcu ones came out byte-identical: the render still
-loads sky130A.lyp for every PDK, this PDK tree ships no gf180 .lyp,
-and layers that never get a sky130 name are neither coloured by it nor
-hidden by name. Those images were and remain KLayout-default colours.
-Left as a named gap rather than papered over with a copied layer map.
+24, the gf180mcu ones first came out byte-identical, and the note
+written then said the PDK tree shipped no gf180 .lyp. That was wrong:
+it is at `libs.tech/klayout/tech/gf180mcu.lyp` in both gf180mcuC and
+D (a `find` typed against the wrong directory said otherwise). The
+render now picks the .lyp by the run's recorded PDK. gf180's file
+names layers in `<source>` rather than `<name>`, so the hide rule
+reads whichever is set, and measured the same way on gcd's gf180 GDS
+the wash was PR_bndry (0/0, 100% of the die), Dualgate (55/0, 74%)
+and V5_XTOR (112/1, 74%) — device-marking layers, hidden with the
+`_MK`/`_Label`/`_BLK` families. The 8 gf180 images were re-rendered
+again with that.
 
 ## Why the pages were slow, measured, and what moved
 
@@ -3326,6 +3332,68 @@ For antenna, no knowledge-base change can help, because there is no
 knowledge: the next step is a real run, and the store now says so in
 the request instead of offering three open aes cases as if they were
 precedent.
+
+## Is there room to improve by applying open-source EDA tools? Checked
+
+Asked after the knowledge-base question. Checked against the open
+problems above, in the image this pipeline already runs
+(OpenLane 2.3.10: OpenROAD, Yosys, Magic, KLayout 0.29.4, OpenSTA),
+rather than as a survey.
+
+**antenna (aes, riscv32i).** The open-source repair is already in the
+flow and already ran: `OpenROAD.RepairAntennas` executes on every aes
+run (`RUN_ANTENNA_REPAIR true`, `GRT_ANTENNA_ITERS 3`, margin 10) and
+`repair_antennas` / `check_antennas` are in the image's OpenROAD. What
+is off is `Odb.HeuristicDiodeInsertion` (`RUN_HEURISTIC_DIODE_INSERTION
+false`, `DIODE_ON_PORTS none`) — the one run that turned it on made
+slew and fanout worse. Nothing new to apply; the levers are
+`DIODE_ON_PORTS in`, more antenna iterations, and a real run. No tool
+is missing, only the experiment.
+
+**KLayout DRC on gf180mcu (every gf180 run "never checked").** This one
+had room, and the other session had already taken it: OpenLane 2.3.10's
+`KLayout.DRC` step handles sky130 only and skips gf180 with a warning,
+while the gf180mcu PDK ships GlobalFoundries' own KLayout deck at
+`libs.tech/klayout/drc/`. `pipeline/gf180_drc.py` (2026-09-10) drives
+that deck in the same image; this session confirmed the same two
+blockers independently before finding it (the driver imports `docopt`,
+which the image lacks and cannot pip-install; the deck's logger shells
+out to `pmap`, absent from the nix image) and got the deck to run clean
+on counter4's gf180 GDS in 29 s across 53 rule tables.
+
+What was still missing was the store. New runs got the check; the 141
+gf180mcu candidates already recorded did not, and 89 of them had their
+run directory — final GDS and metrics.json — on this machine.
+`pipeline/rescore_gf180_drc.py` ran the deck on those 71 run
+directories (89 candidates; several cases reference one run) and
+re-scored each candidate through the same `score()` the live path
+uses, with the deck's count as the one added metric. Every entry the
+live path adds after `score()` — an unconstrained clock, a model whose
+validity is unknown — is carried over verbatim and still blocks a
+pass; the first trial dropped cdc_twoclock's clk_b entry and promoted
+a candidate to a pass it had not earned, which is why that rule exists
+and is tested. Each rewritten case records what changed under
+`rescored`, with the date.
+
+Result, measured:
+
+    run directories checked      71   (0 failed to run)
+    candidates re-scored         89   KLayout DRC count: 0 on all 89
+    now pass                     22
+    still fail                   66   36 clk_b never constrained (cdc_twoclock)
+                                      18 utilisation over target (gf180 die)
+                                       9 setup, 7 max-fanout
+    cases closed (winner found)   3   counter4 2026-08-30 04:31,
+                                      spm 2026-08-30 04:59 and 05:01
+
+So the answer is yes, for one problem: an open-source check that was
+shipped, unwired, and now measured, turned 22 "never checked" verdicts
+into passes and closed three cases. The 66 that still fail do so for
+reasons the missing check had been hiding behind — the honest cost of
+looking.
+
+**The GDS render on gf180.** Same tool, a layer file it was not using;
+see the correction in the render section above.
 
 ## Known limitations / explicit non-goals
 
