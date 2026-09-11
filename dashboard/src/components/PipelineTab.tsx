@@ -544,6 +544,36 @@ function PowerSummary({ verdict }: { verdict: CandidateVerdict }) {
   );
 }
 
+// What the surrogate expected before this run, against what the run
+// measured. One line, because that is what it is: an expectation being
+// scored, not a result. A refused prediction says why, so a reader can
+// tell "the store could not predict this" from "the model was wrong".
+function PredictionLine({ prediction }: { prediction: CandidateResult["prediction"] }) {
+  const { t } = useLang();
+  if (!prediction) return null;
+  if ("error" in prediction && typeof prediction.error === "string") {
+    return <p className="pipeline__prediction">{t("prediction_label")}: {prediction.error}</p>;
+  }
+  const fields = prediction as Record<string, { predicted: number | null; measured: number | null; error?: number; error_pct?: number | null; refused?: string }>;
+  const parts: string[] = [];
+  const area = fields["area_um2"];
+  if (area) {
+    parts.push(area.refused
+      ? `${t("prediction_area")}: ${t("prediction_refused")} (${area.refused})`
+      : `${t("prediction_area")}: ${area.predicted?.toFixed(1)} µm² → ${area.measured?.toFixed(1) ?? "—"}${area.error_pct != null ? ` (${area.error_pct >= 0 ? "+" : ""}${area.error_pct.toFixed(1)}%)` : ""}`);
+  }
+  const power = fields["power_w"];
+  if (power && !power.refused && power.predicted != null) {
+    parts.push(`${t("prediction_power")}: ${(power.predicted * 1000).toFixed(4)} mW → ${power.measured != null ? (power.measured * 1000).toFixed(4) : "—"}${power.error_pct != null ? ` (${power.error_pct >= 0 ? "+" : ""}${power.error_pct.toFixed(1)}%)` : ""}`);
+  }
+  if (parts.length === 0) return null;
+  return (
+    <p className="pipeline__prediction" title={t("prediction_hint")}>
+      <span className="tab__meta-label">{t("prediction_label")}</span> {parts.join(" · ")}
+    </p>
+  );
+}
+
 function CandidateRow({
   candidate,
   caseFile,
@@ -654,6 +684,7 @@ function CandidateRow({
             )}
             {v && <TimingCorners corners={v.timing_corners} />}
             {v && <PowerSummary verdict={v} />}
+            <PredictionLine prediction={candidate.prediction} />
             <DataPointers data={candidate.data} />
           </td>
         </tr>

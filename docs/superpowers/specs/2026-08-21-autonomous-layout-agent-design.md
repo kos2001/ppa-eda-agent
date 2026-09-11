@@ -3395,6 +3395,56 @@ looking.
 **The GDS render on gf180.** Same tool, a layer file it was not using;
 see the correction in the render section above.
 
+## Could learning (DL / RL) improve this? Re-measured on 426 configurations
+
+Asked a third time, now with a store nine times the size of the one
+the first answer was measured on (17 distinct configurations then, 426
+now, across 8 designs). Re-measured with the same leave-one-out
+evaluation against a predict-the-mean baseline:
+
+    area, per design     gcd 100% of folds, spm 100%, cdc_twoclock 100%,
+                         counter4 100%, aes 73% (15 samples)
+    power, all designs   97% of folds
+    pass/fail            counter4 90%, gcd 78%, spm 58%,
+                         aes and cdc_twoclock: no signal — every run
+                         of theirs fails, so there is nothing to learn
+
+and the neighbourhood that wins is k = 1: the best predictor is the
+nearest configuration already run. That is a lookup with a distance,
+which is what a store of sweeps should yield, and it is now good enough
+at area and power to be worth something — and uneven enough at
+pass/fail, which is where every open problem lives, to be worth
+nothing as a gate.
+
+So the model earns a place as a recorded expectation, not a decision.
+`run_candidate()` now asks `surrogate.predict_candidate()` before each
+run — from the candidate and the design's config.json only, so it
+cannot be informed by the result — and records the prediction beside
+the measurement afterwards, with the error, or the refusal and its
+reason when the store has too few comparable runs. Every real run
+thereby scores the model, and the dashboard shows the line under each
+candidate. Checked on a real counter4 run: area predicted 290.278 µm²,
+measured 290.278 (an identical configuration was already recorded);
+power within 0.14%. Nothing reads the prediction to choose a run, and
+`pick_winner()` never sees it; that changes only when the recorded
+errors say it should, and now they will be there to say so.
+
+RL stays declined, for the reason in `soul.md` with today's number
+attached: 426 episodes in total, 15 on aes and 5 on riscv32i — the two
+designs anything would need to learn about — each costing 30 s to 30
+min of real flow. The open failures (antenna never closed anywhere,
+an unconstrained second clock, a die too small for a technology) are
+not where a policy over config knobs would find gradient; they are
+where a person or a real experiment is needed, and the store now says
+which.
+
+What a deeper model could add is not accuracy on this data but
+transfer: pretrained congestion/DRC predictors exist on CircuitNet's
+Innovus-labelled N28/N14/N45 sets, and this repo can now export its
+DEF/LEF in CircuitNet's input layout. Whether they transfer to an
+OpenROAD sky130/gf180 flow is an experiment with no result yet, and
+this document records none.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

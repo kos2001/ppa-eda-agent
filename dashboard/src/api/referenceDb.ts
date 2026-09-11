@@ -290,6 +290,17 @@ export interface CandidateResult {
   // with fetchCandidateDetail().
   layout_deferred?: boolean;
   netlist_deferred?: boolean;
+  // What the surrogate expected before the run, scored against what
+  // the run measured. Recorded by run_candidate(); decides nothing.
+  // A field is `refused` (with the reason) when the store had too few
+  // comparable runs of this design to predict from.
+  prediction?: Record<string, {
+    predicted: number | null;
+    measured: number | null;
+    error?: number;
+    error_pct?: number | null;
+    refused?: string;
+  }> | { error: string };
   produced_by_feedback?: boolean;
   // Wall-clock of this candidate's flow, written by collect.py's
   // run_one(). Optional: orchestrator.py's own runs do not record it.
