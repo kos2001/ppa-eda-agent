@@ -814,3 +814,11 @@
 
 .pipeline__review-optional { margin-left: 0.4rem; }
 .pipeline__review-hint { display: block; margin: 0.3rem 0 0; line-height: 1.5; }
+
+/* What the surrogate expected for a candidate, beside what it measured.
+   One quiet line: an expectation being scored, not a result. */
+.pipeline__prediction {
+  margin: 0.4rem 0 0.2rem;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}

@@ -450,6 +450,73 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
 TARGETS = ("area_um2", "power_w", "completed")
 
 
+_DATASET_CACHE: dict = {}
+
+
+def cached_dataset(refdb: Path | str = REFDB) -> list[dict]:
+    """The dataset, loaded once per process. Loading parses every case
+    (1.7 s on 205 MB); a batch of candidates should not pay it per
+    candidate, and the store does not change until the batch's own case
+    is written at the end."""
+    key = str(refdb)
+    if key not in _DATASET_CACHE:
+        _DATASET_CACHE[key] = load_dataset(refdb)
+    return _DATASET_CACHE[key]
+
+
+def predict_candidate(design: str, cand: dict, config: dict,
+                      dataset: list[dict] | None = None,
+                      fields: tuple[str, ...] = ("area_um2", "power_w")) -> dict:
+    """What the surrogate expects for a candidate, before it runs.
+
+    Recorded beside the measurement so every real run scores the model
+    — that is the whole use of it here. Nothing is decided by the
+    prediction: the run happens regardless, and pick_winner never reads
+    it. Measured 2026-09-11 on 426 distinct configurations: nearest
+    neighbour beats predicting the mean for area on every design with
+    enough runs (gcd, spm, cdc_twoclock, counter4 at 100% of folds, aes
+    at 73% on 15 samples) and for pass/fail on some (counter4 90%, gcd
+    78%) and not others (spm 58%, aes and cdc_twoclock none — every run
+    of theirs fails, so there is nothing to learn). A model that good
+    at area and that uneven at pass/fail earns a place as a recorded
+    expectation, not as a gate.
+
+    `config` is the design's config.json; featurize() falls back to its
+    CLOCK_PERIOD / DIE_AREA when the candidate does not override them,
+    exactly as load_dataset() fills `declared` from a case.
+    """
+    row = {
+        "design": design,
+        "overrides": cand.get("overrides") or {},
+        "scl": cand.get("scl") or DEFAULT_SCL,
+        "pdk": cand.get("pdk") or DEFAULT_PDK,
+        "declared": {k: config.get(k) for k in ("CLOCK_PERIOD", "DIE_AREA") if k in config},
+    }
+    ds = cached_dataset() if dataset is None else dataset
+    out = {}
+    for field in fields:
+        p = predict(row, ds, field)
+        out[field] = {k: p.get(k) for k in ("value", "refused", "reason", "k", "neighbours") if k in p}
+    return out
+
+
+def score_prediction(prediction: dict, verdict: dict | None) -> dict:
+    """The prediction against what the run measured, per field."""
+    measured = {"area_um2": (verdict or {}).get("area_um2"),
+                "power_w": ((verdict or {}).get("power") or {}).get("total_w")}
+    out = {}
+    for field, p in prediction.items():
+        m = measured.get(field)
+        entry = {"predicted": p.get("value"), "measured": m}
+        if isinstance(p.get("value"), (int, float)) and isinstance(m, (int, float)):
+            entry["error"] = m - p["value"]
+            entry["error_pct"] = (100.0 * (m - p["value"]) / m) if m else None
+        elif p.get("refused"):
+            entry["refused"] = p.get("reason")
+        out[field] = entry
+    return out
+
+
 def _is_boolean_target(field: str) -> bool:
     return field == "completed"
 

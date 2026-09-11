@@ -861,6 +861,19 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     # came through orchestrate() or was recovered from a run directory.
     # The one design the manual's first feedback asked about was the
     # one with no number.
+    # What the surrogate expects, taken before the run so it cannot be
+    # informed by the result, and scored against the result afterwards.
+    # Every real run thereby measures the model; the model decides
+    # nothing. A prediction that cannot be made (too few runs of this
+    # design, no comparable parameter) is recorded as refused, with the
+    # reason. Never fatal: a broken predictor must not cost a real run.
+    prediction = None
+    try:
+        import surrogate
+        config = json.loads((design_dir / "config.json").read_text(encoding="utf-8"))
+        prediction = surrogate.predict_candidate(design_dir.name, cand, config)
+    except Exception as e:  # noqa: BLE001 - recorded, never a lost run
+        prediction = {"error": f"{type(e).__name__}: {e}"}
     started = time.time()
     try:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
@@ -871,6 +884,12 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         result = {"tag": tag, "overrides": cand.get("overrides", {}),
                   "scl": scl, "pdk": pdk, "error": str(e)}
     result["seconds"] = round(time.time() - started, 1)
+    if prediction is not None:
+        if "error" in prediction:
+            result["prediction"] = prediction
+        else:
+            import surrogate
+            result["prediction"] = surrogate.score_prediction(prediction, result.get("verdict"))
     return result
 
 
