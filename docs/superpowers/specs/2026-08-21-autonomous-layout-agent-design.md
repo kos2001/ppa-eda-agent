@@ -3286,6 +3286,47 @@ after:
 The cold report cost is unchanged by design: it is the real
 computation, paid once per store change instead of once per page view.
 
+## Can a better knowledge base close what is still open? Measured
+
+Asked directly. Answered from the store rather than in principle
+(2026-09-11, 69 cases).
+
+What is still open, and on what:
+
+    aes        antenna 15, max-cap 2,   max-fanout 4    (best of latest run)
+    riscv32i   antenna 19, max-cap 152, max-fanout 62
+    cdc_twoclock   clean, but clk_b never constrained — an SDC, not knowledge
+    counter4 (gf180)  clean, but KLayout DRC never runs for that PDK — toolchain
+    sram_wrapper   DRT-0349 / GRT-0097 — the documented closed door
+
+Whether the store holds a closure for each kind (a run of any design
+where the kind went from failing to clean in the next run):
+
+    max-fanout   yes — gcd, 1 -> 0 with MAX_FANOUT_CONSTRAINT 12 (aes and
+                 riscv32i both tried 16 and kept 4 and 62)
+    max-cap      yes — aes itself, 1 -> 0 with RUN_POST_GRT_DESIGN_REPAIR
+    antenna      no — never closed in any recorded run of any design.
+                 Odb.HeuristicDiodeInsertion is gated off in every aes
+                 run (step_coverage), and the one run that turned it on
+                 (iter7-io30-diodes-fanout16) left antenna in place and
+                 added 382 max-slew and 1158 max-fanout.
+
+So: partly. The two kinds with a closure were not reaching the review
+— similar() ranks by shared-failure count, and three other aes runs
+sharing three failures outranked gcd's one-failure closure every time.
+`case_retrieval.closures()` now answers the per-failure question
+beside the per-case one: for each kind the target still fails, every
+closure in the store with the overrides that run used, and "never
+closed anywhere" when that is the fact. It is appended to the
+precedent block of every review request. The ranking itself is left
+alone: a case sharing more failures is still the better whole-case
+precedent.
+
+For antenna, no knowledge-base change can help, because there is no
+knowledge: the next step is a real run, and the store now says so in
+the request instead of offering three open aes cases as if they were
+precedent.
+
 ## Known limitations / explicit non-goals
 
 - SRAM bitcell/array layout generation is not covered by this pipeline.

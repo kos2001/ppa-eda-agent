@@ -119,6 +119,45 @@ class SignoffSignatureTests(unittest.TestCase):
         self.assertEqual([h["design"] for h in hits], ["gcd"])
         self.assertEqual(hits[0]["shared_signatures"], ["signoff:setup"])
 
+    def test_closures_find_where_a_remaining_kind_went_to_zero(self):
+        from case_retrieval import closures, closures_block
+        # aes still fails antenna and max-fanout. gcd once had fanout
+        # violations and then none, with MAX_FANOUT_CONSTRAINT 12. Nobody
+        # ever closed antenna.
+        aes = self._case_with(["15 routing antenna violation(s)", "4 max-fanout (DRV) violation(s)"])
+        aes["design"], aes["_file"] = "aes", "cases/aes__3.json"
+        gcd1 = self._case_with(["9 max-fanout (DRV) violation(s)"])
+        gcd1["design"], gcd1["_file"] = "gcd", "cases/gcd__1.json"
+        gcd2 = self._case_with([], winner="c")
+        gcd2["iterations"][0]["results"][0]["verdict"]["passed"] = True
+        gcd2["iterations"][0]["results"][0]["overrides"] = {"MAX_FANOUT_CONSTRAINT": 12}
+        gcd2["design"], gcd2["_file"] = "gcd", "cases/gcd__2.json"
+        c = closures(aes, [aes, gcd1, gcd2])
+        self.assertEqual(c["remaining"], {"signoff:antenna": 15, "signoff:max-fanout": 4})
+        self.assertEqual(c["never_closed"], ["signoff:antenna"])
+        hit = c["closed_elsewhere"]["signoff:max-fanout"][0]
+        self.assertEqual((hit["design"], hit["from_count"], hit["overrides"]),
+                         ("gcd", 9, {"MAX_FANOUT_CONSTRAINT": 12}))
+        text = closures_block(aes, [aes, gcd1, gcd2])
+        self.assertIn("never closed in any recorded run", text)
+        self.assertIn('MAX_FANOUT_CONSTRAINT=12', text)
+
+    def test_closures_are_appended_to_the_precedent_block(self):
+        aes = self._case_with(["15 routing antenna violation(s)"])
+        aes["design"], aes["_file"] = "aes", "cases/aes__3.json"
+        other = self._case_with(["3 routing antenna violation(s)"])
+        other["design"], other["_file"] = "riscv32i", "cases/riscv32i__1.json"
+        text = precedent_block(aes, [aes, other])
+        self.assertIn("riscv32i", text)
+        self.assertIn("What closed each remaining failure", text)
+        self.assertIn("signoff:antenna", text)
+
+    def test_a_case_that_passes_has_no_closures_block(self):
+        from case_retrieval import closures_block
+        ok = case("d", "9", winner="c")
+        ok["iterations"][0]["results"][0]["verdict"] = {"passed": True, "violations": []}
+        self.assertEqual(closures_block(ok, [ok]), "")
+
     def test_a_tool_error_and_a_gate_rejection_do_not_match_each_other(self):
         tool = case("d", "2", error="[RSZ-0090] max transition")
         gate = self._case_with(["544 max-slew (DRV) violation(s)"])
