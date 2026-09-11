@@ -17,6 +17,7 @@ Usage:
 Requires the same Docker + image as run_stage.py.
 """
 import argparse
+import json
 import shutil
 import subprocess
 import sys
@@ -31,6 +32,28 @@ PDK_ROOT = REPO_ROOT / "pdk"
 # The PDK's KLayout layer properties, mounted read-only into the render
 # container. Path is inside the container, not on the host.
 LYP_IN_CONTAINER = "/pdk/sky130A/libs.tech/klayout/tech/sky130A.lyp"
+
+# Per PDK. Every render used the sky130 file, so gf180mcu layouts came
+# out in KLayout's default colours with nothing hidden — and a note in
+# the spec said the tree shipped no gf180 .lyp, which was wrong: it is
+# at libs.tech/klayout/tech/gf180mcu.lyp in both gf180mcuC and D.
+LYP_BY_PDK = {
+    "sky130A": "/pdk/sky130A/libs.tech/klayout/tech/sky130A.lyp",
+    "sky130B": "/pdk/sky130B/libs.tech/klayout/tech/sky130B.lyp",
+    "gf180mcuC": "/pdk/gf180mcuC/libs.tech/klayout/tech/gf180mcu.lyp",
+    "gf180mcuD": "/pdk/gf180mcuD/libs.tech/klayout/tech/gf180mcu.lyp",
+}
+
+
+def lyp_for_run(run_dir: Path) -> str:
+    """The .lyp for the PDK the run actually used (resolved.json's PDK),
+    falling back to sky130A's when the run does not say."""
+    resolved = Path(run_dir) / "resolved.json"
+    try:
+        pdk = json.loads(resolved.read_text(encoding="utf-8")).get("PDK")
+    except (OSError, ValueError):
+        pdk = None
+    return LYP_BY_PDK.get(pdk or "", LYP_IN_CONTAINER)
 
 # KLayout's LayoutView.load_layout() takes a *filename*, not a pre-loaded
 # pya.Layout — passing a Layout object there raises a real TypeError
@@ -71,10 +94,19 @@ if lyp and os.path.exists(lyp):
 # underneath it — which is what the dashboard was showing. This is the
 # same thing a person does by hand in KLayout before looking at a
 # routed block: switch off areaid/prBoundary/text.
+#
+# gf180mcu's .lyp names layers in <source> ("Dualgate 55/0@1"), not in
+# <name>, so the name is read from whichever is set. Measured the same
+# way on gcd's c-gf180mcu_7t-synth_strategyDELAY_0 GDS: PR_bndry (0/0)
+# covers 100% of the die, Dualgate (55/0) 74% and V5_XTOR (112/1) 74% —
+# device-marking layers, not metal — against Metal1 (34/0) at 28%.
 hidden = []
+GF180_MARKERS = ("PR_bndry", "Border", "Dualgate", "V5_XTOR")
 for lp in view.each_layer():
-    name = lp.name or ""
-    if name.startswith(("areaid.", "prBoundary.")) or ".label" in name or name.startswith("text."):
+    name = lp.name or lp.source or ""
+    label = name.split(" ")[0]
+    if (name.startswith(("areaid.", "prBoundary.")) or ".label" in name or name.startswith("text.")
+            or label in GF180_MARKERS or label.endswith(("_MK", "_mk", "_Label", "_BLK", "_drc"))):
         lp.visible = False
         hidden.append(name)
 print("HIDDEN=" + str(len(hidden)))
@@ -113,7 +145,7 @@ def render_gds_png(run_dir: Path, output_path: Path, size: int = 900) -> Path:
         tmp_path = Path(tmp)
         shutil.copy(gds_path, tmp_path / "layout.gds")
         (tmp_path / "render.py").write_text(
-            _KLAYOUT_SCRIPT.format(size=size, lyp=LYP_IN_CONTAINER), encoding="utf-8")
+            _KLAYOUT_SCRIPT.format(size=size, lyp=lyp_for_run(run_dir)), encoding="utf-8")
 
         cmd = [
             "docker", "run", "--rm", *platform_args(),
@@ -137,7 +169,7 @@ def render_gds_png(run_dir: Path, output_path: Path, size: int = 900) -> Path:
             # Not fatal — a rendered image with default colours is still
             # better than none — but it must not pass silently as if it
             # were a correct sky130 rendering.
-            print(f"warning: {LYP_IN_CONTAINER} not loaded; layer colours are "
+            print(f"warning: {lyp_for_run(run_dir)} not loaded; layer colours are "
                   f"KLayout defaults, not sky130's", file=sys.stderr)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(rendered, output_path)

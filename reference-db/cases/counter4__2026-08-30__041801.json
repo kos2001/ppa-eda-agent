@@ -60,9 +60,7 @@
             "violations": [
               "utilization 0.814 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1029.55,
             "utilization": 0.814236,
             "worst_setup_wns": 0,
@@ -241,6 +239,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_0/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_0",
@@ -696,9 +874,7 @@
             "violations": [
               "utilization 0.814 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1029.55,
             "utilization": 0.814236,
             "worst_setup_wns": 0,
@@ -877,6 +1053,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_1/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_1",
@@ -1332,9 +1688,7 @@
             "violations": [
               "utilization 0.814 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1029.55,
             "utilization": 0.814236,
             "worst_setup_wns": 0,
@@ -1513,6 +1867,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_2/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_2",
@@ -1964,11 +2498,9 @@
           "scl": "gf180mcu_fd_sc_mcu7t5v0",
           "pdk": "gf180mcuD",
           "verdict": {
-            "passed": false,
+            "passed": true,
             "violations": [],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1119.55,
             "utilization": 0.594406,
             "worst_setup_wns": 0,
@@ -2147,6 +2679,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_3/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyAREA_3",
@@ -2732,9 +3444,7 @@
             "violations": [
               "utilization 0.837 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1091.01,
             "utilization": 0.8367,
             "worst_setup_wns": 0,
@@ -2913,6 +3623,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_0/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_0",
@@ -3489,9 +4379,7 @@
             "violations": [
               "utilization 0.827 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1062.48,
             "utilization": 0.82735,
             "worst_setup_wns": 0,
@@ -3670,6 +4558,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_1/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_1",
@@ -4224,9 +5292,7 @@
             "violations": [
               "utilization 0.827 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1062.48,
             "utilization": 0.82735,
             "worst_setup_wns": 0,
@@ -4405,6 +5471,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_2/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_2",
@@ -4959,9 +6205,7 @@
             "violations": [
               "utilization 0.837 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1091.01,
             "utilization": 0.8367,
             "worst_setup_wns": 0,
@@ -5140,6 +6384,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_3/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_3",
@@ -5712,11 +7136,9 @@
           "scl": "gf180mcu_fd_sc_mcu7t5v0",
           "pdk": "gf180mcuD",
           "verdict": {
-            "passed": false,
+            "passed": true,
             "violations": [],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1093.21,
             "utilization": 0.587957,
             "worst_setup_wns": 0,
@@ -5895,6 +7317,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_4/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_7t-synth_strategyDELAY_4",
@@ -6365,9 +7967,7 @@
             "violations": [
               "utilization 0.873 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1224.92,
             "utilization": 0.873239,
             "worst_setup_wns": 0,
@@ -6546,6 +8146,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_0/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_0",
@@ -6998,9 +8778,7 @@
             "violations": [
               "utilization 0.875 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1227.74,
             "utilization": 0.875252,
             "worst_setup_wns": 0,
@@ -7179,6 +8957,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_1/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_1",
@@ -7636,9 +9594,7 @@
             "violations": [
               "utilization 0.875 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1227.74,
             "utilization": 0.875252,
             "worst_setup_wns": 0,
@@ -7817,6 +9773,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_2/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_2",
@@ -8270,11 +10406,9 @@
           "scl": "gf180mcu_fd_sc_mcu9t5v0",
           "pdk": "gf180mcuD",
           "verdict": {
-            "passed": false,
+            "passed": true,
             "violations": [],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1382.98,
             "utilization": 0.532609,
             "worst_setup_wns": 0,
@@ -8453,6 +10587,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_3/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyAREA_3",
@@ -9086,9 +11400,7 @@
             "violations": [
               "utilization 0.784 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1309.59,
             "utilization": 0.783784,
             "worst_setup_wns": 0,
@@ -9267,6 +11579,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_0/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_0",
@@ -9844,9 +12336,7 @@
             "violations": [
               "utilization 0.783 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1289.84,
             "utilization": 0.782534,
             "worst_setup_wns": 0,
@@ -10025,6 +12515,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_1/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_1",
@@ -10584,9 +13254,7 @@
             "violations": [
               "utilization 0.783 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1326.53,
             "utilization": 0.783333,
             "worst_setup_wns": 0,
@@ -10765,6 +13433,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_2/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_2",
@@ -11358,9 +14206,7 @@
             "violations": [
               "utilization 0.784 > target 0.75"
             ],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1309.59,
             "utilization": 0.783784,
             "worst_setup_wns": 0,
@@ -11539,6 +14385,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_3/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_3",
@@ -12112,11 +15138,9 @@
           "scl": "gf180mcu_fd_sc_mcu9t5v0",
           "pdk": "gf180mcuD",
           "verdict": {
-            "passed": false,
+            "passed": true,
             "violations": [],
-            "unverified": [
-              "KLayout DRC error(s)"
-            ],
+            "unverified": [],
             "area_um2": 1303.95,
             "utilization": 0.596899,
             "worst_setup_wns": 0,
@@ -12295,6 +15319,186 @@
               "vmin_is_lowest_analysed": true,
               "failing_corners": [],
               "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum"
+            },
+            "signoff_checks": [
+              {
+                "key": "magic__drc_error__count",
+                "label": "Magic DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "klayout__drc_error__count",
+                "label": "KLayout DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_error__count",
+                "label": "LVS error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__instance_unmapped__count",
+                "label": "unmapped instance(s) after synthesis",
+                "count": 0
+              },
+              {
+                "key": "design__xor_difference__count",
+                "label": "XOR difference(s) between tool GDS outputs",
+                "count": 0
+              },
+              {
+                "key": "magic__illegal_overlap__count",
+                "label": "illegal layout overlap(s) (Magic)",
+                "count": 0
+              },
+              {
+                "key": "route__drc_errors",
+                "label": "routing DRC error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_device_difference__count",
+                "label": "LVS device difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_net_difference__count",
+                "label": "LVS net difference(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_property_fail__count",
+                "label": "LVS property failure(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_device__count",
+                "label": "LVS unmatched device(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_net__count",
+                "label": "LVS unmatched net(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lvs_unmatched_pin__count",
+                "label": "LVS unmatched pin(s)",
+                "count": 0
+              },
+              {
+                "key": "design__disconnected_pin__count",
+                "label": "disconnected pin(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__setup_vio__count",
+                "label": "setup timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "timing__hold_vio__count",
+                "label": "hold timing violation(s)",
+                "count": 0
+              },
+              {
+                "key": "route__antenna_violation__count",
+                "label": "routing antenna violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__power_grid_violation__count",
+                "label": "power-grid violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_slew_violation__count",
+                "label": "max-slew (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_cap_violation__count",
+                "label": "max-capacitance (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "design__max_fanout_violation__count",
+                "label": "max-fanout (DRV) violation(s)",
+                "count": 0
+              },
+              {
+                "key": "synthesis__check_error__count",
+                "label": "synthesis check error(s)",
+                "count": 0
+              },
+              {
+                "key": "design__lint_error__count",
+                "label": "RTL lint error(s)",
+                "count": 0
+              }
+            ],
+            "metrics_source": "OpenLane metrics.json",
+            "klayout_drc": {
+              "count": 0,
+              "per_rule": {},
+              "report": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_4/gf180_klayout_drc/counter4_main.lyrdb",
+              "variant": "D",
+              "tables": [
+                "comp",
+                "contact",
+                "contact_split",
+                "dnwell",
+                "dnwell_split",
+                "drc_bjt",
+                "dualgate",
+                "dummy_exclude",
+                "efuse",
+                "esd",
+                "geom",
+                "hres",
+                "ldnmos",
+                "ldnmos_split",
+                "ldpmos",
+                "ldpmos_split",
+                "lres",
+                "lvpwell",
+                "lvpwell_split",
+                "lvs_bjt",
+                "mcell",
+                "metal1",
+                "metal1_split",
+                "metal2",
+                "metal3",
+                "metal4",
+                "metal5",
+                "metaltop",
+                "metaltop_30k",
+                "mim_a",
+                "mim_b",
+                "nat",
+                "nat_split",
+                "nplus",
+                "nwell",
+                "nwell_split",
+                "otp_mk",
+                "poly2",
+                "pplus",
+                "pres",
+                "sab",
+                "sram_3p3",
+                "sram_5p0",
+                "via1",
+                "via1_split",
+                "via2",
+                "via2_split",
+                "via3",
+                "via3_split",
+                "via4",
+                "via4_split",
+                "via5",
+                "ymtp_mk"
+              ],
+              "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
             }
           },
           "run_dir": "/Users/kos2001/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/c-gf180mcu_9t-synth_strategyDELAY_4",
@@ -43497,5 +46701,19 @@
   },
   "synthesis_exploration": null,
   "layout_image": "layouts/counter4__2026-08-30__c-hd-synth_strategyAREA_3.png",
-  "layout_image_tag": "c-hd-synth_strategyAREA_3"
+  "layout_image_tag": "c-hd-synth_strategyAREA_3",
+  "rescored": {
+    "date": "2026-09-11",
+    "what": "KLayout DRC via gf180_drc.py on the stored run's final GDS; verdict re-scored by orchestrator.score with that one added metric",
+    "before": {
+      "winner_tag": "c-hd-synth_strategyAREA_3",
+      "outcome": "passed",
+      "stop_reason": "recovered_from_run_dirs"
+    },
+    "after": {
+      "winner_tag": "c-hd-synth_strategyAREA_3",
+      "outcome": "passed",
+      "stop_reason": "recovered_from_run_dirs"
+    }
+  }
 }
