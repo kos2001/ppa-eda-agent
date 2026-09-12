@@ -172,6 +172,11 @@ class LeaveOneOutTests(unittest.TestCase):
 WORKFLOW_TOOLS = {
     "ppa_orchestrate", "ppa_run_stage", "ppa_get_case", "ppa_request_review",
     "ppa_apply_review", "ppa_self_improve_scan",
+    # The custom half's exact counterparts of the two above it: one drives
+    # the loop, one reports where every design stands. Exempt for the same
+    # reason — you reach for them to run or survey the flow, not to answer
+    # a specific failure, which is what a failure signature routes to.
+    "ppa_analog_loop", "ppa_analog_scan",
 }
 
 
