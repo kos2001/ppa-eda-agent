@@ -199,7 +199,7 @@ MEASUREMENTS: list[dict] = [
         "id": "see-the-layout",
         "design": "sram_wrapper",
         "when": ["macro_present", "placement_suspected"],
-        "tool": "ppa_render_layout",
+        "tool": "ppa_render_layout, and ppa_gate_schematic for the netlist behind it",
         "cli": "python3 pipeline/render_layout.py --design D --tag T",
         "answers": "The run's real rendered GDS, for a question about where "
                    "things physically ended up.",
@@ -330,6 +330,77 @@ MEASUREMENTS: list[dict] = [
                     "rows took completion's win-rate from 0.82 to 0.56 before "
                     "they were removed. Second occurrence: the first rendered "
                     "a DIE_AREA list into a tag.",
+    },
+    {
+        "id": "what-is-this-cell",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090"],
+        "tool": "ppa_stdcell_schematic",
+        "cli": "python3 pipeline/stdcell_schematic.py "
+               "--cell sky130_fd_sc_hd__dlymetal6s2s_1 --draw",
+        "answers": "What a cell the tools chose actually is, at transistor "
+                   "level, from the foundry's own CDL — width, length, "
+                   "multiplicity and topology, not just a name in a report.",
+        "trap": "The sequential cells cannot be drawn: flops and latches use "
+                "special_nfet_01v8, a real device with no xschem symbol, and "
+                "the importer drops what it cannot resolve without saying so "
+                "(dfxtp_2 came out with 21 of its 24 transistors). The tool "
+                "refuses those by name. It is also the wrong question for a "
+                "timing failure on its own — read the path first, then ask "
+                "what the cell on it is.",
+        "evidence": "sram_wrapper: repair_design fixed a slew violation by "
+                    "inserting dlymetal6s2s_1, a delay cell, and nothing in "
+                    "this repo could show what that cell was.",
+    },
+    {
+        "id": "characterisation-ceiling-is-a-spice-question",
+        "design": "sram_wrapper",
+        "when": ["RSZ-0090", "max_slew_violation"],
+        "tool": "ppa_render_schematic to see it, ppa_netlist_schematic, then ppa_spice_sim",
+        "cli": "python3 pipeline/custom_bridge.py netlist "
+               "--schematic pipeline/analog/inv/inv_tb.sch && "
+               "python3 pipeline/custom_bridge.py spice "
+               "--netlist pipeline/analog/inv/inv_tb.spice --corner ss",
+        "answers": "What a device actually does outside the range its liberty "
+                   "was characterised over — the only number in this pipeline "
+                   "that does not come from a .lib someone else generated.",
+        "trap": "Start at the schematic, not at a deck. A hand-written netlist "
+                "drops the diffusion parasitics the PDK's symbols attach to every "
+                "device — measured at ~3% on inverter delay with an identical DC "
+                "trip point, so it looks right and is not. Then: ngspice exits 0 "
+                "when the .meas the run existed to take fails, so returncode is "
+                "not a verdict — read the status, where finished-but-incomplete "
+                "is `partial`. And bind the corner through the tool: gf180mcu's "
+                "typical section is named `typical`, not `tt`, and a deck with "
+                "the wrong name simulates different silicon without complaining.",
+        "evidence": "sram_wrapper: the 0.04 ns max_transition ceiling is "
+                    "OpenRAM's default slew_scales [0.25, 1, 8] times sky130's "
+                    "rise_time 0.005 ns — a record of where characterisation "
+                    "stopped, not a limit the macro imposes. Closing it is a "
+                    "SPICE sweep, which this repo had no way to run until "
+                    "2026-09-12; the first one measured a sky130 inverter at "
+                    "tphl 53.3 / 66.3 / 85.5 ps across ff / tt / ss.",
+    },
+    {
+        "id": "which-custom-tools-are-installed",
+        "design": "sram_wrapper",
+        "when": ["magic_read_failure", "unknown_layer_datatype"],
+        "tool": "ppa_custom_status, then ppa_custom_eval",
+        "cli": "python3 pipeline/custom_bridge.py status --docker",
+        "answers": "Which of the open-source custom-design stack (xschem / "
+                   "magic / klayout / ngspice / netgen) this host can actually "
+                   "run, and which Cadence tool each one stands in for — before "
+                   "writing a script for one of them.",
+        "trap": "A directory that looks like an install is not one: "
+                "/Applications/KLayout exists on this host and contains no "
+                "klayout binary at all. Ask for the executable, not the path. "
+                "Magic and KLayout answer here only through the pinned OpenLane "
+                "image, which is what --docker checks and why it is slow.",
+        "evidence": "Measured 2026-09-12: ngspice 46 and netgen 1.5.323 resolve "
+                    "locally; magic, klayout and xschem do not. sram_wrapper's "
+                    "Magic ladder ran inside the OpenLane image throughout, so a "
+                    "Tcl probe written against a local magic fails before it "
+                    "starts.",
     },
     {
         "id": "library-comparison",

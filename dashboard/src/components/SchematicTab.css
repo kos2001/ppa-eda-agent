@@ -1,0 +1,203 @@
+.schematic { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.schematic__body {
+  display: grid;
+  /* The cell list is a fixed rail and the drawing takes the rest —
+     minmax(0,1fr) rather than 1fr so the image can actually shrink;
+     a plain 1fr floors at the content size and the SVG pushes the
+     panel wider than the window. */
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+}
+
+.schematic__cells {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  padding: 0.35rem;
+  gap: 2px;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.schematic__group { display: flex; flex-direction: column; gap: 2px; }
+.schematic__group + .schematic__group { margin-top: 0.5rem; }
+.schematic__group-title {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0 6px;
+}
+
+.schematic__toodense {
+  align-self: center;
+  margin: auto;
+  text-align: center;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  max-width: 46ch;
+}
+.schematic__toodense p { margin: 0.3rem 0; }
+.schematic__toodense button {
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  padding: 2px 10px;
+  cursor: pointer;
+}
+.schematic__toodense button:hover { border-color: var(--accent); color: var(--accent); }
+
+.schematic__cell {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: left;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.schematic__cell:hover { background: var(--surface-raised); }
+.schematic__cell.is-active {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.schematic__cell b { font-weight: 600; color: var(--text); }
+.schematic__cell em {
+  font-style: normal;
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--accent);
+  border: 1px solid var(--border-strong);
+  padding: 0 3px;
+}
+
+.schematic__view {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  /* A fixed viewport rather than a box that grows with the drawing: the
+     viewer inside pans and zooms, so the panel's job is to hold a
+     window of a stable size. Proportional for the same reason the rest
+     of the chrome is — see EdaShell.css on zoom. */
+  height: clamp(240px, 52vh, 720px);
+  background: #000;
+}
+
+.schematic__expand {
+  float: right;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  padding: 0 6px;
+  margin-top: -2px;
+  cursor: pointer;
+}
+.schematic__expand:hover { border-color: var(--accent); color: var(--accent); }
+
+.schematic__run { padding: 0.5rem 0.6rem; }
+.schematic__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.schematic__controls label { display: flex; align-items: center; gap: 0.3rem; }
+.schematic__controls input {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 1px 4px;
+}
+.schematic__controls select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  font: inherit;
+  font-family: var(--mono);
+  padding: 1px 3px;
+}
+.schematic__go {
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+.schematic__go:disabled { background: transparent; color: var(--text-dim);
+                          border-color: var(--border-strong); cursor: default; }
+
+.schematic__hint { margin: 0.35rem 0; color: var(--text-dim);
+                   font-family: var(--mono); font-size: 11px; }
+.schematic__hint code { font-size: 11px; }
+.schematic__error { margin: 0.35rem 0; color: var(--critical);
+                    font-family: var(--mono); font-size: 11px; }
+
+.schematic__result { margin-top: 0.5rem; }
+.schematic__meas { border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+.schematic__meas th, .schematic__meas td {
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  text-align: left;
+}
+.schematic__meas th { color: var(--text-dim); font-weight: 400; }
+.schematic__meas td { color: var(--text); }
+.schematic__raw { color: var(--text-dim); }
+
+@media (max-width: 760px) {
+  .schematic__body { grid-template-columns: 1fr; }
+  .schematic__cells { flex-direction: row; flex-wrap: wrap;
+                      border-right: 0; border-bottom: 1px solid var(--border);
+                      max-height: none; }
+}
+
+/* The library browser: a wrapping field of chips, because the answer to
+   "which cell" is usually recognised rather than scrolled to. */
+.schematic__stdcells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 0.4rem;
+  max-height: 8.5rem;
+  overflow-y: auto;
+}
+.schematic__stdcell {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+.schematic__stdcell:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.schematic__stdcell.is-blocked {
+  color: var(--text-dim);
+  border-style: dashed;
+  cursor: not-allowed;
+}

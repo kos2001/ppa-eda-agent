@@ -48,6 +48,10 @@ pipeline/                           Autonomous layout pipeline: real
                                      placement/routing candidate
                                      generation and evaluation via
                                      OpenLane 2 + sky130 (see below)
+pipeline/analog/                    Transistor-level cells for the custom
+                                     flow (Virtuoso's counterpart), run by
+                                     pipeline/custom_bridge.py against the
+                                     PDK's own ngspice device models
 reference-db/                       Case store of past pipeline runs —
                                      topology signature, candidate
                                      configs tried, real PPA/DRC/LVS
@@ -250,6 +254,16 @@ instead of shelled-out commands:
 | `ppa_equiv_check` | Proves a run's netlist is functionally equivalent to its RTL (Yosys SAT, ~1s) — the check DRC/LVS/timing leave out |
 | `ppa_odb_query` | Queries a run's real OpenROAD `.odb` for measured per-net placement facts (pin count, HPWL, max span) — answers per-net questions `metrics.json` cannot |
 | `ppa_tech_compare` | Runs the same design across standard-cell technologies and returns a real PPA delta with the design held fixed — the technology half of DTCO |
+| `ppa_custom_status` | What of the open-source Virtuoso-equivalent stack (xschem/magic/klayout/ngspice/netgen) this host can really run, each mapped to the Cadence tool it stands in for |
+| `ppa_custom_eval` | Runs a script in one custom-design backend's own batch language — the counterpart of executing SKILL in Virtuoso |
+| `ppa_netlist_schematic` | Netlists a schematic with xschem — the entry point of the custom flow, and what a hand-written deck silently gets wrong |
+| `ppa_render_schematic` | Draws a schematic as SVG with xschem — the custom half's counterpart of `ppa_render_layout` |
+| `ppa_analog_loop` | The custom half's closed loop: real sizings measured per corner, scored, and repaired from the violation's own numbers |
+| `ppa_analog_scan` | Real auto-repair coverage per analog design, and whether the next step is a re-run or a human |
+| `ppa_gate_schematic` | Draws a pipeline design's real synthesis netlist as a schematic — whole, or a fanin/fanout cone for designs too big to draw |
+| `ppa_stdcell_schematic` | Opens a standard cell and draws its transistors, from the foundry's CDL |
+| `ppa_stdcell_signoff` | Magic DRC + extraction + netgen LVS on a standard cell's real layout, recorded in `reference-db/stdcells/` |
+| `ppa_spice_sim` | A real transistor-level ngspice simulation against the PDK's own device models, returning parsed `.meas` values |
 
 Within a Claude Code session already working in this repo, a subagent
 can just call the underlying Python modules directly via Bash — this
@@ -258,10 +272,393 @@ future session, a non-Claude-Code agent, hermes-agent). Register it
 with Claude Code or hermes-agent's `api_server` pointed at
 `pipeline/mcp_server.py`.
 
+## The custom/analog half (Virtuoso's counterpart)
+
+Everything above is the *digital* implementation flow — the open-source
+answer to Innovus / Fusion Compiler / Calibre. It is not the answer to
+Cadence Virtuoso, which is where custom and mixed-signal designers
+actually work: schematic capture, transistor-level simulation, custom
+polygon layout, LVS back to the schematic. This repo had no path to any
+of it (`sim/` runs OpenSTA, which has no transistor in it anywhere).
+
+**Virtuoso has no single open-source counterpart.** It is one program;
+the open-source equivalent is five, which is why
+`pipeline/custom_bridge.py` takes the backend as an argument rather than
+inferring it:
+
+| Virtuoso component | Open source | Language | On this host |
+|---|---|---|---|
+| Schematic Editor (Composer) | Xschem | Tcl | not installed |
+| Layout Suite (polygon editing) | Magic | Tcl | **via OpenLane image** |
+| Layout viewer + PVS/Calibre decks | KLayout | Python | **via OpenLane image** |
+| ADE Explorer / Spectre | ngspice | `.control` block | **ngspice-46** |
+| Assura / PVS LVS | netgen | Tcl | **1.5.323** |
+
+That five-tool set is the answer because the PDKs already in `pdk/` are
+built for it — `libs.tech/{xschem,magic,klayout,netgen,ngspice}` exists
+under both sky130A and gf180mcuD, with 76 xschem device symbols in
+`sky130_fd_pr/`. The assets were here; only the code calling them was
+missing. Alternatives considered and why they lost (Electric VLSI,
+GLayout/OpenFASoC, gdsfactory, BAG3, XCircuit) are in
+[`docs/superpowers/specs/2026-09-12-virtuoso-counterpart-and-custom-bridge.md`](docs/superpowers/specs/2026-09-12-virtuoso-counterpart-and-custom-bridge.md).
+
+All five run here for real: ngspice and netgen locally, Magic and KLayout
+through the OpenLane image this pipeline already pulls, and xschem
+through a one-package image of this repo's own
+(`pipeline/docker/xschem.Dockerfile`, built on first use — Debian trixie
+packages xschem 3.4.4, while Homebrew has no formula and a macOS source
+build needs XQuartz plus an X11-linked Tk). `evaluate()` falls back to
+whichever container carries a backend rather than reporting one
+`status --docker` just called available.
+
+**The viewer pans and zooms.** A gate-level cone is small cells with
+small pin labels and xschem exports one fixed 1000x700 canvas, so a
+panel-sized `<img>` is a picture of a schematic rather than a schematic.
+`SchematicViewer.tsx` does what every EDA viewer and every map does:
+scroll to zoom about the pointer, drag to pan, `0`/`F`/double-click to
+fit, `+`/`-` to step, and a full-screen sheet that `Esc` closes. Zooming
+is a CSS transform on the SVG, so a scroll wheel costs no request and no
+re-parse.
+
+**The flow starts at the schematic.** This first shipped with a
+hand-written SPICE deck, which is one step below where the custom flow
+actually starts: in Virtuoso nobody types a netlist, they draw a
+schematic and the tool writes the netlist. The difference is measurable,
+not stylistic — the same inverter, both ways:
+
+| corner | vtrip hand / schematic (V) | tphl hand / schematic (ps) |
+|---|---|---|
+| ff | 0.837131 / 0.837141 | 53.3 / 54.7 |
+| tt | 0.867162 / 0.867167 | 66.3 / 68.2 |
+| ss | 0.894842 / 0.894843 | 85.5 / 88.3 |
+
+The DC trip point agrees to six digits — it is the same circuit — and the
+delays differ by ~3%, because the netlisted devices carry the diffusion
+parasitics (`ad`/`pd`/`as`/`ps`, `nrd`/`nrs`) that the PDK's own symbols
+attach to every instance and a hand-written deck has no reason to
+remember. The netlisted number is the right one, and it exists only
+because a tool generated it. `inv_handwritten.spice` is kept as that
+baseline, under that name because xschem writes `inv.spice` from
+`inv.sch`.
+
+**And it is shown.** The dashboard's Schematic tab draws the selected
+cell — xschem's own SVG export, not a second renderer, so the picture
+cannot disagree with the netlist that was simulated — and runs the flow
+from the same page: pick a corner, press *netlist & simulate*, and the
+measurements come back beside the drawing (`GET /analog/cells`,
+`GET /analog/svg`, `POST /analog/run`). The transcript records the
+command and the measured round trip, the way a CIW does.
+
+`pipeline/analog/` holds the cells. Each one earns its place by
+exercising something the others do not:
+
+| cell | what it adds |
+|---|---|
+| `inv/` | the first transistor-level cell: `inv.sch` → `inv.sym` (generated by xschem's own `make_symbol`) → `inv_tb.sch` |
+| `nand2/` | a series pull-down stack, so the imbalance points the **other** way (ss: tphl 144.3 ps vs tplh 115.1 ps) and the inverter's repair must not fire |
+| `ring/` | five stages of `inv/inv.sym` — the first cell that instantiates another cell's symbol instead of redrawing its devices, and the first measurement that is a whole-loop property (4.01 GHz at tt) |
+
+Cross-directory instantiation needs `pipeline/analog/xschemrc`, which
+sources the PDK's own and adds this tree as a library root. Without it
+xschem resolves `inv/inv.sym` relative to the instantiating schematic's
+directory and writes `inv IS MISSING !!!!` into the netlist, which is how
+this was found. The generated deck keeps a `%PDK_LIB%` token
+rather than a resolved `.lib` line: xschem's usual idiom substitutes
+`$::SKYWATER_MODELS` at netlist time, which bakes in both a corner and
+the container's `/pdk/...` path — the first netlisted deck died in
+ngspice for exactly that reason.
+
+```sh
+python3 pipeline/custom_bridge.py draw --schematic pipeline/analog/inv/inv_tb.sch
+python3 pipeline/custom_bridge.py netlist --schematic pipeline/analog/inv/inv_tb.sch
+python3 pipeline/custom_bridge.py spice --netlist pipeline/analog/inv/inv_tb.spice --corner ss
+python3 pipeline/custom_bridge.py status --docker
+python3 pipeline/custom_bridge.py eval --backend netgen --code 'puts hi
+quit'
+```
+
+`pipeline/analog/inv/inv.spice` is this repo's first transistor-level
+cell. Real, measured here with no Docker and no license — sky130A models,
+W_p 1.0 / W_n 0.5 / L 0.15 µm, 1.8 V, 10 fF load:
+
+| corner | vtrip (V) | tphl (ps) | tplh (ps) |
+|---|---|---|---|
+| ff | 0.837 | 53.3 | 64.4 |
+| tt | 0.867 | 66.3 | 80.5 |
+| ss | 0.895 | 85.5 | 107.1 |
+
+### The layout pipeline's designs, as schematics
+
+Between synthesis and a GDS render there is a gate netlist nobody ever
+looks at — and it is the one artifact a commercial console always lets
+you open, because "which cells is this, and what is connected to what"
+is a question a layout picture cannot answer.
+
+`pipeline/gate_schematic.py` converts a run's real synthesis netlist with
+the PDK's own importer
+(`libs.tech/xschem/xschem_verilog_import/make_sky130_sch_from_verilog.awk`,
+plus its 440 `sky130_fd_sc_hd` symbols), so the drawing comes from a tool
+the PDK maintains rather than from a renderer here that could disagree
+with it. The Schematic tab lists the results beside the custom cells.
+
+```sh
+python3 pipeline/gate_schematic.py                       # what can be drawn
+python3 pipeline/gate_schematic.py --design counter4 --draw
+```
+
+Two preprocessing rules, both found by running it and getting a file
+called `.sch`: Yosys writes `module counter4(clk, …)` with no space, and
+the importer reads the module name from `$2`; and Yosys opens with a
+`/* Generated by Yosys … */` comment, which the importer's `;\n` record
+separator folds into the module line so `$1` is `/*`. Neither is a defect
+in the importer — its own example netlist has neither.
+
+It caps at 1,500 cells, measured rather than guessed (~2.6 KB of SVG per
+cell):
+
+| design | cells | SVG |
+|---|---|---|
+| counter4 | 19 | 48 KB |
+| cdc_twoclock | 42 | 106 KB |
+| spm | 224 | 600 KB |
+| gcd | 280 | 720 KB |
+| riscv32i | 5,423 | 14.8 MB (15 s) |
+| aes | 11,616 | 39.0 MB (73 s) |
+
+Past the cap the drawing is real and unreadable, which is why a
+commercial console will not schematic-view a whole SoC in one window
+either; the tab says how many elements it would draw and lets you
+override.
+
+**Cones are how the big two get looked at.** You do not open a netlist,
+you open the logic around one signal — the same fanin/fanout depth an
+Innovus or Virtuoso schematic view takes. `pipeline/netlist_cone.py`
+extracts it and the same PDK importer draws it:
+
+```sh
+python3 pipeline/gate_schematic.py --design aes \
+    --seed 'text_out[0]' --depth 5 --direction fanin --draw
+```
+
+That is 11 cells of 11,616 and 45 KB of SVG, against 39 MB for the whole
+design; `riscv32i --seed 'aluout[0]' --depth 5` is 74 of 5,423. The
+Schematic tab has the same control, with the design's own ports offered
+as seeds — nobody types an internal Yosys name like `_01769_` from
+memory. Pin direction comes from the Yosys JSON netlist beside the
+Verilog one rather than from pin names, for the reason `netlist_graph.py`
+already records: X/Y/Q being outputs on sky130 is a convention, not a
+rule, and a wrong guess silently reverses an edge. Without that file the
+cone still works, undirected, and says so. A run built with `sky130_fd_sc_hs` or a gf180mcu library has no
+symbols to draw with, and that is reported rather than drawn wrong.
+
+### Opening a standard cell
+
+The gate-level view draws cells as boxes with pins, which is right up to
+the moment the question becomes "what *is* an a21oi_2". In Virtuoso you
+descend into the cell; here there was nowhere to descend to — sky130A
+ships 437 xschem *symbols* for `sky130_fd_sc_hd` and not one schematic
+behind them.
+
+`pipeline/stdcell_schematic.py` generates them from the foundry's own
+transistor netlist (`libs.ref/sky130_fd_sc_hd/cdl/`) through the PDK's
+own SPICE importer, so the drawing cannot disagree with what the cell is:
+
+```sh
+python3 pipeline/stdcell_schematic.py --list nand2
+python3 pipeline/stdcell_schematic.py --cell sky130_fd_sc_hd__inv_2 --draw
+```
+
+The Schematic tab has a search box over the library. Three format
+differences stand between CDL and importer, each a real one: `.SUBCKT` vs
+`.subckt`, M-devices with bare model names vs X-calls on the full
+`sky130_fd_pr__` name, and — the one that mattered — parameters spelled
+the way the symbols read them. Passing the CDL's lowercase `w`/`l`
+leaves them unknown attributes, and the drawing then annotates every
+device with the symbol's default `1 x 1 / 0.15` while the netlist says
+`0.65`. Found by reading the first render: the numbers were wrong in the
+only place a human would look.
+
+**370 of the 437 cells draw.** The other 67 are the flops and latches,
+which use `special_nfet_01v8` / `special_pfet_01v8_hvt` — real devices
+(sky130A.tech defines them, netgen's setup lists them) with no xschem
+symbol. The importer drops what it cannot resolve without saying so:
+`dfxtp_2` came out with 21 of its 24 transistors. So those cells are
+refused by name, and every conversion is checked against the CDL's own
+device count before it is kept.
+
+### A standard cell's layout, signed off and stored
+
+A schematic with no layout beside it is half a cell. The foundry ships
+the other half — one `.mag` per cell — and the two tools this pipeline
+already runs will check it, so `pipeline/stdcell_signoff.py` does: Magic
+DRC on the real layout, Magic extraction, netgen LVS against the
+schematic `stdcell_schematic.py` derives from the CDL, and a case in
+`reference-db/stdcells/`.
+
+```sh
+python3 pipeline/stdcell_signoff.py --cell sky130_fd_sc_hd__nand2_1
+python3 pipeline/stdcell_signoff.py --scan
+```
+
+Beyond "the foundry's cells are clean" (they are — a run saying otherwise
+would be a finding about this pipeline), a pass is **independent evidence
+that the CDL-to-SPICE translation behind the schematic view preserves the
+circuit**. Nothing else in this repo checks that conversion; LVS checks
+it against the foundry's own geometry.
+
+Measured across 37 cells on 2026-09-13: **DRC 0 on every one, LVS
+matching on 36**. The one that does not is `a21oi_2` — netgen sees 8
+devices against 6 and 11 nets against 10 after merging, so the layout
+carries an internal node the schematic does not. Reproducing it with the
+untouched CDL rules out this pipeline's translation, and no cause is
+claimed: the obvious story ("a series stack laid out as parallel
+fingers") is contradicted by the same sample, since `a21oi_1` matches and
+so does `nand3_2`, a three-high stack at the same `m=2`. It is in the
+store as an open finding.
+
+Both tools need `PDK_ROOT=/pdk` inside the container: the PDK's magicrc
+does `tech load $PDK_ROOT/...`, and without it Magic looks for the tech
+file under the absolute volare build path baked in when the PDK was
+built, and dies there.
+
+### The custom half's self-improvement loop
+
+`pipeline/analog_loop.py` is the counterpart of `orchestrator.py` for
+transistor-level design: propose a sizing, measure it for real at every
+corner the spec names, score it, and derive the next candidate from what
+the violation measured. `reference-db/analog/` is its case store —
+separate from `reference-db/cases/` on purpose, since that schema is
+shaped for digital candidates and 23 signoff checks.
+
+```sh
+python3 pipeline/analog_loop.py run --design inv    # sweep, measure, repair
+python3 pipeline/analog_loop.py scan                # coverage + what needs whom
+```
+
+Two rules are carried over from `orchestrator.score()` because they are
+what make a verdict trustworthy: **the worst corner governs**, and a
+target with no measurement behind it is `unverified`, never `passed` —
+ngspice exits 0 when a `.meas` fails, so "the number is absent" really
+happens.
+
+What makes it a loop rather than a sweep runner is that **the
+measurement proposes the next candidate**. The one repair pattern
+scales `W_P` by the *measured* `tplh/tphl`, because that ratio is what
+the imbalance is. It was promoted only after a real run showed it
+working — the same bar `propose_repairs()` holds:
+
+| W_P | rise/fall ratio @ ss | |
+|---|---|---|
+| 1.0 | 1.2553 | fail |
+| 1.255 (the measured step) | 1.1366 | fail — it undershoots |
+| 1.5 | 0.9208 | pass, with tpd_avg improving 99.5 → 87.5 ps |
+
+The undershoot is the evidence for re-measuring instead of solving in
+one jump, and the loop does exactly that — a real run converged
+`W_P` 1.0 → 1.2553 → 1.4266 and passed on the second repair. Before the
+pattern existed, the same spec honestly reported `no_repairable_failures`
+with 0/1 coverage; that first case is in the store too.
+
+`nand2` is where the guard got tested rather than asserted. Its series
+stack makes the fall the slow edge, so the ratio is *below* 1 — and the
+inverter's pattern correctly did not fire, leaving a real
+`no_repairable_failures` case in the store. A second sweep then measured
+the mirror repair (`W_N` 0.5 → 0.627 = 1/0.7972 moved the ratio
+0.7972 → 1.0571, with `tpd_avg` improving 129.7 → 113.3 ps; 0.8
+overshoots to 1.3162), and only then was `balance-fall-rise` added. It
+converges in one repair.
+
+One bug worth naming, because it is the kind that looks like a result:
+`pick_winner()` computed a min-target's margin with a max-target's sign,
+so the ring oscillator's first real run picked the **slowest** of three
+passing sizings. `score()` now records which way each bound points.
+
+`scan` distinguishes the two ways a run ends without a winner, the same
+way `self_improve.py` does: `max_iterations_reached` is a budget
+problem and prints the re-run command, while `no_repairable_failures`
+is the one that needs a person — collapsing them is how a backlog
+becomes noise people learn to ignore.
+
+### On virtuoso-bridge-lite
+
+[`virtuoso-bridge-lite`](https://github.com/Arcadia-1/virtuoso-bridge-lite)
+does the same thing from the commercial side: an agent drives a real
+Virtuoso over SSH, executing SKILL and reading Maestro/Spectre results
+back as a typed `VirtuosoResult`. **It cannot run here** — installed from
+source and asked, it reports `No profiles found. Set VB_REMOTE_HOST in
+.env first.` and `VB_CADENCE_CSHRC is not set.`, and neither `virtuoso`
+nor `spectre` exists on this machine. That is a fact about the
+environment, not the package; on a host with a Virtuoso session it is the
+right tool and nothing here replaces it.
+
+What *is* borrowed is its interface. Its `models.py` declares
+`VirtuosoInterface` as an ABC returning `VirtuosoResult(status, output,
+errors, warnings, execution_time, metadata)`, and `custom_bridge.py`
+reproduces that contract field for field — including keeping exactly four
+`ExecutionStatus` values and reporting a missing tool as `error` with
+`metadata["reason"] = "not_installed"` rather than inventing a fifth.
+An agent skill written against either bridge works against the other, so
+the day a Virtuoso host becomes reachable it is an `.env` file away.
+soul.md's "borrow the working part, not the whole machine".
+
+### Not done
+
+No GUI schematic editing (the `.sch` files here are written and read as
+text and drawn read-only in the console, which is a normal way to use
+xschem but not the whole tool), no
+schematic→layout→LVS loop, no PEX
+(today's delays are against a hand-placed 10 fF load, not extracted
+parasitics), and analog results are deliberately **not** written into
+`reference-db/` yet: that schema is shaped for digital candidates and
+forcing analog measurements into it would pollute the labels
+`surrogate.py` and `pareto.py` read.
+
+
 ## Dashboard
 
-Four report-visualization tabs (Area, Timing, Power, Trade-offs) plus a
-live Simulate tab and a Diagnosis page. Fully client-side for the
+The window is shaped like the tools it sits beside — Innovus, Virtuoso,
+Calibre and PrimeTime all put a menu bar on top, a navigator down the
+left, a transcript across the bottom and a status bar under that, and
+they spend no pixels on anything else. `src/components/EdaShell.tsx`
+adds those four pieces around the existing tabs:
+
+- **Menu bar** (File / View / Flow / Tools / Help). Every item navigates,
+  flips a setting that persists, or writes a file. Nothing is there
+  because a commercial tool has something in that position — a File >
+  Save that saved nothing would look more like Virtuoso and mean less
+  than nothing.
+- **Transcript** (`src/console/log.ts`), the CIW / Innovus-console
+  analogue: real backend calls with method, path, status and measured
+  duration, because `installFetchLogging()` wraps `window.fetch` rather
+  than asking each call site to remember to log. Filter by level, follow
+  the tail, save it to a `.log`.
+- **Status bar** reading `GET /gateway-status` and `GET /toolchain-status`
+  — the latter runs `pipeline/custom_bridge.py`'s own probe, so the tool
+  chips are the real thing: `ngspice ●` and `netgen ●` local, `magic ▣`
+  and `klayout ▣` through the container, `xschem —` absent. The sidebar's
+  old hardcoded "OpenLane connected" pill is gone; it asserted a
+  connection nothing had checked.
+- **Compact density** (View menu, remembered): 13px root, flat square
+  panels, tight table rows. It is a toggle rather than a rewrite because
+  the airy card styling is right for reading one report and wrong for
+  watching nine designs at once. No colour changes with it — the WCAG
+  work recorded in `src/index.css` survives either setting.
+- **Zoom.** Browser zoom is a CSS-pixel viewport change, so fixed chrome
+  takes an ever-larger share the further someone zooms in: the console
+  started at a flat 216px, which is 22% of a 1000px-tall window and 45%
+  of a 480px one — at that point the transcript equalled the work area.
+  The chrome is proportional now (`clamp(110px, 22vh, 320px)` for the
+  console, `clamp(10rem, 15vw, 15.5rem)` for the navigator) and gives
+  itself up in priority order as room runs out: status-bar context
+  fields first, then the tool chips, then the clock and title, then —
+  below 900px — the docked frame itself, where the page goes back to
+  scrolling as one column and the transcript scrolls with it rather than
+  disappearing. Measured across 760x480 to 2560x1400: the work area
+  holds 71-75% of the window at every size, against 45-74% before, with
+  no horizontal overflow anywhere.
+
+Behind that shell: four report-visualization tabs (Area, Timing, Power,
+Trade-offs) plus a live Simulate tab and a Diagnosis page. Fully client-side for the
 report-paste tabs — no backend needed. Simulate needs the local
 simulation server (below); Diagnosis needs a hermes-gateway client key.
 

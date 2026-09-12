@@ -117,6 +117,15 @@ const diagnosis = (
   </svg>
 );
 
+/** A symbol body with pins on both sides — what a schematic page shows,
+ *  and distinct from the pipeline's die-with-a-route mark. */
+const schematic = (
+  <svg {...BOX}>
+    <path d="M5.5 5h5v6h-5z" />
+    <path d="M1.5 6.5h4M1.5 9.5h4M10.5 6.5h4M10.5 9.5h4" />
+  </svg>
+);
+
 /** The collapse control's own mark, pointing the way the rail will move. */
 const expand = (
   <svg {...BOX}><path d="M6 3.5 10.5 8 6 12.5" /></svg>
@@ -129,7 +138,7 @@ const collapse = (
 // exports both loses fast refresh, which oxlint flags. Every mark here
 // is a static element, so there was never a component to write.
 export const NAV_ICONS: Record<string, ReactElement> = {
-  pipeline, health, progress, lineage, ask, manual,
+  pipeline, health, progress, lineage, ask, manual, schematic,
   simulate, area, timing, power, tradeoffs, diagnosis,
   expand, collapse,
 };
