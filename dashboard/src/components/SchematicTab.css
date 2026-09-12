@@ -86,21 +86,30 @@
 
 .schematic__view {
   min-width: 0;
-  padding: 0.5rem;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  /* xschem draws on its own dark canvas. Letting the page background
-     show through around it would read as a rendering failure, so the
-     frame states the canvas instead. */
+  flex-direction: column;
+  /* A fixed viewport rather than a box that grows with the drawing: the
+     viewer inside pans and zooms, so the panel's job is to hold a
+     window of a stable size. Proportional for the same reason the rest
+     of the chrome is — see EdaShell.css on zoom. */
+  height: clamp(240px, 52vh, 720px);
   background: #000;
 }
-.schematic__svg {
-  width: 100%;
-  height: auto;
-  max-height: 60vh;
-  object-fit: contain;
+
+.schematic__expand {
+  float: right;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  padding: 0 6px;
+  margin-top: -2px;
+  cursor: pointer;
 }
+.schematic__expand:hover { border-color: var(--accent); color: var(--accent); }
 
 .schematic__run { padding: 0.5rem 0.6rem; }
 .schematic__controls {

@@ -17,6 +17,7 @@
 // the drawing in front of you rather than a deck that may predate it.
 import { useCallback, useEffect, useState } from "react";
 import { BACKEND } from "./EdaShell";
+import SchematicViewer from "./SchematicViewer";
 import { log } from "../console/log";
 import "./SchematicTab.css";
 
@@ -84,6 +85,7 @@ export default function SchematicTab() {
   const [direction, setDirection] = useState<typeof DIRECTIONS[number]>("fanin");
   const [coning, setConing] = useState(false);
   const [coneNote, setConeNote] = useState<string | null>(null);
+  const [full, setFull] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -190,8 +192,24 @@ export default function SchematicTab() {
 
   return (
     <div className="tab schematic">
+      {full && selected && (
+        <SchematicViewer
+          src={`${BACKEND}/analog/svg?cell=${encodeURIComponent(selected)}`}
+          alt={`schematic of ${selected}`}
+          onClose={() => setFull(false)}
+        />
+      )}
       <section className="panel schematic__panel">
-        <span className="panel__title">Schematic</span>
+        <span className="panel__title">
+          Schematic
+          {selected && (
+            <button type="button" className="schematic__expand"
+                    onClick={() => setFull(true)}
+                    title="full screen (Esc to leave)">
+              full screen
+            </button>
+          )}
+        </span>
         <div className="schematic__body">
           <nav className="schematic__cells" aria-label="cells">
             {cells === null && <p className="schematic__hint">Loading cells…</p>}
@@ -242,12 +260,11 @@ export default function SchematicTab() {
                 </button>
               </div>
             ) : selected ? (
-              // <img> rather than inlined markup: the SVG is xschem's
-              // file, unmodified except for the viewBox that lets it
-              // scale, and keeping it a resource means the browser
-              // caches it and the page never has to parse it.
-              <img
-                className="schematic__svg"
+              // The SVG stays a resource the browser loads (xschem's own
+              // file, unmodified except for the viewBox), and the viewer
+              // scales it with a transform — so zooming costs no request
+              // and no re-parse.
+              <SchematicViewer
                 src={`${BACKEND}/analog/svg?cell=${encodeURIComponent(selected)}`}
                 alt={`schematic of ${selected}`}
               />
