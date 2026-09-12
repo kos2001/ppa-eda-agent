@@ -27,6 +27,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import custom_bridge  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import sta_path  # noqa: E402
@@ -279,6 +280,71 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "ppa_custom_status",
+        "description": "What of the open-source Virtuoso-equivalent stack "
+                        "(xschem / magic / klayout / ngspice / netgen) this host "
+                        "can actually run, each mapped to the Cadence tool it "
+                        "stands in for. Read this BEFORE ppa_custom_eval or "
+                        "ppa_spice_sim: a backend that is not installed returns a "
+                        "not_installed error, and knowing that first is cheaper "
+                        "than discovering it mid-flow.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "docker": {"type": "boolean",
+                            "description": "also ask the pinned OpenLane image, "
+                                           "which carries magic/klayout/netgen "
+                                           "(slow: pulls/starts a container)"},
+            },
+        },
+    },
+    {
+        "name": "ppa_custom_eval",
+        "description": "Runs a script in ONE open-source custom-design backend's "
+                        "own batch language — the counterpart of executing SKILL "
+                        "in Virtuoso, except the stack is five programs and three "
+                        "languages so the backend is explicit: xschem/magic/netgen "
+                        "take Tcl, klayout takes Python, ngspice takes a deck with "
+                        "a .control block. Exit code alone is NOT a verdict for "
+                        "these tools; read the returned status (partial means the "
+                        "tool finished and still dropped a result).",
+        "inputSchema": {
+            "type": "object",
+            "required": ["backend", "code"],
+            "properties": {
+                "backend": {"type": "string",
+                             "enum": ["xschem", "magic", "klayout", "ngspice",
+                                      "netgen"]},
+                "code": {"type": "string"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
+    {
+        "name": "ppa_spice_sim",
+        "description": "A real transistor-level simulation of a SPICE deck against "
+                        "the PDK's own device models (ngspice), returning the "
+                        "parsed .meas values — the analog counterpart of "
+                        "ppa_sta_report, and the only path in this pipeline to a "
+                        "number that is not standard-cell. A deck containing the "
+                        "token %PDK_LIB% is bound to the requested PDK and corner "
+                        "(gf180mcu's typical section is named `typical`, not "
+                        "`tt` — that is why binding is not left to the caller).",
+        "inputSchema": {
+            "type": "object",
+            "required": ["netlist"],
+            "properties": {
+                "netlist": {"type": "string",
+                             "description": "path to a .spice deck, e.g. "
+                                            "pipeline/analog/inv/inv.spice"},
+                "pdk": {"type": "string", "description": "default sky130A"},
+                "corner": {"type": "string",
+                            "description": "tt/ss/ff/sf/fs (default tt)"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
 ]
 
 
@@ -414,6 +480,24 @@ def _tool_tech_compare(args: dict) -> dict:
     return report
 
 
+def _tool_custom_status(args: dict) -> dict:
+    return custom_bridge.status(docker=bool(args.get("docker"))).to_dict()
+
+
+def _tool_custom_eval(args: dict) -> dict:
+    return custom_bridge.evaluate(args["backend"], args["code"],
+                                  timeout=int(args.get("timeout", 120))).to_dict()
+
+
+def _tool_spice_sim(args: dict) -> dict:
+    netlist = Path(args["netlist"])
+    if not netlist.is_absolute():
+        netlist = REPO_ROOT / netlist
+    return custom_bridge.run_spice(netlist, pdk=args.get("pdk", "sky130A"),
+                                   corner=args.get("corner", "tt"),
+                                   timeout=int(args.get("timeout", 300))).to_dict()
+
+
 _TOOL_IMPL = {
     "ppa_run_stage": _tool_run_stage,
     "ppa_orchestrate": _tool_orchestrate,
@@ -429,6 +513,9 @@ _TOOL_IMPL = {
     "ppa_sta_query": _tool_sta_query,
     "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
+    "ppa_custom_status": _tool_custom_status,
+    "ppa_custom_eval": _tool_custom_eval,
+    "ppa_spice_sim": _tool_spice_sim,
 }
 
 
