@@ -48,6 +48,9 @@ type RunResult = {
 };
 
 const CORNERS = ["tt", "ss", "ff", "sf", "fs"];
+const DIRECTIONS = ["fanin", "fanout", "both"] as const;
+
+type Port = { dir: string; width: string | null };
 
 /** Engineering notation, because these are seconds and volts and amps
  *  spanning ten decades — 6.8e-11 is a number you have to decode, 68.2 ps
@@ -75,6 +78,12 @@ export default function SchematicTab() {
   const [running, setRunning] = useState(false);
   // Opening a 39 MB drawing is a decision, not a default.
   const [forced, setForced] = useState(false);
+  const [ports, setPorts] = useState<Record<string, Port>>({});
+  const [seed, setSeed] = useState("");
+  const [depth, setDepth] = useState(5);
+  const [direction, setDirection] = useState<typeof DIRECTIONS[number]>("fanin");
+  const [coning, setConing] = useState(false);
+  const [coneNote, setConeNote] = useState<string | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,6 +103,58 @@ export default function SchematicTab() {
       .catch((err) => !cancelled && setError(String(err.message ?? err)));
     return () => { cancelled = true; };
   }, []);
+
+  // Seeds for the cone form: the design's own ports. Nobody types an
+  // internal Yosys name like _01769_ from memory, and a port is where a
+  // reader starts anyway.
+  useEffect(() => {
+    const design = cells?.find((c) => c.id === selected)?.design;
+    if (!design || !selected?.startsWith("gate/")) { setPorts({}); return; }
+    let cancelled = false;
+    fetch(`${BACKEND}/analog/cone/seeds?design=${encodeURIComponent(design)}`)
+      .then((r) => r.json())
+      .then((body) => {
+        if (cancelled) return;
+        const found: Record<string, Port> = body.ports ?? {};
+        setPorts(found);
+        const first = Object.entries(found).find(([, p]) => p.dir === "output");
+        setSeed(first ? (first[1].width ? `${first[0]}[0]` : first[0]) : "");
+      })
+      .catch(() => !cancelled && setPorts({}));
+    return () => { cancelled = true; };
+  }, [selected, cells]);
+
+  const extractCone = useCallback(async () => {
+    const design = cells?.find((c) => c.id === selected)?.design;
+    if (!design || !seed.trim()) return;
+    setConing(true);
+    setConeNote(null);
+    setError(null);
+    log("cmd", "cone", `${design} ${seed} ${direction} depth ${depth}`);
+    try {
+      const res = await fetch(`${BACKEND}/analog/cone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ design, seed, depth, direction }),
+      });
+      const body = await res.json();
+      if (!body.ok) throw new Error(body.error ?? "cone failed");
+      setConeNote(`${body.cells} of ${body.of_total} cells`
+        + (body.truncated ? " (truncated)" : "")
+        + (body.directed ? "" : " — undirected, no Yosys JSON"));
+      log("info", "cone", `${body.top}: ${body.cells} of ${body.of_total} cells`);
+      // Re-list so the new sheet appears, then open it.
+      const listed = await (await fetch(`${BACKEND}/analog/cells`)).json();
+      setCells(listed.cells ?? []);
+      setSelected(body.id);
+      setForced(false);
+    } catch (err) {
+      setError(String((err as Error).message ?? err));
+      log("error", "cone", String((err as Error).message ?? err));
+    } finally {
+      setConing(false);
+    }
+  }, [cells, selected, seed, depth, direction]);
 
   const run = useCallback(async () => {
     if (!selected) return;
@@ -196,6 +257,56 @@ export default function SchematicTab() {
           </div>
         </div>
       </section>
+
+      {selected?.startsWith("gate/") && (
+        <section className="panel schematic__panel">
+          <span className="panel__title">Cone</span>
+          <div className="schematic__run">
+            <p className="schematic__hint">
+              A design this size is not a drawing — it is a netlist. Pick a
+              signal and how far back to trace it, the way a commercial
+              console does, and get one sheet.
+            </p>
+            <div className="schematic__controls">
+              <label>
+                seed
+                <input
+                  list="cone-seeds"
+                  value={seed}
+                  onChange={(e) => setSeed(e.target.value)}
+                  placeholder="a net or instance"
+                  size={18}
+                />
+              </label>
+              <datalist id="cone-seeds">
+                {Object.entries(ports).map(([name, port]) => (
+                  <option key={name} value={port.width ? `${name}[0]` : name}>
+                    {port.dir} {port.width ?? ""}
+                  </option>
+                ))}
+              </datalist>
+              <label>
+                depth
+                <input type="number" min={1} max={12} value={depth}
+                       onChange={(e) => setDepth(Number(e.target.value))}
+                       style={{ width: "3.5rem" }} />
+              </label>
+              <label>
+                direction
+                <select value={direction}
+                        onChange={(e) => setDirection(e.target.value as typeof direction)}>
+                  {DIRECTIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </label>
+              <button type="button" className="schematic__go" onClick={extractCone}
+                      disabled={coning || !seed.trim()}>
+                {coning ? "extracting…" : "extract cone"}
+              </button>
+              {coneNote && <span className="schematic__hint">{coneNote}</span>}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="panel schematic__panel">
         <span className="panel__title">Netlist &amp; simulate</span>

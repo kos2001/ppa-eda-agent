@@ -113,6 +113,15 @@
   color: var(--text-dim);
 }
 .schematic__controls label { display: flex; align-items: center; gap: 0.3rem; }
+.schematic__controls input {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 1px 4px;
+}
 .schematic__controls select {
   background: var(--surface);
   color: var(--text);

@@ -408,7 +408,27 @@ cell):
 Past the cap the drawing is real and unreadable, which is why a
 commercial console will not schematic-view a whole SoC in one window
 either; the tab says how many elements it would draw and lets you
-override. A run built with `sky130_fd_sc_hs` or a gf180mcu library has no
+override.
+
+**Cones are how the big two get looked at.** You do not open a netlist,
+you open the logic around one signal — the same fanin/fanout depth an
+Innovus or Virtuoso schematic view takes. `pipeline/netlist_cone.py`
+extracts it and the same PDK importer draws it:
+
+```sh
+python3 pipeline/gate_schematic.py --design aes \
+    --seed 'text_out[0]' --depth 5 --direction fanin --draw
+```
+
+That is 11 cells of 11,616 and 45 KB of SVG, against 39 MB for the whole
+design; `riscv32i --seed 'aluout[0]' --depth 5` is 74 of 5,423. The
+Schematic tab has the same control, with the design's own ports offered
+as seeds — nobody types an internal Yosys name like `_01769_` from
+memory. Pin direction comes from the Yosys JSON netlist beside the
+Verilog one rather than from pin names, for the reason `netlist_graph.py`
+already records: X/Y/Q being outputs on sky130 is a convention, not a
+rule, and a wrong guess silently reverses an edge. Without that file the
+cone still works, undirected, and says so. A run built with `sky130_fd_sc_hs` or a gf180mcu library has no
 symbols to draw with, and that is reported rather than drawn wrong.
 
 ### The custom half's self-improvement loop
