@@ -18,6 +18,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const simDir = path.resolve(__dirname, "..", "sim");
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const pipelineDir = path.resolve(__dirname, "..", "pipeline");
+// Tool availability, keyed by whether the container was asked too. Time
+// based rather than store-keyed like reportCache: what this reports
+// changes when the machine changes, not when a case is written.
+const toolchainCache = new Map();
 const feedbackFile = path.join(refDbDir, "feedback.jsonl");
 const PORT = 8123;
 
@@ -1160,6 +1164,323 @@ const server = createServer(async (req, res) => {
       // need the analyst persona (see proxyChat's DIRECT_LLM_* notes).
       directLlm: directLlmAvailable() ? DIRECT_LLM_MODEL : null,
     }));
+    return;
+  }
+
+  // The custom/analog flow's own surface: the schematics this repo
+  // holds, the drawing of one, and a real netlist+simulate run.
+  //
+  // Rendering is xschem's own SVG export (pipeline/custom_bridge.py
+  // render_schematic), cached on disk beside the .sch and regenerated
+  // only when the source is newer — drawing is ~0.3 s, but a panel that
+  // re-rendered on every poll would still be spending a container start
+  // per page view.
+  if (req.method === "GET" && req.url === "/analog/cells") {
+    try {
+      const cells = [];
+      // Two roots, because there are two kinds of schematic here and
+      // both belong in one viewer: the custom cells drawn by hand under
+      // pipeline/analog, and the gate-level view of what the layout
+      // pipeline actually built, generated from a run's own netlist by
+      // pipeline/gate_schematic.py. An id carries its root so the svg
+      // route can find the file without guessing.
+      const roots = [
+        { kind: "analog", base: path.join(pipelineDir, "analog"), sub: "" },
+        { kind: "gate", base: path.join(pipelineDir, "designs"), sub: "sch" },
+      ];
+      for (const root of roots) {
+        const designs = await readdir(root.base, { withFileTypes: true }).catch(() => []);
+        for (const d of designs) {
+          if (!d.isDirectory()) continue;
+          const dir = root.sub ? path.join(root.base, d.name, root.sub)
+                               : path.join(root.base, d.name);
+          for (const f of await readdir(dir).catch(() => [])) {
+            if (!f.endsWith(".sch")) continue;
+            const cell = f.slice(0, -4);
+            const text = await readFile(path.join(dir, f), "utf-8");
+            cells.push({
+              kind: root.kind,
+              design: d.name,
+              cell,
+              id: `${root.kind}/${d.name}/${cell}`,
+              // A testbench is a schematic that carries its own
+              // analysis; only those can be simulated, and the UI needs
+              // to know which is which without opening them.
+              simulatable: text.includes(".control"),
+              // Cheap proxy for "will this draw usefully" — the same
+              // thing gate_schematic.py caps on, measured at ~2.6 KB of
+              // SVG per cell.
+              instances: (text.match(/^C \{/gm) ?? []).length,
+            });
+          }
+        }
+      }
+      cells.sort((a, b) => a.id.localeCompare(b.id));
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ cells }));
+    } catch (err) {
+      console.error("[analog cells error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
+    const id = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
+    if (!/^(analog|gate)\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
+      return;
+    }
+    const [kind, design, cell] = id.split("/");
+    const dir = kind === "gate"
+      ? path.join(pipelineDir, "designs", design, "sch")
+      : path.join(pipelineDir, "analog", design);
+    const sch = path.join(dir, `${cell}.sch`);
+    const svg = path.join(dir, `${cell}.svg`);
+    try {
+      const schStat = await stat(sch);
+      const svgStat = await stat(svg).catch(() => null);
+      if (!svgStat || svgStat.mtimeMs < schStat.mtimeMs) {
+        await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
+           `r = custom_bridge.render_schematic(${JSON.stringify(sch)}); ` +
+           "print(json.dumps(r.to_dict()))"],
+          { cwd: pipelineDir, timeout: 300_000, maxBuffer: 8 * 1024 * 1024 }
+        );
+      }
+      res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml" });
+      res.end(await readFile(svg));
+    } catch (err) {
+      console.error("[analog svg error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  // The standard-cell library, as things you can open. 370 of the 437
+  // cells in sky130_fd_sc_hd draw; the rest use `special_nfet_01v8` /
+  // `special_pfet_01v8_hvt`, real devices with no xschem symbol, and
+  // those are refused by name rather than drawn three transistors short.
+  if (req.method === "GET" && req.url?.startsWith("/analog/stdcells")) {
+    const q = new URL(req.url, "http://localhost").searchParams.get("q") ?? "";
+    if (!/^[A-Za-z0-9_]*$/.test(q)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "q must be alphanumeric" }));
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); import stdcell_schematic as st; " +
+         "q = sys.argv[1] or None; " +
+         "found = st.cells(q); " +
+         "print(json.dumps({'cells': [{'cell': c, 'drawable': st.drawable(c)} " +
+         "for c in found[:200]], 'total': len(found)}))",
+         q],
+        { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
+      );
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[stdcells error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/analog/stdcell") {
+    let stdBody = "";
+    req.on("data", (chunk) => (stdBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { cell } = JSON.parse(stdBody || "{}");
+        if (!/^[A-Za-z0-9_]+$/.test(cell ?? "")) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "cell required" }));
+          return;
+        }
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import stdcell_schematic as st; " +
+           "print(json.dumps(st.convert(sys.argv[1])))",
+           cell],
+          { cwd: pipelineDir, timeout: 300_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        const out = JSON.parse(stdout);
+        if (out.ok) out.id = `analog/stdcell/${cell}`;
+        res.writeHead(out.ok ? 200 : 400, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify(out));
+      } catch (err) {
+        console.error("[stdcell error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
+  // Seeds worth offering for a cone: the design's own ports. Typing an
+  // internal Yosys net name like _01769_ is not something anyone can do
+  // from memory, and the ports are where a reader starts anyway.
+  if (req.method === "GET" && req.url?.startsWith("/analog/cone/seeds")) {
+    const design = new URL(req.url, "http://localhost").searchParams.get("design") ?? "";
+    if (!isSafeDesignName(design)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "design required" }));
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); " +
+         "import gate_schematic, netlist_cone; " +
+         `n = gate_schematic.find_netlist(${JSON.stringify(design)}); ` +
+         "print(json.dumps({} if n is None else " +
+         "netlist_cone.parse_module(n.read_text())))"],
+        { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
+      );
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[cone seeds error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  // A cone is how a design too big to draw whole gets looked at — see
+  // pipeline/netlist_cone.py. Returns the cell id the viewer can open.
+  if (req.method === "POST" && req.url === "/analog/cone") {
+    let coneBody = "";
+    req.on("data", (chunk) => (coneBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { design, seed, depth = 4, direction = "fanin" } =
+          JSON.parse(coneBody || "{}");
+        if (!isSafeDesignName(design) || typeof seed !== "string" || !seed.trim()) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "design and seed required" }));
+          return;
+        }
+        if (!["fanin", "fanout", "both"].includes(direction)
+            || !Number.isInteger(depth) || depth < 1 || depth > 12) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "bad depth or direction" }));
+          return;
+        }
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import gate_schematic; " +
+           "out = gate_schematic.convert_cone(sys.argv[1], sys.argv[2], " +
+           "int(sys.argv[3]), sys.argv[4]); print(json.dumps(out))",
+           design, seed, String(depth), direction],
+          { cwd: pipelineDir, timeout: 600_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        const out = JSON.parse(stdout);
+        if (out.ok) out.id = `gate/${design}/${out.top}`;
+        res.writeHead(out.ok ? 200 : 400, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify(out));
+      } catch (err) {
+        console.error("[cone error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
+  // Netlist the schematic, then simulate the netlist. Two steps, one
+  // call, because that IS the flow — and doing it in one place is what
+  // keeps a stale deck from being simulated against an edited drawing.
+  if (req.method === "POST" && req.url === "/analog/run") {
+    let analogBody = "";
+    req.on("data", (chunk) => (analogBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { cell, corner = "tt", pdk = "sky130A" } = JSON.parse(analogBody || "{}");
+        // Only the analog root is runnable: a gate-level schematic is a
+        // view of a netlist, with no stimulus and no analysis in it.
+        if (!/^analog\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cell ?? "")) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "cell must be analog/<design>/<cell>" }));
+          return;
+        }
+        if (!/^[a-z]{2}$/.test(corner) || !/^[A-Za-z0-9_]+$/.test(pdk)) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "bad corner or pdk" }));
+          return;
+        }
+        const [, design, name] = cell.split("/");
+        const sch = path.join(pipelineDir, "analog", design, `${name}.sch`);
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
+           `n = custom_bridge.netlist_schematic(${JSON.stringify(sch)}, pdk=${JSON.stringify(pdk)}); ` +
+           "out = {'netlist': n.to_dict()}\n" +
+           "if n.ok:\n" +
+           `    s = custom_bridge.run_spice(n.metadata['netlist'], pdk=${JSON.stringify(pdk)}, corner=${JSON.stringify(corner)})\n` +
+           "    out['sim'] = s.to_dict()\n" +
+           "print(json.dumps(out))"],
+          { cwd: pipelineDir, timeout: 600_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+        res.end(stdout);
+      } catch (err) {
+        console.error("[analog run error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
+  // What the custom/analog stack can actually run right now — the real
+  // ngspice / netgen / magic / klayout / xschem availability behind the
+  // status bar, from pipeline/custom_bridge.py's own probe. A commercial
+  // console shows tool and license state there; showing a hardcoded
+  // "connected" instead would be the fabricated-metric failure soul.md
+  // rules out, one layer up from the numbers.
+  //
+  // Cached for a minute because it shells out, and asked WITHOUT the
+  // container probe unless ?docker=1: that one starts a container and
+  // measured 2.4 s, which is not a thing to do on every page load.
+  if (req.method === "GET" && req.url?.startsWith("/toolchain-status")) {
+    const wantDocker = new URL(req.url, "http://localhost").searchParams.get("docker") === "1";
+    const cacheKey = wantDocker ? "docker" : "local";
+    const cached = toolchainCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < 60_000) {
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(cached.body);
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
+         `print(json.dumps(custom_bridge.status(docker=${wantDocker ? "True" : "False"}).to_dict()))`],
+        { cwd: pipelineDir, timeout: wantDocker ? 180_000 : 30_000, maxBuffer: 8 * 1024 * 1024 }
+      );
+      toolchainCache.set(cacheKey, { at: Date.now(), body: stdout });
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[toolchain-status error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
     return;
   }
 

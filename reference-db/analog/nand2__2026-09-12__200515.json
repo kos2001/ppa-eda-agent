@@ -1,0 +1,233 @@
+{
+  "design": "nand2",
+  "cell": "nand2_tb",
+  "date": "2026-09-12",
+  "schematic": "pipeline/analog/nand2/nand2_tb.sch",
+  "netlist_source": "xschem",
+  "spec": {
+    "cell": "nand2_tb",
+    "pdk": "sky130A",
+    "corners": [
+      "ss",
+      "tt",
+      "ff"
+    ],
+    "targets": {
+      "rise_fall_ratio": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "tpd_avg": {
+        "max": 1.5e-10
+      }
+    },
+    "candidates": [
+      {
+        "tag": "base-wn0.5",
+        "overrides": {
+          "W_N": 0.5
+        }
+      }
+    ],
+    "max_iterations": 4,
+    "why": "The imbalance here points the OTHER way from the inverter's: two series nfets make the fall the slow edge (ss: tphl 144.3 ps vs tplh 115.1 ps at W_N=0.5), so the ratio is below 1, not above it. The inverter's repair widens the pull-up and must not fire here \u2014 this spec is the case that proves the guard, and the honest first outcome is an escalation, not a repair."
+  },
+  "iterations": [
+    {
+      "iteration": 0,
+      "results": [
+        {
+          "tag": "base-wn0.5",
+          "overrides": {
+            "W_N": 0.5
+          },
+          "repair_of": null,
+          "pattern": null,
+          "measurements": {
+            "ss": {
+              "vtrip": 0.90225,
+              "tphl": 1.4434e-10,
+              "tplh": 1.15063e-10,
+              "ivdd_avg": -5.46482e-06,
+              "rise_fall_ratio": 0.7971664126368297,
+              "tpd_avg": 1.297015e-10,
+              "ivdd_abs": 5.46482e-06
+            },
+            "tt": {
+              "vtrip": 0.882081,
+              "tphl": 9.75412e-11,
+              "tplh": 8.5655e-11,
+              "ivdd_avg": -5.40308e-06,
+              "rise_fall_ratio": 0.8781417493325897,
+              "tpd_avg": 9.15981e-11,
+              "ivdd_abs": 5.40308e-06
+            },
+            "ff": {
+              "vtrip": 0.860881,
+              "tphl": 7.25818e-11,
+              "tplh": 6.80453e-11,
+              "ivdd_avg": -5.37984e-06,
+              "rise_fall_ratio": 0.9374981055856978,
+              "tpd_avg": 7.031355000000001e-11,
+              "ivdd_abs": 5.37984e-06
+            }
+          },
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "rise_fall_ratio 0.797166 < 0.9 at ss"
+            ],
+            "unverified": [],
+            "worst": {
+              "rise_fall_ratio": {
+                "corner": "ss",
+                "value": 0.7971664126368297,
+                "limit": 0.9,
+                "kind": "min",
+                "margin": -0.11425954151463363
+              },
+              "tpd_avg": {
+                "corner": "ss",
+                "value": 1.297015e-10,
+                "limit": 1.5e-10,
+                "kind": "max",
+                "margin": 0.1353233333333334
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "iter1-balance-fall-rise-W_N0.6272",
+          "overrides": {
+            "W_N": 0.6272
+          },
+          "repair_of": "base-wn0.5",
+          "pattern": "balance-fall-rise",
+          "measurements": {
+            "ss": {
+              "vtrip": 0.882686,
+              "tphl": 1.10058e-10,
+              "tplh": 1.16449e-10,
+              "ivdd_avg": -5.52957e-06,
+              "rise_fall_ratio": 1.0580693815987932,
+              "tpd_avg": 1.132535e-10,
+              "ivdd_abs": 5.52957e-06
+            },
+            "tt": {
+              "vtrip": 0.873135,
+              "tphl": 8.33479e-11,
+              "tplh": 8.65303e-11,
+              "ivdd_avg": -5.46076e-06,
+              "rise_fall_ratio": 1.0381821257644164,
+              "tpd_avg": 8.49391e-11,
+              "ivdd_abs": 5.46076e-06
+            },
+            "ff": {
+              "vtrip": 0.858589,
+              "tphl": 6.56345e-11,
+              "tplh": 6.86318e-11,
+              "ivdd_avg": -5.42967e-06,
+              "rise_fall_ratio": 1.0456665320829748,
+              "tpd_avg": 6.713315e-11,
+              "ivdd_abs": 5.42967e-06
+            }
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "unverified": [],
+            "worst": {
+              "rise_fall_ratio": {
+                "corner": "ss",
+                "value": 1.0580693815987932,
+                "limit": 1.1,
+                "kind": "max",
+                "margin": 0.03811874400109721
+              },
+              "tpd_avg": {
+                "corner": "ss",
+                "value": 1.132535e-10,
+                "limit": 1.5e-10,
+                "kind": "max",
+                "margin": 0.24497666666666665
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    }
+  ],
+  "winner": {
+    "tag": "iter1-balance-fall-rise-W_N0.6272",
+    "overrides": {
+      "W_N": 0.6272
+    },
+    "repair_of": "base-wn0.5",
+    "pattern": "balance-fall-rise",
+    "measurements": {
+      "ss": {
+        "vtrip": 0.882686,
+        "tphl": 1.10058e-10,
+        "tplh": 1.16449e-10,
+        "ivdd_avg": -5.52957e-06,
+        "rise_fall_ratio": 1.0580693815987932,
+        "tpd_avg": 1.132535e-10,
+        "ivdd_abs": 5.52957e-06
+      },
+      "tt": {
+        "vtrip": 0.873135,
+        "tphl": 8.33479e-11,
+        "tplh": 8.65303e-11,
+        "ivdd_avg": -5.46076e-06,
+        "rise_fall_ratio": 1.0381821257644164,
+        "tpd_avg": 8.49391e-11,
+        "ivdd_abs": 5.46076e-06
+      },
+      "ff": {
+        "vtrip": 0.858589,
+        "tphl": 6.56345e-11,
+        "tplh": 6.86318e-11,
+        "ivdd_avg": -5.42967e-06,
+        "rise_fall_ratio": 1.0456665320829748,
+        "tpd_avg": 6.713315e-11,
+        "ivdd_abs": 5.42967e-06
+      }
+    },
+    "verdict": {
+      "passed": true,
+      "violations": [],
+      "unverified": [],
+      "worst": {
+        "rise_fall_ratio": {
+          "corner": "ss",
+          "value": 1.0580693815987932,
+          "limit": 1.1,
+          "kind": "max",
+          "margin": 0.03811874400109721
+        },
+        "tpd_avg": {
+          "corner": "ss",
+          "value": 1.132535e-10,
+          "limit": 1.5e-10,
+          "kind": "max",
+          "margin": 0.24497666666666665
+        }
+      }
+    },
+    "errors": []
+  },
+  "stop_reason": "winner_found",
+  "outcome": "passed",
+  "toolchain": {
+    "netlister": "xschem",
+    "simulator": "ngspice",
+    "image": "ppa-eda/xschem:3.4.4"
+  }
+}

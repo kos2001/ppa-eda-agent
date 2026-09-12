@@ -1,0 +1,14 @@
+{
+  "cell": "ringosc_tb",
+  "pdk": "sky130A",
+  "corners": ["ss", "tt", "ff"],
+  "targets": {
+    "fosc": { "min": 2.0e9 },
+    "isup_abs": { "max": 3.0e-4 }
+  },
+  "sweeps": [
+    { "param": "W_P", "values": [1.0, 1.4266, 2.0], "tag_prefix": "wp" }
+  ],
+  "max_iterations": 2,
+  "why": "Five stages of inv/inv.sym, so this is the first cell here that instantiates another cell's symbol rather than redrawing its devices. It also measures something the inverter cannot: an oscillation period, which is a whole-loop property. The current target is on the magnitude — SPICE reports supply current negative, and a 'draw less than' target against a negative number passes for the wrong reason."
+}

@@ -1,0 +1,270 @@
+{
+  "design": "inv",
+  "cell": "inv_tb",
+  "date": "2026-09-12",
+  "schematic": "pipeline/analog/inv/inv_tb.sch",
+  "netlist_source": "xschem",
+  "spec": {
+    "cell": "inv_tb",
+    "pdk": "sky130A",
+    "corners": [
+      "ss",
+      "tt",
+      "ff"
+    ],
+    "targets": {
+      "rise_fall_ratio": {
+        "max": 1.1
+      },
+      "tpd_avg": {
+        "max": 1.2e-10
+      }
+    },
+    "candidates": [
+      {
+        "tag": "base-wp1",
+        "overrides": {
+          "W_P": 1.0
+        }
+      }
+    ],
+    "max_iterations": 4,
+    "why": "A static CMOS inverter is balanced when it rises as fast as it falls. sky130's pfet is the slower device, so W_P/W_N=2.0 is a starting guess, not an answer \u2014 the ratio is what the loop measures and repairs. tpd_avg is here so a repair cannot 'fix' the ratio by making both edges slow."
+  },
+  "iterations": [
+    {
+      "iteration": 0,
+      "results": [
+        {
+          "tag": "base-wp1",
+          "overrides": {
+            "W_P": 1.0
+          },
+          "repair_of": null,
+          "pattern": null,
+          "measurements": {
+            "ss": {
+              "vtrip": 0.894843,
+              "tphl": 8.82664e-11,
+              "tplh": 1.10797e-10,
+              "ivdd_avg": -5.18582e-06,
+              "rise_fall_ratio": 1.2552568134646933,
+              "tpd_avg": 9.953169999999999e-11
+            },
+            "tt": {
+              "vtrip": 0.867167,
+              "tphl": 6.82077e-11,
+              "tplh": 8.27821e-11,
+              "ivdd_avg": -5.13762e-06,
+              "rise_fall_ratio": 1.2136767549704797,
+              "tpd_avg": 7.54949e-11
+            },
+            "ff": {
+              "vtrip": 0.837141,
+              "tphl": 5.46768e-11,
+              "tplh": 6.59738e-11,
+              "ivdd_avg": -5.13506e-06,
+              "rise_fall_ratio": 1.206614139817985,
+              "tpd_avg": 6.03253e-11
+            }
+          },
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "rise_fall_ratio 1.25526 > 1.1 at ss"
+            ],
+            "unverified": [],
+            "worst": {
+              "rise_fall_ratio": {
+                "corner": "ss",
+                "value": 1.2552568134646933,
+                "limit": 1.1
+              },
+              "tpd_avg": {
+                "corner": "ss",
+                "value": 9.953169999999999e-11,
+                "limit": 1.2e-10
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "iter1-balance-rise-fall-W_P1.2553",
+          "overrides": {
+            "W_P": 1.2553
+          },
+          "repair_of": "base-wp1",
+          "pattern": "balance-rise-fall",
+          "measurements": {
+            "ss": {
+              "vtrip": 0.888141,
+              "tphl": 8.97513e-11,
+              "tplh": 1.01999e-10,
+              "ivdd_avg": -5.27901e-06,
+              "rise_fall_ratio": 1.1364626473376986,
+              "tpd_avg": 9.587515e-11
+            },
+            "tt": {
+              "vtrip": 0.868497,
+              "tphl": 6.9192e-11,
+              "tplh": 7.34289e-11,
+              "ivdd_avg": -5.21879e-06,
+              "rise_fall_ratio": 1.061233957682969,
+              "tpd_avg": 7.131045e-11
+            },
+            "ff": {
+              "vtrip": 0.850272,
+              "tphl": 5.53631e-11,
+              "tplh": 5.78032e-11,
+              "ivdd_avg": -5.20638e-06,
+              "rise_fall_ratio": 1.0440744828233968,
+              "tpd_avg": 5.658315e-11
+            }
+          },
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "rise_fall_ratio 1.13646 > 1.1 at ss"
+            ],
+            "unverified": [],
+            "worst": {
+              "rise_fall_ratio": {
+                "corner": "ss",
+                "value": 1.1364626473376986,
+                "limit": 1.1
+              },
+              "tpd_avg": {
+                "corner": "ss",
+                "value": 9.587515e-11,
+                "limit": 1.2e-10
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "results": [
+        {
+          "tag": "iter2-balance-rise-fall-W_P1.4266",
+          "overrides": {
+            "W_P": 1.4266
+          },
+          "repair_of": "iter1-balance-rise-fall-W_P1.2553",
+          "pattern": "balance-rise-fall",
+          "measurements": {
+            "ss": {
+              "vtrip": 0.904606,
+              "tphl": 9.06813e-11,
+              "tplh": 8.83793e-11,
+              "ivdd_avg": -5.33752e-06,
+              "rise_fall_ratio": 0.9746143912802309,
+              "tpd_avg": 8.95303e-11
+            },
+            "tt": {
+              "vtrip": 0.88392,
+              "tphl": 6.98234e-11,
+              "tplh": 6.65534e-11,
+              "ivdd_avg": -5.2724e-06,
+              "rise_fall_ratio": 0.9531675627368477,
+              "tpd_avg": 6.81884e-11
+            },
+            "ff": {
+              "vtrip": 0.865027,
+              "tphl": 5.58362e-11,
+              "tplh": 5.3675e-11,
+              "ivdd_avg": -5.26385e-06,
+              "rise_fall_ratio": 0.9612939275953593,
+              "tpd_avg": 5.47556e-11
+            }
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "unverified": [],
+            "worst": {
+              "rise_fall_ratio": {
+                "corner": "ss",
+                "value": 0.9746143912802309,
+                "limit": 1.1
+              },
+              "tpd_avg": {
+                "corner": "ss",
+                "value": 8.95303e-11,
+                "limit": 1.2e-10
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    }
+  ],
+  "winner": {
+    "tag": "iter2-balance-rise-fall-W_P1.4266",
+    "overrides": {
+      "W_P": 1.4266
+    },
+    "repair_of": "iter1-balance-rise-fall-W_P1.2553",
+    "pattern": "balance-rise-fall",
+    "measurements": {
+      "ss": {
+        "vtrip": 0.904606,
+        "tphl": 9.06813e-11,
+        "tplh": 8.83793e-11,
+        "ivdd_avg": -5.33752e-06,
+        "rise_fall_ratio": 0.9746143912802309,
+        "tpd_avg": 8.95303e-11
+      },
+      "tt": {
+        "vtrip": 0.88392,
+        "tphl": 6.98234e-11,
+        "tplh": 6.65534e-11,
+        "ivdd_avg": -5.2724e-06,
+        "rise_fall_ratio": 0.9531675627368477,
+        "tpd_avg": 6.81884e-11
+      },
+      "ff": {
+        "vtrip": 0.865027,
+        "tphl": 5.58362e-11,
+        "tplh": 5.3675e-11,
+        "ivdd_avg": -5.26385e-06,
+        "rise_fall_ratio": 0.9612939275953593,
+        "tpd_avg": 5.47556e-11
+      }
+    },
+    "verdict": {
+      "passed": true,
+      "violations": [],
+      "unverified": [],
+      "worst": {
+        "rise_fall_ratio": {
+          "corner": "ss",
+          "value": 0.9746143912802309,
+          "limit": 1.1
+        },
+        "tpd_avg": {
+          "corner": "ss",
+          "value": 8.95303e-11,
+          "limit": 1.2e-10
+        }
+      }
+    },
+    "errors": []
+  },
+  "stop_reason": "winner_found",
+  "outcome": "passed",
+  "toolchain": {
+    "netlister": "xschem",
+    "simulator": "ngspice",
+    "image": "ppa-eda/xschem:3.4.4"
+  }
+}

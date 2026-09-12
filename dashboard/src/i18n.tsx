@@ -17,6 +17,10 @@ const dict = {
   tab_power: { en: "Power", ko: "Power" },
   tab_tradeoffs: { en: "Trade-offs", ko: "트레이드오프" },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
+  // Named for the thing it shows rather than for the flow half it
+  // belongs to ("Custom/Analog"): the page is a schematic, and that is
+  // what someone is looking for when they want to see one.
+  tab_schematic: { en: "Schematic", ko: "회로도" },
   // Names what these tabs *are for* rather than what they contain. They
   // are a separate capability from the pipeline above (paste an existing
   // EDA report, or run a one-off OpenSTA sim), and a bare "reports"
