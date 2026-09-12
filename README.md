@@ -253,6 +253,7 @@ instead of shelled-out commands:
 | `ppa_analog_scan` | Real auto-repair coverage per analog design, and whether the next step is a re-run or a human |
 | `ppa_gate_schematic` | Draws a pipeline design's real synthesis netlist as a schematic — whole, or a fanin/fanout cone for designs too big to draw |
 | `ppa_stdcell_schematic` | Opens a standard cell and draws its transistors, from the foundry's CDL |
+| `ppa_stdcell_signoff` | Magic DRC + extraction + netgen LVS on a standard cell's real layout, recorded in `reference-db/stdcells/` |
 | `ppa_spice_sim` | A real transistor-level ngspice simulation against the PDK's own device models, returning parsed `.meas` values |
 
 Within a Claude Code session already working in this repo, a subagent
@@ -475,6 +476,41 @@ symbol. The importer drops what it cannot resolve without saying so:
 `dfxtp_2` came out with 21 of its 24 transistors. So those cells are
 refused by name, and every conversion is checked against the CDL's own
 device count before it is kept.
+
+### A standard cell's layout, signed off and stored
+
+A schematic with no layout beside it is half a cell. The foundry ships
+the other half — one `.mag` per cell — and the two tools this pipeline
+already runs will check it, so `pipeline/stdcell_signoff.py` does: Magic
+DRC on the real layout, Magic extraction, netgen LVS against the
+schematic `stdcell_schematic.py` derives from the CDL, and a case in
+`reference-db/stdcells/`.
+
+```sh
+python3 pipeline/stdcell_signoff.py --cell sky130_fd_sc_hd__nand2_1
+python3 pipeline/stdcell_signoff.py --scan
+```
+
+Beyond "the foundry's cells are clean" (they are — a run saying otherwise
+would be a finding about this pipeline), a pass is **independent evidence
+that the CDL-to-SPICE translation behind the schematic view preserves the
+circuit**. Nothing else in this repo checks that conversion; LVS checks
+it against the foundry's own geometry.
+
+Measured across 37 cells on 2026-09-13: **DRC 0 on every one, LVS
+matching on 36**. The one that does not is `a21oi_2` — netgen sees 8
+devices against 6 and 11 nets against 10 after merging, so the layout
+carries an internal node the schematic does not. Reproducing it with the
+untouched CDL rules out this pipeline's translation, and no cause is
+claimed: the obvious story ("a series stack laid out as parallel
+fingers") is contradicted by the same sample, since `a21oi_1` matches and
+so does `nand3_2`, a three-high stack at the same `m=2`. It is in the
+store as an open finding.
+
+Both tools need `PDK_ROOT=/pdk` inside the container: the PDK's magicrc
+does `tech load $PDK_ROOT/...`, and without it Magic looks for the tech
+file under the absolute volare build path baked in when the PDK was
+built, and dies there.
 
 ### The custom half's self-improvement loop
 

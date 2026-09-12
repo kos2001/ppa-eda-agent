@@ -177,6 +177,11 @@ WORKFLOW_TOOLS = {
     # reason — you reach for them to run or survey the flow, not to answer
     # a specific failure, which is what a failure signature routes to.
     "ppa_analog_loop", "ppa_analog_scan",
+    # Runs a flow and writes a case, like ppa_run_stage above it: you
+    # reach for it to sign a cell off, not to answer a failure. The
+    # schematic half (ppa_stdcell_schematic) IS routed from a failure —
+    # sram_wrapper's unexplained dlymetal6s2s_1.
+    "ppa_stdcell_signoff",
 }
 
 
