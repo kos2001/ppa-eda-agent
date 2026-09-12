@@ -31,6 +31,7 @@ import analog_loop  # noqa: E402
 import custom_bridge  # noqa: E402
 import gate_schematic  # noqa: E402
 import stdcell_schematic  # noqa: E402
+import stdcell_signoff  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import sta_path  # noqa: E402
@@ -435,6 +436,25 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_stdcell_signoff",
+        "description": "Runs the layout half of a standard cell: Magic DRC on the "
+                        "PDK's real .mag, Magic extraction, and netgen LVS against "
+                        "the schematic derived from the foundry CDL — then records "
+                        "a case in reference-db/stdcells/. A pass is also evidence "
+                        "that the CDL-to-SPICE translation behind the schematic "
+                        "view preserves the circuit, which nothing else checks. "
+                        "Omit `cell` for a scan of what the store holds.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "cell": {"type": "string",
+                          "description": "e.g. sky130_fd_sc_hd__nand2_1"},
+                "no_case": {"type": "boolean",
+                             "description": "run without writing to the store"},
+            },
+        },
+    },
+    {
         "name": "ppa_render_schematic",
         "description": "Draws a schematic as SVG using xschem's own renderer — "
                         "the custom half's counterpart of ppa_render_layout. Use "
@@ -677,6 +697,19 @@ def _tool_stdcell_schematic(args: dict) -> dict:
     return out
 
 
+def _tool_stdcell_signoff(args: dict) -> dict:
+    if not args.get("cell"):
+        return stdcell_signoff.scan()
+    result = stdcell_signoff.signoff(args["cell"])
+    if result.get("ok") and not args.get("no_case"):
+        result["case"] = str(stdcell_signoff.write_case(result)
+                             .relative_to(REPO_ROOT))
+    # The extraction is large and the case keeps it; the tool result does
+    # not need to carry a netlist into a transcript.
+    result.pop("layout_netlist", None)
+    return result
+
+
 def _tool_render_schematic(args: dict) -> dict:
     sch = Path(args["schematic"])
     if not sch.is_absolute():
@@ -724,6 +757,7 @@ _TOOL_IMPL = {
     "ppa_analog_scan": _tool_analog_scan,
     "ppa_gate_schematic": _tool_gate_schematic,
     "ppa_stdcell_schematic": _tool_stdcell_schematic,
+    "ppa_stdcell_signoff": _tool_stdcell_signoff,
     "ppa_render_schematic": _tool_render_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }
