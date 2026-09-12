@@ -172,12 +172,78 @@ ngspice-46과 `pdk/sky130A`의 실제 소자 모델로 나온 값이다.
   ReadMeFirst` 폴더). 그래서 툴 탐색은 "알려진 설치 경로가 있으면 설치된 것"이
   아니라 실행 파일 자체를 찾는다.
 
+## 4.1 시작은 schematic이다 (같은 날, 지적받고 고침)
+
+첫 구현은 `run_spice()`와 손으로 쓴 덱에서 시작했다. 그건 커스텀 플로우가
+**실제로 시작하는 곳보다 한 단계 아래**다. Virtuoso에서 아무도 넷리스트를
+타이핑하지 않는다 — schematic을 그리고 툴이 넷리스트를 쓴다. 덱은 산출물이고,
+그걸 소스로 취급하면 schematic과 넷리스트가 갈라진다.
+
+**이게 미학 문제가 아니라는 것은 측정됐다.** 같은 인버터를 두 경로로 돌린 결과:
+
+| corner | vtrip 손 (V) | vtrip sch (V) | tphl 손 (ps) | tphl sch (ps) | 차이 |
+|---|---|---|---|---|---|
+| ff | 0.837131 | 0.837141 | 53.34 | 54.68 | +2.5% |
+| tt | 0.867162 | 0.867167 | 66.32 | 68.21 | +2.9% |
+| ss | 0.894842 | 0.894843 | 85.48 | 88.27 | +3.3% |
+
+vtrip은 여섯 자리까지 같다 — DC 동작점은 같은 회로다. 지연은 다르다.
+schematic 경로의 디바이스는 PDK의 심볼이 모든 인스턴스에 붙이는 실제 확산
+기생분(`ad`/`pd`/`as`/`ps`/`nrd`/`nrs`)을 달고 나오고, 손으로 쓴 덱에는 그게
+없다. **맞는 숫자는 넷리스트된 쪽이고, 그 숫자는 툴이 만들어야만 존재한다.**
+
+### xschem을 실제로 돌리기까지
+
+`status()`가 "xschem 미설치"라고 보고만 하는 상태로는 진입점이 닫히지 않는다.
+세 경로를 재보고 셋째를 골랐다:
+
+1. **Homebrew** — formula 없음 (`brew info xschem` → no available formula).
+2. **macOS 소스 빌드** — xschem 자신의 `README_MacOS.md`가 XQuartz와 **X11에
+   링크된 Tk**를 요구한다. 이 머신의 brew tcl-tk는 Aqua 링크다. 툴보다 의존성이
+   큰 우회.
+3. **자체 이미지** — Debian trixie가 xschem **3.4.4**를 패키징한다(bookworm은
+   2.8.1로 sky130 심볼 라이브러리에 오래됨). `debian:trixie-slim` + apt 패키지
+   하나 = `pipeline/docker/xschem.Dockerfile`. IIC-OSIC-TOOLS는 넷리스터 하나
+   돌리자고 받기엔 크다.
+
+`custom_bridge.ensure_xschem_image()`가 없으면 첫 사용 시 빌드한다.
+
+### 실제로 밟은 것 (테스트가 지킴)
+
+- **PDK 예제로 먼저 검증했다.** 내 schematic을 쓰기 전에 PDK 자신의
+  `sky130_tests/passgate.sch`를 넷리스트해서 배선이 맞는지 확인했다. 디바이스
+  인스턴스 관용구(`ad`/`pd`/... , `spiceprefix=X`)도 거기서 그대로 가져왔다 —
+  지어내지 않았다.
+- **`-x`(no X) 없이는 컨테이너에서 시작조차 못 한다.** 넷리스터는 디스플레이가
+  필요 없는데, 플래그가 없으면 X11 소켓이 없는 컨테이너에서 죽는다.
+- **`$::SKYWATER_MODELS`를 쓰면 안 된다.** xschem의 기본 관용구는 넷리스트
+  시점에 그걸 치환하는데, 그러면 코너 하나와 **컨테이너 경로**(`/pdk/...`)가
+  함께 박힌다. 첫 넷리스트된 덱은 호스트 ngspice에서 정확히 그 이유로 죽었다
+  (`Could not find library file /pdk/sky130A/...`). 그래서 schematic은
+  `%PDK_LIB%` 토큰을 유지하고 `bind_corner()`가 런타임에 푼다 — 하나의
+  schematic으로 코너를 스윕할 수 있는 이유이기도 하다.
+- **exit code는 판정이 아니다.** 심볼을 못 찾으면 xschem은 아무것도 안 쓰고
+  0으로 끝난다. 그래서 판정은 파일의 존재로 한다.
+- **`inv.spice`는 생성물의 경로다.** 손으로 쓴 덱을 거기 두면 조용히 덮어쓰인다
+  → `inv_handwritten.spice`로 개명하고 비교 기준으로 보존.
+
+### 지금의 진입점
+
+```sh
+python3 pipeline/custom_bridge.py netlist --schematic pipeline/analog/inv/inv_tb.sch
+python3 pipeline/custom_bridge.py spice --netlist pipeline/analog/inv/inv_tb.spice --corner ss
+```
+
+`pipeline/analog/inv/`: `inv.sch`(셀) → `inv.sym`(xschem이 `make_symbol`로 생성)
+→ `inv_tb.sch`(테스트벤치, 셀을 인스턴스화). 계층이 요점이다 — 자극은
+테스트벤치에, 회로는 셀에 있어서 한쪽을 스윕해도 다른 쪽을 건드리지 않는다.
+
 ## 5. 하지 않은 것
 
-- **xschem은 이 머신에 없다.** 백엔드 정의와 호출 규약은 들어 있지만 이
-  호스트에서 실행된 적이 없고, `status()`가 그렇게 보고한다. 실행하려면
-  IIC-OSIC-TOOLS 이미지(§2.1)를 가져와야 하고, 그건 이 저장소가 지금까지
-  쓰던 OpenLane 이미지와 별개의 새 의존성이라 임의로 추가하지 않았다.
+- **xschem은 로컬에 없지만 이제 돈다** — §4.1의 자체 이미지로. 남은 것은
+  GUI 편집이다: 이 저장소는 schematic을 텍스트로 쓰고 툴로 넷리스트하지,
+  화면에서 그리지 않는다(헤드리스 환경이라 그렇다). `.sch`는 사람이 편집하는
+  소스 포맷이므로 그 자체는 정상적인 사용 방식이다.
   magic과 klayout은 다르다 — 로컬에는 없지만 이미 쓰고 있는 OpenLane
   이미지 안에 있고, 실측으로 확인했다: magic이 마운트된 PDK의 진짜
   `sky130A.tech`를 0.24 s에 로드하고(`tech name` → `sky130A`), klayout

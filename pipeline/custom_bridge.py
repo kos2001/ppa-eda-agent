@@ -73,6 +73,7 @@ sky130 inverter (pfet W=1.0, nfet W=0.5, L=0.15) switches at
 vtrip = 0.8676 V on a 1.8 V supply. No Docker, no license, no mock.
 
 Usage:
+    custom_bridge.py netlist --schematic analog/inv/inv_tb.sch   # start here
     custom_bridge.py status [--docker]
     custom_bridge.py eval --backend magic --code 'puts [tech name]'
     custom_bridge.py spice --netlist inv.spice --corner tt --pdk sky130A
@@ -158,14 +159,27 @@ class BridgeResult:
 # that dropped into its own prompt. (`netgen -batch` with no file does
 # exactly that — it was found by hanging this session's shell for two
 # minutes, which is why every call below also gets stdin closed.)
+# Schematic capture has an image of its own because nothing else here
+# carries it: no Homebrew formula, a macOS source build that needs
+# XQuartz and an X11-linked Tk, and the OpenLane image does not ship it.
+# One apt package on debian:trixie-slim, built locally on first use.
+# See pipeline/docker/xschem.Dockerfile.
+XSCHEM_IMAGE = "ppa-eda/xschem:3.4.4"
+XSCHEM_DOCKERFILE = REPO_ROOT / "pipeline" / "docker" / "xschem.Dockerfile"
+
 BACKENDS: dict[str, dict] = {
     "xschem": {
         "virtuoso_equivalent": "Virtuoso Schematic Editor (Composer)",
         "language": "Tcl",
         "exe": ["xschem"],
-        "argv": lambda s: ["xschem", "-q", "-n", "-s", "--script", str(s)],
+        # -x is no-X: the netlister needs no display, and without it a
+        # container with no X11 socket fails on startup instead of
+        # netlisting.
+        "argv": lambda s: ["xschem", "-q", "-x", "--script", str(s)],
         "in_openlane_image": False,
-        "note": "Not in the OpenLane image; ships in hpretl/iic-osic-tools.",
+        "image": "xschem",
+        "note": "Not in the OpenLane image. Runs from this repo's own "
+                "one-package image (pipeline/docker/xschem.Dockerfile).",
     },
     "magic": {
         "virtuoso_equivalent": "Virtuoso Layout Suite (custom polygon edit)",
@@ -173,6 +187,7 @@ BACKENDS: dict[str, dict] = {
         "exe": ["magic"],
         "argv": lambda s: ["magic", "-dnull", "-noconsole", str(s)],
         "in_openlane_image": True,
+        "image": "openlane",
         "note": "-dnull -noconsole is the headless pair; either alone still "
                 "opens a window or a prompt.",
     },
@@ -182,6 +197,7 @@ BACKENDS: dict[str, dict] = {
         "exe": ["klayout"],
         "argv": lambda s: ["klayout", "-b", "-r", str(s)],
         "in_openlane_image": True,
+        "image": "openlane",
         "note": "-b is batch; without it -r still raises a GUI.",
     },
     "ngspice": {
@@ -190,6 +206,7 @@ BACKENDS: dict[str, dict] = {
         "exe": ["ngspice"],
         "argv": lambda s: ["ngspice", "-b", str(s)],
         "in_openlane_image": False,
+        "image": None,
         "note": "Installed locally here (46, KLU). The .control block must "
                 "end in `quit` or -b still waits.",
     },
@@ -199,6 +216,7 @@ BACKENDS: dict[str, dict] = {
         "exe": ["netgen"],
         "argv": lambda s: ["netgen", "-batch", "source", str(s)],
         "in_openlane_image": True,
+        "image": "openlane",
         "note": "`-batch source FILE`, not `-batch FILE` — the latter reads "
                 "stdin and hangs.",
     },
@@ -286,11 +304,71 @@ def _version(backend: str, exe: str) -> str | None:
     return None
 
 
-def _docker_has(tool: str, timeout: int = 120) -> bool:
-    """Whether the pinned OpenLane image can run `tool`. Asked, not assumed."""
+def image_for(backend: str) -> str | None:
+    """Which container image runs this backend, if any."""
+    kind = BACKENDS[backend].get("image")
+    if kind == "openlane":
+        return OPENLANE_IMAGE
+    if kind == "xschem":
+        return XSCHEM_IMAGE
+    return None
+
+
+def plan(exe: str | None, image: str | None, docker: bool) -> str | None:
+    """Where a backend would run: "local", "docker", or nowhere.
+
+    Pulled out of `evaluate()` so it can be tested without Docker, which
+    is the repo's rule for its test suite — the decision is the part
+    that has been wrong (status() once advertised magic as available
+    through the container while evaluate() refused it as not installed),
+    and it is pure.
+    """
+    if exe:
+        return "local"
+    if image and docker:
+        return "docker"
+    return None
+
+
+def _image_present(image: str) -> bool:
+    try:
+        r = subprocess.run(["docker", "image", "inspect", image],
+                           capture_output=True, text=True, timeout=60,
+                           stdin=subprocess.DEVNULL)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return r.returncode == 0
+
+
+def ensure_xschem_image(timeout: int = 900) -> bool:
+    """Build the schematic image if it is not here yet.
+
+    Built rather than pulled because it is this repo's own Dockerfile —
+    one apt package on a slim base — and because a first run that fails
+    with "no such image" would send someone looking for a registry that
+    does not exist.
+    """
     if not shutil.which("docker"):
         return False
-    argv = ["docker", "run", "--rm", *platform_args(), OPENLANE_IMAGE,
+    if _image_present(XSCHEM_IMAGE):
+        return True
+    if not XSCHEM_DOCKERFILE.is_file():
+        return False
+    argv = ["docker", "build", "-q", "-f", str(XSCHEM_DOCKERFILE),
+            "-t", XSCHEM_IMAGE, str(REPO_ROOT)]
+    try:
+        r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
+                           stdin=subprocess.DEVNULL)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return r.returncode == 0
+
+
+def _docker_has(tool: str, image: str, timeout: int = 120) -> bool:
+    """Whether `image` can run `tool`. Asked, not assumed."""
+    if not shutil.which("docker"):
+        return False
+    argv = ["docker", "run", "--rm", *platform_args(), image,
             "bash", "-lc", f"command -v {tool}"]
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
@@ -385,9 +463,12 @@ def probe(docker: bool = False) -> dict:
             "via": "local" if exe else None,
             "note": spec["note"],
         }
-        if exe is None and docker and spec["in_openlane_image"]:
-            if _docker_has(spec["exe"][0]):
-                entry.update(available=True, via="docker", path=OPENLANE_IMAGE)
+        image = image_for(name)
+        if exe is None and docker and image:
+            if image == XSCHEM_IMAGE:
+                ensure_xschem_image()
+            if _docker_has(spec["exe"][0], image):
+                entry.update(available=True, via="docker", path=image)
         report[name] = entry
     return report
 
@@ -436,13 +517,16 @@ def evaluate(backend: str, code: str, timeout: int = 120) -> BridgeResult:
         # OpenLane image on this host, and a bridge that advertises a
         # backend as available and then refuses to run it is worse than
         # one that never offered it.
-        if not (spec["in_openlane_image"] and shutil.which("docker")):
+        image = image_for(backend)
+        if image == XSCHEM_IMAGE and shutil.which("docker"):
+            ensure_xschem_image()
+        if plan(exe, image, bool(shutil.which("docker"))) is None:
             return BridgeResult(
                 status=ExecutionStatus.ERROR,
                 errors=[f"{backend} is not installed on this host"],
                 metadata={"reason": "not_installed", "backend": backend,
                           "in_openlane_image": spec["in_openlane_image"],
-                          "note": spec["note"]},
+                          "image": image, "note": spec["note"]},
             )
         via = "docker"
 
@@ -458,8 +542,8 @@ def evaluate(backend: str, code: str, timeout: int = 120) -> BridgeResult:
                     # because a tech file is an input, never an output.
                     "-e", "QT_QPA_PLATFORM=offscreen",
                     "-v", f"{PDK_ROOT}:/pdk:ro", "-v", f"{td}:/work",
-                    "-w", "/work", OPENLANE_IMAGE, *inner]
-            exe = OPENLANE_IMAGE
+                    "-w", "/work", image_for(backend), *inner]
+            exe = image_for(backend)
         else:
             argv = [exe, *spec["argv"](script)[1:]]
         try:
@@ -505,6 +589,111 @@ def bind_corner(netlist: str, pdk: str, corner: str) -> str:
     return netlist.replace(PDK_LIB_TOKEN, f".lib {lib} {section}")
 
 
+def netlist_schematic(schematic: Path | str, pdk: str = "sky130A",
+                      out_dir: Path | str | None = None,
+                      timeout: int = 300) -> BridgeResult:
+    """Schematic in, SPICE out — run by xschem's own netlister.
+
+    THE ENTRY POINT. This module first shipped with `run_spice()` and a
+    hand-written deck, which starts the custom flow one step below where
+    it actually starts: in Virtuoso nobody types a netlist, they draw a
+    schematic and the tool writes the netlist. The deck is a build
+    artifact, and treating it as the source is how a schematic and its
+    netlist drift apart.
+
+    That the distinction is not cosmetic was measured on the first cell
+    here. The hand-written deck and the schematic describe the same
+    inverter, and at tt they agree on vtrip to six digits (0.867162 vs
+    0.867167 V) — the DC operating point is the same circuit. The delays
+    are not: tphl 66.32 ps hand-written against 68.21 ps netlisted, and
+    the same ~3% at ss and ff. The schematic's devices carry the real
+    diffusion parasitics — the `ad`/`pd`/`as`/`ps`/`nrd`/`nrs`
+    expressions the PDK's own symbols attach to every instance — and the
+    hand-written deck had none of them. The netlisted number is the
+    right one, and it exists only because a tool generated it.
+
+    The netlist keeps `%PDK_LIB%` rather than a resolved `.lib` line:
+    xschem's own idiom substitutes `$::SKYWATER_MODELS` at netlist time,
+    which bakes in both a corner and a container path (`/pdk/...`) that
+    does not exist on the host — the first netlisted deck failed in
+    ngspice for exactly that reason. Leaving the token lets
+    `bind_corner()` resolve it per run, which is also what makes one
+    schematic sweep corners.
+    """
+    schematic = Path(schematic).resolve()
+    if not schematic.is_file():
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"no such schematic: {schematic}"],
+                            metadata={"reason": "missing_schematic"})
+    out_dir = Path(out_dir).resolve() if out_dir else schematic.parent
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    exe = resolve("xschem")
+    rcfile = PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc"
+    if not rcfile.is_file():
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"{pdk} ships no xschem rcfile at {rcfile}"],
+                            metadata={"reason": "missing_pdk_xschemrc"})
+
+    started = time.time()
+    if exe:
+        argv = [exe, "-n", "-s", "-q", "-x", "--rcfile", str(rcfile),
+                "-o", str(out_dir), str(schematic)]
+        via = "local"
+    else:
+        if not (shutil.which("docker") and ensure_xschem_image()):
+            return BridgeResult(
+                status=ExecutionStatus.ERROR,
+                errors=["xschem is not installed and its image could not be built"],
+                metadata={"reason": "not_installed", "backend": "xschem",
+                          "image": XSCHEM_IMAGE},
+            )
+        # The design directory is mounted read-write and the output
+        # directory separately: xschem resolves a symbol against the
+        # directory of the schematic that instantiates it, so a
+        # hierarchical design only netlists if its own directory is
+        # what the container sees.
+        argv = ["docker", "run", "--rm", *platform_args(),
+                "-v", f"{PDK_ROOT}:/pdk:ro",
+                "-v", f"{schematic.parent}:/design",
+                "-v", f"{out_dir}:/out",
+                XSCHEM_IMAGE, "xschem", "-n", "-s", "-q", "-x",
+                "--rcfile", f"/pdk/{pdk}/libs.tech/xschem/xschemrc",
+                "-o", "/out", f"/design/{schematic.name}"]
+        via = "docker"
+
+    try:
+        r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
+                           stdin=subprocess.DEVNULL)
+    except subprocess.TimeoutExpired:
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"xschem did not exit within {timeout}s"],
+                            metadata={"reason": "timeout", "argv": argv})
+    except OSError as exc:
+        return BridgeResult(status=ExecutionStatus.ERROR, errors=[str(exc)],
+                            metadata={"reason": "exec_failed", "argv": argv})
+
+    text = r.stdout + r.stderr
+    errors, warnings = parse_problems(text)
+    netlist = out_dir / f"{schematic.stem}.spice"
+    if not netlist.is_file():
+        # xschem exits 0 having written nothing when it cannot resolve a
+        # symbol, so the file is the verdict, not the return code.
+        errors.append(f"xschem wrote no netlist at {netlist}")
+    return BridgeResult(
+        status=ExecutionStatus.FAILURE if errors else ExecutionStatus.SUCCESS,
+        output=text,
+        errors=errors,
+        warnings=warnings,
+        execution_time=round(time.time() - started, 3),
+        metadata={"backend": "xschem", "via": via, "schematic": str(schematic),
+                  "netlist": str(netlist) if netlist.is_file() else None,
+                  "pdk": pdk, "returncode": r.returncode,
+                  "binds_corner_at_run_time": PDK_LIB_TOKEN in
+                      (netlist.read_text(encoding="utf-8") if netlist.is_file() else "")},
+    )
+
+
 def run_spice(netlist: Path | str, pdk: str = "sky130A", corner: str = "tt",
               timeout: int = 300) -> BridgeResult:
     """A real transistor-level simulation — the ADE/Spectre counterpart.
@@ -548,6 +737,13 @@ def main() -> None:
     p_eval.add_argument("--code", help="script text; omit to read stdin")
     p_eval.add_argument("--timeout", type=int, default=120)
 
+    p_net = sub.add_parser("netlist", parents=[common],
+                            help="netlist a schematic — the flow's entry point")
+    p_net.add_argument("--schematic", required=True, type=Path)
+    p_net.add_argument("--pdk", default="sky130A")
+    p_net.add_argument("--out-dir", default=None, type=Path)
+    p_net.add_argument("--timeout", type=int, default=300)
+
     p_spice = sub.add_parser("spice", parents=[common], help="run a real transistor-level sim")
     p_spice.add_argument("--netlist", required=True, type=Path)
     p_spice.add_argument("--pdk", default="sky130A")
@@ -561,6 +757,9 @@ def main() -> None:
     elif args.cmd == "eval":
         code = args.code if args.code is not None else sys.stdin.read()
         r = evaluate(args.backend, code, timeout=args.timeout)
+    elif args.cmd == "netlist":
+        r = netlist_schematic(args.schematic, pdk=args.pdk, out_dir=args.out_dir,
+                              timeout=args.timeout)
     else:
         r = run_spice(args.netlist, pdk=args.pdk, corner=args.corner,
                       timeout=args.timeout)
@@ -571,6 +770,8 @@ def main() -> None:
         print(r.output or "")
         for e in r.errors:
             print(f"ERROR   {e}", file=sys.stderr)
+        if r.metadata.get("netlist"):
+            print(f"\nnetlist: {r.metadata['netlist']}")
         meas = r.metadata.get("measurements")
         if meas:
             print("\nmeasurements:")

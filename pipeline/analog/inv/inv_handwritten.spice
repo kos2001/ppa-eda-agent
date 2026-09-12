@@ -1,4 +1,18 @@
-* sky130 CMOS inverter — the first transistor-level cell in this repo.
+* sky130 CMOS inverter, hand-written — KEPT AS A BASELINE, not as the
+* source. inv.sch is the source; xschem generates the deck from it
+* (custom_bridge.py netlist --schematic analog/inv/inv_tb.sch).
+*
+* This file is what the flow looked like when it started one step below
+* where the custom flow actually starts, and it is worth keeping because
+* of what comparing the two measures: at tt both give vtrip 0.8672 V —
+* the same circuit at DC — while tphl is 66.32 ps here against 68.21 ps
+* netlisted. The difference is the diffusion parasitics (ad/pd/as/ps,
+* nrd/nrs) the PDK's own symbols attach to every device and a
+* hand-written deck has no reason to remember.
+*
+* Named inv_handwritten rather than inv because xschem writes inv.spice
+* from inv.sch: a hand-written file at that path gets silently
+* overwritten by a generated one.
 *
 * %PDK_LIB% is substituted by custom_bridge.bind_corner() with the real
 * model library and the corner's section name, so the same deck runs at
