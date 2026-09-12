@@ -27,6 +27,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import analog_loop  # noqa: E402
 import custom_bridge  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
@@ -346,6 +347,38 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_analog_loop",
+        "description": "Runs the custom/analog closed loop for a design under "
+                        "pipeline/analog/: sizes proposed, measured at every "
+                        "corner the spec names, scored, and repaired from the "
+                        "violation's own numbers until something passes or the "
+                        "patterns run out. Minutes, not seconds — each candidate "
+                        "is a real ngspice run per corner. Writes a case to "
+                        "reference-db/analog/.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design"],
+            "properties": {
+                "design": {"type": "string",
+                            "description": "directory under pipeline/analog/, "
+                                           "e.g. \"inv\""},
+                "max_iterations": {"type": "integer"},
+            },
+        },
+    },
+    {
+        "name": "ppa_analog_scan",
+        "description": "Where every analog design stands: real auto-repair "
+                        "coverage, whether the latest case passed or is OPEN, and "
+                        "the concrete next step — which distinguishes 'ran out of "
+                        "iteration budget' (re-run with more) from 'no pattern "
+                        "matched' (needs a human). Read-only, no runs.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"design": {"type": "string"}},
+        },
+    },
+    {
         "name": "ppa_render_schematic",
         "description": "Draws a schematic as SVG using xschem's own renderer — "
                         "the custom half's counterpart of ppa_render_layout. Use "
@@ -545,6 +578,18 @@ def _tool_netlist_schematic(args: dict) -> dict:
         timeout=int(args.get("timeout", 300))).to_dict()
 
 
+def _tool_analog_loop(args: dict) -> dict:
+    run = analog_loop.loop(args["design"], args.get("max_iterations"))
+    path = analog_loop.write_case(run)
+    return {"design": run["design"], "stop_reason": run["stop_reason"],
+            "winner": run["winner"], "iterations": run["iterations"],
+            "case": str(path.relative_to(REPO_ROOT))}
+
+
+def _tool_analog_scan(args: dict) -> dict:
+    return analog_loop.scan(args.get("design"))
+
+
 def _tool_render_schematic(args: dict) -> dict:
     sch = Path(args["schematic"])
     if not sch.is_absolute():
@@ -588,6 +633,8 @@ _TOOL_IMPL = {
     "ppa_custom_status": _tool_custom_status,
     "ppa_custom_eval": _tool_custom_eval,
     "ppa_netlist_schematic": _tool_netlist_schematic,
+    "ppa_analog_loop": _tool_analog_loop,
+    "ppa_analog_scan": _tool_analog_scan,
     "ppa_render_schematic": _tool_render_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }

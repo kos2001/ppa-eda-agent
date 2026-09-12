@@ -1,0 +1,14 @@
+{
+  "cell": "inv_tb",
+  "pdk": "sky130A",
+  "corners": ["ss", "tt", "ff"],
+  "targets": {
+    "rise_fall_ratio": { "max": 1.10 },
+    "tpd_avg": { "max": 1.2e-10 }
+  },
+  "candidates": [
+    { "tag": "base-wp1", "overrides": { "W_P": 1.0 } }
+  ],
+  "max_iterations": 4,
+  "why": "A static CMOS inverter is balanced when it rises as fast as it falls. sky130's pfet is the slower device, so W_P/W_N=2.0 is a starting guess, not an answer — the ratio is what the loop measures and repairs. tpd_avg is here so a repair cannot 'fix' the ratio by making both edges slow."
+}

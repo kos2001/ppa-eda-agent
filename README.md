@@ -249,6 +249,8 @@ instead of shelled-out commands:
 | `ppa_custom_eval` | Runs a script in one custom-design backend's own batch language — the counterpart of executing SKILL in Virtuoso |
 | `ppa_netlist_schematic` | Netlists a schematic with xschem — the entry point of the custom flow, and what a hand-written deck silently gets wrong |
 | `ppa_render_schematic` | Draws a schematic as SVG with xschem — the custom half's counterpart of `ppa_render_layout` |
+| `ppa_analog_loop` | The custom half's closed loop: real sizings measured per corner, scored, and repaired from the violation's own numbers |
+| `ppa_analog_scan` | Real auto-repair coverage per analog design, and whether the next step is a re-run or a human |
 | `ppa_spice_sim` | A real transistor-level ngspice simulation against the PDK's own device models, returning parsed `.meas` values |
 
 Within a Claude Code session already working in this repo, a subagent
@@ -352,6 +354,51 @@ W_p 1.0 / W_n 0.5 / L 0.15 µm, 1.8 V, 10 fF load:
 | ff | 0.837 | 53.3 | 64.4 |
 | tt | 0.867 | 66.3 | 80.5 |
 | ss | 0.895 | 85.5 | 107.1 |
+
+### The custom half's self-improvement loop
+
+`pipeline/analog_loop.py` is the counterpart of `orchestrator.py` for
+transistor-level design: propose a sizing, measure it for real at every
+corner the spec names, score it, and derive the next candidate from what
+the violation measured. `reference-db/analog/` is its case store —
+separate from `reference-db/cases/` on purpose, since that schema is
+shaped for digital candidates and 23 signoff checks.
+
+```sh
+python3 pipeline/analog_loop.py run --design inv    # sweep, measure, repair
+python3 pipeline/analog_loop.py scan                # coverage + what needs whom
+```
+
+Two rules are carried over from `orchestrator.score()` because they are
+what make a verdict trustworthy: **the worst corner governs**, and a
+target with no measurement behind it is `unverified`, never `passed` —
+ngspice exits 0 when a `.meas` fails, so "the number is absent" really
+happens.
+
+What makes it a loop rather than a sweep runner is that **the
+measurement proposes the next candidate**. The one repair pattern
+scales `W_P` by the *measured* `tplh/tphl`, because that ratio is what
+the imbalance is. It was promoted only after a real run showed it
+working — the same bar `propose_repairs()` holds:
+
+| W_P | rise/fall ratio @ ss | |
+|---|---|---|
+| 1.0 | 1.2553 | fail |
+| 1.255 (the measured step) | 1.1366 | fail — it undershoots |
+| 1.5 | 0.9208 | pass, with tpd_avg improving 99.5 → 87.5 ps |
+
+The undershoot is the evidence for re-measuring instead of solving in
+one jump, and the loop does exactly that — a real run converged
+`W_P` 1.0 → 1.2553 → 1.4266 and passed on the second repair
+(`reference-db/analog/inv__2026-09-12__193508.json`). Before the pattern
+existed, the same spec honestly reported `no_repairable_failures` with
+0/1 coverage; that first case is in the store too.
+
+`scan` distinguishes the two ways a run ends without a winner, the same
+way `self_improve.py` does: `max_iterations_reached` is a budget
+problem and prints the re-run command, while `no_repairable_failures`
+is the one that needs a person — collapsing them is how a backlog
+becomes noise people learn to ignore.
 
 ### On virtuoso-bridge-lite
 
