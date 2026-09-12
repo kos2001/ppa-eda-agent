@@ -48,6 +48,10 @@ pipeline/                           Autonomous layout pipeline: real
                                      placement/routing candidate
                                      generation and evaluation via
                                      OpenLane 2 + sky130 (see below)
+pipeline/analog/                    Transistor-level cells for the custom
+                                     flow (Virtuoso's counterpart), run by
+                                     pipeline/custom_bridge.py against the
+                                     PDK's own ngspice device models
 reference-db/                       Case store of past pipeline runs —
                                      topology signature, candidate
                                      configs tried, real PPA/DRC/LVS
@@ -241,6 +245,9 @@ instead of shelled-out commands:
 | `ppa_equiv_check` | Proves a run's netlist is functionally equivalent to its RTL (Yosys SAT, ~1s) — the check DRC/LVS/timing leave out |
 | `ppa_odb_query` | Queries a run's real OpenROAD `.odb` for measured per-net placement facts (pin count, HPWL, max span) — answers per-net questions `metrics.json` cannot |
 | `ppa_tech_compare` | Runs the same design across standard-cell technologies and returns a real PPA delta with the design held fixed — the technology half of DTCO |
+| `ppa_custom_status` | What of the open-source Virtuoso-equivalent stack (xschem/magic/klayout/ngspice/netgen) this host can really run, each mapped to the Cadence tool it stands in for |
+| `ppa_custom_eval` | Runs a script in one custom-design backend's own batch language — the counterpart of executing SKILL in Virtuoso |
+| `ppa_spice_sim` | A real transistor-level ngspice simulation against the PDK's own device models, returning parsed `.meas` values |
 
 Within a Claude Code session already working in this repo, a subagent
 can just call the underlying Python modules directly via Bash — this
@@ -248,6 +255,94 @@ server exists for contexts that want a typed tool boundary instead (a
 future session, a non-Claude-Code agent, hermes-agent). Register it
 with Claude Code or hermes-agent's `api_server` pointed at
 `pipeline/mcp_server.py`.
+
+## The custom/analog half (Virtuoso's counterpart)
+
+Everything above is the *digital* implementation flow — the open-source
+answer to Innovus / Fusion Compiler / Calibre. It is not the answer to
+Cadence Virtuoso, which is where custom and mixed-signal designers
+actually work: schematic capture, transistor-level simulation, custom
+polygon layout, LVS back to the schematic. This repo had no path to any
+of it (`sim/` runs OpenSTA, which has no transistor in it anywhere).
+
+**Virtuoso has no single open-source counterpart.** It is one program;
+the open-source equivalent is five, which is why
+`pipeline/custom_bridge.py` takes the backend as an argument rather than
+inferring it:
+
+| Virtuoso component | Open source | Language | On this host |
+|---|---|---|---|
+| Schematic Editor (Composer) | Xschem | Tcl | not installed |
+| Layout Suite (polygon editing) | Magic | Tcl | **via OpenLane image** |
+| Layout viewer + PVS/Calibre decks | KLayout | Python | **via OpenLane image** |
+| ADE Explorer / Spectre | ngspice | `.control` block | **ngspice-46** |
+| Assura / PVS LVS | netgen | Tcl | **1.5.323** |
+
+That five-tool set is the answer because the PDKs already in `pdk/` are
+built for it — `libs.tech/{xschem,magic,klayout,netgen,ngspice}` exists
+under both sky130A and gf180mcuD, with 76 xschem device symbols in
+`sky130_fd_pr/`. The assets were here; only the code calling them was
+missing. Alternatives considered and why they lost (Electric VLSI,
+GLayout/OpenFASoC, gdsfactory, BAG3, XCircuit) are in
+[`docs/superpowers/specs/2026-09-12-virtuoso-counterpart-and-custom-bridge.md`](docs/superpowers/specs/2026-09-12-virtuoso-counterpart-and-custom-bridge.md).
+
+Four of the five run here for real: ngspice and netgen locally, Magic and
+KLayout through the OpenLane image this pipeline already pulls — so
+`evaluate()` falls back to the container rather than reporting a backend
+`status --docker` just called available. Measured: Magic loads the real
+`sky130A.tech` from the mounted PDK in 0.24 s, KLayout 0.29.4 answers in
+1.6 s. Only xschem is genuinely absent (it ships in IIC-OSIC-TOOLS, a
+separate image this repo does not pull).
+
+```sh
+python3 pipeline/custom_bridge.py status --docker
+python3 pipeline/custom_bridge.py spice --netlist pipeline/analog/inv/inv.spice --corner ss
+python3 pipeline/custom_bridge.py eval --backend netgen --code 'puts hi
+quit'
+```
+
+`pipeline/analog/inv/inv.spice` is this repo's first transistor-level
+cell. Real, measured here with no Docker and no license — sky130A models,
+W_p 1.0 / W_n 0.5 / L 0.15 µm, 1.8 V, 10 fF load:
+
+| corner | vtrip (V) | tphl (ps) | tplh (ps) |
+|---|---|---|---|
+| ff | 0.837 | 53.3 | 64.4 |
+| tt | 0.867 | 66.3 | 80.5 |
+| ss | 0.895 | 85.5 | 107.1 |
+
+### On virtuoso-bridge-lite
+
+[`virtuoso-bridge-lite`](https://github.com/Arcadia-1/virtuoso-bridge-lite)
+does the same thing from the commercial side: an agent drives a real
+Virtuoso over SSH, executing SKILL and reading Maestro/Spectre results
+back as a typed `VirtuosoResult`. **It cannot run here** — installed from
+source and asked, it reports `No profiles found. Set VB_REMOTE_HOST in
+.env first.` and `VB_CADENCE_CSHRC is not set.`, and neither `virtuoso`
+nor `spectre` exists on this machine. That is a fact about the
+environment, not the package; on a host with a Virtuoso session it is the
+right tool and nothing here replaces it.
+
+What *is* borrowed is its interface. Its `models.py` declares
+`VirtuosoInterface` as an ABC returning `VirtuosoResult(status, output,
+errors, warnings, execution_time, metadata)`, and `custom_bridge.py`
+reproduces that contract field for field — including keeping exactly four
+`ExecutionStatus` values and reporting a missing tool as `error` with
+`metadata["reason"] = "not_installed"` rather than inventing a fifth.
+An agent skill written against either bridge works against the other, so
+the day a Virtuoso host becomes reachable it is an `.env` file away.
+soul.md's "borrow the working part, not the whole machine".
+
+### Not done
+
+No xschem on this host (its backend is defined and has never run here —
+`status()` says so), no schematic→layout→LVS loop, no PEX
+(today's delays are against a hand-placed 10 fF load, not extracted
+parasitics), and analog results are deliberately **not** written into
+`reference-db/` yet: that schema is shaped for digital candidates and
+forcing analog measurements into it would pollute the labels
+`surrogate.py` and `pareto.py` read.
+
 
 ## Dashboard
 
