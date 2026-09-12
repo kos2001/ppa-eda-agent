@@ -114,7 +114,13 @@
   flex: none;
   display: flex;
   flex-direction: column;
-  height: 216px;
+  /* Proportional, not 216px. Browser zoom changes the CSS-pixel
+     viewport, so fixed chrome takes an ever larger share as someone
+     zooms in: at 1000px tall a 216px console is 22% of the window, at
+     480px it is 45% and equals the work area. Measured before this
+     changed. clamp keeps it readable at the bottom (110px is ~7 lines)
+     and stops it growing into a wall on a tall monitor. */
+  height: clamp(110px, 22vh, 320px);
   border-top: 1px solid var(--border-strong);
   background: var(--surface);
   font-family: var(--mono);
@@ -215,6 +221,9 @@
   align-items: center;
   gap: 10px;
   height: 22px;
+  /* Never wraps to a second row — a status bar that changes height
+     moves the work area under it. Fields drop out by priority instead
+     (see the width queries at the end of this file). */
   padding: 0 8px;
   border-top: 1px solid var(--border-strong);
   background: var(--surface-raised);
@@ -280,3 +289,40 @@
 :root[data-density="compact"] table { font-size: 11px; }
 :root[data-density="compact"] th,
 :root[data-density="compact"] td { padding-top: 2px; padding-bottom: 2px; }
+
+/* ------------------------------------------------------------------ */
+/* Adapting to zoom.
+ *
+ * Browser zoom is a viewport-size change in CSS pixels, so "does this
+ * survive 200% zoom" and "does this survive a small window" are the same
+ * question. The frame answers it by giving up chrome in priority order
+ * rather than by squeezing the work area, which is the part someone
+ * zoomed in to read.
+ *
+ * Order of what goes: status-bar context fields, then the tool chips,
+ * then the navigator's labels (its own collapse), then — below 900px —
+ * the docked frame itself. */
+
+@media (max-width: 1200px) {
+  /* The design/view/PDK fields are context someone can also read off
+     the page they are looking at; the server and tool state is not
+     available anywhere else. */
+  .eda-status__field { display: none; }
+}
+
+@media (max-width: 820px) {
+  .eda-status__tool { display: none; }
+  .eda-status__sep { display: none; }
+}
+
+@media (max-width: 600px) {
+  .eda-status__clock { display: none; }
+  .eda-menubar__right { display: none; }
+}
+
+/* Short viewports are what zooming in mostly produces on a laptop. The
+   console keeps its bar (the counts stay readable, and it can still be
+   opened) but stops claiming a share of a window that has none to give. */
+@media (max-height: 520px) {
+  .eda-console { height: clamp(88px, 18vh, 140px); }
+}

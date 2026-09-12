@@ -371,6 +371,12 @@
   padding: 0.75rem 0.75rem;
   gap: 0.75rem;
   border-right: 1px solid var(--border-strong);
+  /* Proportional for the same reason as the console: a 15.5rem
+     navigator is a fifth of a 1600px window and a third of a zoomed-in
+     1000px one. The floor is wide enough for the longest nav label at
+     the compact font; below that the collapse button is the answer. */
+  width: clamp(10rem, 15vw, 15.5rem);
+  overflow-y: auto;
 }
 .app--eda .app__content { min-height: 0; overflow: hidden; }
 .app--eda .app__main { overflow: auto; padding-top: 0.75rem; }
@@ -381,6 +387,11 @@
      page goes back to scrolling as one column. */
   .app--eda { height: auto; overflow: visible; }
   .app__workspace { flex-direction: column; }
+  .app--eda .app__sidebar { width: 100%; }
   .app--eda .app__main { overflow: visible; }
-  .eda-console { display: none; }
+  /* Not display:none. The transcript is where an unexplained empty
+     panel gets explained, and a narrow window is not a reason to take
+     that away — it just stops being a docked pane and scrolls with the
+     page like everything else. */
+  .eda-console { height: auto; max-height: 40vh; }
 }
