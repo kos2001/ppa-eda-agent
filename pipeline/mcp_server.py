@@ -29,6 +29,7 @@ from types import SimpleNamespace
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import analog_loop  # noqa: E402
 import custom_bridge  # noqa: E402
+import gate_schematic  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import sta_path  # noqa: E402
@@ -379,6 +380,31 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_gate_schematic",
+        "description": "Draws what the layout pipeline actually built: converts a "
+                        "design's real synthesis netlist into an xschem schematic "
+                        "using the PDK's own importer and its 440 sky130_fd_sc_hd "
+                        "symbols. This is the view a layout render cannot give — "
+                        "which cells, and what is connected to what. Caps at 1,500 "
+                        "cells because past that the drawing is real and unreadable "
+                        "(aes: 11,616 cells, 39 MB of SVG); pass force to override. "
+                        "A run built with another standard-cell library is reported, "
+                        "not drawn wrong.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design"],
+            "properties": {
+                "design": {"type": "string",
+                            "description": "directory under pipeline/designs/"},
+                "run_dir": {"type": "string",
+                             "description": "a specific run; default is the newest "
+                                            "with a drawable netlist"},
+                "draw": {"type": "boolean", "description": "also render an SVG"},
+                "force": {"type": "boolean"},
+            },
+        },
+    },
+    {
         "name": "ppa_render_schematic",
         "description": "Draws a schematic as SVG using xschem's own renderer — "
                         "the custom half's counterpart of ppa_render_layout. Use "
@@ -590,6 +616,19 @@ def _tool_analog_scan(args: dict) -> dict:
     return analog_loop.scan(args.get("design"))
 
 
+def _tool_gate_schematic(args: dict) -> dict:
+    run_dir = args.get("run_dir")
+    out = gate_schematic.convert(
+        args["design"],
+        run_dir=(REPO_ROOT / run_dir if run_dir and not Path(run_dir).is_absolute()
+                 else (Path(run_dir) if run_dir else None)))
+    if out["ok"] and args.get("draw") and (out["drawable"] or args.get("force")):
+        drawn = custom_bridge.render_schematic(REPO_ROOT / out["schematic"])
+        out["svg"] = drawn.metadata.get("svg")
+        out["_path"] = out["svg"]
+    return out
+
+
 def _tool_render_schematic(args: dict) -> dict:
     sch = Path(args["schematic"])
     if not sch.is_absolute():
@@ -635,6 +674,7 @@ _TOOL_IMPL = {
     "ppa_netlist_schematic": _tool_netlist_schematic,
     "ppa_analog_loop": _tool_analog_loop,
     "ppa_analog_scan": _tool_analog_scan,
+    "ppa_gate_schematic": _tool_gate_schematic,
     "ppa_render_schematic": _tool_render_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }

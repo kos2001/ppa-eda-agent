@@ -21,6 +21,39 @@
   max-height: 60vh;
 }
 
+.schematic__group { display: flex; flex-direction: column; gap: 2px; }
+.schematic__group + .schematic__group { margin-top: 0.5rem; }
+.schematic__group-title {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0 6px;
+}
+
+.schematic__toodense {
+  align-self: center;
+  margin: auto;
+  text-align: center;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+  max-width: 46ch;
+}
+.schematic__toodense p { margin: 0.3rem 0; }
+.schematic__toodense button {
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  padding: 2px 10px;
+  cursor: pointer;
+}
+.schematic__toodense button:hover { border-color: var(--accent); color: var(--accent); }
+
 .schematic__cell {
   display: flex;
   align-items: baseline;
