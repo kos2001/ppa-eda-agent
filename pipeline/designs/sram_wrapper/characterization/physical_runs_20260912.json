@@ -1,0 +1,444 @@
+{
+  "sram-repair-20260912": {
+    "metrics": {
+      "route__antenna_violation__count": 3,
+      "design__xor_difference__count": 0,
+      "magic__drc_error__count": 382,
+      "klayout__drc_error__count": 0,
+      "design__lvs_error__count": 0
+    },
+    "magic": {
+      "abstract_artefact": true,
+      "count": 382,
+      "rule": "nwell.4",
+      "macros_checked": [
+        "u_sram"
+      ],
+      "reason": "MAGIC_DRC_USE_GDS=false: Magic checked DEF/LEF abstracts, and all 382 errors are nwell.4 on standard-cell rows outside every placed macro \u2014 the taps live inside cell abstracts Magic could not see. KLayout DRC on the GDS is the geometry check for this run.",
+      "report": "pipeline/designs/sram_wrapper/runs/sram-repair-20260912/62-magic-drc/reports/drc_violations.magic.rpt",
+      "per_rule": {
+        "nwell.4": 382
+      }
+    },
+    "model_validity": {
+      "macro_ceilings_ns": {
+        "u_sram": 0.04
+      },
+      "corners_read": 9,
+      "extrapolated_pins": [
+        {
+          "pin": "u_sram/addr0[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.209219,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 5.2
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.199268,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 5.0
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.183666,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.6
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.182469,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.6
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.159817,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.0
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.140184,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.5
+        },
+        {
+          "pin": "u_sram/addr0[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.122366,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.1
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.113849,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.111417,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.111065,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.110156,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.10942,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.7
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.101806,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.100385,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.100218,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.097307,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.4
+        }
+      ],
+      "worst_times_past_ceiling": 5.2
+    }
+  },
+  "sram-antenna-20260912": {
+    "metrics": {
+      "route__antenna_violation__count": 2,
+      "design__xor_difference__count": 0,
+      "magic__drc_error__count": 382,
+      "klayout__drc_error__count": 0,
+      "design__lvs_error__count": 0
+    },
+    "magic": {
+      "abstract_artefact": true,
+      "count": 382,
+      "rule": "nwell.4",
+      "macros_checked": [
+        "u_sram"
+      ],
+      "reason": "MAGIC_DRC_USE_GDS=false: Magic checked DEF/LEF abstracts, and all 382 errors are nwell.4 on standard-cell rows outside every placed macro \u2014 the taps live inside cell abstracts Magic could not see. KLayout DRC on the GDS is the geometry check for this run.",
+      "report": "pipeline/designs/sram_wrapper/runs/sram-antenna-20260912/62-magic-drc/reports/drc_violations.magic.rpt",
+      "per_rule": {
+        "nwell.4": 382
+      }
+    },
+    "model_validity": {
+      "macro_ceilings_ns": {
+        "u_sram": 0.04
+      },
+      "corners_read": 9,
+      "extrapolated_pins": [
+        {
+          "pin": "u_sram/addr0[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.209235,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 5.2
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.199275,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 5.0
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.183665,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.6
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.182184,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.6
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.155129,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.9
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.141537,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.5
+        },
+        {
+          "pin": "u_sram/addr0[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.122368,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.1
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.113849,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.111417,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.111066,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.110173,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.10942,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.7
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.101874,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.100381,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.10022,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.097305,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.4
+        }
+      ],
+      "worst_times_past_ceiling": 5.2
+    }
+  },
+  "sram-diode-20260912": {
+    "metrics": {
+      "route__antenna_violation__count": 0,
+      "design__xor_difference__count": 0,
+      "magic__drc_error__count": 382,
+      "klayout__drc_error__count": 0,
+      "design__lvs_error__count": 0
+    },
+    "magic": {
+      "abstract_artefact": true,
+      "count": 382,
+      "rule": "nwell.4",
+      "macros_checked": [
+        "u_sram"
+      ],
+      "reason": "MAGIC_DRC_USE_GDS=false: Magic checked DEF/LEF abstracts, and all 382 errors are nwell.4 on standard-cell rows outside every placed macro \u2014 the taps live inside cell abstracts Magic could not see. KLayout DRC on the GDS is the geometry check for this run.",
+      "report": "pipeline/designs/sram_wrapper/runs/sram-diode-20260912/63-magic-drc/reports/drc_violations.magic.rpt",
+      "per_rule": {
+        "nwell.4": 382
+      }
+    },
+    "model_validity": {
+      "macro_ceilings_ns": {
+        "u_sram": 0.04
+      },
+      "corners_read": 9,
+      "extrapolated_pins": [
+        {
+          "pin": "u_sram/addr0[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.223766,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 5.6
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.220735,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 5.5
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.185431,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.6
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.172537,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.3
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.171091,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.3
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.170564,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 4.3
+        },
+        {
+          "pin": "u_sram/addr0[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.122169,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.1
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.120245,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.0
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.115106,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.9
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.114492,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.9
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.110944,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.110638,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.109937,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.7
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.102808,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.6
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.101711,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.100392,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.5
+        }
+      ],
+      "worst_times_past_ceiling": 5.6
+    }
+  },
+  "sram-concrete-classic-20260912": {
+    "metrics": {
+      "route__antenna_violation__count": 0,
+      "design__xor_difference__count": 0,
+      "magic__drc_error__count": 0,
+      "klayout__drc_error__count": 0,
+      "design__lvs_error__count": 0,
+      "design__max_slew_violation__count": 16
+    },
+    "magic_geometry": "standard-cell GDS + routing DEF + macro LEF",
+    "magic_scope_report": "../runs/sram-concrete-classic-20260912/63-magic-drc/drc_concrete_cells.tcl",
+    "manufacturability_report": "../runs/sram-concrete-classic-20260912/75-misc-reportmanufacturability/manufacturability.rpt"
+  }
+}

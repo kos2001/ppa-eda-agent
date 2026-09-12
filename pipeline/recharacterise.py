@@ -51,6 +51,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -81,12 +82,16 @@ def slew_scales_for(worst_slew_ns: float,
     unchanged when the observed slew already sits inside it — there is
     nothing to gain from a wider sweep that costs hours.
     """
+    if not math.isfinite(worst_slew_ns) or worst_slew_ns < 0:
+        raise ValueError("worst_slew_ns must be finite and nonnegative")
+    if not math.isfinite(rise_time_ns) or rise_time_ns <= 0:
+        raise ValueError("rise_time_ns must be finite and positive")
     scales = list(OPENRAM_DEFAULT_SLEW_SCALES)
     covered = max(scales) * rise_time_ns
     if worst_slew_ns <= covered:
         return scales
     needed = (worst_slew_ns * TOP_MARGIN) / rise_time_ns
-    scales.append(round(needed))
+    scales.append(math.ceil(needed))
     return sorted(set(scales))
 
 
@@ -102,19 +107,27 @@ def keeps_original_points(scales: list[float]) -> bool:
 
 def verify_regenerated(lib_path: Path | str, target_slew_ns: float,
                        rise_time_ns: float = SKY130_RISE_TIME_NS) -> dict:
-    """Is this liberty good enough to time the design with?
+    """Check the OpenRAM input grid and explicit transition limits.
 
     The acceptance check for a regenerated macro, written before the
-    regeneration so the bar is set in advance. Two conditions, both
+    regeneration so the bar is set in advance. Conditions are
     read out of the file rather than taken on trust:
 
       * its characterisation reaches `target_slew_ns`, and
       * `max_transition` moved with it, so the pin attribute agrees with
-        the table underneath it.
+        the table underneath it, and
+      * each grid retains the original points.
+
+    This structural check cannot prove SPICE provenance, valid table
+    values, or DRC/LVS. Passing it alone does not qualify a timing model.
 
     Returns every failure rather than the first, because a macro that
     fails both is a different problem from one that fails one.
     """
+    if not math.isfinite(target_slew_ns) or target_slew_ns <= 0:
+        raise ValueError("target_slew_ns must be finite and positive")
+    if not math.isfinite(rise_time_ns) or rise_time_ns <= 0:
+        raise ValueError("rise_time_ns must be finite and positive")
     failures = []
     ceiling = model_validity.characterisation_ceiling(lib_path)
     if ceiling is None:
@@ -128,8 +141,29 @@ def verify_regenerated(lib_path: Path | str, target_slew_ns: float,
             f"the grid does not reach the slew this design produces")
 
     text = Path(lib_path).read_text(errors="ignore")
+    # Check every grid, not just the largest endpoint in the file. One
+    # extended table must not hide a stale table or dropped source points.
+    original = [s * rise_time_ns for s in OPENRAM_DEFAULT_SLEW_SCALES]
+    for number, match in enumerate(model_validity._INDEX_1.finditer(text), 1):
+        try:
+            grid = [float(v.strip()) for v in match.group(1).split(",")]
+        except ValueError:
+            failures.append(f"index_1 grid {number} is malformed")
+            continue
+        if (not grid or any(not math.isfinite(v) or v <= 0 for v in grid)
+                or any(a >= b for a, b in zip(grid, grid[1:]))):
+            failures.append(f"index_1 grid {number} must be finite, positive and increasing")
+            continue
+        if grid[-1] < target_slew_ns:
+            failures.append(f"index_1 grid {number} does not reach the target")
+        missing = [p for p in original
+                   if not any(math.isclose(p, v, rel_tol=1e-9) for v in grid)]
+        if missing:
+            failures.append(f"index_1 grid {number} dropped original points {missing}")
     declared = {float(v) for v in re.findall(
-        r"max_transition\s*:\s*([\d.]+)\s*;", text)}
+        r"\bmax_transition\s*:\s*([\d.eE+-]+)\s*;", text)}
+    if not declared:
+        failures.append("no explicit max_transition pin limits")
     # The pin attribute records where characterisation stopped. If the
     # table grew and the attribute did not, the timer still refuses the
     # slew and nothing was gained.

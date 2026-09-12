@@ -149,6 +149,15 @@ GDS/LEF/lib set that has to be verified before anything trusts it.
 
 ### A second metrics source, and a dataset export
 
+SRAM repair update (2026-09-12): three new full OpenLane runs reproduced
+clean KLayout GDS DRC, LVS and XOR. Heuristic diode insertion eliminated
+the new routing antenna violations (3 → 2 → 0), and the verified settings
+are now in the design config. Actual SPICE recharacterization is in
+progress through `pipeline/characterize_sram.py`; the old timing model and
+the SRAM Liberty model validity check still prevents a verified pass. See
+[the SRAM execution record](pipeline/designs/sram_wrapper/characterization/README.md)
+for measurements, setup and remaining acceptance checks.
+
 `score()` gates on 23 signoff checks by OpenLane's metric key names,
 and now records each as a row (`signoff_checks`) that the dashboard
 draws as a strip — clean, violated, or never run. Two things use that
