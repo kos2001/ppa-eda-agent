@@ -1,0 +1,14 @@
+{
+  "cell": "nand2_tb",
+  "pdk": "sky130A",
+  "corners": ["ss", "tt", "ff"],
+  "targets": {
+    "rise_fall_ratio": { "min": 0.9, "max": 1.1 },
+    "tpd_avg": { "max": 1.5e-10 }
+  },
+  "candidates": [
+    { "tag": "base-wn0.5", "overrides": { "W_N": 0.5 } }
+  ],
+  "max_iterations": 4,
+  "why": "The imbalance here points the OTHER way from the inverter's: two series nfets make the fall the slow edge (ss: tphl 144.3 ps vs tplh 115.1 ps at W_N=0.5), so the ratio is below 1, not above it. The inverter's repair widens the pull-up and must not fire here — this spec is the case that proves the guard, and the honest first outcome is an escalation, not a repair."
+}

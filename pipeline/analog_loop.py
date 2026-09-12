@@ -108,6 +108,19 @@ def derive(measurements: dict) -> dict:
     if tphl and tplh and tphl > 0:
         out["rise_fall_ratio"] = tplh / tphl
         out["tpd_avg"] = (tphl + tplh) / 2
+    period = measurements.get("period")
+    if isinstance(period, (int, float)) and period > 0:
+        out["fosc"] = 1.0 / period
+    # SPICE reports the current through a voltage source as negative when
+    # it flows out of the + terminal, which is the normal direction for a
+    # supply. A target written as "draw less than X" would then be
+    # comparing against a negative number and pass for the wrong reason,
+    # so the magnitude is derived and the sign is left alone as the
+    # convention it is rather than "fixed".
+    for key in ("isup_avg", "ivdd_avg"):
+        value = measurements.get(key)
+        if isinstance(value, (int, float)):
+            out[f"{key.split('_')[0]}_abs"] = abs(value)
     return out
 
 
@@ -135,19 +148,34 @@ def score(per_corner: dict, targets: dict) -> dict:
                 unverified.append(f"{key} not measured at {corner}")
         if not present:
             continue
+        # `kind` is recorded, not implied. Without it pick_winner() cannot
+        # tell "lower is better" from "higher is better", and it did not:
+        # the ring oscillator's first real run picked the SLOWEST of three
+        # passing sizings as the winner, because a min-target's margin was
+        # computed with the sign of a max-target's.
+        candidates = []
         if "max" in bound:
             corner, value = max(present.items(), key=lambda kv: kv[1])
-            worst[key] = {"corner": corner, "value": value, "limit": bound["max"]}
+            candidates.append({"corner": corner, "value": value,
+                               "limit": bound["max"], "kind": "max",
+                               "margin": (bound["max"] - value) / abs(bound["max"])
+                               if bound["max"] else 0.0})
             if value > bound["max"]:
                 violations.append(
                     f"{key} {value:.6g} > {bound['max']:.6g} at {corner}")
         if "min" in bound:
             corner, value = min(present.items(), key=lambda kv: kv[1])
-            worst.setdefault(key, {"corner": corner, "value": value,
-                                    "limit": bound["min"]})
+            candidates.append({"corner": corner, "value": value,
+                               "limit": bound["min"], "kind": "min",
+                               "margin": (value - bound["min"]) / abs(bound["min"])
+                               if bound["min"] else 0.0})
             if value < bound["min"]:
                 violations.append(
                     f"{key} {value:.6g} < {bound['min']:.6g} at {corner}")
+        if candidates:
+            # A key with both bounds records the tighter one — the bound
+            # that is actually deciding this candidate's fate.
+            worst[key] = min(candidates, key=lambda c: c["margin"])
     return {
         "passed": not violations and not unverified,
         "violations": violations,
@@ -169,14 +197,18 @@ def pick_winner(results: list[dict]) -> dict | None:
         return None
 
     def margin(r: dict) -> float:
+        """Worst directional margin across the targets.
+
+        Directional because score() records which way each bound points.
+        The first version subtracted in one direction for both, which
+        made a slower ring look safer than a fast one — a winner picked
+        by a sign error is worse than no winner at all, because it looks
+        like a result.
+        """
         worst = (r["verdict"].get("worst") or {})
-        ratios = []
-        for entry in worst.values():
-            limit, value = entry.get("limit"), entry.get("value")
-            if isinstance(limit, (int, float)) and isinstance(value, (int, float)) \
-                    and limit:
-                ratios.append((limit - value) / abs(limit))
-        return min(ratios) if ratios else 0.0
+        margins = [e["margin"] for e in worst.values()
+                   if isinstance(e.get("margin"), (int, float))]
+        return min(margins) if margins else 0.0
 
     return max(passing, key=margin)
 
@@ -226,6 +258,35 @@ def _balance_rise_fall(result: dict, spec: dict) -> dict | None:
     return {"overrides": {**result["overrides"], "W_P": new_width}}
 
 
+def _balance_fall_rise(result: dict, spec: dict) -> dict | None:
+    """Widen the pull-down when the FALL is the slow edge.
+
+    The mirror of _balance_rise_fall, and a separate pattern rather than
+    a sign flip in that one, because it is a different circuit fact: a
+    ratio below 1 in this repo's cells comes from a series pull-down
+    stack (nand2), not from a pfet that is too wide. Same bar — it fires
+    only when the ratio is the only violation, and only in the direction
+    a real run measured.
+    """
+    verdict = result.get("verdict") or {}
+    if verdict.get("unverified"):
+        return None
+    violations = verdict.get("violations") or []
+    if not violations or not all(v.startswith("rise_fall_ratio ") for v in violations):
+        return None
+    worst = (verdict.get("worst") or {}).get("rise_fall_ratio") or {}
+    ratio = worst.get("value")
+    width = result.get("overrides", {}).get("W_N")
+    if not isinstance(ratio, (int, float)) or not isinstance(width, (int, float)):
+        return None
+    if ratio >= 1:
+        return None
+    new_width = round(width * min(1.0 / ratio, MAX_STEP), 4)
+    if new_width == width:
+        return None
+    return {"overrides": {**result["overrides"], "W_N": new_width}}
+
+
 PATTERNS: list[dict] = [
     {
         "id": "balance-rise-fall",
@@ -247,6 +308,26 @@ PATTERNS: list[dict] = [
         "evidence": "inv: W_P 1.0 -> 1.255 moved ss rise_fall_ratio 1.2553 -> "
                     "1.1366, and 1.5 closed it at 0.9208 with tpd_avg improving "
                     "from 99.5 to 87.5 ps.",
+    },
+    {
+        "id": "balance-fall-rise",
+        "design": "nand2",
+        "when": "rise_fall_ratio is the only violation and below 1",
+        "repair": _balance_fall_rise,
+        # Promoted after the same kind of real sweep, measured 2026-09-12
+        # at ss on nand2, whose two series nfets make the fall the slow
+        # edge — the opposite imbalance from the inverter:
+        #
+        #   W_N 0.5    ratio 0.7972   fail   tpd_avg 129.7 ps
+        #   W_N 0.627  ratio 1.0571   PASS   tpd_avg 113.3 ps  (the step)
+        #   W_N 0.8    ratio 1.3162   fail   — overshoots the other way
+        #
+        # The overshoot at 0.8 is why the step is the measured ratio and
+        # not a round number, and why the loop re-measures after it.
+        "evidence": "nand2: W_N 0.5 -> 0.627 (1/0.7972) moved ss "
+                    "rise_fall_ratio 0.7972 -> 1.0571 and closed the target, "
+                    "with tpd_avg improving from 129.7 to 113.3 ps; W_N 0.8 "
+                    "overshoots to 1.3162.",
     },
 ]
 

@@ -589,6 +589,48 @@ def bind_corner(netlist: str, pdk: str, corner: str) -> str:
     return netlist.replace(PDK_LIB_TOKEN, f".lib {lib} {section}")
 
 
+ANALOG_ROOT = REPO_ROOT / "pipeline" / "analog"
+
+
+def rcfile_for(schematic: Path, pdk: str) -> tuple[Path, str]:
+    """Which xschemrc to start with, host path and container path.
+
+    The project rcfile at the analog root when the schematic lives under
+    it — that file sources the PDK's own and adds this tree as a library
+    root, which is what lets one cell instantiate another's symbol.
+    Falls back to the PDK's rcfile directly for anything outside.
+    """
+    project = ANALOG_ROOT / "xschemrc"
+    try:
+        schematic.resolve().relative_to(ANALOG_ROOT)
+    except ValueError:
+        pass
+    else:
+        if project.is_file():
+            return project, "/design/xschemrc"
+    pdk_rc = PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc"
+    return pdk_rc, f"/pdk/{pdk}/libs.tech/xschem/xschemrc"
+
+
+def design_mount(schematic: Path) -> tuple[Path, str]:
+    """What to mount as /design, and the path of the schematic inside it.
+
+    The whole analog tree rather than the schematic's own directory, when
+    the schematic lives under it. xschem resolves a symbol relative to
+    the directory of the schematic that instantiates it, so mounting only
+    that directory makes every cell an island: a ring oscillator could
+    not instantiate the inverter sitting one directory over, which is
+    precisely what a symbol is for. Anything outside the tree still gets
+    its own parent, so this stays usable on a loose file.
+    """
+    schematic = schematic.resolve()
+    try:
+        inner = schematic.relative_to(ANALOG_ROOT)
+    except ValueError:
+        return schematic.parent, schematic.name
+    return ANALOG_ROOT, inner.as_posix()
+
+
 def netlist_schematic(schematic: Path | str, pdk: str = "sky130A",
                       out_dir: Path | str | None = None,
                       timeout: int = 300) -> BridgeResult:
@@ -629,11 +671,12 @@ def netlist_schematic(schematic: Path | str, pdk: str = "sky130A",
     out_dir.mkdir(parents=True, exist_ok=True)
 
     exe = resolve("xschem")
-    rcfile = PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc"
-    if not rcfile.is_file():
+    if not (PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc").is_file():
         return BridgeResult(status=ExecutionStatus.ERROR,
-                            errors=[f"{pdk} ships no xschem rcfile at {rcfile}"],
+                            errors=[f"{pdk} ships no xschem rcfile under "
+                                     f"{PDK_ROOT / pdk}"],
                             metadata={"reason": "missing_pdk_xschemrc"})
+    rcfile, rc_in_container = rcfile_for(schematic, pdk)
 
     started = time.time()
     if exe:
@@ -648,18 +691,14 @@ def netlist_schematic(schematic: Path | str, pdk: str = "sky130A",
                 metadata={"reason": "not_installed", "backend": "xschem",
                           "image": XSCHEM_IMAGE},
             )
-        # The design directory is mounted read-write and the output
-        # directory separately: xschem resolves a symbol against the
-        # directory of the schematic that instantiates it, so a
-        # hierarchical design only netlists if its own directory is
-        # what the container sees.
+        mount, inner = design_mount(schematic)
         argv = ["docker", "run", "--rm", *platform_args(),
                 "-v", f"{PDK_ROOT}:/pdk:ro",
-                "-v", f"{schematic.parent}:/design",
+                "-v", f"{mount}:/design",
                 "-v", f"{out_dir}:/out",
                 XSCHEM_IMAGE, "xschem", "-n", "-s", "-q", "-x",
-                "--rcfile", f"/pdk/{pdk}/libs.tech/xschem/xschemrc",
-                "-o", "/out", f"/design/{schematic.name}"]
+                "--rcfile", rc_in_container,
+                "-o", "/out", f"/design/{inner}"]
         via = "docker"
 
     try:
@@ -738,11 +777,12 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                             metadata={"reason": "missing_schematic"})
     out = Path(out).resolve() if out else schematic.with_suffix(".svg")
     out.parent.mkdir(parents=True, exist_ok=True)
-    rcfile = PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc"
-    if not rcfile.is_file():
+    if not (PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc").is_file():
         return BridgeResult(status=ExecutionStatus.ERROR,
-                            errors=[f"{pdk} ships no xschem rcfile at {rcfile}"],
+                            errors=[f"{pdk} ships no xschem rcfile under "
+                                     f"{PDK_ROOT / pdk}"],
                             metadata={"reason": "missing_pdk_xschemrc"})
+    rcfile, rc_in_container = rcfile_for(schematic, pdk)
 
     started = time.time()
     exe = resolve("xschem")
@@ -758,14 +798,15 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                 errors=["xschem is not installed and its image could not be built"],
                 metadata={"reason": "not_installed", "backend": "xschem",
                           "image": XSCHEM_IMAGE})
+        mount, inner = design_mount(schematic)
         argv = ["docker", "run", "--rm", *platform_args(),
                 "-v", f"{PDK_ROOT}:/pdk:ro",
-                "-v", f"{schematic.parent}:/design",
+                "-v", f"{mount}:/design",
                 "-v", f"{out.parent}:/out",
                 XSCHEM_IMAGE, "xschem", "-q", "-x",
-                "--rcfile", f"/pdk/{pdk}/libs.tech/xschem/xschemrc",
+                "--rcfile", rc_in_container,
                 "--command", f"xschem zoom_full; xschem print svg /out/{out.name}",
-                f"/design/{schematic.name}"]
+                f"/design/{inner}"]
         via = "docker"
 
     try:
