@@ -1,0 +1,75 @@
+/* The viewer frame. Dark ground because that is the canvas xschem draws
+   on — letting the page background show around the drawing reads as a
+   rendering failure rather than as a margin. */
+.schview { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+
+.schview__frame {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+  cursor: grab;
+  /* The wheel is the zoom control here, so the page must not also
+     scroll, and a drag must not become a text selection or a native
+     image drag. */
+  touch-action: none;
+  user-select: none;
+}
+.schview__frame:active { cursor: grabbing; }
+
+.schview__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* No max-width: the transform is the sizing, and a CSS cap would fight
+     it at every scale above fit. */
+  max-width: none;
+  will-change: transform;
+}
+
+.schview__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.schview__bar button {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  min-width: 22px;
+  padding: 1px 7px;
+  cursor: pointer;
+}
+.schview__bar button:hover { border-color: var(--accent); color: var(--accent); }
+.schview__zoom {
+  min-width: 4.5ch;
+  text-align: right;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.schview__hint { margin-left: auto; }
+.schview__close { margin-left: 8px; }
+
+/* Full screen is a fixed overlay rather than the Fullscreen API: the
+   API needs a user gesture, is refused in some embedded contexts, and
+   takes the browser chrome with it — which is not what someone reading
+   a schematic beside a transcript wants. Esc closes either way. */
+.schview--full {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  border: 0;
+}
+.schview--full .schview__bar { border-top: 1px solid var(--border-strong); }

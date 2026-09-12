@@ -1,0 +1,103 @@
+{
+  "design": "inv",
+  "cell": "inv_tb",
+  "date": "2026-09-12",
+  "schematic": "pipeline/analog/inv/inv_tb.sch",
+  "netlist_source": "xschem",
+  "spec": {
+    "cell": "inv_tb",
+    "pdk": "sky130A",
+    "corners": [
+      "ss",
+      "tt",
+      "ff"
+    ],
+    "targets": {
+      "rise_fall_ratio": {
+        "max": 1.1
+      },
+      "tpd_avg": {
+        "max": 1.2e-10
+      }
+    },
+    "candidates": [
+      {
+        "tag": "base-wp1",
+        "overrides": {
+          "W_P": 1.0
+        }
+      }
+    ],
+    "max_iterations": 4,
+    "why": "A static CMOS inverter is balanced when it rises as fast as it falls. sky130's pfet is the slower device, so W_P/W_N=2.0 is a starting guess, not an answer \u2014 the ratio is what the loop measures and repairs. tpd_avg is here so a repair cannot 'fix' the ratio by making both edges slow."
+  },
+  "iterations": [
+    {
+      "iteration": 0,
+      "results": [
+        {
+          "tag": "base-wp1",
+          "overrides": {
+            "W_P": 1.0
+          },
+          "repair_of": null,
+          "pattern": null,
+          "measurements": {
+            "ss": {
+              "vtrip": 0.894843,
+              "tphl": 8.82664e-11,
+              "tplh": 1.10797e-10,
+              "ivdd_avg": -5.18582e-06,
+              "rise_fall_ratio": 1.2552568134646933,
+              "tpd_avg": 9.953169999999999e-11
+            },
+            "tt": {
+              "vtrip": 0.867167,
+              "tphl": 6.82077e-11,
+              "tplh": 8.27821e-11,
+              "ivdd_avg": -5.13762e-06,
+              "rise_fall_ratio": 1.2136767549704797,
+              "tpd_avg": 7.54949e-11
+            },
+            "ff": {
+              "vtrip": 0.837141,
+              "tphl": 5.46768e-11,
+              "tplh": 6.59738e-11,
+              "ivdd_avg": -5.13506e-06,
+              "rise_fall_ratio": 1.206614139817985,
+              "tpd_avg": 6.03253e-11
+            }
+          },
+          "verdict": {
+            "passed": false,
+            "violations": [
+              "rise_fall_ratio 1.25526 > 1.1 at ss"
+            ],
+            "unverified": [],
+            "worst": {
+              "rise_fall_ratio": {
+                "corner": "ss",
+                "value": 1.2552568134646933,
+                "limit": 1.1
+              },
+              "tpd_avg": {
+                "corner": "ss",
+                "value": 9.953169999999999e-11,
+                "limit": 1.2e-10
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    }
+  ],
+  "winner": null,
+  "stop_reason": "no_repairable_failures",
+  "outcome": "no sizing met targets \u2014 no auto-repairable pattern matched, needs a human decision",
+  "toolchain": {
+    "netlister": "xschem",
+    "simulator": "ngspice",
+    "image": "ppa-eda/xschem:3.4.4"
+  }
+}

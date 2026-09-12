@@ -27,6 +27,11 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import analog_loop  # noqa: E402
+import custom_bridge  # noqa: E402
+import gate_schematic  # noqa: E402
+import stdcell_schematic  # noqa: E402
+import stdcell_signoff  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import sta_path  # noqa: E402
@@ -279,6 +284,221 @@ TOOLS = [
             },
         },
     },
+    {
+        "name": "ppa_custom_status",
+        "description": "What of the open-source Virtuoso-equivalent stack "
+                        "(xschem / magic / klayout / ngspice / netgen) this host "
+                        "can actually run, each mapped to the Cadence tool it "
+                        "stands in for. Read this BEFORE ppa_custom_eval or "
+                        "ppa_spice_sim: a backend that is not installed returns a "
+                        "not_installed error, and knowing that first is cheaper "
+                        "than discovering it mid-flow.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "docker": {"type": "boolean",
+                            "description": "also ask the pinned OpenLane image, "
+                                           "which carries magic/klayout/netgen "
+                                           "(slow: pulls/starts a container)"},
+            },
+        },
+    },
+    {
+        "name": "ppa_custom_eval",
+        "description": "Runs a script in ONE open-source custom-design backend's "
+                        "own batch language — the counterpart of executing SKILL "
+                        "in Virtuoso, except the stack is five programs and three "
+                        "languages so the backend is explicit: xschem/magic/netgen "
+                        "take Tcl, klayout takes Python, ngspice takes a deck with "
+                        "a .control block. Exit code alone is NOT a verdict for "
+                        "these tools; read the returned status (partial means the "
+                        "tool finished and still dropped a result).",
+        "inputSchema": {
+            "type": "object",
+            "required": ["backend", "code"],
+            "properties": {
+                "backend": {"type": "string",
+                             "enum": ["xschem", "magic", "klayout", "ngspice",
+                                      "netgen"]},
+                "code": {"type": "string"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
+    {
+        "name": "ppa_netlist_schematic",
+        "description": "Netlists a schematic with xschem — the ENTRY POINT of the "
+                        "custom/analog flow, and the tool to reach for before "
+                        "ppa_spice_sim. The schematic is the source; the deck is a "
+                        "build artifact, and a hand-written deck silently loses the "
+                        "diffusion parasitics the PDK's own symbols attach to every "
+                        "device (measured: ~3% on inverter delay, identical DC trip "
+                        "point). Returns the generated .spice path, which still "
+                        "carries %PDK_LIB% so ppa_spice_sim can bind any corner.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["schematic"],
+            "properties": {
+                "schematic": {"type": "string",
+                               "description": "path to a .sch, e.g. "
+                                              "pipeline/analog/inv/inv_tb.sch"},
+                "pdk": {"type": "string", "description": "default sky130A"},
+                "out_dir": {"type": "string",
+                             "description": "default: beside the schematic"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
+    {
+        "name": "ppa_analog_loop",
+        "description": "Runs the custom/analog closed loop for a design under "
+                        "pipeline/analog/: sizes proposed, measured at every "
+                        "corner the spec names, scored, and repaired from the "
+                        "violation's own numbers until something passes or the "
+                        "patterns run out. Minutes, not seconds — each candidate "
+                        "is a real ngspice run per corner. Writes a case to "
+                        "reference-db/analog/.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design"],
+            "properties": {
+                "design": {"type": "string",
+                            "description": "directory under pipeline/analog/, "
+                                           "e.g. \"inv\""},
+                "max_iterations": {"type": "integer"},
+            },
+        },
+    },
+    {
+        "name": "ppa_analog_scan",
+        "description": "Where every analog design stands: real auto-repair "
+                        "coverage, whether the latest case passed or is OPEN, and "
+                        "the concrete next step — which distinguishes 'ran out of "
+                        "iteration budget' (re-run with more) from 'no pattern "
+                        "matched' (needs a human). Read-only, no runs.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"design": {"type": "string"}},
+        },
+    },
+    {
+        "name": "ppa_gate_schematic",
+        "description": "Draws what the layout pipeline actually built: converts a "
+                        "design's real synthesis netlist into an xschem schematic "
+                        "using the PDK's own importer and its 440 sky130_fd_sc_hd "
+                        "symbols. This is the view a layout render cannot give — "
+                        "which cells, and what is connected to what. Caps at 1,500 "
+                        "cells because past that the drawing is real and unreadable "
+                        "(aes: 11,616 cells, 39 MB of SVG); pass force to override. "
+                        "A run built with another standard-cell library is reported, "
+                        "not drawn wrong.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["design"],
+            "properties": {
+                "design": {"type": "string",
+                            "description": "directory under pipeline/designs/"},
+                "run_dir": {"type": "string",
+                             "description": "a specific run; default is the newest "
+                                            "with a drawable netlist"},
+                "draw": {"type": "boolean", "description": "also render an SVG"},
+                "force": {"type": "boolean"},
+                "seed": {"type": "string",
+                          "description": "a net or instance to draw a CONE around "
+                                         "instead of the whole design — this is "
+                                         "how aes (11,616 cells) and riscv32i "
+                                         "(5,423) get looked at"},
+                "depth": {"type": "integer", "description": "cone depth, default 4"},
+                "direction": {"type": "string",
+                               "enum": ["fanin", "fanout", "both"],
+                               "description": "default fanin"},
+            },
+        },
+    },
+    {
+        "name": "ppa_stdcell_schematic",
+        "description": "Opens a sky130_fd_sc_hd standard cell and draws its "
+                        "TRANSISTORS, from the foundry's own CDL via the PDK's "
+                        "SPICE importer — the descend-into-the-cell move, and the "
+                        "answer to 'what is an a21oi_2' that a gate-level box "
+                        "cannot give. Omit `cell` to list the library (optionally "
+                        "filtered by `q`). 370 of 437 cells draw; the sequential "
+                        "ones use devices with no xschem symbol and are refused by "
+                        "name rather than drawn three transistors short.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "cell": {"type": "string",
+                          "description": "e.g. sky130_fd_sc_hd__nand2_1"},
+                "q": {"type": "string", "description": "substring filter when listing"},
+                "draw": {"type": "boolean", "description": "also render an SVG"},
+            },
+        },
+    },
+    {
+        "name": "ppa_stdcell_signoff",
+        "description": "Runs the layout half of a standard cell: Magic DRC on the "
+                        "PDK's real .mag, Magic extraction, and netgen LVS against "
+                        "the schematic derived from the foundry CDL — then records "
+                        "a case in reference-db/stdcells/. A pass is also evidence "
+                        "that the CDL-to-SPICE translation behind the schematic "
+                        "view preserves the circuit, which nothing else checks. "
+                        "Omit `cell` for a scan of what the store holds.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "cell": {"type": "string",
+                          "description": "e.g. sky130_fd_sc_hd__nand2_1"},
+                "no_case": {"type": "boolean",
+                             "description": "run without writing to the store"},
+            },
+        },
+    },
+    {
+        "name": "ppa_render_schematic",
+        "description": "Draws a schematic as SVG using xschem's own renderer — "
+                        "the custom half's counterpart of ppa_render_layout. Use "
+                        "it to SEE the circuit a netlist came from; the drawing "
+                        "and the netlist are generated from the same .sch, so it "
+                        "cannot disagree with what was simulated.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["schematic"],
+            "properties": {
+                "schematic": {"type": "string",
+                               "description": "path to a .sch, e.g. "
+                                              "pipeline/analog/inv/inv_tb.sch"},
+                "pdk": {"type": "string", "description": "default sky130A"},
+                "out": {"type": "string",
+                         "description": "default: beside the schematic, .svg"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
+    {
+        "name": "ppa_spice_sim",
+        "description": "A real transistor-level simulation of a SPICE deck against "
+                        "the PDK's own device models (ngspice), returning the "
+                        "parsed .meas values — the analog counterpart of "
+                        "ppa_sta_report, and the only path in this pipeline to a "
+                        "number that is not standard-cell. A deck containing the "
+                        "token %PDK_LIB% is bound to the requested PDK and corner "
+                        "(gf180mcu's typical section is named `typical`, not "
+                        "`tt` — that is why binding is not left to the caller).",
+        "inputSchema": {
+            "type": "object",
+            "required": ["netlist"],
+            "properties": {
+                "netlist": {"type": "string",
+                             "description": "path to a .spice deck, e.g. "
+                                            "pipeline/analog/inv/inv.spice"},
+                "pdk": {"type": "string", "description": "default sky130A"},
+                "corner": {"type": "string",
+                            "description": "tt/ss/ff/sf/fs (default tt)"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
 ]
 
 
@@ -414,6 +634,107 @@ def _tool_tech_compare(args: dict) -> dict:
     return report
 
 
+def _tool_custom_status(args: dict) -> dict:
+    return custom_bridge.status(docker=bool(args.get("docker"))).to_dict()
+
+
+def _tool_custom_eval(args: dict) -> dict:
+    return custom_bridge.evaluate(args["backend"], args["code"],
+                                  timeout=int(args.get("timeout", 120))).to_dict()
+
+
+def _tool_netlist_schematic(args: dict) -> dict:
+    sch = Path(args["schematic"])
+    if not sch.is_absolute():
+        sch = REPO_ROOT / sch
+    out = args.get("out_dir")
+    return custom_bridge.netlist_schematic(
+        sch, pdk=args.get("pdk", "sky130A"),
+        out_dir=(REPO_ROOT / out if out and not Path(out).is_absolute() else out),
+        timeout=int(args.get("timeout", 300))).to_dict()
+
+
+def _tool_analog_loop(args: dict) -> dict:
+    run = analog_loop.loop(args["design"], args.get("max_iterations"))
+    path = analog_loop.write_case(run)
+    return {"design": run["design"], "stop_reason": run["stop_reason"],
+            "winner": run["winner"], "iterations": run["iterations"],
+            "case": str(path.relative_to(REPO_ROOT))}
+
+
+def _tool_analog_scan(args: dict) -> dict:
+    return analog_loop.scan(args.get("design"))
+
+
+def _tool_gate_schematic(args: dict) -> dict:
+    run_dir = args.get("run_dir")
+    resolved = (REPO_ROOT / run_dir if run_dir and not Path(run_dir).is_absolute()
+                else (Path(run_dir) if run_dir else None))
+    if args.get("seed"):
+        out = gate_schematic.convert_cone(args["design"], args["seed"],
+                                          int(args.get("depth", 4)),
+                                          args.get("direction", "fanin"),
+                                          run_dir=resolved)
+    else:
+        out = gate_schematic.convert(args["design"], run_dir=resolved)
+    if out["ok"] and args.get("draw") and (out["drawable"] or args.get("force")):
+        drawn = custom_bridge.render_schematic(REPO_ROOT / out["schematic"])
+        out["svg"] = drawn.metadata.get("svg")
+        out["_path"] = out["svg"]
+    return out
+
+
+def _tool_stdcell_schematic(args: dict) -> dict:
+    if not args.get("cell"):
+        found = stdcell_schematic.cells(args.get("q") or None)
+        return {"cells": [{"cell": c, "drawable": stdcell_schematic.drawable(c)}
+                          for c in found[:200]], "total": len(found)}
+    out = stdcell_schematic.convert(args["cell"])
+    if out["ok"] and args.get("draw"):
+        drawn = custom_bridge.render_schematic(REPO_ROOT / out["schematic"])
+        out["svg"] = drawn.metadata.get("svg")
+        out["_path"] = out["svg"]
+    return out
+
+
+def _tool_stdcell_signoff(args: dict) -> dict:
+    if not args.get("cell"):
+        return stdcell_signoff.scan()
+    result = stdcell_signoff.signoff(args["cell"])
+    if result.get("ok") and not args.get("no_case"):
+        result["case"] = str(stdcell_signoff.write_case(result)
+                             .relative_to(REPO_ROOT))
+    # The extraction is large and the case keeps it; the tool result does
+    # not need to carry a netlist into a transcript.
+    result.pop("layout_netlist", None)
+    return result
+
+
+def _tool_render_schematic(args: dict) -> dict:
+    sch = Path(args["schematic"])
+    if not sch.is_absolute():
+        sch = REPO_ROOT / sch
+    out = args.get("out")
+    r = custom_bridge.render_schematic(
+        sch, pdk=args.get("pdk", "sky130A"),
+        out=(REPO_ROOT / out if out and not Path(out).is_absolute() else out),
+        timeout=int(args.get("timeout", 300))).to_dict()
+    # `_path` is what _content() looks for to attach an image; SVG is not
+    # in _IMAGE_MIME (MCP image content is raster), so the path is what a
+    # caller gets, same as any other file result.
+    r["_path"] = r["metadata"].get("svg")
+    return r
+
+
+def _tool_spice_sim(args: dict) -> dict:
+    netlist = Path(args["netlist"])
+    if not netlist.is_absolute():
+        netlist = REPO_ROOT / netlist
+    return custom_bridge.run_spice(netlist, pdk=args.get("pdk", "sky130A"),
+                                   corner=args.get("corner", "tt"),
+                                   timeout=int(args.get("timeout", 300))).to_dict()
+
+
 _TOOL_IMPL = {
     "ppa_run_stage": _tool_run_stage,
     "ppa_orchestrate": _tool_orchestrate,
@@ -429,6 +750,16 @@ _TOOL_IMPL = {
     "ppa_sta_query": _tool_sta_query,
     "ppa_odb_query": _tool_odb_query,
     "ppa_tech_compare": _tool_tech_compare,
+    "ppa_custom_status": _tool_custom_status,
+    "ppa_custom_eval": _tool_custom_eval,
+    "ppa_netlist_schematic": _tool_netlist_schematic,
+    "ppa_analog_loop": _tool_analog_loop,
+    "ppa_analog_scan": _tool_analog_scan,
+    "ppa_gate_schematic": _tool_gate_schematic,
+    "ppa_stdcell_schematic": _tool_stdcell_schematic,
+    "ppa_stdcell_signoff": _tool_stdcell_signoff,
+    "ppa_render_schematic": _tool_render_schematic,
+    "ppa_spice_sim": _tool_spice_sim,
 }
 
 
