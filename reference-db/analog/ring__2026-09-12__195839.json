@@ -1,0 +1,235 @@
+{
+  "design": "ring",
+  "cell": "ringosc_tb",
+  "date": "2026-09-12",
+  "schematic": "pipeline/analog/ring/ringosc_tb.sch",
+  "netlist_source": "xschem",
+  "spec": {
+    "cell": "ringosc_tb",
+    "pdk": "sky130A",
+    "corners": [
+      "ss",
+      "tt",
+      "ff"
+    ],
+    "targets": {
+      "fosc": {
+        "min": 2000000000.0
+      },
+      "isup_abs": {
+        "max": 0.0003
+      }
+    },
+    "sweeps": [
+      {
+        "param": "W_P",
+        "values": [
+          1.0,
+          1.4266,
+          2.0
+        ],
+        "tag_prefix": "wp"
+      }
+    ],
+    "max_iterations": 2,
+    "why": "Five stages of inv/inv.sym, so this is the first cell here that instantiates another cell's symbol rather than redrawing its devices. It also measures something the inverter cannot: an oscillation period, which is a whole-loop property. The current target is on the magnitude \u2014 SPICE reports supply current negative, and a 'draw less than' target against a negative number passes for the wrong reason."
+  },
+  "iterations": [
+    {
+      "iteration": 0,
+      "results": [
+        {
+          "tag": "wp-1.0",
+          "overrides": {
+            "W_P": 1.0
+          },
+          "repair_of": null,
+          "pattern": null,
+          "measurements": {
+            "ss": {
+              "period": 3.68141e-10,
+              "isup_avg": -8.2292e-05,
+              "fosc": 2716350528.7376304,
+              "isup_abs": 8.2292e-05
+            },
+            "tt": {
+              "period": 2.41574e-10,
+              "isup_avg": -0.000121386,
+              "fosc": 4139518325.6476274,
+              "isup_abs": 0.000121386
+            },
+            "ff": {
+              "period": 1.72967e-10,
+              "isup_avg": -0.000164485,
+              "fosc": 5781449640.682905,
+              "isup_abs": 0.000164485
+            }
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "unverified": [],
+            "worst": {
+              "fosc": {
+                "corner": "ss",
+                "value": 2716350528.7376304,
+                "limit": 2000000000.0
+              },
+              "isup_abs": {
+                "corner": "ff",
+                "value": 0.000164485,
+                "limit": 0.0003
+              }
+            }
+          },
+          "errors": []
+        },
+        {
+          "tag": "wp-1.4266",
+          "overrides": {
+            "W_P": 1.4266
+          },
+          "repair_of": null,
+          "pattern": null,
+          "measurements": {
+            "ss": {
+              "period": 3.82007e-10,
+              "isup_avg": -9.95241e-05,
+              "fosc": 2617753077.823181,
+              "isup_abs": 9.95241e-05
+            },
+            "tt": {
+              "period": 2.49293e-10,
+              "isup_avg": -0.000146297,
+              "fosc": 4011344081.061241,
+              "isup_abs": 0.000146297
+            },
+            "ff": {
+              "period": 1.77442e-10,
+              "isup_avg": -0.000196936,
+              "fosc": 5635644323.215473,
+              "isup_abs": 0.000196936
+            }
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "unverified": [],
+            "worst": {
+              "fosc": {
+                "corner": "ss",
+                "value": 2617753077.823181,
+                "limit": 2000000000.0
+              },
+              "isup_abs": {
+                "corner": "ff",
+                "value": 0.000196936,
+                "limit": 0.0003
+              }
+            }
+          },
+          "errors": []
+        },
+        {
+          "tag": "wp-2.0",
+          "overrides": {
+            "W_P": 2.0
+          },
+          "repair_of": null,
+          "pattern": null,
+          "measurements": {
+            "ss": {
+              "period": 4.11829e-10,
+              "isup_avg": -0.000117778,
+              "fosc": 2428192283.690561,
+              "isup_abs": 0.000117778
+            },
+            "tt": {
+              "period": 2.72031e-10,
+              "isup_avg": -0.00016976,
+              "fosc": 3676051626.4690423,
+              "isup_abs": 0.00016976
+            },
+            "ff": {
+              "period": 1.97378e-10,
+              "isup_avg": -0.000224964,
+              "fosc": 5066420776.37832,
+              "isup_abs": 0.000224964
+            }
+          },
+          "verdict": {
+            "passed": true,
+            "violations": [],
+            "unverified": [],
+            "worst": {
+              "fosc": {
+                "corner": "ss",
+                "value": 2428192283.690561,
+                "limit": 2000000000.0
+              },
+              "isup_abs": {
+                "corner": "ff",
+                "value": 0.000224964,
+                "limit": 0.0003
+              }
+            }
+          },
+          "errors": []
+        }
+      ]
+    }
+  ],
+  "winner": {
+    "tag": "wp-2.0",
+    "overrides": {
+      "W_P": 2.0
+    },
+    "repair_of": null,
+    "pattern": null,
+    "measurements": {
+      "ss": {
+        "period": 4.11829e-10,
+        "isup_avg": -0.000117778,
+        "fosc": 2428192283.690561,
+        "isup_abs": 0.000117778
+      },
+      "tt": {
+        "period": 2.72031e-10,
+        "isup_avg": -0.00016976,
+        "fosc": 3676051626.4690423,
+        "isup_abs": 0.00016976
+      },
+      "ff": {
+        "period": 1.97378e-10,
+        "isup_avg": -0.000224964,
+        "fosc": 5066420776.37832,
+        "isup_abs": 0.000224964
+      }
+    },
+    "verdict": {
+      "passed": true,
+      "violations": [],
+      "unverified": [],
+      "worst": {
+        "fosc": {
+          "corner": "ss",
+          "value": 2428192283.690561,
+          "limit": 2000000000.0
+        },
+        "isup_abs": {
+          "corner": "ff",
+          "value": 0.000224964,
+          "limit": 0.0003
+        }
+      }
+    },
+    "errors": []
+  },
+  "stop_reason": "winner_found",
+  "outcome": "passed",
+  "toolchain": {
+    "netlister": "xschem",
+    "simulator": "ngspice",
+    "image": "ppa-eda/xschem:3.4.4"
+  }
+}

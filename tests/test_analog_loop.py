@@ -56,6 +56,19 @@ class Derived(unittest.TestCase):
         d = analog_loop.derive({"tphl": 1e-10})
         self.assertNotIn("rise_fall_ratio", d)
 
+    def test_an_oscillation_period_becomes_a_frequency(self):
+        # The ring oscillator measures a whole-loop property the inverter
+        # cannot; fosc is the unit a spec states it in.
+        d = analog_loop.derive({"period": 2.49293e-10})
+        self.assertAlmostEqual(d["fosc"] / 1e9, 4.011, places=2)
+
+    def test_supply_current_gets_a_magnitude_and_keeps_its_sign(self):
+        """SPICE reports supply current negative; a 'draw less than X'
+        target against a negative number passes for the wrong reason."""
+        d = analog_loop.derive({"isup_avg": -1.46297e-4})
+        self.assertAlmostEqual(d["isup_abs"], 1.46297e-4)
+        self.assertLess(d["isup_avg"], 0)
+
 
 def result(tag, overrides, per_corner, targets):
     return {"tag": tag, "overrides": overrides,
@@ -97,6 +110,23 @@ class Winner(unittest.TestCase):
         roomy = result("roomy", {"W_P": 2.0}, {"ss": {"tphl": 8.0e-11, "tplh": 8.0e-11}},
                        self.TARGETS)
         self.assertEqual(analog_loop.pick_winner([tight, roomy])["tag"], "roomy")
+
+    def test_more_is_better_targets_are_not_scored_backwards(self):
+        """The ring oscillator's first real run picked the SLOWEST of
+        three passing sizings, because a min-target's margin was computed
+        with the sign of a max-target's. A winner chosen by a sign error
+        is worse than no winner: it looks like a result."""
+        targets = {"fosc": {"min": 2.0e9}}
+        fast = result("fast", {"W_P": 1.0}, {"ss": {"period": 1 / 2.72e9}}, targets)
+        slow = result("slow", {"W_P": 2.0}, {"ss": {"period": 1 / 2.43e9}}, targets)
+        self.assertTrue(fast["verdict"]["passed"] and slow["verdict"]["passed"])
+        self.assertEqual(analog_loop.pick_winner([slow, fast])["tag"], "fast")
+
+    def test_the_bound_direction_is_recorded_not_implied(self):
+        verdict = analog_loop.score({"ss": {"period": 1 / 3e9}},
+                                    {"fosc": {"min": 2.0e9}})
+        self.assertEqual(verdict["worst"]["fosc"]["kind"], "min")
+        self.assertGreater(verdict["worst"]["fosc"]["margin"], 0)
 
     def test_nothing_passing_is_no_winner_rather_than_the_least_bad(self):
         bad = result("bad", {"W_P": 1.0}, {"ss": {"tphl": 2e-10, "tplh": 2e-10}},
@@ -149,6 +179,39 @@ class RepairPattern(unittest.TestCase):
         proposals = analog_loop.propose_repairs([wild], 0, {})
         # The ratio is 10; the step is not.
         self.assertLessEqual(proposals[0]["overrides"]["W_P"], analog_loop.MAX_STEP)
+
+    def test_the_mirror_pattern_widens_the_pull_down(self):
+        """nand2's two series nfets make the FALL the slow edge — the
+        opposite imbalance from the inverter's, and a different circuit
+        fact rather than a sign flip."""
+        targets = {"rise_fall_ratio": {"min": 0.9, "max": 1.1}}
+        # The real iteration-0 measurement of pipeline/analog/nand2.
+        slow_fall = result("base-wn0.5", {"W_N": 0.5},
+                           {"ss": {"tphl": 1.4434e-10, "tplh": 1.15063e-10}},
+                           targets)
+        proposals = analog_loop.propose_repairs([slow_fall], 0, {})
+        self.assertEqual(len(proposals), 1)
+        self.assertEqual(proposals[0]["pattern"], "balance-fall-rise")
+        self.assertAlmostEqual(proposals[0]["overrides"]["W_N"], 0.6272, places=3)
+
+    def test_the_two_patterns_do_not_fire_on_each_other_s_failures(self):
+        """The guard that matters: a pattern firing on a failure it was
+        never shown to fix is what the evidence requirement prevents."""
+        targets = {"rise_fall_ratio": {"min": 0.9, "max": 1.1}}
+        slow_rise = result("inv-ish", {"W_P": 1.0},
+                           {"ss": {"tphl": 8.83e-11, "tplh": 1.108e-10}}, targets)
+        slow_fall = result("nand-ish", {"W_N": 0.5},
+                           {"ss": {"tphl": 1.4434e-10, "tplh": 1.15063e-10}}, targets)
+        self.assertEqual(analog_loop.propose_repairs([slow_rise], 0, {})[0]["pattern"],
+                         "balance-rise-fall")
+        self.assertEqual(analog_loop.propose_repairs([slow_fall], 0, {})[0]["pattern"],
+                         "balance-fall-rise")
+
+    def test_neither_pattern_fires_without_the_knob_it_moves(self):
+        targets = {"rise_fall_ratio": {"min": 0.9, "max": 1.1}}
+        no_knob = result("no-knob", {"L_N": 0.15},
+                         {"ss": {"tphl": 1.4434e-10, "tplh": 1.15063e-10}}, targets)
+        self.assertEqual(analog_loop.propose_repairs([no_knob], 0, {}), [])
 
     def test_every_pattern_names_the_run_that_proved_it(self):
         """soul.md's bar: promoted, not assumed."""

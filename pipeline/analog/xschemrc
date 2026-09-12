@@ -1,0 +1,20 @@
+#### Project rc file for this repo's custom/analog cells.
+####
+#### Why it exists: a cell in one directory has to be able to instantiate
+#### a symbol from another — a ring oscillator instantiating inv/inv.sym
+#### is the whole reason symbols exist. xschem resolves a reference like
+#### "inv/inv.sym" against XSCHEM_LIBRARY_PATH, and the PDK's own rcfile
+#### flushes that path and adds only its own directories, so without this
+#### every cell here is an island ("inv IS MISSING !!!!" in the netlist,
+#### which is how this was found).
+####
+#### The PDK's rcfile is sourced rather than copied: everything it sets
+#### up (SKYWATER_MODELS, the sky130_fd_pr symbol library, colours) still
+#### applies, and this file adds exactly one thing on top.
+
+source $env(PDK_ROOT)/$env(PDK)/libs.tech/xschem/xschemrc
+
+#### This directory, as a library root. `info script` is this file, so
+#### the path is right whether the tree is mounted at /design in a
+#### container or read in place on a host with xschem installed.
+append XSCHEM_LIBRARY_PATH :[file dirname [info script]]
