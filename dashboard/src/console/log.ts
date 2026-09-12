@@ -29,10 +29,19 @@ export type LogEntry = {
 const MAX_ENTRIES = 500;
 
 const entries: LogEntry[] = [];
+// useSyncExternalStore compares snapshots by reference and skips the
+// re-render when they match. Returning the mutable `entries` array meant
+// the pane rendered once, at mount, and never again: every backend call
+// and every command after that was recorded and invisible. Caught by
+// running a simulation from the Schematic tab and watching the
+// transcript not move. So the snapshot is a copy, rebuilt only when
+// something is actually appended.
+let snapshot: LogEntry[] = [];
 const listeners = new Set<() => void>();
 let nextId = 1;
 
 function emit() {
+  snapshot = entries.slice();
   for (const fn of listeners) fn();
 }
 
@@ -48,7 +57,7 @@ export function subscribe(fn: () => void): () => void {
 }
 
 export function getEntries(): LogEntry[] {
-  return entries;
+  return snapshot;
 }
 
 export function clear(): void {

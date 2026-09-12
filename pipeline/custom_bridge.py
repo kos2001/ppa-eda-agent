@@ -694,6 +694,108 @@ def netlist_schematic(schematic: Path | str, pdk: str = "sky130A",
     )
 
 
+# xschem writes a fixed-size <svg width=... height=...> with no viewBox,
+# which cannot scale: dropped into a panel it renders at 1000x700 and
+# either overflows or leaves a margin, and browser zoom does nothing to
+# it. Adding a viewBox alongside the existing attributes is
+# non-destructive — the file still opens standalone at its natural size,
+# and CSS can now size it.
+_SVG_ROOT = re.compile(r'(<svg\b[^>]*?)\swidth="(\d+(?:\.\d+)?)"\s+height="(\d+(?:\.\d+)?)"')
+
+
+def add_viewbox(svg: str) -> str:
+    """Make an xschem SVG scalable. Returns it unchanged if already has one."""
+    if "viewBox" in svg:
+        return svg
+    m = _SVG_ROOT.search(svg)
+    if not m:
+        return svg
+    head, w, h = m.group(1), m.group(2), m.group(3)
+    return svg.replace(
+        m.group(0), f'{head} width="{w}" height="{h}" viewBox="0 0 {w} {h}"', 1)
+
+
+def render_schematic(schematic: Path | str, pdk: str = "sky130A",
+                     out: Path | str | None = None,
+                     timeout: int = 300) -> BridgeResult:
+    """Draw the schematic — xschem's own renderer, as SVG.
+
+    A flow that starts at a schematic and never shows one is asking to be
+    taken on trust. This repo already renders the digital half's real GDS
+    (`render_layout.py`, KLayout) for exactly that reason; this is the
+    same move for the custom half, and it is the tool's own drawing
+    rather than a redrawing of the `.sch` by code here — a second
+    renderer is a second thing that can disagree with the netlist.
+
+    Vector rather than PNG because a schematic is lines and text: it has
+    to stay readable when someone zooms into a device label, which a
+    raster render of a 1000x700 canvas does not.
+    """
+    schematic = Path(schematic).resolve()
+    if not schematic.is_file():
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"no such schematic: {schematic}"],
+                            metadata={"reason": "missing_schematic"})
+    out = Path(out).resolve() if out else schematic.with_suffix(".svg")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    rcfile = PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc"
+    if not rcfile.is_file():
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"{pdk} ships no xschem rcfile at {rcfile}"],
+                            metadata={"reason": "missing_pdk_xschemrc"})
+
+    started = time.time()
+    exe = resolve("xschem")
+    if exe:
+        argv = [exe, "-q", "-x", "--rcfile", str(rcfile),
+                "--command", f"xschem zoom_full; xschem print svg {out}",
+                str(schematic)]
+        via = "local"
+    else:
+        if not (shutil.which("docker") and ensure_xschem_image()):
+            return BridgeResult(
+                status=ExecutionStatus.ERROR,
+                errors=["xschem is not installed and its image could not be built"],
+                metadata={"reason": "not_installed", "backend": "xschem",
+                          "image": XSCHEM_IMAGE})
+        argv = ["docker", "run", "--rm", *platform_args(),
+                "-v", f"{PDK_ROOT}:/pdk:ro",
+                "-v", f"{schematic.parent}:/design",
+                "-v", f"{out.parent}:/out",
+                XSCHEM_IMAGE, "xschem", "-q", "-x",
+                "--rcfile", f"/pdk/{pdk}/libs.tech/xschem/xschemrc",
+                "--command", f"xschem zoom_full; xschem print svg /out/{out.name}",
+                f"/design/{schematic.name}"]
+        via = "docker"
+
+    try:
+        r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
+                           stdin=subprocess.DEVNULL)
+    except subprocess.TimeoutExpired:
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"xschem did not exit within {timeout}s"],
+                            metadata={"reason": "timeout", "argv": argv})
+    except OSError as exc:
+        return BridgeResult(status=ExecutionStatus.ERROR, errors=[str(exc)],
+                            metadata={"reason": "exec_failed", "argv": argv})
+
+    text = r.stdout + r.stderr
+    errors, warnings = parse_problems(text)
+    if out.is_file():
+        # Same as the netlister: the file is the verdict, not the code.
+        out.write_text(add_viewbox(out.read_text(encoding="utf-8")), encoding="utf-8")
+    else:
+        errors.append(f"xschem wrote no SVG at {out}")
+    return BridgeResult(
+        status=ExecutionStatus.FAILURE if errors else ExecutionStatus.SUCCESS,
+        output=text, errors=errors, warnings=warnings,
+        execution_time=round(time.time() - started, 3),
+        metadata={"backend": "xschem", "via": via, "schematic": str(schematic),
+                  "svg": str(out) if out.is_file() else None, "pdk": pdk,
+                  "returncode": r.returncode},
+    )
+
+
 def run_spice(netlist: Path | str, pdk: str = "sky130A", corner: str = "tt",
               timeout: int = 300) -> BridgeResult:
     """A real transistor-level simulation — the ADE/Spectre counterpart.
@@ -744,6 +846,13 @@ def main() -> None:
     p_net.add_argument("--out-dir", default=None, type=Path)
     p_net.add_argument("--timeout", type=int, default=300)
 
+    p_draw = sub.add_parser("draw", parents=[common],
+                             help="render a schematic to SVG with xschem")
+    p_draw.add_argument("--schematic", required=True, type=Path)
+    p_draw.add_argument("--pdk", default="sky130A")
+    p_draw.add_argument("--out", default=None, type=Path)
+    p_draw.add_argument("--timeout", type=int, default=300)
+
     p_spice = sub.add_parser("spice", parents=[common], help="run a real transistor-level sim")
     p_spice.add_argument("--netlist", required=True, type=Path)
     p_spice.add_argument("--pdk", default="sky130A")
@@ -757,6 +866,9 @@ def main() -> None:
     elif args.cmd == "eval":
         code = args.code if args.code is not None else sys.stdin.read()
         r = evaluate(args.backend, code, timeout=args.timeout)
+    elif args.cmd == "draw":
+        r = render_schematic(args.schematic, pdk=args.pdk, out=args.out,
+                             timeout=args.timeout)
     elif args.cmd == "netlist":
         r = netlist_schematic(args.schematic, pdk=args.pdk, out_dir=args.out_dir,
                               timeout=args.timeout)
@@ -770,6 +882,8 @@ def main() -> None:
         print(r.output or "")
         for e in r.errors:
             print(f"ERROR   {e}", file=sys.stderr)
+        if r.metadata.get("svg"):
+            print(f"\nsvg: {r.metadata['svg']}")
         if r.metadata.get("netlist"):
             print(f"\nnetlist: {r.metadata['netlist']}")
         meas = r.metadata.get("measurements")

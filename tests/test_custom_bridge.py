@@ -226,6 +226,43 @@ class SchematicEntryPoint(unittest.TestCase):
         self.assertEqual(r.metadata["reason"], "missing_pdk_xschemrc")
 
 
+class SchematicRendering(unittest.TestCase):
+    """A flow that starts at a schematic and never shows one asks to be
+    taken on trust. The drawing is xschem's own SVG export, not a second
+    renderer written here — a redrawing of the .sch would be a second
+    thing that can disagree with the netlist."""
+
+    DESIGN = Path(__file__).resolve().parent.parent / "pipeline" / "analog" / "inv"
+
+    def test_a_viewbox_is_added_so_the_drawing_can_scale(self):
+        """xschem writes a fixed width/height and no viewBox, so the SVG
+        renders at 1000x700 in a panel and ignores zoom entirely."""
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" version="1.1">'
+        out = custom_bridge.add_viewbox(svg)
+        self.assertIn('viewBox="0 0 1000 700"', out)
+        self.assertIn('width="1000"', out)
+
+    def test_an_existing_viewbox_is_left_alone(self):
+        svg = '<svg width="10" height="20" viewBox="0 0 10 20">'
+        self.assertEqual(custom_bridge.add_viewbox(svg), svg)
+
+    def test_markup_it_does_not_recognise_is_returned_unchanged(self):
+        # Returning something half-rewritten would be worse than
+        # returning the file as it came.
+        self.assertEqual(custom_bridge.add_viewbox("<svg>"), "<svg>")
+
+    def test_a_missing_schematic_is_an_error(self):
+        r = custom_bridge.render_schematic(self.DESIGN / "nope.sch")
+        self.assertEqual(r.status, ExecutionStatus.ERROR)
+        self.assertEqual(r.metadata["reason"], "missing_schematic")
+
+    def test_the_checked_in_drawing_scales(self):
+        """The committed SVG is what the dashboard serves; if it lost its
+        viewBox the panel would overflow instead of fitting."""
+        svg = (self.DESIGN / "inv_tb.svg").read_text(encoding="utf-8")
+        self.assertIn("viewBox=", svg)
+
+
 class BackendImages(unittest.TestCase):
     def test_xschem_has_an_image_of_its_own(self):
         """It is in neither this host nor the OpenLane image: no Homebrew

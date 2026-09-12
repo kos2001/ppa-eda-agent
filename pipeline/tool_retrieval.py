@@ -335,7 +335,7 @@ MEASUREMENTS: list[dict] = [
         "id": "characterisation-ceiling-is-a-spice-question",
         "design": "sram_wrapper",
         "when": ["RSZ-0090", "max_slew_violation"],
-        "tool": "ppa_netlist_schematic, then ppa_spice_sim",
+        "tool": "ppa_render_schematic to see it, ppa_netlist_schematic, then ppa_spice_sim",
         "cli": "python3 pipeline/custom_bridge.py netlist "
                "--schematic pipeline/analog/inv/inv_tb.sch && "
                "python3 pipeline/custom_bridge.py spice "
