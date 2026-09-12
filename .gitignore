@@ -35,3 +35,8 @@ pipeline/analog/*/*.spice
 # gitignored, and a large design renders tens of megabytes of SVG
 # (aes: 39 MB) — regenerate rather than store.
 pipeline/designs/*/sch/
+
+# Standard-cell schematics generated from the PDK CDL on demand by
+# pipeline/stdcell_schematic.py. The CDL itself lives under the
+# (gitignored) pdk/, so these are regenerated, never stored.
+pipeline/analog/stdcell/

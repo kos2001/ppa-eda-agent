@@ -1262,6 +1262,71 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // The standard-cell library, as things you can open. 370 of the 437
+  // cells in sky130_fd_sc_hd draw; the rest use `special_nfet_01v8` /
+  // `special_pfet_01v8_hvt`, real devices with no xschem symbol, and
+  // those are refused by name rather than drawn three transistors short.
+  if (req.method === "GET" && req.url?.startsWith("/analog/stdcells")) {
+    const q = new URL(req.url, "http://localhost").searchParams.get("q") ?? "";
+    if (!/^[A-Za-z0-9_]*$/.test(q)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "q must be alphanumeric" }));
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); import stdcell_schematic as st; " +
+         "q = sys.argv[1] or None; " +
+         "found = st.cells(q); " +
+         "print(json.dumps({'cells': [{'cell': c, 'drawable': st.drawable(c)} " +
+         "for c in found[:200]], 'total': len(found)}))",
+         q],
+        { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
+      );
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[stdcells error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/analog/stdcell") {
+    let stdBody = "";
+    req.on("data", (chunk) => (stdBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { cell } = JSON.parse(stdBody || "{}");
+        if (!/^[A-Za-z0-9_]+$/.test(cell ?? "")) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "cell required" }));
+          return;
+        }
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import stdcell_schematic as st; " +
+           "print(json.dumps(st.convert(sys.argv[1])))",
+           cell],
+          { cwd: pipelineDir, timeout: 300_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        const out = JSON.parse(stdout);
+        if (out.ok) out.id = `analog/stdcell/${cell}`;
+        res.writeHead(out.ok ? 200 : 400, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify(out));
+      } catch (err) {
+        console.error("[stdcell error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
   // Seeds worth offering for a cone: the design's own ports. Typing an
   // internal Yosys net name like _01769_ is not something anyone can do
   // from memory, and the ports are where a reader starts anyway.

@@ -175,3 +175,29 @@
                       border-right: 0; border-bottom: 1px solid var(--border);
                       max-height: none; }
 }
+
+/* The library browser: a wrapping field of chips, because the answer to
+   "which cell" is usually recognised rather than scrolled to. */
+.schematic__stdcells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 0.4rem;
+  max-height: 8.5rem;
+  overflow-y: auto;
+}
+.schematic__stdcell {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+.schematic__stdcell:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.schematic__stdcell.is-blocked {
+  color: var(--text-dim);
+  border-style: dashed;
+  cursor: not-allowed;
+}

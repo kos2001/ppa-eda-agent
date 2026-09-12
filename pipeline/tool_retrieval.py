@@ -332,6 +332,27 @@ MEASUREMENTS: list[dict] = [
                     "a DIE_AREA list into a tag.",
     },
     {
+        "id": "what-is-this-cell",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090"],
+        "tool": "ppa_stdcell_schematic",
+        "cli": "python3 pipeline/stdcell_schematic.py "
+               "--cell sky130_fd_sc_hd__dlymetal6s2s_1 --draw",
+        "answers": "What a cell the tools chose actually is, at transistor "
+                   "level, from the foundry's own CDL — width, length, "
+                   "multiplicity and topology, not just a name in a report.",
+        "trap": "The sequential cells cannot be drawn: flops and latches use "
+                "special_nfet_01v8, a real device with no xschem symbol, and "
+                "the importer drops what it cannot resolve without saying so "
+                "(dfxtp_2 came out with 21 of its 24 transistors). The tool "
+                "refuses those by name. It is also the wrong question for a "
+                "timing failure on its own — read the path first, then ask "
+                "what the cell on it is.",
+        "evidence": "sram_wrapper: repair_design fixed a slew violation by "
+                    "inserting dlymetal6s2s_1, a delay cell, and nothing in "
+                    "this repo could show what that cell was.",
+    },
+    {
         "id": "characterisation-ceiling-is-a-spice-question",
         "design": "sram_wrapper",
         "when": ["RSZ-0090", "max_slew_violation"],
