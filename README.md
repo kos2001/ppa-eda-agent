@@ -300,6 +300,15 @@ build needs XQuartz plus an X11-linked Tk). `evaluate()` falls back to
 whichever container carries a backend rather than reporting one
 `status --docker` just called available.
 
+**The viewer pans and zooms.** A gate-level cone is small cells with
+small pin labels and xschem exports one fixed 1000x700 canvas, so a
+panel-sized `<img>` is a picture of a schematic rather than a schematic.
+`SchematicViewer.tsx` does what every EDA viewer and every map does:
+scroll to zoom about the pointer, drag to pan, `0`/`F`/double-click to
+fit, `+`/`-` to step, and a full-screen sheet that `Esc` closes. Zooming
+is a CSS transform on the SVG, so a scroll wheel costs no request and no
+re-parse.
+
 **The flow starts at the schematic.** This first shipped with a
 hand-written SPICE deck, which is one step below where the custom flow
 actually starts: in Virtuoso nobody types a netlist, they draw a
