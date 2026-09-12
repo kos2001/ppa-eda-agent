@@ -199,7 +199,7 @@ MEASUREMENTS: list[dict] = [
         "id": "see-the-layout",
         "design": "sram_wrapper",
         "when": ["macro_present", "placement_suspected"],
-        "tool": "ppa_render_layout",
+        "tool": "ppa_render_layout, and ppa_gate_schematic for the netlist behind it",
         "cli": "python3 pipeline/render_layout.py --design D --tag T",
         "answers": "The run's real rendered GDS, for a question about where "
                    "things physically ended up.",

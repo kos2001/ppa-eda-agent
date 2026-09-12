@@ -20,7 +20,22 @@ import { BACKEND } from "./EdaShell";
 import { log } from "../console/log";
 import "./SchematicTab.css";
 
-type Cell = { design: string; cell: string; id: string; simulatable: boolean };
+type Cell = {
+  kind: "analog" | "gate";
+  design: string;
+  cell: string;
+  id: string;
+  simulatable: boolean;
+  instances: number;
+};
+
+// Past this the drawing is real and unreadable, and the SVG is tens of
+// megabytes. Measured on this repo's own designs: the importer emits
+// about five `C {` lines per standard cell (gcd: 280 cells -> 1,280),
+// and gate_schematic.py caps at 1,500 cells for the same reason — a
+// commercial console will not schematic-view a whole SoC in one window
+// either. aes lands at 62,974 and riscv32i at 26,777.
+const MAX_AUTO_INSTANCES = 8000;
 
 type RunResult = {
   netlist: { status: string; errors: string[]; metadata: Record<string, unknown> };
@@ -58,6 +73,8 @@ export default function SchematicTab() {
   const [selected, setSelected] = useState<string | null>(null);
   const [corner, setCorner] = useState("tt");
   const [running, setRunning] = useState(false);
+  // Opening a 39 MB drawing is a decision, not a default.
+  const [forced, setForced] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -122,22 +139,48 @@ export default function SchematicTab() {
                 No schematics under <code>pipeline/analog/</code>.
               </p>
             )}
-            {cells?.map((c) => (
-              <button
-                type="button"
-                key={c.id}
-                className={c.id === selected ? "schematic__cell is-active" : "schematic__cell"}
-                onClick={() => { setSelected(c.id); setResult(null); setError(null); }}
-              >
-                <b>{c.cell}</b>
-                <span>{c.design}</span>
-                {c.simulatable && <em>tb</em>}
-              </button>
-            ))}
+            {(["analog", "gate"] as const).map((kind) => {
+              const group = cells?.filter((c) => c.kind === kind) ?? [];
+              if (group.length === 0) return null;
+              return (
+                <div key={kind} className="schematic__group">
+                  <span className="schematic__group-title">
+                    {kind === "analog" ? "custom cells" : "layout pipeline · gate level"}
+                  </span>
+                  {group.map((c) => (
+                    <button
+                      type="button"
+                      key={c.id}
+                      className={c.id === selected ? "schematic__cell is-active" : "schematic__cell"}
+                      onClick={() => { setSelected(c.id); setResult(null); setError(null); setForced(false); }}
+                    >
+                      <b>{c.cell}</b>
+                      <span>{c.design}</span>
+                      {c.simulatable && <em>tb</em>}
+                    </button>
+                  ))}
+                </div>
+              );
+            })}
           </nav>
 
           <div className="schematic__view">
-            {selected ? (
+            {current && current.instances > MAX_AUTO_INSTANCES && !forced ? (
+              <div className="schematic__toodense">
+                <p>
+                  {current.cell} draws {current.instances.toLocaleString()} elements.
+                </p>
+                <p className="schematic__hint">
+                  That is a real schematic of the whole netlist and it is
+                  neither readable on one sheet nor small enough for a panel —
+                  the same reason <code>gate_schematic.py</code> caps at 1,500
+                  cells.
+                </p>
+                <button type="button" onClick={() => setForced(true)}>
+                  draw it anyway
+                </button>
+              </div>
+            ) : selected ? (
               // <img> rather than inlined markup: the SVG is xschem's
               // file, unmodified except for the viewBox that lets it
               // scale, and keeping it a resource means the browser

@@ -1177,25 +1177,42 @@ const server = createServer(async (req, res) => {
   // per page view.
   if (req.method === "GET" && req.url === "/analog/cells") {
     try {
-      const root = path.join(pipelineDir, "analog");
-      const designs = await readdir(root, { withFileTypes: true }).catch(() => []);
       const cells = [];
-      for (const d of designs) {
-        if (!d.isDirectory()) continue;
-        for (const f of await readdir(path.join(root, d.name))) {
-          if (!f.endsWith(".sch")) continue;
-          const cell = f.slice(0, -4);
-          const src = path.join(root, d.name, f);
-          // A testbench is a schematic that carries its own analysis;
-          // only those can be simulated, and the UI needs to know which
-          // is which without opening them.
-          const text = await readFile(src, "utf-8");
-          cells.push({
-            design: d.name,
-            cell,
-            id: `${d.name}/${cell}`,
-            simulatable: text.includes(".control"),
-          });
+      // Two roots, because there are two kinds of schematic here and
+      // both belong in one viewer: the custom cells drawn by hand under
+      // pipeline/analog, and the gate-level view of what the layout
+      // pipeline actually built, generated from a run's own netlist by
+      // pipeline/gate_schematic.py. An id carries its root so the svg
+      // route can find the file without guessing.
+      const roots = [
+        { kind: "analog", base: path.join(pipelineDir, "analog"), sub: "" },
+        { kind: "gate", base: path.join(pipelineDir, "designs"), sub: "sch" },
+      ];
+      for (const root of roots) {
+        const designs = await readdir(root.base, { withFileTypes: true }).catch(() => []);
+        for (const d of designs) {
+          if (!d.isDirectory()) continue;
+          const dir = root.sub ? path.join(root.base, d.name, root.sub)
+                               : path.join(root.base, d.name);
+          for (const f of await readdir(dir).catch(() => [])) {
+            if (!f.endsWith(".sch")) continue;
+            const cell = f.slice(0, -4);
+            const text = await readFile(path.join(dir, f), "utf-8");
+            cells.push({
+              kind: root.kind,
+              design: d.name,
+              cell,
+              id: `${root.kind}/${d.name}/${cell}`,
+              // A testbench is a schematic that carries its own
+              // analysis; only those can be simulated, and the UI needs
+              // to know which is which without opening them.
+              simulatable: text.includes(".control"),
+              // Cheap proxy for "will this draw usefully" — the same
+              // thing gate_schematic.py caps on, measured at ~2.6 KB of
+              // SVG per cell.
+              instances: (text.match(/^C \{/gm) ?? []).length,
+            });
+          }
         }
       }
       cells.sort((a, b) => a.id.localeCompare(b.id));
@@ -1211,14 +1228,17 @@ const server = createServer(async (req, res) => {
 
   if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
     const id = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
-    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
+    if (!/^(analog|gate)\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
       res.writeHead(400, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "cell must be <design>/<cell>" }));
+      res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
       return;
     }
-    const [design, cell] = id.split("/");
-    const sch = path.join(pipelineDir, "analog", design, `${cell}.sch`);
-    const svg = path.join(pipelineDir, "analog", design, `${cell}.svg`);
+    const [kind, design, cell] = id.split("/");
+    const dir = kind === "gate"
+      ? path.join(pipelineDir, "designs", design, "sch")
+      : path.join(pipelineDir, "analog", design);
+    const sch = path.join(dir, `${cell}.sch`);
+    const svg = path.join(dir, `${cell}.svg`);
     try {
       const schStat = await stat(sch);
       const svgStat = await stat(svg).catch(() => null);
@@ -1251,9 +1271,11 @@ const server = createServer(async (req, res) => {
     req.on("end", async () => {
       try {
         const { cell, corner = "tt", pdk = "sky130A" } = JSON.parse(analogBody || "{}");
-        if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cell ?? "")) {
+        // Only the analog root is runnable: a gate-level schematic is a
+        // view of a netlist, with no stimulus and no analysis in it.
+        if (!/^analog\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cell ?? "")) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "cell must be <design>/<cell>" }));
+          res.end(JSON.stringify({ error: "cell must be analog/<design>/<cell>" }));
           return;
         }
         if (!/^[a-z]{2}$/.test(corner) || !/^[A-Za-z0-9_]+$/.test(pdk)) {
@@ -1261,7 +1283,7 @@ const server = createServer(async (req, res) => {
           res.end(JSON.stringify({ error: "bad corner or pdk" }));
           return;
         }
-        const [design, name] = cell.split("/");
+        const [, design, name] = cell.split("/");
         const sch = path.join(pipelineDir, "analog", design, `${name}.sch`);
         const { stdout } = await execFileAsync(
           "python3",

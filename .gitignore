@@ -29,3 +29,9 @@ __pycache__/
 # deck is kept — see its own header for why it is named that.
 pipeline/analog/*/*.spice
 !pipeline/analog/*/*_handwritten.spice
+
+# Gate-level schematics generated from a run.'s netlist by
+# pipeline/gate_schematic.py. Build artifacts of a netlist that is itself
+# gitignored, and a large design renders tens of megabytes of SVG
+# (aes: 39 MB) — regenerate rather than store.
+pipeline/designs/*/sch/
