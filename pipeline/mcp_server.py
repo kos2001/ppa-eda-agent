@@ -401,6 +401,15 @@ TOOLS = [
                                             "with a drawable netlist"},
                 "draw": {"type": "boolean", "description": "also render an SVG"},
                 "force": {"type": "boolean"},
+                "seed": {"type": "string",
+                          "description": "a net or instance to draw a CONE around "
+                                         "instead of the whole design — this is "
+                                         "how aes (11,616 cells) and riscv32i "
+                                         "(5,423) get looked at"},
+                "depth": {"type": "integer", "description": "cone depth, default 4"},
+                "direction": {"type": "string",
+                               "enum": ["fanin", "fanout", "both"],
+                               "description": "default fanin"},
             },
         },
     },
@@ -618,10 +627,15 @@ def _tool_analog_scan(args: dict) -> dict:
 
 def _tool_gate_schematic(args: dict) -> dict:
     run_dir = args.get("run_dir")
-    out = gate_schematic.convert(
-        args["design"],
-        run_dir=(REPO_ROOT / run_dir if run_dir and not Path(run_dir).is_absolute()
-                 else (Path(run_dir) if run_dir else None)))
+    resolved = (REPO_ROOT / run_dir if run_dir and not Path(run_dir).is_absolute()
+                else (Path(run_dir) if run_dir else None))
+    if args.get("seed"):
+        out = gate_schematic.convert_cone(args["design"], args["seed"],
+                                          int(args.get("depth", 4)),
+                                          args.get("direction", "fanin"),
+                                          run_dir=resolved)
+    else:
+        out = gate_schematic.convert(args["design"], run_dir=resolved)
     if out["ok"] and args.get("draw") and (out["drawable"] or args.get("force")):
         drawn = custom_bridge.render_schematic(REPO_ROOT / out["schematic"])
         out["svg"] = drawn.metadata.get("svg")

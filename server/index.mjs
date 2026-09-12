@@ -1262,6 +1262,79 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Seeds worth offering for a cone: the design's own ports. Typing an
+  // internal Yosys net name like _01769_ is not something anyone can do
+  // from memory, and the ports are where a reader starts anyway.
+  if (req.method === "GET" && req.url?.startsWith("/analog/cone/seeds")) {
+    const design = new URL(req.url, "http://localhost").searchParams.get("design") ?? "";
+    if (!isSafeDesignName(design)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "design required" }));
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); " +
+         "import gate_schematic, netlist_cone; " +
+         `n = gate_schematic.find_netlist(${JSON.stringify(design)}); ` +
+         "print(json.dumps({} if n is None else " +
+         "netlist_cone.parse_module(n.read_text())))"],
+        { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
+      );
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[cone seeds error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  // A cone is how a design too big to draw whole gets looked at — see
+  // pipeline/netlist_cone.py. Returns the cell id the viewer can open.
+  if (req.method === "POST" && req.url === "/analog/cone") {
+    let coneBody = "";
+    req.on("data", (chunk) => (coneBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { design, seed, depth = 4, direction = "fanin" } =
+          JSON.parse(coneBody || "{}");
+        if (!isSafeDesignName(design) || typeof seed !== "string" || !seed.trim()) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "design and seed required" }));
+          return;
+        }
+        if (!["fanin", "fanout", "both"].includes(direction)
+            || !Number.isInteger(depth) || depth < 1 || depth > 12) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "bad depth or direction" }));
+          return;
+        }
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import gate_schematic; " +
+           "out = gate_schematic.convert_cone(sys.argv[1], sys.argv[2], " +
+           "int(sys.argv[3]), sys.argv[4]); print(json.dumps(out))",
+           design, seed, String(depth), direction],
+          { cwd: pipelineDir, timeout: 600_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        const out = JSON.parse(stdout);
+        if (out.ok) out.id = `gate/${design}/${out.top}`;
+        res.writeHead(out.ok ? 200 : 400, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify(out));
+      } catch (err) {
+        console.error("[cone error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
   // Netlist the schematic, then simulate the netlist. Two steps, one
   // call, because that IS the flow — and doing it in one place is what
   // keeps a stale deck from being simulated against an edited drawing.

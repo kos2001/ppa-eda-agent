@@ -171,6 +171,63 @@ def convert(design: str, run_dir: Path | None = None,
             "symbol": str((out_dir / f"{top}.sym").relative_to(REPO_ROOT))}
 
 
+def convert_cone(design: str, seed: str, depth: int = 4,
+                 direction: str = "fanin", run_dir: Path | None = None,
+                 out_dir: Path | None = None, max_cells: int = 400,
+                 timeout: int = 600) -> dict:
+    """One readable sheet out of a design too big to draw whole.
+
+    Same importer, same symbols — only the Verilog handed to it is a
+    cone instead of the whole netlist (see netlist_cone.py for why that
+    is the answer rather than a bigger canvas).
+    """
+    import netlist_cone
+
+    extracted = netlist_cone.extract(design, seed, depth, direction, run_dir,
+                                     max_cells)
+    if not extracted["ok"]:
+        return {"design": design, "ok": False, "error": extracted["error"],
+                "hint": extracted.get("hint")}
+    if not (shutil.which("docker") and custom_bridge.ensure_xschem_image()):
+        return {"design": design, "ok": False,
+                "error": "xschem is not installed and its image could not be built"}
+
+    top = extracted["module"]
+    out_dir = out_dir or (DESIGNS / design / "sch")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as td:
+        work = Path(td)
+        (work / f"{top}.v").write_text(preprocess(extracted["verilog"]),
+                                        encoding="utf-8")
+        argv = ["docker", "run", "--rm", *platform_args(),
+                "-v", f"{PDK_ROOT}:/pdk:ro", "-v", f"{work}:/work",
+                "-w", "/work", "-e", "PDK_ROOT=/pdk",
+                custom_bridge.XSCHEM_IMAGE, "awk", "-f", IMPORTER, f"{top}.v"]
+        try:
+            result = subprocess.run(argv, capture_output=True, text=True,
+                                    timeout=timeout, stdin=subprocess.DEVNULL)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return {"design": design, "ok": False, "error": str(exc)}
+        wanted = [f"{top}.sch", f"{top}.sym"]
+        produced = {p.name: p for p in list(work.glob("*.sch")) + list(work.glob("*.sym"))}
+        if not all(name in produced for name in wanted):
+            return {"design": design, "ok": False,
+                    "error": f"importer wrote {sorted(produced) or 'nothing'}, "
+                              f"expected {wanted}",
+                    "log": (result.stdout + result.stderr)[-800:]}
+        for name in wanted:
+            shutil.copy(produced[name], out_dir / name)
+
+    return {"design": design, "ok": True, "top": top, "drawable": True,
+            "seed": seed, "depth": depth, "direction": direction,
+            "directed": extracted["directed"],
+            "cells": extracted["cells"], "of_total": extracted["of_total"],
+            "truncated": extracted["truncated"],
+            "netlist": extracted["netlist"],
+            "schematic": str((out_dir / f"{top}.sch").relative_to(REPO_ROOT)),
+            "symbol": str((out_dir / f"{top}.sym").relative_to(REPO_ROOT))}
+
+
 def drawable_designs() -> list[str]:
     """Designs with a netlist this can actually draw, asked not assumed."""
     if not DESIGNS.is_dir():
@@ -186,6 +243,12 @@ def main() -> None:
                     help="omit to list designs that have a drawable netlist")
     ap.add_argument("--run-dir", type=Path, default=None)
     ap.add_argument("--draw", action="store_true", help="also render an SVG")
+    ap.add_argument("--seed", default=None,
+                    help="draw a cone around this net/instance instead of the "
+                          "whole design — the way to see aes or riscv32i")
+    ap.add_argument("--depth", type=int, default=4)
+    ap.add_argument("--direction", choices=("fanin", "fanout", "both"),
+                    default="fanin")
     ap.add_argument("--force", action="store_true",
                     help=f"render even above {MAX_DRAWABLE_CELLS} cells")
     args = ap.parse_args()
@@ -195,13 +258,22 @@ def main() -> None:
             print(name)
         return
 
-    out = convert(args.design, args.run_dir)
+    out = (convert_cone(args.design, args.seed, args.depth, args.direction,
+                        args.run_dir)
+           if args.seed else convert(args.design, args.run_dir))
     if not out["ok"]:
         print(f"{args.design}: {out['error']}", file=sys.stderr)
         if out.get("log"):
             print(out["log"], file=sys.stderr)
         sys.exit(1)
-    print(f"{out['design']} ({out['top']}): {out['cells']} cells")
+    if out.get("seed"):
+        print(f"{out['design']} ({out['top']}): {out['cells']} of "
+              f"{out['of_total']} cells around {out['seed']}, "
+              f"{out['direction']} depth {out['depth']}"
+              + ("  (truncated)" if out["truncated"] else "")
+              + ("" if out["directed"] else "  (undirected: no Yosys JSON)"))
+    else:
+        print(f"{out['design']} ({out['top']}): {out['cells']} cells")
     print(f"  from {out['netlist']}")
     print(f"  {out['schematic']}")
     if args.draw and not out["drawable"] and not args.force:
