@@ -1,0 +1,282 @@
+/* Commercial-console chrome: menu bar, transcript, status bar.
+ *
+ * Everything here is 11–12px, square-cornered and 1px-bordered on
+ * purpose. The density is not a style preference — it is what makes a
+ * window that has to show a menu bar, a navigator, a work area, a
+ * transcript and a status bar at once actually fit on one screen. The
+ * rounded, airy card styling in App.css stays where it belongs, inside
+ * the work area.
+ *
+ * Colours come from the existing tokens in index.css rather than new
+ * hex values: those were measured for WCAG AA in both themes (see the
+ * long note there), and a redesign that reintroduced unmeasured colours
+ * would quietly undo that work.
+ */
+
+.eda-menubar {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  height: 26px;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border-strong);
+  font-family: var(--mono);
+  font-size: 11px;
+  user-select: none;
+  position: relative;
+  z-index: 60;
+  flex: none;
+}
+
+.eda-menubar__slot { position: relative; display: flex; }
+
+.eda-menubar__button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid transparent;
+  color: var(--text);
+  font: inherit;
+  padding: 0 10px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.eda-menubar__button:hover { background: var(--surface); }
+.eda-menubar__button.is-open {
+  background: var(--accent);
+  color: #fff;
+}
+
+.eda-menubar__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  color: var(--text-dim);
+  font-size: 11px;
+  /* nowrap and min-width:0 together: without the first the bar grows a
+     second line and shoves the whole workspace down, and without the
+     second the ellipsis never triggers because a flex item refuses to
+     shrink below its content. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.eda-menubar__right b { color: var(--text); font-weight: 600; }
+
+.eda-menu {
+  position: absolute;
+  top: 26px;
+  left: 0;
+  min-width: 232px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  padding: 3px 0;
+  z-index: 61;
+}
+
+.eda-menu__item {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: left;
+  padding: 4px 10px 4px 4px;
+  cursor: pointer;
+}
+.eda-menu__item:hover:not(:disabled) { background: var(--accent); color: #fff; }
+.eda-menu__item:hover:not(:disabled) .eda-menu__hint { color: rgba(255, 255, 255, 0.72); }
+.eda-menu__item:disabled { color: var(--text-dim); cursor: default; }
+/* A rule above the item, the way a desktop menu groups: cheaper than a
+   separate element and it cannot get out of sync with the item it
+   separates. */
+.eda-menu__item--sep {
+  border-top: 1px solid var(--border);
+  margin-top: 3px;
+  padding-top: 6px;
+}
+.eda-menu__check { text-align: center; opacity: 0.9; }
+.eda-menu__hint { color: var(--text-dim); font-size: 10px; }
+
+/* ------------------------------------------------------------------ */
+
+.eda-console {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  height: 216px;
+  border-top: 1px solid var(--border-strong);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.eda-console--collapsed { height: 24px; }
+
+.eda-console__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 24px;
+  flex: none;
+  padding: 0 8px;
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--border);
+}
+.eda-console--collapsed .eda-console__bar { border-bottom: 0; }
+
+.eda-console__toggle {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  cursor: pointer;
+  padding: 0;
+  letter-spacing: 0.04em;
+}
+.eda-console__counts { color: var(--text-dim); }
+.eda-console__counts b { color: var(--text); font-weight: 600; }
+.eda-console__counts em { font-style: normal; }
+.eda-console__counts .is-error { color: var(--critical); }
+.eda-console__counts .is-warn { color: var(--warn); }
+
+.eda-console__tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+}
+.eda-console__tools button {
+  appearance: none;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 1px 7px;
+  cursor: pointer;
+}
+.eda-console__tools button:hover { border-color: var(--accent); color: var(--accent); }
+.eda-console__filter, .eda-console__follow { display: flex; align-items: center; gap: 4px; }
+.eda-console__filter select {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 1px 2px;
+}
+
+.eda-console__body {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 0;
+  background: var(--bg);
+}
+.eda-console__empty { margin: 6px 10px; color: var(--text-dim); }
+
+.eda-console__line {
+  display: grid;
+  grid-template-columns: 92px 42px 76px 1fr;
+  gap: 8px;
+  padding: 1px 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.eda-console__line:hover { background: var(--surface-raised); }
+.eda-console__time { color: var(--text-dim); }
+.eda-console__level { text-transform: uppercase; color: var(--text-dim); }
+.eda-console__source { color: var(--accent); }
+.eda-console__line.is-error .eda-console__level,
+.eda-console__line.is-error .eda-console__text { color: var(--critical); }
+.eda-console__line.is-warn .eda-console__level,
+.eda-console__line.is-warn .eda-console__text { color: var(--warn); }
+.eda-console__line.is-cmd .eda-console__text { color: var(--text); font-weight: 600; }
+
+/* ------------------------------------------------------------------ */
+
+.eda-status {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 22px;
+  padding: 0 8px;
+  border-top: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  overflow: hidden;
+}
+
+.eda-status__pill { display: inline-flex; align-items: center; gap: 5px; color: var(--text); }
+.eda-status__pill i,
+.eda-status__pill .is-good,
+.eda-status__pill .is-idle {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-dim);
+  display: inline-block;
+}
+.eda-status__pill.is-ok i { background: var(--good); }
+/* Named for the state, not the direction: tests/test_markdown_render.py
+   reads selectors to enforce that --critical only ever paints a real
+   failure, and an unreachable backend is one. */
+.eda-status__pill.is-error i { background: var(--critical); }
+.eda-status__pill .is-good { background: var(--good); }
+
+.eda-status__sep { width: 1px; height: 12px; background: var(--border-strong); }
+.eda-status__spacer { margin-left: auto; }
+
+/* One chip per backend, each one the real answer from
+   /toolchain-status: ● local, ▣ through the container, — absent. */
+.eda-status__tool { display: inline-flex; align-items: center; gap: 4px; }
+.eda-status__tool b { font-weight: 700; color: var(--text-dim); }
+.eda-status__tool.is-ok { color: var(--text); }
+.eda-status__tool.is-ok b { color: var(--good); }
+
+.eda-status__field { white-space: nowrap; }
+.eda-status__clock { color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------ */
+/* Compact density — the single change that most makes this read as a
+   tool rather than a site, and the reason it is a toggle rather than a
+   rewrite: the airy card styling is right for someone reading one
+   report, and wrong for someone watching nine designs at once.
+   Everything here is scale and edge treatment; no colour is touched, so
+   the contrast work in index.css survives either setting. */
+
+:root[data-density="compact"] {
+  font-size: 13px;
+}
+:root[data-density="compact"] .app__main {
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+  padding-bottom: 1rem;
+}
+:root[data-density="compact"] .tab { padding: 0.6rem 0; gap: 0.6rem; }
+/* Square and unshadowed. A drop shadow says "card floating above a
+   page"; a 1px border says "pane in a window", which is what this is. */
+:root[data-density="compact"] .panel {
+  border-radius: 2px;
+  box-shadow: none;
+}
+:root[data-density="compact"] .panel__title { padding: 0.35rem 0.6rem; }
+:root[data-density="compact"] .panel__title::before { display: none; }
+:root[data-density="compact"] table { font-size: 11px; }
+:root[data-density="compact"] th,
+:root[data-density="compact"] td { padding-top: 2px; padding-bottom: 2px; }

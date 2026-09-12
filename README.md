@@ -346,8 +346,36 @@ forcing analog measurements into it would pollute the labels
 
 ## Dashboard
 
-Four report-visualization tabs (Area, Timing, Power, Trade-offs) plus a
-live Simulate tab and a Diagnosis page. Fully client-side for the
+The window is shaped like the tools it sits beside — Innovus, Virtuoso,
+Calibre and PrimeTime all put a menu bar on top, a navigator down the
+left, a transcript across the bottom and a status bar under that, and
+they spend no pixels on anything else. `src/components/EdaShell.tsx`
+adds those four pieces around the existing tabs:
+
+- **Menu bar** (File / View / Flow / Tools / Help). Every item navigates,
+  flips a setting that persists, or writes a file. Nothing is there
+  because a commercial tool has something in that position — a File >
+  Save that saved nothing would look more like Virtuoso and mean less
+  than nothing.
+- **Transcript** (`src/console/log.ts`), the CIW / Innovus-console
+  analogue: real backend calls with method, path, status and measured
+  duration, because `installFetchLogging()` wraps `window.fetch` rather
+  than asking each call site to remember to log. Filter by level, follow
+  the tail, save it to a `.log`.
+- **Status bar** reading `GET /gateway-status` and `GET /toolchain-status`
+  — the latter runs `pipeline/custom_bridge.py`'s own probe, so the tool
+  chips are the real thing: `ngspice ●` and `netgen ●` local, `magic ▣`
+  and `klayout ▣` through the container, `xschem —` absent. The sidebar's
+  old hardcoded "OpenLane connected" pill is gone; it asserted a
+  connection nothing had checked.
+- **Compact density** (View menu, remembered): 13px root, flat square
+  panels, tight table rows. It is a toggle rather than a rewrite because
+  the airy card styling is right for reading one report and wrong for
+  watching nine designs at once. No colour changes with it — the WCAG
+  work recorded in `src/index.css` survives either setting.
+
+Behind that shell: four report-visualization tabs (Area, Timing, Power,
+Trade-offs) plus a live Simulate tab and a Diagnosis page. Fully client-side for the
 report-paste tabs — no backend needed. Simulate needs the local
 simulation server (below); Diagnosis needs a hermes-gateway client key.
 
