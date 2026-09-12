@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import analog_loop  # noqa: E402
 import custom_bridge  # noqa: E402
 import gate_schematic  # noqa: E402
+import stdcell_schematic  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import sta_path  # noqa: E402
@@ -414,6 +415,26 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_stdcell_schematic",
+        "description": "Opens a sky130_fd_sc_hd standard cell and draws its "
+                        "TRANSISTORS, from the foundry's own CDL via the PDK's "
+                        "SPICE importer — the descend-into-the-cell move, and the "
+                        "answer to 'what is an a21oi_2' that a gate-level box "
+                        "cannot give. Omit `cell` to list the library (optionally "
+                        "filtered by `q`). 370 of 437 cells draw; the sequential "
+                        "ones use devices with no xschem symbol and are refused by "
+                        "name rather than drawn three transistors short.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "cell": {"type": "string",
+                          "description": "e.g. sky130_fd_sc_hd__nand2_1"},
+                "q": {"type": "string", "description": "substring filter when listing"},
+                "draw": {"type": "boolean", "description": "also render an SVG"},
+            },
+        },
+    },
+    {
         "name": "ppa_render_schematic",
         "description": "Draws a schematic as SVG using xschem's own renderer — "
                         "the custom half's counterpart of ppa_render_layout. Use "
@@ -643,6 +664,19 @@ def _tool_gate_schematic(args: dict) -> dict:
     return out
 
 
+def _tool_stdcell_schematic(args: dict) -> dict:
+    if not args.get("cell"):
+        found = stdcell_schematic.cells(args.get("q") or None)
+        return {"cells": [{"cell": c, "drawable": stdcell_schematic.drawable(c)}
+                          for c in found[:200]], "total": len(found)}
+    out = stdcell_schematic.convert(args["cell"])
+    if out["ok"] and args.get("draw"):
+        drawn = custom_bridge.render_schematic(REPO_ROOT / out["schematic"])
+        out["svg"] = drawn.metadata.get("svg")
+        out["_path"] = out["svg"]
+    return out
+
+
 def _tool_render_schematic(args: dict) -> dict:
     sch = Path(args["schematic"])
     if not sch.is_absolute():
@@ -689,6 +723,7 @@ _TOOL_IMPL = {
     "ppa_analog_loop": _tool_analog_loop,
     "ppa_analog_scan": _tool_analog_scan,
     "ppa_gate_schematic": _tool_gate_schematic,
+    "ppa_stdcell_schematic": _tool_stdcell_schematic,
     "ppa_render_schematic": _tool_render_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }

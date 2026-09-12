@@ -86,6 +86,10 @@ export default function SchematicTab() {
   const [coning, setConing] = useState(false);
   const [coneNote, setConeNote] = useState<string | null>(null);
   const [full, setFull] = useState(false);
+  const [stdQuery, setStdQuery] = useState("");
+  const [stdCells, setStdCells] = useState<{ cell: string; drawable: boolean }[]>([]);
+  const [stdTotal, setStdTotal] = useState(0);
+  const [opening, setOpening] = useState<string | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -157,6 +161,50 @@ export default function SchematicTab() {
       setConing(false);
     }
   }, [cells, selected, seed, depth, direction]);
+
+  // The standard-cell library, searched rather than listed: 437 cells is
+  // a list nobody scrolls, and the name you want ("nand2", "a21oi") is
+  // the thing you already know.
+  useEffect(() => {
+    let cancelled = false;
+    const id = setTimeout(() => {
+      fetch(`${BACKEND}/analog/stdcells?q=${encodeURIComponent(stdQuery)}`)
+        .then((r) => r.json())
+        .then((body) => {
+          if (cancelled) return;
+          setStdCells(body.cells ?? []);
+          setStdTotal(body.total ?? 0);
+        })
+        .catch(() => !cancelled && setStdCells([]));
+    }, 250);
+    return () => { cancelled = true; clearTimeout(id); };
+  }, [stdQuery]);
+
+  const openStdCell = useCallback(async (cell: string) => {
+    setOpening(cell);
+    setError(null);
+    log("cmd", "stdcell", `open ${cell}`);
+    try {
+      const res = await fetch(`${BACKEND}/analog/stdcell`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cell }),
+      });
+      const body = await res.json();
+      if (!body.ok) throw new Error(body.error ?? "conversion failed");
+      log("info", "stdcell", `${cell}: ${body.devices} transistors`);
+      const listed = await (await fetch(`${BACKEND}/analog/cells`)).json();
+      setCells(listed.cells ?? []);
+      setSelected(body.id);
+      setResult(null);
+      setForced(false);
+    } catch (err) {
+      setError(String((err as Error).message ?? err));
+      log("error", "stdcell", String((err as Error).message ?? err));
+    } finally {
+      setOpening(null);
+    }
+  }, []);
 
   const run = useCallback(async () => {
     if (!selected) return;
@@ -324,6 +372,42 @@ export default function SchematicTab() {
           </div>
         </section>
       )}
+
+      <section className="panel schematic__panel">
+        <span className="panel__title">Standard cell</span>
+        <div className="schematic__run">
+          <p className="schematic__hint">
+            What a gate in the pipeline&apos;s netlists actually is, drawn from
+            the foundry&apos;s own CDL. 370 of the {stdTotal || 437} cells in
+            sky130_fd_sc_hd draw; the sequential ones use devices the symbol
+            library has no symbol for and are refused by name rather than drawn
+            short.
+          </p>
+          <div className="schematic__controls">
+            <label>
+              find
+              <input value={stdQuery} onChange={(e) => setStdQuery(e.target.value)}
+                     placeholder="nand2, a21oi, inv…" size={16} />
+            </label>
+            <span className="schematic__hint">{stdTotal} match</span>
+          </div>
+          <div className="schematic__stdcells">
+            {stdCells.map((c) => (
+              <button
+                type="button"
+                key={c.cell}
+                className={c.drawable ? "schematic__stdcell" : "schematic__stdcell is-blocked"}
+                disabled={!c.drawable || opening === c.cell}
+                title={c.drawable ? "open its transistors"
+                                  : "uses a device with no xschem symbol"}
+                onClick={() => openStdCell(c.cell)}
+              >
+                {opening === c.cell ? "opening…" : c.cell.replace("sky130_fd_sc_hd__", "")}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="panel schematic__panel">
         <span className="panel__title">Netlist &amp; simulate</span>

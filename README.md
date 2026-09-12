@@ -251,7 +251,8 @@ instead of shelled-out commands:
 | `ppa_render_schematic` | Draws a schematic as SVG with xschem — the custom half's counterpart of `ppa_render_layout` |
 | `ppa_analog_loop` | The custom half's closed loop: real sizings measured per corner, scored, and repaired from the violation's own numbers |
 | `ppa_analog_scan` | Real auto-repair coverage per analog design, and whether the next step is a re-run or a human |
-| `ppa_gate_schematic` | Draws a pipeline design's real synthesis netlist as a schematic — the view a layout render cannot give |
+| `ppa_gate_schematic` | Draws a pipeline design's real synthesis netlist as a schematic — whole, or a fanin/fanout cone for designs too big to draw |
+| `ppa_stdcell_schematic` | Opens a standard cell and draws its transistors, from the foundry's CDL |
 | `ppa_spice_sim` | A real transistor-level ngspice simulation against the PDK's own device models, returning parsed `.meas` values |
 
 Within a Claude Code session already working in this repo, a subagent
@@ -439,6 +440,41 @@ already records: X/Y/Q being outputs on sky130 is a convention, not a
 rule, and a wrong guess silently reverses an edge. Without that file the
 cone still works, undirected, and says so. A run built with `sky130_fd_sc_hs` or a gf180mcu library has no
 symbols to draw with, and that is reported rather than drawn wrong.
+
+### Opening a standard cell
+
+The gate-level view draws cells as boxes with pins, which is right up to
+the moment the question becomes "what *is* an a21oi_2". In Virtuoso you
+descend into the cell; here there was nowhere to descend to — sky130A
+ships 437 xschem *symbols* for `sky130_fd_sc_hd` and not one schematic
+behind them.
+
+`pipeline/stdcell_schematic.py` generates them from the foundry's own
+transistor netlist (`libs.ref/sky130_fd_sc_hd/cdl/`) through the PDK's
+own SPICE importer, so the drawing cannot disagree with what the cell is:
+
+```sh
+python3 pipeline/stdcell_schematic.py --list nand2
+python3 pipeline/stdcell_schematic.py --cell sky130_fd_sc_hd__inv_2 --draw
+```
+
+The Schematic tab has a search box over the library. Three format
+differences stand between CDL and importer, each a real one: `.SUBCKT` vs
+`.subckt`, M-devices with bare model names vs X-calls on the full
+`sky130_fd_pr__` name, and — the one that mattered — parameters spelled
+the way the symbols read them. Passing the CDL's lowercase `w`/`l`
+leaves them unknown attributes, and the drawing then annotates every
+device with the symbol's default `1 x 1 / 0.15` while the netlist says
+`0.65`. Found by reading the first render: the numbers were wrong in the
+only place a human would look.
+
+**370 of the 437 cells draw.** The other 67 are the flops and latches,
+which use `special_nfet_01v8` / `special_pfet_01v8_hvt` — real devices
+(sky130A.tech defines them, netgen's setup lists them) with no xschem
+symbol. The importer drops what it cannot resolve without saying so:
+`dfxtp_2` came out with 21 of its 24 transistors. So those cells are
+refused by name, and every conversion is checked against the CDL's own
+device count before it is kept.
 
 ### The custom half's self-improvement loop
 
