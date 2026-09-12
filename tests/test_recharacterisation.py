@@ -33,6 +33,7 @@ replaced.
 """
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -108,6 +109,42 @@ class ScaleRecommendationTests(unittest.TestCase):
     def test_scales_stay_sorted_and_unique(self):
         scales = recharacterise.slew_scales_for(0.209)
         self.assertEqual(scales, sorted(set(scales)))
+
+    def test_recommended_grid_preserves_the_full_headroom(self):
+        self.assertGreaterEqual(max(recharacterise.slew_scales_for(0.209)) * 0.005,
+                                0.209 * recharacterise.TOP_MARGIN)
+
+    def test_invalid_slews_are_rejected(self):
+        for value in (-1, float("nan"), float("inf")):
+            with self.assertRaises(ValueError):
+                recharacterise.slew_scales_for(value)
+
+
+class RegeneratedGridTests(unittest.TestCase):
+    """Exercise the acceptance function itself without an installed PDK."""
+
+    def verify(self, text):
+        with tempfile.TemporaryDirectory() as tmp:
+            lib = Path(tmp) / "macro.lib"
+            lib.write_text(text)
+            return recharacterise.verify_regenerated(lib, 0.24)
+
+    def test_extended_grid_is_accepted(self):
+        self.assertTrue(self.verify('index_1("0.00125, 0.005, 0.04, 0.245"); '
+                                    'max_transition : 0.245;')["ok"])
+
+    def test_dropped_points_are_rejected_by_acceptance_function(self):
+        got = self.verify('index_1("0.00125, 0.245"); max_transition : 0.245;')
+        self.assertFalse(got["ok"])
+        self.assertIn("dropped original", " ".join(got["failures"]))
+
+    def test_one_extended_grid_cannot_hide_a_stale_grid(self):
+        got = self.verify('index_1("0.00125, 0.005, 0.04, 0.245"); '
+                          'index_1("0.00125, 0.005, 0.04"); max_transition : 0.245;')
+        self.assertFalse(got["ok"])
+
+    def test_missing_pin_limits_are_rejected(self):
+        self.assertFalse(self.verify('index_1("0.00125, 0.005, 0.04, 0.245");')["ok"])
 
 
 class ReportTests(unittest.TestCase):
