@@ -18,6 +18,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const simDir = path.resolve(__dirname, "..", "sim");
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const pipelineDir = path.resolve(__dirname, "..", "pipeline");
+// Tool availability, keyed by whether the container was asked too. Time
+// based rather than store-keyed like reportCache: what this reports
+// changes when the machine changes, not when a case is written.
+const toolchainCache = new Map();
 const feedbackFile = path.join(refDbDir, "feedback.jsonl");
 const PORT = 8123;
 
@@ -1160,6 +1164,44 @@ const server = createServer(async (req, res) => {
       // need the analyst persona (see proxyChat's DIRECT_LLM_* notes).
       directLlm: directLlmAvailable() ? DIRECT_LLM_MODEL : null,
     }));
+    return;
+  }
+
+  // What the custom/analog stack can actually run right now — the real
+  // ngspice / netgen / magic / klayout / xschem availability behind the
+  // status bar, from pipeline/custom_bridge.py's own probe. A commercial
+  // console shows tool and license state there; showing a hardcoded
+  // "connected" instead would be the fabricated-metric failure soul.md
+  // rules out, one layer up from the numbers.
+  //
+  // Cached for a minute because it shells out, and asked WITHOUT the
+  // container probe unless ?docker=1: that one starts a container and
+  // measured 2.4 s, which is not a thing to do on every page load.
+  if (req.method === "GET" && req.url?.startsWith("/toolchain-status")) {
+    const wantDocker = new URL(req.url, "http://localhost").searchParams.get("docker") === "1";
+    const cacheKey = wantDocker ? "docker" : "local";
+    const cached = toolchainCache.get(cacheKey);
+    if (cached && Date.now() - cached.at < 60_000) {
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(cached.body);
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync(
+        "python3",
+        ["-c",
+         "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
+         `print(json.dumps(custom_bridge.status(docker=${wantDocker ? "True" : "False"}).to_dict()))`],
+        { cwd: pipelineDir, timeout: wantDocker ? 180_000 : 30_000, maxBuffer: 8 * 1024 * 1024 }
+      );
+      toolchainCache.set(cacheKey, { at: Date.now(), body: stdout });
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (err) {
+      console.error("[toolchain-status error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
     return;
   }
 

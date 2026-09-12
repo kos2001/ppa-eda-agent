@@ -18,3 +18,7 @@ __pycache__/
 # Not evidence: a draft worth keeping is applied into the case, and one
 # that was not applied says nothing about anything.
 .cache/
+
+# Playwright MCP scratch output (snapshots, console logs) from driving the
+# dashboard in a browser during development. Never evidence, never source.
+.playwright-mcp/

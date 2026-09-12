@@ -2,7 +2,15 @@ import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { LangProvider, useLang } from "./i18n";
 import { NAV_ICONS } from "./components/NavIcons";
 import { AgentProvider, useAgent } from "./agentContext";
+import { ConsolePane, MenuBar, StatusBar, type Menu } from "./components/EdaShell";
+import { installFetchLogging, log } from "./console/log";
 import "./App.css";
+
+// Installed at module scope, before any component mounts and therefore
+// before the first request any of them makes. A useEffect would miss
+// exactly the calls a transcript is most often opened to explain — the
+// ones the first render fired.
+installFetchLogging();
 
 const AreaTab = lazy(() => import("./components/AreaTab"));
 const TimingTab = lazy(() => import("./components/TimingTab"));
@@ -37,6 +45,13 @@ const THEME_STORAGE_KEY = "ppa-eda-agent-dashboard:theme";
 // collapsed it wants it collapsed on the next load rather than every
 // visit starting with a decision they already made.
 const COLLAPSED_STORAGE_KEY = "ppa-eda-agent-dashboard:sidebar-collapsed";
+// Both remembered for the same reason as the theme: density and whether
+// the transcript is open are how someone has set up their workspace, and
+// a tool that resets the workspace on reload is one people stop trusting
+// with a long session.
+const DENSITY_STORAGE_KEY = "ppa-eda-agent-dashboard:density";
+const CONSOLE_STORAGE_KEY = "ppa-eda-agent-dashboard:console-open";
+type Density = "comfortable" | "compact";
 
 // One sidebar destination. Every button in this nav was written out by
 // hand with the same three-line className ternary, which is how the
@@ -93,6 +108,28 @@ function AppInner() {
   const [collapsed, setCollapsed] = useState<boolean>(
     () => localStorage.getItem(COLLAPSED_STORAGE_KEY) === "1"
   );
+  const [density, setDensity] = useState<Density>(
+    () => (localStorage.getItem(DENSITY_STORAGE_KEY) as Density | null) ?? "compact"
+  );
+  const [consoleOpen, setConsoleOpen] = useState<boolean>(
+    () => localStorage.getItem(CONSOLE_STORAGE_KEY) !== "0"
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-density", density);
+    localStorage.setItem(DENSITY_STORAGE_KEY, density);
+  }, [density]);
+
+  useEffect(() => {
+    localStorage.setItem(CONSOLE_STORAGE_KEY, consoleOpen ? "1" : "0");
+  }, [consoleOpen]);
+
+  // The transcript records view changes as commands, which is what makes
+  // it readable afterwards: a backend call at 14:02 means something
+  // different depending on which page was open when it fired.
+  useEffect(() => {
+    log("cmd", "view", `open ${active}`);
+  }, [active]);
 
   useEffect(() => {
     localStorage.setItem(COLLAPSED_STORAGE_KEY, collapsed ? "1" : "0");
@@ -133,8 +170,75 @@ function AppInner() {
     { id: "tradeoffs", label: t("tab_tradeoffs") },
   ];
 
+  // Every item here does something real: navigates, flips a setting that
+  // persists, or writes a file. Nothing is present because a commercial
+  // tool has one in that position.
+  const MENUS: Menu[] = [
+    {
+      label: "File",
+      items: [
+        { label: "Reload console", onSelect: () => window.location.reload() },
+        { label: "Open backend transcript", onSelect: () => setConsoleOpen(true) },
+        { label: "Documentation (Manual)", separatorBefore: true,
+          onSelect: () => setActive("manual") },
+      ],
+    },
+    {
+      label: "View",
+      items: [
+        { label: "Compact density", checked: density === "compact",
+          onSelect: () => setDensity(density === "compact" ? "comfortable" : "compact") },
+        { label: "Dark theme", checked: theme === "dark",
+          onSelect: () => setTheme(theme === "dark" ? "light" : "dark") },
+        { label: "Collapse navigator", checked: collapsed,
+          onSelect: () => setCollapsed(!collapsed) },
+        { label: "Show console", checked: consoleOpen,
+          onSelect: () => setConsoleOpen(!consoleOpen) },
+        { label: "한국어 / English", separatorBefore: true,
+          hint: lang === "en" ? "en" : "ko",
+          onSelect: () => setLang(lang === "en" ? "ko" : "en") },
+      ],
+    },
+    {
+      label: "Flow",
+      items: [
+        { label: t("tab_pipeline"), onSelect: () => setActive("pipeline"), hint: "P&R" },
+        { label: t("tab_progress"), onSelect: () => setActive("progress") },
+        { label: t("tab_health"), onSelect: () => setActive("health") },
+        { label: t("tab_lineage"), onSelect: () => setActive("lineage") },
+      ],
+    },
+    {
+      label: "Tools",
+      items: [
+        { label: t("tab_simulate"), onSelect: () => setActive("simulate"), hint: "OpenSTA" },
+        { label: t("agent_sidebar_title"), onSelect: () => setActive("diagnosis"), hint: "agent" },
+        { label: t("tab_area"), separatorBefore: true, onSelect: () => setActive("area") },
+        { label: t("tab_timing"), onSelect: () => setActive("timing") },
+        { label: t("tab_power"), onSelect: () => setActive("power") },
+        { label: t("tab_tradeoffs"), onSelect: () => setActive("tradeoffs") },
+      ],
+    },
+    {
+      label: "Help",
+      items: [
+        { label: t("tab_manual"), onSelect: () => setActive("manual") },
+        { label: t("tab_ask"), onSelect: () => setActive("ask") },
+      ],
+    },
+  ];
+
   return (
-    <div className="app app--sidebar">
+    <div className="app app--eda">
+      <MenuBar
+        menus={MENUS}
+        // A title bar, the way these tools write one: the tool, then
+        // what is open in it. The marketing subtitle that used to sit
+        // in a header row of its own is on the Manual page, where
+        // someone who wants the pitch can read all of it.
+        right={<><b>{t("title")}</b><span>—</span><span>{active}</span></>}
+      />
+      <div className="app__workspace">
       <aside className={collapsed ? "app__sidebar app__sidebar--collapsed" : "app__sidebar"}>
         <button
           className="app__collapse"
@@ -199,7 +303,6 @@ function AppInner() {
         </nav>
 
         <div className="app__sidebar-footer">
-          <span className="app__system-status"><i /> OpenLane connected</span>
           <div className="app__sidebar-controls">
             <button
               className="app__theme-toggle"
@@ -218,12 +321,6 @@ function AppInner() {
       </aside>
 
       <div className="app__content">
-        <header className="app__topbar">
-          <p>{t("subtitle")}</p>
-          <div className="app__signal-line" aria-hidden="true">
-            {Array.from({ length: 28 }, (_, i) => <span key={i} />)}
-          </div>
-        </header>
         <main className="app__main">
           <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
             {active === "simulate" && <SimulateTab />}
@@ -241,6 +338,9 @@ function AppInner() {
           </Suspense>
         </main>
       </div>
+      </div>
+      <ConsolePane open={consoleOpen} onToggle={() => setConsoleOpen((v) => !v)} />
+      <StatusBar design={null} tab={active} />
     </div>
   );
 }
