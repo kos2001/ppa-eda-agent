@@ -322,6 +322,30 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_netlist_schematic",
+        "description": "Netlists a schematic with xschem — the ENTRY POINT of the "
+                        "custom/analog flow, and the tool to reach for before "
+                        "ppa_spice_sim. The schematic is the source; the deck is a "
+                        "build artifact, and a hand-written deck silently loses the "
+                        "diffusion parasitics the PDK's own symbols attach to every "
+                        "device (measured: ~3% on inverter delay, identical DC trip "
+                        "point). Returns the generated .spice path, which still "
+                        "carries %PDK_LIB% so ppa_spice_sim can bind any corner.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["schematic"],
+            "properties": {
+                "schematic": {"type": "string",
+                               "description": "path to a .sch, e.g. "
+                                              "pipeline/analog/inv/inv_tb.sch"},
+                "pdk": {"type": "string", "description": "default sky130A"},
+                "out_dir": {"type": "string",
+                             "description": "default: beside the schematic"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
+    {
         "name": "ppa_spice_sim",
         "description": "A real transistor-level simulation of a SPICE deck against "
                         "the PDK's own device models (ngspice), returning the "
@@ -489,6 +513,17 @@ def _tool_custom_eval(args: dict) -> dict:
                                   timeout=int(args.get("timeout", 120))).to_dict()
 
 
+def _tool_netlist_schematic(args: dict) -> dict:
+    sch = Path(args["schematic"])
+    if not sch.is_absolute():
+        sch = REPO_ROOT / sch
+    out = args.get("out_dir")
+    return custom_bridge.netlist_schematic(
+        sch, pdk=args.get("pdk", "sky130A"),
+        out_dir=(REPO_ROOT / out if out and not Path(out).is_absolute() else out),
+        timeout=int(args.get("timeout", 300))).to_dict()
+
+
 def _tool_spice_sim(args: dict) -> dict:
     netlist = Path(args["netlist"])
     if not netlist.is_absolute():
@@ -515,6 +550,7 @@ _TOOL_IMPL = {
     "ppa_tech_compare": _tool_tech_compare,
     "ppa_custom_status": _tool_custom_status,
     "ppa_custom_eval": _tool_custom_eval,
+    "ppa_netlist_schematic": _tool_netlist_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }
 

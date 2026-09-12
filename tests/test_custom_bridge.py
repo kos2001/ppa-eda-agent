@@ -149,16 +149,17 @@ class DockerFallback(unittest.TestCase):
     that advertises a backend and then won't run it is worse than one
     that never offered it."""
 
-    def test_a_backend_outside_the_image_stays_not_installed(self):
-        # xschem is in no image this pipeline pulls, so this is the one
-        # case that must keep reporting absence rather than reaching for
-        # a container that does not contain it.
-        spec = custom_bridge.BACKENDS["xschem"]
-        self.assertFalse(spec["in_openlane_image"])
-        if custom_bridge.resolve("xschem") is None:
-            result = custom_bridge.evaluate("xschem", "puts hi")
-            self.assertEqual(result.status, ExecutionStatus.ERROR)
-            self.assertEqual(result.metadata["reason"], "not_installed")
+    def test_the_plan_prefers_a_local_binary(self):
+        self.assertEqual(custom_bridge.plan("/usr/bin/magic", "img", True), "local")
+
+    def test_the_plan_reaches_for_the_container_when_the_binary_is_absent(self):
+        self.assertEqual(custom_bridge.plan(None, "img", True), "docker")
+
+    def test_no_binary_and_no_image_is_nowhere(self):
+        self.assertIsNone(custom_bridge.plan(None, None, True))
+
+    def test_an_image_is_no_use_without_docker(self):
+        self.assertIsNone(custom_bridge.plan(None, "img", False))
 
     def test_the_image_backends_are_the_ones_openlane_actually_ships(self):
         # Asked of the real image on 2026-09-12: magic, klayout and
@@ -166,6 +167,86 @@ class DockerFallback(unittest.TestCase):
         in_image = {n for n, s in custom_bridge.BACKENDS.items()
                     if s["in_openlane_image"]}
         self.assertEqual(in_image, {"magic", "klayout", "netgen"})
+
+
+class SchematicEntryPoint(unittest.TestCase):
+    """The custom flow starts at a schematic, not at a deck.
+
+    This module first shipped with run_spice() and a hand-written
+    netlist, which is one step below where the flow actually starts.
+    What that cost is measurable rather than stylistic: at tt the
+    hand-written deck and the netlisted schematic agree on vtrip to six
+    digits and differ by ~3% on delay, because the PDK's own symbols
+    attach diffusion parasitics (ad/pd/as/ps, nrd/nrs) to every device
+    and a hand-written deck has no reason to carry them.
+    """
+
+    DESIGN = Path(__file__).resolve().parent.parent / "pipeline" / "analog" / "inv"
+
+    def test_the_cell_and_its_testbench_are_checked_in_as_schematics(self):
+        self.assertTrue((self.DESIGN / "inv.sch").is_file())
+        self.assertTrue((self.DESIGN / "inv_tb.sch").is_file())
+        self.assertTrue((self.DESIGN / "inv.sym").is_file())
+
+    def test_the_testbench_instantiates_the_cell_rather_than_inlining_it(self):
+        # Hierarchy is the point of schematic capture: the testbench
+        # holds the stimulus and the cell holds the circuit, so sweeping
+        # one never edits the other.
+        tb = (self.DESIGN / "inv_tb.sch").read_text(encoding="utf-8")
+        self.assertIn("C {inv.sym}", tb)
+        self.assertNotIn("sky130_fd_pr/nfet", tb)
+
+    def test_the_schematic_keeps_the_corner_token(self):
+        """Guards the first netlisted deck's real failure.
+
+        xschem's own idiom writes `.lib $::SKYWATER_MODELS/...` at
+        netlist time, which bakes in both one corner and the container
+        path /pdk/... — ngspice on the host then died with "Could not
+        find library file /pdk/sky130A/...".
+        """
+        tb = (self.DESIGN / "inv_tb.sch").read_text(encoding="utf-8")
+        self.assertIn(custom_bridge.PDK_LIB_TOKEN, tb)
+        self.assertNotIn("SKYWATER_MODELS", tb)
+
+    def test_the_handwritten_deck_is_not_at_the_generated_path(self):
+        # xschem writes inv.spice from inv.sch; a hand-written file at
+        # that path is a generated file waiting to overwrite it.
+        self.assertFalse((self.DESIGN / "inv.spice").exists())
+        self.assertTrue((self.DESIGN / "inv_handwritten.spice").is_file())
+
+    def test_a_missing_schematic_is_an_error_not_an_empty_netlist(self):
+        r = custom_bridge.netlist_schematic(self.DESIGN / "nope.sch")
+        self.assertEqual(r.status, ExecutionStatus.ERROR)
+        self.assertEqual(r.metadata["reason"], "missing_schematic")
+
+    def test_a_pdk_without_xschem_support_is_named_as_such(self):
+        r = custom_bridge.netlist_schematic(self.DESIGN / "inv_tb.sch",
+                                            pdk="not_a_pdk")
+        self.assertEqual(r.status, ExecutionStatus.ERROR)
+        self.assertEqual(r.metadata["reason"], "missing_pdk_xschemrc")
+
+
+class BackendImages(unittest.TestCase):
+    def test_xschem_has_an_image_of_its_own(self):
+        """It is in neither this host nor the OpenLane image: no Homebrew
+        formula, and a macOS source build needs XQuartz plus an
+        X11-linked Tk."""
+        self.assertEqual(custom_bridge.image_for("xschem"),
+                         custom_bridge.XSCHEM_IMAGE)
+        self.assertTrue(custom_bridge.XSCHEM_DOCKERFILE.is_file())
+
+    def test_the_openlane_backends_point_at_the_pinned_openlane_image(self):
+        for name in ("magic", "klayout", "netgen"):
+            self.assertEqual(custom_bridge.image_for(name),
+                             custom_bridge.OPENLANE_IMAGE, name)
+
+    def test_a_local_only_backend_claims_no_image(self):
+        self.assertIsNone(custom_bridge.image_for("ngspice"))
+
+    def test_the_xschem_invocation_is_headless(self):
+        """Without -x, xschem in a container with no X11 socket fails at
+        startup instead of netlisting."""
+        self.assertIn("-x", custom_bridge.BACKENDS["xschem"]["argv"]("s"))
 
 
 class BackendTable(unittest.TestCase):
@@ -183,7 +264,9 @@ class BackendTable(unittest.TestCase):
     def test_headless_flags_are_present_for_gui_tools(self):
         self.assertIn("-dnull", custom_bridge.BACKENDS["magic"]["argv"]("s"))
         self.assertIn("-b", custom_bridge.BACKENDS["klayout"]["argv"]("s"))
-        self.assertIn("-n", custom_bridge.BACKENDS["xschem"]["argv"]("s"))
+        # xschem's headless flag is -x; -n (netlist) lives in
+        # netlist_schematic(), which is a different invocation.
+        self.assertIn("-x", custom_bridge.BACKENDS["xschem"]["argv"]("s"))
 
 
 if __name__ == "__main__":

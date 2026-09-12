@@ -335,18 +335,23 @@ MEASUREMENTS: list[dict] = [
         "id": "characterisation-ceiling-is-a-spice-question",
         "design": "sram_wrapper",
         "when": ["RSZ-0090", "max_slew_violation"],
-        "tool": "ppa_spice_sim",
-        "cli": "python3 pipeline/custom_bridge.py spice "
-               "--netlist pipeline/analog/inv/inv.spice --corner ss",
+        "tool": "ppa_netlist_schematic, then ppa_spice_sim",
+        "cli": "python3 pipeline/custom_bridge.py netlist "
+               "--schematic pipeline/analog/inv/inv_tb.sch && "
+               "python3 pipeline/custom_bridge.py spice "
+               "--netlist pipeline/analog/inv/inv_tb.spice --corner ss",
         "answers": "What a device actually does outside the range its liberty "
                    "was characterised over — the only number in this pipeline "
                    "that does not come from a .lib someone else generated.",
-        "trap": "ngspice exits 0 when the .meas that the whole run existed to "
-                "take fails, so returncode is not a verdict — read the status "
-                "field, where a finished-but-incomplete run is `partial`. And "
-                "bind the corner through the tool: gf180mcu's typical section "
-                "is named `typical`, not `tt`, and a deck with the wrong name "
-                "simulates different silicon without complaining.",
+        "trap": "Start at the schematic, not at a deck. A hand-written netlist "
+                "drops the diffusion parasitics the PDK's symbols attach to every "
+                "device — measured at ~3% on inverter delay with an identical DC "
+                "trip point, so it looks right and is not. Then: ngspice exits 0 "
+                "when the .meas the run existed to take fails, so returncode is "
+                "not a verdict — read the status, where finished-but-incomplete "
+                "is `partial`. And bind the corner through the tool: gf180mcu's "
+                "typical section is named `typical`, not `tt`, and a deck with "
+                "the wrong name simulates different silicon without complaining.",
         "evidence": "sram_wrapper: the 0.04 ns max_transition ceiling is "
                     "OpenRAM's default slew_scales [0.25, 1, 8] times sky130's "
                     "rise_time 0.005 ns — a record of where characterisation "
