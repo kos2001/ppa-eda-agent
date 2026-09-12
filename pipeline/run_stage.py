@@ -92,12 +92,19 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     if not (design_dir / "config.json").exists():
         raise FileNotFoundError(f"no config.json in {design_dir}")
 
+    cfg = json.loads((design_dir / "config.json").read_text())
+    macro_signoff = (cfg.get("meta") or {}).get("flow") == "MacroSignoff"
+    extra_mounts = (["-v", f"{REPO_ROOT / 'pipeline' / 'flows'}:/flows:ro"]
+                    if macro_signoff else [])
+    entrypoint = (["python3", "/flows/macro_signoff.py"]
+                  if macro_signoff else ["openlane"])
     cmd = [
         "docker", "run", "--rm", *platform_args(),
         "-v", f"{PDK_ROOT}:/pdk",
         "-v", f"{design_dir}:/design",
+        *extra_mounts,
         IMAGE,
-        "openlane", "--pdk-root", "/pdk",
+        *entrypoint, "--pdk-root", "/pdk",
         "--run-tag", tag,
     ]
     if scl:

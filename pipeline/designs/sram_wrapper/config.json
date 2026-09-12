@@ -1,4 +1,5 @@
 {
+  "meta": {"version": 2, "flow": "MacroSignoff"},
   "DESIGN_NAME": "sram_wrapper",
   "VERILOG_FILES": "dir::src/sram_wrapper.v",
   "EXTRA_VERILOG_MODELS": [
@@ -41,5 +42,12 @@
     700,
     700
   ],
-  "PNR_EXCLUDED_CELL_FILE": "dir::pnr/pnr_exclude.cells"
+  "PNR_EXCLUDED_CELL_FILE": "dir::pnr/pnr_exclude.cells",
+  "MAGIC_CAPTURE_ERRORS": false,
+  "MAGIC_DRC_USE_GDS": false,
+  "PRIMARY_GDSII_STREAMOUT_TOOL": "klayout",
+  "GRT_ANTENNA_MARGIN": 50,
+  "GRT_ANTENNA_ITERS": 10,
+  "RUN_HEURISTIC_DIODE_INSERTION": true,
+  "HEURISTIC_ANTENNA_THRESHOLD": 60
 }
