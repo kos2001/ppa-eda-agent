@@ -1167,6 +1167,125 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // The custom/analog flow's own surface: the schematics this repo
+  // holds, the drawing of one, and a real netlist+simulate run.
+  //
+  // Rendering is xschem's own SVG export (pipeline/custom_bridge.py
+  // render_schematic), cached on disk beside the .sch and regenerated
+  // only when the source is newer — drawing is ~0.3 s, but a panel that
+  // re-rendered on every poll would still be spending a container start
+  // per page view.
+  if (req.method === "GET" && req.url === "/analog/cells") {
+    try {
+      const root = path.join(pipelineDir, "analog");
+      const designs = await readdir(root, { withFileTypes: true }).catch(() => []);
+      const cells = [];
+      for (const d of designs) {
+        if (!d.isDirectory()) continue;
+        for (const f of await readdir(path.join(root, d.name))) {
+          if (!f.endsWith(".sch")) continue;
+          const cell = f.slice(0, -4);
+          const src = path.join(root, d.name, f);
+          // A testbench is a schematic that carries its own analysis;
+          // only those can be simulated, and the UI needs to know which
+          // is which without opening them.
+          const text = await readFile(src, "utf-8");
+          cells.push({
+            design: d.name,
+            cell,
+            id: `${d.name}/${cell}`,
+            simulatable: text.includes(".control"),
+          });
+        }
+      }
+      cells.sort((a, b) => a.id.localeCompare(b.id));
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ cells }));
+    } catch (err) {
+      console.error("[analog cells error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
+    const id = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
+    if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "cell must be <design>/<cell>" }));
+      return;
+    }
+    const [design, cell] = id.split("/");
+    const sch = path.join(pipelineDir, "analog", design, `${cell}.sch`);
+    const svg = path.join(pipelineDir, "analog", design, `${cell}.svg`);
+    try {
+      const schStat = await stat(sch);
+      const svgStat = await stat(svg).catch(() => null);
+      if (!svgStat || svgStat.mtimeMs < schStat.mtimeMs) {
+        await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
+           `r = custom_bridge.render_schematic(${JSON.stringify(sch)}); ` +
+           "print(json.dumps(r.to_dict()))"],
+          { cwd: pipelineDir, timeout: 300_000, maxBuffer: 8 * 1024 * 1024 }
+        );
+      }
+      res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml" });
+      res.end(await readFile(svg));
+    } catch (err) {
+      console.error("[analog svg error]", err);
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+    }
+    return;
+  }
+
+  // Netlist the schematic, then simulate the netlist. Two steps, one
+  // call, because that IS the flow — and doing it in one place is what
+  // keeps a stale deck from being simulated against an edited drawing.
+  if (req.method === "POST" && req.url === "/analog/run") {
+    let analogBody = "";
+    req.on("data", (chunk) => (analogBody += chunk));
+    req.on("end", async () => {
+      try {
+        const { cell, corner = "tt", pdk = "sky130A" } = JSON.parse(analogBody || "{}");
+        if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cell ?? "")) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "cell must be <design>/<cell>" }));
+          return;
+        }
+        if (!/^[a-z]{2}$/.test(corner) || !/^[A-Za-z0-9_]+$/.test(pdk)) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "bad corner or pdk" }));
+          return;
+        }
+        const [design, name] = cell.split("/");
+        const sch = path.join(pipelineDir, "analog", design, `${name}.sch`);
+        const { stdout } = await execFileAsync(
+          "python3",
+          ["-c",
+           "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
+           `n = custom_bridge.netlist_schematic(${JSON.stringify(sch)}, pdk=${JSON.stringify(pdk)}); ` +
+           "out = {'netlist': n.to_dict()}\n" +
+           "if n.ok:\n" +
+           `    s = custom_bridge.run_spice(n.metadata['netlist'], pdk=${JSON.stringify(pdk)}, corner=${JSON.stringify(corner)})\n` +
+           "    out['sim'] = s.to_dict()\n" +
+           "print(json.dumps(out))"],
+          { cwd: pipelineDir, timeout: 600_000, maxBuffer: 32 * 1024 * 1024 }
+        );
+        res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+        res.end(stdout);
+      } catch (err) {
+        console.error("[analog run error]", err);
+        res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      }
+    });
+    return;
+  }
+
   // What the custom/analog stack can actually run right now — the real
   // ngspice / netgen / magic / klayout / xschem availability behind the
   // status bar, from pipeline/custom_bridge.py's own probe. A commercial

@@ -19,6 +19,7 @@ const TradeoffsTab = lazy(() => import("./components/TradeoffsTab"));
 const SimulateTab = lazy(() => import("./components/SimulateTab"));
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
+const SchematicTab = lazy(() => import("./components/SchematicTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
 const ProgressTab = lazy(() => import("./components/ProgressTab"));
 const AskPage = lazy(() => import("./components/AskPage"));
@@ -27,6 +28,7 @@ const ManualPage = lazy(() => import("./components/ManualPage"));
 
 type TabId =
   | "pipeline"
+  | "schematic"
   | "health"
   | "progress"
   | "ask"
@@ -156,6 +158,10 @@ function AppInner() {
   // and this are all about the agent system itself. Health asks what
   // needs attention now and lineage asks what the store holds; this
   // asks whether any of it is getting better, which neither answered.
+  // Beside the pipeline rather than among the report tabs: both are
+  // flows this console drives. The pipeline is the digital half
+  // (RTL → GDS); this is the custom half, and it starts here.
+  const SCHEMATIC_TAB: { id: TabId; label: string } = { id: "schematic", label: t("tab_schematic") };
   const PROGRESS_TAB: { id: TabId; label: string } = { id: "progress", label: t("tab_progress") };
   const LINEAGE_TAB: { id: TabId; label: string } = { id: "lineage", label: t("tab_lineage") };
   // Next to the manual rather than among the report tabs: both answer
@@ -203,6 +209,8 @@ function AppInner() {
       label: "Flow",
       items: [
         { label: t("tab_pipeline"), onSelect: () => setActive("pipeline"), hint: "P&R" },
+        { label: t("tab_schematic"), onSelect: () => setActive("schematic"),
+          hint: "xschem" },
         { label: t("tab_progress"), onSelect: () => setActive("progress") },
         { label: t("tab_health"), onSelect: () => setActive("health") },
         { label: t("tab_lineage"), onSelect: () => setActive("lineage") },
@@ -260,7 +268,7 @@ function AppInner() {
         </div>
 
         <nav className="app__nav">
-          {[PRIMARY_TAB, HEALTH_TAB, PROGRESS_TAB, LINEAGE_TAB, ASK_TAB, MANUAL_TAB]
+          {[PRIMARY_TAB, SCHEMATIC_TAB, HEALTH_TAB, PROGRESS_TAB, LINEAGE_TAB, ASK_TAB, MANUAL_TAB]
             .map((tab) => (
               <NavItem
                 key={tab.id}
@@ -329,6 +337,7 @@ function AppInner() {
             {active === "power" && <PowerTab />}
             {active === "tradeoffs" && <TradeoffsTab />}
             {active === "pipeline" && <PipelineTab />}
+            {active === "schematic" && <SchematicTab />}
             {active === "health" && <SystemHealth standalone />}
             {active === "progress" && <ProgressTab />}
             {active === "lineage" && <DataLineage />}

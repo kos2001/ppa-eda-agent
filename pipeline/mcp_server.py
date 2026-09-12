@@ -346,6 +346,27 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_render_schematic",
+        "description": "Draws a schematic as SVG using xschem's own renderer — "
+                        "the custom half's counterpart of ppa_render_layout. Use "
+                        "it to SEE the circuit a netlist came from; the drawing "
+                        "and the netlist are generated from the same .sch, so it "
+                        "cannot disagree with what was simulated.",
+        "inputSchema": {
+            "type": "object",
+            "required": ["schematic"],
+            "properties": {
+                "schematic": {"type": "string",
+                               "description": "path to a .sch, e.g. "
+                                              "pipeline/analog/inv/inv_tb.sch"},
+                "pdk": {"type": "string", "description": "default sky130A"},
+                "out": {"type": "string",
+                         "description": "default: beside the schematic, .svg"},
+                "timeout": {"type": "integer"},
+            },
+        },
+    },
+    {
         "name": "ppa_spice_sim",
         "description": "A real transistor-level simulation of a SPICE deck against "
                         "the PDK's own device models (ngspice), returning the "
@@ -524,6 +545,22 @@ def _tool_netlist_schematic(args: dict) -> dict:
         timeout=int(args.get("timeout", 300))).to_dict()
 
 
+def _tool_render_schematic(args: dict) -> dict:
+    sch = Path(args["schematic"])
+    if not sch.is_absolute():
+        sch = REPO_ROOT / sch
+    out = args.get("out")
+    r = custom_bridge.render_schematic(
+        sch, pdk=args.get("pdk", "sky130A"),
+        out=(REPO_ROOT / out if out and not Path(out).is_absolute() else out),
+        timeout=int(args.get("timeout", 300))).to_dict()
+    # `_path` is what _content() looks for to attach an image; SVG is not
+    # in _IMAGE_MIME (MCP image content is raster), so the path is what a
+    # caller gets, same as any other file result.
+    r["_path"] = r["metadata"].get("svg")
+    return r
+
+
 def _tool_spice_sim(args: dict) -> dict:
     netlist = Path(args["netlist"])
     if not netlist.is_absolute():
@@ -551,6 +588,7 @@ _TOOL_IMPL = {
     "ppa_custom_status": _tool_custom_status,
     "ppa_custom_eval": _tool_custom_eval,
     "ppa_netlist_schematic": _tool_netlist_schematic,
+    "ppa_render_schematic": _tool_render_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }
 
