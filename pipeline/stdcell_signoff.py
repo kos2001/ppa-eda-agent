@@ -51,6 +51,8 @@ NETGEN_SETUP = "/pdk/sky130A/libs.tech/netgen/sky130A_setup.tcl"
 CASE_DIR = REPO_ROOT / "reference-db" / "stdcells"
 
 _DRC_COUNT = re.compile(r"^DRC_COUNT\s+(\d+)", re.MULTILINE)
+_DRC_WHY = re.compile(r"^DRC_WHY_BEGIN$(.*?)^DRC_WHY_END$",
+                      re.MULTILINE | re.DOTALL)
 
 # Magic script: load the cell, count DRC, extract to SPICE. `drc catchup`
 # is what makes the count real — without it the check is still running
@@ -61,6 +63,9 @@ drc euclidean on
 drc check
 drc catchup
 puts "DRC_COUNT [drc list count total]"
+puts "DRC_WHY_BEGIN"
+drc why
+puts "DRC_WHY_END"
 extract do local
 extract all
 ext2spice lvs
@@ -104,6 +109,29 @@ _LVS_NETS = re.compile(
     r"Circuit 1 contains (\d+) nets?,\s+Circuit 2 contains (\d+) nets?")
 
 
+def parse_drc_rules(output: str) -> list:
+    """Which rules fired, not just how many times.
+
+    A count says a cell is dirty; the rule says whether that means
+    anything. Both tap cells that report errors report the same one —
+    `met1.6`, Metal1 minimum area — which is what a cell designed to be
+    tiled into a row looks like when it is checked standing alone: its
+    met1 is a fragment of a rail that only reaches minimum area once it
+    abuts its neighbours. Same shape of finding as magic_abstract_drc.py
+    records for nwell.4 on LEF abstracts, and the reason a count alone
+    would have been reported as "the foundry ships a dirty cell".
+    """
+    block = _DRC_WHY.search(output)
+    if not block:
+        return []
+    seen = []
+    for line in block.group(1).splitlines():
+        line = line.strip()
+        if line and line not in seen:
+            seen.append(line)
+    return seen
+
+
 def parse_lvs(output: str) -> dict:
     """netgen's verdict, as a verdict rather than as prose.
 
@@ -118,13 +146,25 @@ def parse_lvs(output: str) -> dict:
     against 10, so the layout carries an internal node the schematic does
     not.
 
-    What is NOT claimed: a cause. Reproducing it with the untouched CDL
-    rules out this pipeline's CDL-to-SPICE translation, and the obvious
-    story — "a series stack laid out as parallel fingers" — is
-    contradicted by the same sample: a21oi_1 matches, and so does
-    nand3_2, which is a three-high series stack at the same m=2. So it is
-    something about that cell rather than about a class of cells, and it
-    is recorded as an open finding rather than explained away.
+    Running the whole library settled what 37 cells could not. Of 437:
+    414 clean, 12 with no transistors at all (LVS compares nothing), 11
+    real LVS mismatches, and 2 cells with real DRC errors.
+
+    The 11 have a shape. Every one is a compound gate (a2111oi, a211oi,
+    a21boi, a21oi, a31o, o2111a, o211a, o211ai, ha, probe_p, probec_p) at
+    drive strength 2, 4 or 8, and the layout carries 1-4 devices and 0-2
+    nets more than the schematic. Reading one extraction says what those
+    extra nets are: a21oi_2's layout implements its m=2 nfet series stack
+    as two independent stacks with their own internal nodes
+    (a_114_47#, a_285_47#), while the CDL's `m=2` means two parallel
+    devices sharing one. netgen cannot merge what does not share a node.
+
+    Not every multi-drive stack does this, which is why it is 11 cells
+    and not all of them: nand3_2, a three-high stack at the same m=2,
+    shares both of its internal nodes between fingers and matches. So it
+    is a per-cell layout style, not a rule about series stacks — and it
+    is a property of the library, not of this pipeline: reproducing
+    a21oi_2 against the untouched CDL gives the same mismatch.
     """
     lowered = output.lower()
     devices = _LVS_COUNTS.search(output)
@@ -171,11 +211,12 @@ def signoff(cell: str, timeout: int = 900) -> dict:
             return {"ok": False, "cell": cell, "error": f"magic: {exc}"}
         magic_out = magic.stdout + magic.stderr
         drc = parse_drc(magic_out)
+        drc_rules = parse_drc_rules(magic_out)
         extracted = work / "extracted.spice"
         if not extracted.is_file():
             return {"ok": False, "cell": cell,
                     "error": "magic wrote no extracted netlist",
-                    "drc_errors": drc, "log": magic_out[-800:]}
+                    "drc_errors": drc, "drc_rules": drc_rules, "log": magic_out[-800:]}
 
         (work / "lvs.tcl").write_text(
             _LVS_TCL.format(cell=cell, setup=NETGEN_SETUP), encoding="utf-8")
@@ -187,17 +228,40 @@ def signoff(cell: str, timeout: int = 900) -> dict:
         lvs = parse_lvs(netgen.stdout + netgen.stderr)
         layout_netlist = extracted.read_text(encoding="utf-8")
 
+    schematic_devices = stdcell_schematic.device_count(block)
+    # Some library cells have no transistors at all — fill, decap, diode,
+    # conb, the spare-cell macro. LVS over them compares nothing, and
+    # "nothing matched nothing" is neither a pass nor a mismatch. Same
+    # distinction equiv_check.py draws with its `vacuous` flag, for the
+    # same reason: a pass with zero compared points would be vacuous, and
+    # surfacing it is what lets a caller tell "proved equivalent" from
+    # "compared nothing".
+    vacuous = schematic_devices == 0
+    if drc is None:
+        verdict = "unmeasured"
+    elif drc != 0:
+        verdict = "drc_errors"
+    elif vacuous:
+        verdict = "vacuous"
+    elif lvs["match"]:
+        verdict = "clean"
+    else:
+        verdict = "lvs_mismatch"
+
     return {
         "ok": True,
         "cell": cell,
         "drc_errors": drc,
+        "drc_rules": drc_rules,
         "lvs": lvs,
-        # A cell passes only when both checks actually ran and both are
-        # clean — an absent DRC count blocks it, the same way score()
-        # treats a missing signoff metric.
-        "passed": drc == 0 and lvs["match"],
+        "vacuous": vacuous,
+        "verdict": verdict,
+        # A cell passes only when both checks actually ran, both are
+        # clean, and there was something to compare — an absent DRC count
+        # blocks it, the same way score() treats a missing signoff metric.
+        "passed": verdict == "clean",
         "devices": {
-            "schematic": stdcell_schematic.device_count(block),
+            "schematic": schematic_devices,
             "layout": layout_netlist.count("sky130_fd_pr__"),
         },
         "layout": str(mag.relative_to(REPO_ROOT)),
@@ -217,11 +281,19 @@ def write_case(result: dict) -> Path:
         "layout": result["layout"],
         "schematic_source": str(stdcell_schematic.CDL.relative_to(REPO_ROOT)),
         "drc_errors": result["drc_errors"],
+        "drc_rules": result["drc_rules"],
         "lvs": result["lvs"],
+        "vacuous": result["vacuous"],
+        "verdict": result["verdict"],
         "devices": result["devices"],
         "passed": result["passed"],
-        "outcome": ("clean" if result["passed"] else
-                     "DRC or LVS did not come back clean — see drc_errors/lvs"),
+        "outcome": {
+            "clean": "DRC clean and LVS matched",
+            "lvs_mismatch": "DRC clean, LVS did not match — see lvs.devices/nets",
+            "drc_errors": "Magic reported DRC errors",
+            "vacuous": "the cell has no transistors, so LVS compared nothing",
+            "unmeasured": "the DRC count never printed — the run did not get there",
+        }[result["verdict"]],
         "toolchain": {"drc": "magic", "extract": "magic", "lvs": "netgen",
                        "image": OPENLANE_IMAGE},
     }
@@ -255,10 +327,15 @@ def scan() -> dict:
     for case in stored:
         latest[case["cell"]] = case
     clean = [c for c in latest.values() if c.get("passed")]
+    by_verdict: dict = {}
+    for case in latest.values():
+        key = case.get("verdict") or ("clean" if case.get("passed") else "not clean")
+        by_verdict[key] = by_verdict.get(key, 0) + 1
     return {
         "library": len(library),
         "signed_off": len(latest),
         "clean": len(clean),
+        "by_verdict": by_verdict,
         "not_clean": sorted(c["cell"] for c in latest.values() if not c.get("passed")),
         "cases": len(stored),
         "generated": datetime.now().isoformat(timespec="seconds"),
@@ -278,6 +355,8 @@ def main() -> None:
         print(f"library: {report['library']} cells")
         print(f"signed off: {report['signed_off']}  clean: {report['clean']}"
               f"  cases: {report['cases']}")
+        for verdict, count in sorted(report["by_verdict"].items()):
+            print(f"  {verdict}: {count}")
         if report["not_clean"]:
             print("not clean: " + ", ".join(report["not_clean"]))
         return
@@ -287,8 +366,10 @@ def main() -> None:
         print(f"{args.cell}: {result['error']}", file=sys.stderr)
         sys.exit(1)
     drc = "not measured" if result["drc_errors"] is None else result["drc_errors"]
-    print(f"{result['cell']}: DRC {drc}, LVS "
-          f"{'match' if result['lvs']['match'] else 'MISMATCH'}"
+    rules = ("  [" + "; ".join(result["drc_rules"]) + "]"
+             if result["drc_rules"] else "")
+    print(f"{result['cell']}: {result['verdict']} — DRC {drc}{rules}, LVS "
+          f"{'match' if result['lvs']['match'] else 'no match'}"
           f"  ({result['devices']['schematic']} schematic devices, "
           f"{result['devices']['layout']} extracted)")
     if not args.no_case:

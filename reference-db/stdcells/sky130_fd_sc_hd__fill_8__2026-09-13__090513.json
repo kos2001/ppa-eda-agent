@@ -1,0 +1,32 @@
+{
+  "cell": "sky130_fd_sc_hd__fill_8",
+  "date": "2026-09-13",
+  "kind": "standard-cell signoff",
+  "layout": "pdk/sky130A/libs.ref/sky130_fd_sc_hd/mag/sky130_fd_sc_hd__fill_8.mag",
+  "schematic_source": "pdk/sky130A/libs.ref/sky130_fd_sc_hd/cdl/sky130_fd_sc_hd.cdl",
+  "drc_errors": 0,
+  "drc_rules": [
+    "No errors found."
+  ],
+  "lvs": {
+    "match": false,
+    "uncertain": true,
+    "summary": null,
+    "devices": null,
+    "nets": null
+  },
+  "vacuous": true,
+  "verdict": "vacuous",
+  "devices": {
+    "schematic": 0,
+    "layout": 0
+  },
+  "passed": false,
+  "outcome": "the cell has no transistors, so LVS compared nothing",
+  "toolchain": {
+    "drc": "magic",
+    "extract": "magic",
+    "lvs": "netgen",
+    "image": "ghcr.io/efabless/openlane2:2.3.10"
+  }
+}

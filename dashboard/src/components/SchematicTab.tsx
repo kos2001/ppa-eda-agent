@@ -87,7 +87,8 @@ export default function SchematicTab() {
   const [coneNote, setConeNote] = useState<string | null>(null);
   const [full, setFull] = useState(false);
   const [stdQuery, setStdQuery] = useState("");
-  const [stdCells, setStdCells] = useState<{ cell: string; drawable: boolean }[]>([]);
+  const [stdCells, setStdCells] = useState<
+    { cell: string; drawable: boolean; signoff: string | null }[]>([]);
   const [stdTotal, setStdTotal] = useState(0);
   const [opening, setOpening] = useState<string | null>(null);
   const [result, setResult] = useState<RunResult | null>(null);
@@ -398,11 +399,20 @@ export default function SchematicTab() {
                 key={c.cell}
                 className={c.drawable ? "schematic__stdcell" : "schematic__stdcell is-blocked"}
                 disabled={!c.drawable || opening === c.cell}
-                title={c.drawable ? "open its transistors"
-                                  : "uses a device with no xschem symbol"}
+                title={[
+                  c.drawable ? "open its transistors"
+                             : "uses a device with no xschem symbol",
+                  c.signoff ? `signoff: ${c.signoff}` : "not signed off",
+                ].join(" · ")}
                 onClick={() => openStdCell(c.cell)}
               >
                 {opening === c.cell ? "opening…" : c.cell.replace("sky130_fd_sc_hd__", "")}
+                {/* One mark, and only for the cells where signoff found
+                    something: a green tick on all 414 clean cells would
+                    be decoration, while these 13 are the ones worth
+                    looking at. */}
+                {c.signoff === "lvs_mismatch" && <i className="schematic__flag" title="LVS mismatch">≠</i>}
+                {c.signoff === "drc_errors" && <i className="schematic__flag is-drc-error" title="DRC errors">!</i>}
               </button>
             ))}
           </div>

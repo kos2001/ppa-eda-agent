@@ -74,8 +74,13 @@ MIN_SAMPLES = 8
 # stale default quietly cost accuracy.
 # Re-measured whenever the corpus changes, never assumed. area_um2 has
 # moved 3 -> 4 -> 5 -> 2 -> 5 -> 3 -> 4 -> 2 -> 1 as the corpus grew and
-# thinned out again; power_w has moved 2 -> 1 and completed has stayed
-# at 1 throughout. Several of those area moves were between values that
+# thinned out again; power_w has moved 2 -> 1 -> 3 and completed has
+# stayed at 1 throughout. The last power_w move is one more of the
+# arbitrary-last-digit kind: on the 429-row store of 2026-09-13, k=1 and
+# k=3 win the same 97.2% of folds and differ only in MAE, 0.0013714
+# against 0.0012941 — 5.6%, on a target whose baseline is 0.0064. It is
+# recorded because the constant tracks the measurement, not because the
+# measurement changed anyone's mind. Several of those area moves were between values that
 # tie — k=1, 2 and 3 all score 0.9921 on the current store, and best_k
 # breaks the tie toward the smaller neighbourhood. So the constant is
 # tracking a real measurement, but the last digit of it is arbitrary
@@ -97,7 +102,7 @@ MIN_SAMPLES = 8
 # none of them has gone stale while the data moved underneath.
 DEFAULT_K_BY_TARGET = {
     "area_um2": 1,
-    "power_w": 1,
+    "power_w": 3,
     "completed": 1,
 }
 DEFAULT_K = 1
