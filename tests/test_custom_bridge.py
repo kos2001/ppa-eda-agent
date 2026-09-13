@@ -18,6 +18,7 @@ invented log text:
     breaks on the fifth.
 """
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -234,22 +235,66 @@ class SchematicRendering(unittest.TestCase):
 
     DESIGN = Path(__file__).resolve().parent.parent / "pipeline" / "analog" / "inv"
 
-    def test_a_viewbox_is_added_so_the_drawing_can_scale(self):
-        """xschem writes a fixed width/height and no viewBox, so the SVG
-        renders at 1000x700 in a panel and ignores zoom entirely."""
-        svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" version="1.1">'
-        out = custom_bridge.add_viewbox(svg)
-        self.assertIn('viewBox="0 0 1000 700"', out)
-        self.assertIn('width="1000"', out)
+    SVG = ('<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" '
+           'version="1.1">\n'
+           '<rect x="0" y="0" width="1000" height="700" class="l0"/>\n'
+           '<path class="l4" d="M 400 300 L 500 300"/>\n'
+           '<circle cx="450" cy="300" r="4"/>\n'
+           '<text font-size="20" transform="translate(520, 305)">Z</text>\n'
+           '</svg>')
+
+    def test_the_viewbox_points_at_the_drawing_not_at_the_canvas(self):
+        """Measured on the real renders: a small drawing fills 23-31% of
+        xschem's fixed canvas, so at fit zoom most of the frame is margin
+        and the schematic is tiny for no reason."""
+        out = custom_bridge.fit_viewbox(self.SVG)
+        x0, y0, w, h = [float(v) for v in
+                        re.search(r'viewBox="([-\d.]+) ([-\d.]+) ([\d.]+) ([\d.]+)"',
+                                  out).groups()]
+        self.assertGreater(x0, 300)      # not the canvas origin
+        self.assertLess(w, 1000)         # narrower than the canvas
+        self.assertLess(h, 700)
+
+    def test_content_past_the_canvas_edge_is_included_rather_than_clipped(self):
+        """The worse half of the same problem: counter4 fills 120% of the
+        canvas, gcd 142%, the riscv cone 170%. Everything past the edge
+        was simply not in the file — the aes cone lost its leftmost
+        column of net labels that way."""
+        svg = self.SVG.replace('d="M 400 300 L 500 300"', 'd="M 400 300 L 1400 300"')
+        out = custom_bridge.fit_viewbox(svg)
+        width = float(re.search(r'viewBox="[-\d.]+ [-\d.]+ ([\d.]+)', out).group(1))
+        self.assertGreater(width, 1000)
+
+    def test_the_background_follows_the_new_box(self):
+        # Otherwise the drawing is served on a transparent ground and the
+        # page shows through around it.
+        out = custom_bridge.fit_viewbox(self.SVG)
+        rect = re.search(r'<rect[^>]*width="([\d.]+)"', out).group(1)
+        box = re.search(r'viewBox="[-\d.]+ [-\d.]+ ([\d.]+)', out).group(1)
+        self.assertEqual(rect, box)
+
+    def test_text_extent_is_allowed_for_since_svg_does_not_carry_it(self):
+        """A <text> carries its anchor, not its width. Cropping to the
+        anchor would cut every label in half."""
+        out = custom_bridge.fit_viewbox(self.SVG)
+        x0, w = [float(v) for v in
+                 re.search(r'viewBox="([-\d.]+) [-\d.]+ ([\d.]+)', out).groups()]
+        self.assertGreater(x0 + w, 520 + 20 * 0.6)
 
     def test_an_existing_viewbox_is_left_alone(self):
         svg = '<svg width="10" height="20" viewBox="0 0 10 20">'
-        self.assertEqual(custom_bridge.add_viewbox(svg), svg)
+        self.assertEqual(custom_bridge.fit_viewbox(svg), svg)
 
     def test_markup_it_does_not_recognise_is_returned_unchanged(self):
         # Returning something half-rewritten would be worse than
         # returning the file as it came.
-        self.assertEqual(custom_bridge.add_viewbox("<svg>"), "<svg>")
+        self.assertEqual(custom_bridge.fit_viewbox("<svg>"), "<svg>")
+
+    def test_an_empty_drawing_keeps_the_canvas_rather_than_inventing_a_box(self):
+        empty = ('<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700">'
+                 '<rect x="0" y="0" width="1000" height="700"/></svg>')
+        out = custom_bridge.fit_viewbox(empty)
+        self.assertIn('viewBox="0.00 0.00 1000.00 700.00"', out)
 
     def test_a_missing_schematic_is_an_error(self):
         r = custom_bridge.render_schematic(self.DESIGN / "nope.sch")

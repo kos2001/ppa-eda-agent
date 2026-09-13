@@ -734,24 +734,96 @@ def netlist_schematic(schematic: Path | str, pdk: str = "sky130A",
 
 
 # xschem writes a fixed-size <svg width=... height=...> with no viewBox,
-# which cannot scale: dropped into a panel it renders at 1000x700 and
-# either overflows or leaves a margin, and browser zoom does nothing to
-# it. Adding a viewBox alongside the existing attributes is
-# non-destructive — the file still opens standalone at its natural size,
-# and CSS can now size it.
+# and fits the drawing into that canvas. Both halves of that cost
+# resolution, measured across this repo's own renders:
+#
+#   ringosc_tb   content fills  23% of the canvas   <- pixels wasted
+#   inv_2        content fills  26%
+#   inv          content fills  31%
+#   counter4     content fills 120%                 <- content CLIPPED
+#   gcd          content fills 142%
+#   riscv cone   content fills 170%
+#
+# A small drawing renders tiny at fit because most of the frame is
+# margin; a large one is worse than small, because everything past the
+# canvas edge is simply not in the file. The aes cone's leftmost column
+# of net labels was cut off exactly this way.
+#
+# So the viewBox is set to what the drawing actually occupies rather than
+# to the canvas xschem happened to use. Nothing is re-rendered: this is
+# arithmetic over the file's own coordinates, and the geometry is
+# untouched.
 _SVG_ROOT = re.compile(r'(<svg\b[^>]*?)\swidth="(\d+(?:\.\d+)?)"\s+height="(\d+(?:\.\d+)?)"')
+_PATH_D = re.compile(r'\sd="([^"]+)"')
+_NUMBER = re.compile(r'-?\d+\.?\d*(?:[eE]-?\d+)?')
+_TEXT = re.compile(
+    r'<text[^>]*?font-size="([\d.]+)"[^>]*?transform="translate\(([-\d.]+),\s*([-\d.]+)\)"[^>]*>([^<]*)')
+_CIRCLE = re.compile(r'<circle[^>]*cx="([-\d.]+)"[^>]*cy="([-\d.]+)"[^>]*r="([-\d.]+)"')
+_BG_RECT = re.compile(r'(<rect[^>]*?)x="[-\d.]*"\s*y="[-\d.]*"\s*width="[\d.]*"\s*height="[\d.]*"')
+
+# Text is the one thing whose extent is not in the file: an SVG <text>
+# carries its anchor, not its width. 0.62 em per character is the usual
+# approximation for a proportional sans face and it only has to be close
+# — it decides a margin, not a layout.
+_CHAR_WIDTH_EM = 0.62
 
 
-def add_viewbox(svg: str) -> str:
-    """Make an xschem SVG scalable. Returns it unchanged if already has one."""
+def svg_content_bbox(svg: str) -> tuple | None:
+    """(x0, y0, x1, y1) of everything drawn, or None if nothing is.
+
+    The background rect is deliberately not counted: it is the canvas,
+    and including it would make every drawing "fill" the canvas exactly
+    and defeat the purpose.
+    """
+    xs: list = []
+    ys: list = []
+    for d in _PATH_D.findall(svg):
+        nums = [float(n) for n in _NUMBER.findall(d)]
+        xs += nums[0::2]
+        ys += nums[1::2]
+    for size, x, y, text in _TEXT.findall(svg):
+        size, x, y = float(size), float(x), float(y)
+        xs += [x, x + len(text) * size * _CHAR_WIDTH_EM]
+        ys += [y - size, y + size * 0.3]
+    for cx, cy, r in _CIRCLE.findall(svg):
+        cx, cy, r = float(cx), float(cy), float(r)
+        xs += [cx - r, cx + r]
+        ys += [cy - r, cy + r]
+    if not xs or not ys:
+        return None
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def fit_viewbox(svg: str, margin: float = 0.02) -> str:
+    """Point the SVG's viewBox at the drawing instead of at the canvas.
+
+    Leaves the file valid standalone: width/height become the content's
+    size, so it still opens at a sensible scale, and the background rect
+    is stretched to the new box so the drawing is not served on a
+    transparent ground.
+    """
     if "viewBox" in svg:
         return svg
-    m = _SVG_ROOT.search(svg)
-    if not m:
+    root = _SVG_ROOT.search(svg)
+    if not root:
         return svg
-    head, w, h = m.group(1), m.group(2), m.group(3)
-    return svg.replace(
-        m.group(0), f'{head} width="{w}" height="{h}" viewBox="0 0 {w} {h}"', 1)
+    head, canvas_w, canvas_h = root.group(1), float(root.group(2)), float(root.group(3))
+    box = svg_content_bbox(svg)
+    if box is None:
+        # Nothing drawn: keep the canvas rather than inventing a box.
+        x0, y0, x1, y1 = 0.0, 0.0, canvas_w, canvas_h
+    else:
+        x0, y0, x1, y1 = box
+        pad = max((x1 - x0), (y1 - y0)) * margin
+        x0, y0, x1, y1 = x0 - pad, y0 - pad, x1 + pad, y1 + pad
+    w, h = max(x1 - x0, 1.0), max(y1 - y0, 1.0)
+    svg = svg.replace(
+        root.group(0),
+        f'{head} width="{w:.2f}" height="{h:.2f}" '
+        f'viewBox="{x0:.2f} {y0:.2f} {w:.2f} {h:.2f}"', 1)
+    return _BG_RECT.sub(
+        lambda m: f'{m.group(1)}x="{x0:.2f}" y="{y0:.2f}" '
+                  f'width="{w:.2f}" height="{h:.2f}"', svg, count=1)
 
 
 def render_schematic(schematic: Path | str, pdk: str = "sky130A",
@@ -824,7 +896,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
     errors, warnings = parse_problems(text)
     if out.is_file():
         # Same as the netlister: the file is the verdict, not the code.
-        out.write_text(add_viewbox(out.read_text(encoding="utf-8")), encoding="utf-8")
+        out.write_text(fit_viewbox(out.read_text(encoding="utf-8")), encoding="utf-8")
     else:
         errors.append(f"xschem wrote no SVG at {out}")
     return BridgeResult(

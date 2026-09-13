@@ -311,14 +311,22 @@ build needs XQuartz plus an X11-linked Tk). `evaluate()` falls back to
 whichever container carries a backend rather than reporting one
 `status --docker` just called available.
 
-**The viewer pans and zooms.** A gate-level cone is small cells with
-small pin labels and xschem exports one fixed 1000x700 canvas, so a
-panel-sized `<img>` is a picture of a schematic rather than a schematic.
+**The viewer pans and zooms, over the whole drawing.** xschem exports one
+fixed 1000x700 canvas and fits the schematic into it, which costs
+resolution at both ends — measured across these renders, a small drawing
+fills 23-31% of the canvas (the rest is margin, so it renders tiny at
+fit) and every gate-level one *overflows* it: counter4 120%, gcd 142%,
+the riscv cone 170%. Overflow is the worse half, because anything past
+the canvas edge is not in the file at all — the aes cone was losing its
+leftmost column of net labels exactly that way. `fit_viewbox()` points
+the viewBox at what the drawing actually occupies instead, which is
+arithmetic over the file's own coordinates and re-renders nothing.
 `SchematicViewer.tsx` does what every EDA viewer and every map does:
 scroll to zoom about the pointer, drag to pan, `0`/`F`/double-click to
 fit, `+`/`-` to step, and a full-screen sheet that `Esc` closes. Zooming
 is a CSS transform on the SVG, so a scroll wheel costs no request and no
-re-parse.
+re-parse, and the browser re-rasterises the vector at each scale —
+checked at 238% and 551%, where the net labels stay sharp.
 
 **The flow starts at the schematic.** This first shipped with a
 hand-written SPICE deck, which is one step below where the custom flow
