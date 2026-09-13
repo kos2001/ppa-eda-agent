@@ -88,6 +88,69 @@ class LvsParsing(unittest.TestCase):
         self.assertEqual(ss.parse_lvs(NETGEN_MATCH)["devices"], [2, 2])
 
 
+class Vacuous(unittest.TestCase):
+    """Cells with no transistors are not mismatches.
+
+    fill, decap, diode, conb and the spare-cell macro have zero devices
+    in the CDL, so LVS compares nothing. "Nothing matched nothing" is
+    neither a pass nor a failure — the same distinction equiv_check.py
+    draws with its own `vacuous` flag, and counting the library's filler
+    among the failures would put it in the same column as a real
+    discrepancy."""
+
+    def test_a_cell_with_no_devices_is_not_in_the_cdl_as_a_circuit(self):
+        import stdcell_schematic
+        for cell in ("sky130_fd_sc_hd__fill_4", "sky130_fd_sc_hd__conb_1",
+                     "sky130_fd_sc_hd__diode_2"):
+            block = stdcell_schematic.subckt(cell)
+            if block is None:
+                continue
+            self.assertEqual(stdcell_schematic.device_count(block), 0, cell)
+
+    def test_the_stored_verdicts_separate_it_from_a_mismatch(self):
+        stored = [c for c in ss.cases() if c.get("verdict")]
+        if not stored:
+            self.skipTest("no cases carrying a verdict in this checkout")
+        self.assertTrue(set(c["verdict"] for c in stored)
+                        <= {"clean", "lvs_mismatch", "drc_errors", "vacuous",
+                            "unmeasured"})
+        for case in stored:
+            if case["verdict"] == "vacuous":
+                self.assertFalse(case["passed"], case["cell"])
+
+
+class DrcRules(unittest.TestCase):
+    """A count says a cell is dirty; the rule says whether that means
+    anything. Both tap cells that report errors report only met1.6 —
+    Metal1 minimum area — which is what a cell meant to be tiled looks
+    like checked alone. Without the rule name, three errors on a foundry
+    cell reads as "the foundry ships a dirty cell"."""
+
+    MAGIC_WITH_RULES = """DRC_COUNT 3
+DRC_WHY_BEGIN
+Metal1 minimum area < 0.083um^2 (met1.6)
+Metal1 minimum area < 0.083um^2 (met1.6)
+DRC_WHY_END
+"""
+
+    def test_the_rules_are_captured_and_deduplicated(self):
+        self.assertEqual(ss.parse_drc_rules(self.MAGIC_WITH_RULES),
+                         ["Metal1 minimum area < 0.083um^2 (met1.6)"])
+
+    def test_a_clean_cell_names_no_rules(self):
+        self.assertEqual(ss.parse_drc_rules(MAGIC_CLEAN), [])
+
+    def test_output_without_the_markers_yields_nothing_rather_than_noise(self):
+        self.assertEqual(ss.parse_drc_rules("some magic chatter"), [])
+
+    def test_the_stored_tap_cases_name_that_rule(self):
+        stored = {c["cell"]: c for c in ss.cases() if c.get("drc_rules")}
+        if not stored:
+            self.skipTest("no cases carrying DRC rules in this checkout")
+        for cell, case in stored.items():
+            self.assertTrue(all(r.strip() for r in case["drc_rules"]), cell)
+
+
 class Verdict(unittest.TestCase):
     def test_the_pdk_ships_the_layout_this_reads(self):
         # If the library moves, every run here is signing off nothing.

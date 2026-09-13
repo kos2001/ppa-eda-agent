@@ -1278,9 +1278,15 @@ const server = createServer(async (req, res) => {
         "python3",
         ["-c",
          "import sys, json; sys.path.insert(0, '.'); import stdcell_schematic as st; " +
+         "import stdcell_signoff as ss; " +
          "q = sys.argv[1] or None; " +
          "found = st.cells(q); " +
-         "print(json.dumps({'cells': [{'cell': c, 'drawable': st.drawable(c)} " +
+         // The signoff verdict rides along with the listing so a chip can
+         // say what is known about the cell without a second request per
+         // cell — the store is already read once here either way.
+         "signed = {c['cell']: c for c in ss.cases()}; " +
+         "print(json.dumps({'cells': [{'cell': c, 'drawable': st.drawable(c), " +
+         "'signoff': (signed.get(c) or {}).get('verdict')} " +
          "for c in found[:200]], 'total': len(found)}))",
          q],
         { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }

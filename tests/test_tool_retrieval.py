@@ -181,7 +181,7 @@ WORKFLOW_TOOLS = {
     # reach for it to sign a cell off, not to answer a failure. The
     # schematic half (ppa_stdcell_schematic) IS routed from a failure —
     # sram_wrapper's unexplained dlymetal6s2s_1.
-    "ppa_stdcell_signoff",
+    "ppa_stdcell_signoff", "ppa_stdcell_survey",
 }
 
 
