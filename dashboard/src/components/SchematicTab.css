@@ -201,3 +201,14 @@
   border-style: dashed;
   cursor: not-allowed;
 }
+
+.schematic__flag {
+  font-style: normal;
+  margin-left: 4px;
+  color: var(--warn);
+  font-weight: 700;
+}
+/* Named for the failure, not the check: tests/test_markdown_render.py
+   reads selectors to enforce that --critical only paints something
+   broken, and DRC errors on a cell are that. */
+.schematic__flag.is-drc-error { color: var(--critical); }

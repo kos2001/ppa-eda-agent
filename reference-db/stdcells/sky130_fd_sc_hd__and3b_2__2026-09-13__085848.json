@@ -1,0 +1,33 @@
+{
+  "cell": "sky130_fd_sc_hd__and3b_2",
+  "date": "2026-09-13",
+  "kind": "standard-cell signoff",
+  "layout": "pdk/sky130A/libs.ref/sky130_fd_sc_hd/mag/sky130_fd_sc_hd__and3b_2.mag",
+  "schematic_source": "pdk/sky130A/libs.ref/sky130_fd_sc_hd/cdl/sky130_fd_sc_hd.cdl",
+  "drc_errors": 0,
+  "lvs": {
+    "match": true,
+    "uncertain": false,
+    "summary": "Circuits match uniquely.",
+    "devices": [
+      10,
+      10
+    ],
+    "nets": [
+      12,
+      12
+    ]
+  },
+  "devices": {
+    "schematic": 10,
+    "layout": 12
+  },
+  "passed": true,
+  "outcome": "clean",
+  "toolchain": {
+    "drc": "magic",
+    "extract": "magic",
+    "lvs": "netgen",
+    "image": "ghcr.io/efabless/openlane2:2.3.10"
+  }
+}

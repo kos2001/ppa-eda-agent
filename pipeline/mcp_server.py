@@ -32,6 +32,7 @@ import custom_bridge  # noqa: E402
 import gate_schematic  # noqa: E402
 import stdcell_schematic  # noqa: E402
 import stdcell_signoff  # noqa: E402
+import stdcell_survey  # noqa: E402
 import equiv_check  # noqa: E402
 import odb_query  # noqa: E402
 import sta_path  # noqa: E402
@@ -455,6 +456,17 @@ TOOLS = [
         },
     },
     {
+        "name": "ppa_stdcell_survey",
+        "description": "Reads the standard-cell signoff store back and says what "
+                        "it found: how many cells are clean, which have real DRC "
+                        "errors and under which rule, which LVS mismatches are real "
+                        "against which are cells with no transistors, and the shape "
+                        "of each mismatch (how many devices and nets the layout "
+                        "carries that the schematic does not). Read-only — it "
+                        "re-runs nothing.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    {
         "name": "ppa_render_schematic",
         "description": "Draws a schematic as SVG using xschem's own renderer — "
                         "the custom half's counterpart of ppa_render_layout. Use "
@@ -710,6 +722,10 @@ def _tool_stdcell_signoff(args: dict) -> dict:
     return result
 
 
+def _tool_stdcell_survey(args: dict) -> dict:
+    return stdcell_survey.survey()
+
+
 def _tool_render_schematic(args: dict) -> dict:
     sch = Path(args["schematic"])
     if not sch.is_absolute():
@@ -758,6 +774,7 @@ _TOOL_IMPL = {
     "ppa_gate_schematic": _tool_gate_schematic,
     "ppa_stdcell_schematic": _tool_stdcell_schematic,
     "ppa_stdcell_signoff": _tool_stdcell_signoff,
+    "ppa_stdcell_survey": _tool_stdcell_survey,
     "ppa_render_schematic": _tool_render_schematic,
     "ppa_spice_sim": _tool_spice_sim,
 }

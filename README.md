@@ -506,15 +506,46 @@ that the CDL-to-SPICE translation behind the schematic view preserves the
 circuit**. Nothing else in this repo checks that conversion; LVS checks
 it against the foundry's own geometry.
 
-Measured across 37 cells on 2026-09-13: **DRC 0 on every one, LVS
-matching on 36**. The one that does not is `a21oi_2` — netgen sees 8
-devices against 6 and 11 nets against 10 after merging, so the layout
-carries an internal node the schematic does not. Reproducing it with the
-untouched CDL rules out this pipeline's translation, and no cause is
-claimed: the obvious story ("a series stack laid out as parallel
-fingers") is contradicted by the same sample, since `a21oi_1` matches and
-so does `nand3_2`, a three-high stack at the same `m=2`. It is in the
-store as an open finding.
+**The whole library, in 230 seconds** — `pipeline/stdcell_survey.py`
+reads the store back:
+
+| | cells |
+|---|---|
+| clean (DRC 0, LVS matched) | 414 |
+| no transistors — LVS compared nothing | 12 |
+| real LVS mismatches | 11 |
+| real DRC errors | 2 |
+
+The 12 are fill, decap, diode, conb, the taps and the spare-cell macro.
+"Nothing matched nothing" is neither a pass nor a failure, which is the
+distinction `equiv_check.py` already draws with its own `vacuous` flag;
+counting the library's own filler among the failures would put it in the
+same column as a real discrepancy.
+
+The 2 DRC cells are `tapvgnd_1` and `tapvgnd2_1`, three errors each, all
+of one rule: **`met1.6`, Metal1 minimum area**. That is what a cell
+designed to be tiled into a row looks like when it is checked standing
+alone — its met1 is a fragment of a rail that only reaches minimum area
+once it abuts its neighbours. Same shape of finding as
+`magic_abstract_drc.py` records for `nwell.4`, and the reason the rule
+name is now stored beside the count: a count alone would have been read
+as "the foundry ships a dirty cell".
+
+The 11 mismatches have a shape, which is what running the library bought
+over the first sample of 37. Every one is a compound gate (`a2111oi`,
+`a211oi`, `a21boi`, `a21oi`, `a31o`, `o2111a`, `o211a`, `o211ai`, `ha`,
+`probe_p`, `probec_p`) at drive 2, 4 or 8, with 1–4 devices and 0–2 nets
+more in the layout than in the schematic. Reading one extraction says
+what those extra nets are: `a21oi_2`'s layout implements its `m=2` nfet
+series stack as **two independent stacks with their own internal nodes**
+(`a_114_47#`, `a_285_47#`), while the CDL's `m=2` means two parallel
+devices sharing one — and netgen cannot merge what does not share a
+node. Not every multi-drive stack is laid out that way, which is why it
+is 11 cells and not all of them: `nand3_2`, a three-high stack at the
+same `m=2`, shares both internal nodes between its fingers and matches.
+A per-cell layout style, then, not a rule about series stacks — and a
+property of the library rather than of this pipeline, since the untouched
+CDL reproduces it.
 
 Both tools need `PDK_ROOT=/pdk` inside the container: the PDK's magicrc
 does `tech load $PDK_ROOT/...`, and without it Magic looks for the tech

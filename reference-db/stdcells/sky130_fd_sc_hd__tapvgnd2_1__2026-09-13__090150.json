@@ -1,0 +1,27 @@
+{
+  "cell": "sky130_fd_sc_hd__tapvgnd2_1",
+  "date": "2026-09-13",
+  "kind": "standard-cell signoff",
+  "layout": "pdk/sky130A/libs.ref/sky130_fd_sc_hd/mag/sky130_fd_sc_hd__tapvgnd2_1.mag",
+  "schematic_source": "pdk/sky130A/libs.ref/sky130_fd_sc_hd/cdl/sky130_fd_sc_hd.cdl",
+  "drc_errors": 3,
+  "lvs": {
+    "match": false,
+    "uncertain": true,
+    "summary": null,
+    "devices": null,
+    "nets": null
+  },
+  "devices": {
+    "schematic": 0,
+    "layout": 0
+  },
+  "passed": false,
+  "outcome": "DRC or LVS did not come back clean \u2014 see drc_errors/lvs",
+  "toolchain": {
+    "drc": "magic",
+    "extract": "magic",
+    "lvs": "netgen",
+    "image": "ghcr.io/efabless/openlane2:2.3.10"
+  }
+}
