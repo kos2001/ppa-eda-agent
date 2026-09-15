@@ -1,0 +1,21 @@
+{
+  "scope": "isolated installed bitcell DC diagnostic; not macro timing or read/write verification",
+  "simulator": "ngspice-46",
+  "process": "TT",
+  "voltage_V": 1.8,
+  "temperature_C": 25,
+  "exit_code": 0,
+  "q_V": 1.8,
+  "q_bar_V": 1.115595e-08,
+  "elapsed_seconds": 6.127,
+  "stimulus_sha256": "ea6e814ede008b93810e97b745ec86fea5eb1b77a2d800f1f36b6370a6583035",
+  "cell_sha256": "9e02e11535a04cc03901ac90ccff8c8e2f1a50c74fcf84c1fe7e3286339b0c3b",
+  "log_sha256": "643c6417703969bf0713584ce426d2af7592e355f4de4f40b6cd08aac089238f",
+  "artifact_directory": "/private/tmp/ppa-sram-bitcell-probe",
+  "warnings": [
+    "Warning: m=xx on .subckt line will override multiplier m hierarchy!",
+    "Warning: can't parse 'xcell.q': ignored",
+    "Warning: can't parse 'xcell.q_bar': ignored"
+  ],
+  "macro_timing_verified": false
+}

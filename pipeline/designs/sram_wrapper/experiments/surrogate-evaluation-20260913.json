@@ -1,0 +1,66 @@
+{
+  "total_rows": 429,
+  "sram_rows": 6,
+  "features": [
+    "FP_CORE_UTIL",
+    "PL_TARGET_DENSITY_PCT",
+    "CLOCK_PERIOD",
+    "die_area_um2",
+    "SYNTH_STRATEGY",
+    "SCL",
+    "routing_layers"
+  ],
+  "targets": {
+    "area_um2": {
+      "field": "area_um2",
+      "k": 1,
+      "n_total": 0,
+      "n_scored": 0,
+      "n_refused": 0,
+      "model_mae": null,
+      "baseline_mae": null,
+      "accuracy": null,
+      "baseline_accuracy": null,
+      "wins": 0,
+      "ties": 0,
+      "win_rate": null,
+      "mae_improvement_pct": null,
+      "beats_baseline": null,
+      "verdict": "insufficient data \u2014 not enough distinct configurations to evaluate a surrogate at all"
+    },
+    "power_w": {
+      "field": "power_w",
+      "k": 3,
+      "n_total": 0,
+      "n_scored": 0,
+      "n_refused": 0,
+      "model_mae": null,
+      "baseline_mae": null,
+      "accuracy": null,
+      "baseline_accuracy": null,
+      "wins": 0,
+      "ties": 0,
+      "win_rate": null,
+      "mae_improvement_pct": null,
+      "beats_baseline": null,
+      "verdict": "insufficient data \u2014 not enough distinct configurations to evaluate a surrogate at all"
+    },
+    "completed": {
+      "field": "completed",
+      "k": 1,
+      "n_total": 6,
+      "n_scored": 0,
+      "n_refused": 6,
+      "model_mae": null,
+      "baseline_mae": null,
+      "accuracy": null,
+      "baseline_accuracy": null,
+      "wins": 0,
+      "ties": 0,
+      "win_rate": null,
+      "mae_improvement_pct": null,
+      "beats_baseline": null,
+      "verdict": "insufficient data \u2014 not enough distinct configurations to evaluate a surrogate at all"
+    }
+  }
+}
