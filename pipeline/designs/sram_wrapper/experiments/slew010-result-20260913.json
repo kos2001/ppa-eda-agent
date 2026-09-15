@@ -1,0 +1,359 @@
+{
+  "sram-buffer2-probe-20260913": {
+    "model_validity": {
+      "macro_ceilings_ns": {
+        "u_sram": 0.04
+      },
+      "corners_read": 9,
+      "extrapolated_pins": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.122157,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.1
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.11351,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.8
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.103393,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.6
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.102203,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.6
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.089142,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.2
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.085993,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.084954,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.084756,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.083993,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.08347,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.082343,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.081851,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.0
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.0798,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.0
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.078963,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.0
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.078881,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.0
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.066106,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 1.7
+        }
+      ],
+      "worst_times_past_ceiling": 3.1
+    },
+    "metrics": {
+      "design__instance__area": 200147,
+      "power__total": 0.0023346676025539637,
+      "design__max_slew_violation__count": 16,
+      "timing__hold_vio__count": 0,
+      "timing__setup_vio__count": 0,
+      "route__antenna_violation__count": 0,
+      "magic__drc_error__count": 0,
+      "klayout__drc_error__count": 0,
+      "design__lvs_error__count": 0
+    },
+    "manufacturability": "* Antenna\nPassed \u2705\n\n* LVS\nPassed \u2705\n\n* DRC\nPassed \u2705\n\n",
+    "address_worst_slew_ns": 0.122157
+  },
+  "sram-slew010-probe-20260913": {
+    "model_validity": {
+      "macro_ceilings_ns": {
+        "u_sram": 0.04
+      },
+      "corners_read": 9,
+      "extrapolated_pins": [
+        {
+          "pin": "u_sram/clk0",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.324567,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 8.1
+        },
+        {
+          "pin": "u_sram/clk1",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.271621,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 6.8
+        },
+        {
+          "pin": "u_sram/din0[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.134685,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.4
+        },
+        {
+          "pin": "u_sram/din0[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.132137,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.3
+        },
+        {
+          "pin": "u_sram/web0",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.130035,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.3
+        },
+        {
+          "pin": "u_sram/din0[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.125514,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.1
+        },
+        {
+          "pin": "u_sram/addr0[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.123658,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.1
+        },
+        {
+          "pin": "u_sram/din0[7]",
+          "corner": "nom_ss_100C_1v60",
+          "slew_ns": 0.121801,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.0
+        },
+        {
+          "pin": "u_sram/din0[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.121052,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.0
+        },
+        {
+          "pin": "u_sram/din0[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.119061,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.0
+        },
+        {
+          "pin": "u_sram/din0[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.118646,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.0
+        },
+        {
+          "pin": "u_sram/din0[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.118641,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 3.0
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.115903,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.9
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.108922,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.7
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.103875,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.6
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.088793,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.2
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.08597,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.084851,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.08429,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.084216,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.082584,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.082489,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.082042,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.1
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.081687,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.0
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.078955,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 2.0
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.077891,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 1.9
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "corner": "max_ss_100C_1v60",
+          "slew_ns": 0.065462,
+          "characterised_to_ns": 0.04,
+          "times_past_ceiling": 1.6
+        }
+      ],
+      "worst_times_past_ceiling": 8.1
+    },
+    "metrics": {
+      "design__instance__area": 200793,
+      "power__total": 0.002347061177715659,
+      "design__max_slew_violation__count": 757,
+      "timing__hold_vio__count": 0,
+      "timing__setup_vio__count": 0,
+      "route__antenna_violation__count": 0,
+      "magic__drc_error__count": 0,
+      "klayout__drc_error__count": 0,
+      "design__lvs_error__count": 0
+    },
+    "manufacturability": "* Antenna\nPassed \u2705\n\n* LVS\nPassed \u2705\n\n* DRC\nPassed \u2705\n\n",
+    "address_worst_slew_ns": 0.123658
+  },
+  "candidate": {
+    "override": {
+      "MAX_TRANSITION_CONSTRAINT": 0.1
+    },
+    "source_sha256": "13bf03f7f0b4b2e4c2096fe766a6cbd3d38352bc5574996cddc1db395f1122f0",
+    "adopted": false,
+    "reason": "Address slew did not improve; model remains unverified. Counts across thresholds have different report coverage."
+  }
+}

@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
-from openram_adapter import stimulus_class, setup_hold_class
+from openram_adapter import stimulus_class, setup_hold_class, _DeckWriter
 
 
 class CaptureStimuli:
@@ -16,6 +16,17 @@ class CaptureStimuli:
 
 
 class StimulusTests(unittest.TestCase):
+    def test_deck_writer_removes_waveform_storage_options(self):
+        class Stream:
+            def __init__(self):
+                self.data = ""
+            def write(self, data):
+                self.data += data
+        stream = Stream()
+        _DeckWriter(stream, False).write(
+            ".OPTIONS POST=1 RELTOL=0.001 PROBE method=gear ACCT\n")
+        self.assertEqual(stream.data, ".OPTIONS RELTOL=0.001 method=gear ACCT\n")
+
     def test_pwl_10_to_90_crossings_match_liberty_grid(self):
         stim = stimulus_class(CaptureStimuli)()
         for slew in [0.00125, 0.005, 0.04, 0.260]:

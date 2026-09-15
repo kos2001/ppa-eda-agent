@@ -130,8 +130,8 @@ def find_reports(run_dir: Path | str) -> list[Path]:
 def parse_slews(text: str) -> list[dict]:
     """Violating pins from one corner's max-slew table.
 
-    Only the violators — the report lists nothing else, and a pin that
-    meets its limit cannot be past the ceiling that produced it.
+    Only the violators: after transition constraints are relaxed, an
+    unreported pin can still exceed its Liberty table's slew range.
     """
     section = text.split("max slew", 1)[1] if "max slew" in text else ""
     section = section.split("max fanout", 1)[0]
@@ -180,6 +180,8 @@ def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
 
     pins = sorted(worst.values(), key=lambda e: -e["slew_ns"])
     return {
+        "coverage": "reported_slew_violations_only",
+        "model_validity_verified": False,
         "macro_ceilings_ns": ceilings,
         "corners_read": len(reports),
         "extrapolated_pins": pins,
@@ -195,8 +197,16 @@ def unverified(result: dict | None) -> list[str]:
     say from here. Conflating the two would either hide the problem or
     invent a failure.
     """
-    if not result or not result["extrapolated_pins"]:
+    if not result:
         return []
+    coverage = (
+        "macro timing model coverage remains unverified: slew violation "
+        "reports omit nonviolating pins; signoff requires every macro input's "
+        "rise/fall slew at every corner, checked against its Liberty arc "
+        "axes and explicit PVT mapping"
+    )
+    if not result["extrapolated_pins"]:
+        return [coverage]
     pins = result["extrapolated_pins"]
     worst = pins[0]
     return [
@@ -207,7 +217,7 @@ def unverified(result: dict | None) -> list[str]:
         f"({worst['times_past_ceiling']}x past the last table entry, "
         f"corner {worst['corner']}) — these delays are off the end of "
         f"the table, not measurements, and signoff needs a "
-        f"re-characterised liberty"
+        f"re-characterised liberty. {coverage}"
     ]
 
 
