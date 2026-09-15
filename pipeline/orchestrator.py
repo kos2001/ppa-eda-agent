@@ -27,6 +27,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 from run_stage import run_stage, read_metrics
+from case_storage import write_case_json
 import cdc_check
 import def_layout
 import design_rules
@@ -1424,7 +1425,7 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         "layout_image": capture_layout_image(design_name, design_dir, subject),
         "layout_image_tag": subject["tag"] if subject else None,
     }
-    case_file.write_text(json.dumps(case, indent=2), encoding="utf-8")
+    write_case_json(case_file, case)
 
     index_file = REFDB / "index.json"
     index = json.loads(index_file.read_text(encoding="utf-8")) if index_file.exists() else {}

@@ -65,6 +65,16 @@ reference-db/                       Case store of past pipeline runs —
 
 ## Autonomous layout pipeline
 
+The generated `reference-db/cases/*.json` files use compact JSON. The
+2026-09-16 whitespace-only migration reduced 70 cases from 607,317,687 to
+198,697,128 bytes (67.28%) while preserving every string, numeric spelling,
+key, and array order against the previous Git revision. Existing JSON
+readers and file paths are unchanged. Case creation and updates share
+`pipeline/case_storage.py` so later reviews and runs retain the smaller format.
+Use `python3 pipeline/case_storage.py` to preview savings and add `--write`
+to compact existing cases atomically. For readable inspection, use
+`python3 -m json.tool reference-db/cases/<case>.json`.
+
 Beyond reading reports, this repo can now drive a real
 RTL → placement → routing → signoff loop and evaluate the candidates it
 produces — see

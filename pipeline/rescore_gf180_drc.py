@@ -39,6 +39,7 @@ from pathlib import Path
 
 import gf180_drc
 import orchestrator
+from case_storage import write_case_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DESIGNS = REPO_ROOT / "pipeline" / "designs"
@@ -159,7 +160,7 @@ def apply(entries: list[dict], write: bool) -> dict:
                       "stop_reason": case.get("stop_reason")},
         }
         if write:
-            path.write_text(json.dumps(case, indent=2), encoding="utf-8")
+            write_case_json(path, case)
     summary["files"] = len(changed_files)
     return summary
 
