@@ -12,6 +12,8 @@ import os
 import re
 import sys
 import unittest
+import subprocess
+import json
 from pathlib import Path
 
 PIPELINE = Path(__file__).resolve().parent.parent / "pipeline"
@@ -45,6 +47,25 @@ class TestSingleSourceOfTruth(unittest.TestCase):
         not exist."""
         self.assertIn("efabless", toolchain.OPENLANE_IMAGE)
         self.assertIn("chipfoundry", toolchain.OPENLANE_UPSTREAM)
+
+    def test_development_selection_reaches_all_importing_clients(self):
+        env = dict(os.environ, PYTHONPATH=str(PIPELINE), PPA_EDA_TOOLCHAIN="openlane-dev")
+        result = subprocess.run(
+            [sys.executable, "-c", "import json,toolchain,run_stage; "
+             "assert run_stage.IMAGE == toolchain.OPENLANE_IMAGE; "
+             "print(json.dumps(toolchain.toolchain_info()))"],
+            env=env, capture_output=True, text=True, check=True)
+        info = json.loads(result.stdout)
+        self.assertEqual(info["profile"], "openlane-dev")
+        self.assertIn("3.0.0.dev21", info["openlane_image"])
+
+    def test_unknown_profile_fails_instead_of_benchmarking_stable_twice(self):
+        result = subprocess.run(
+            [sys.executable, "-c", "import toolchain"],
+            env=dict(os.environ, PYTHONPATH=str(PIPELINE), PPA_EDA_TOOLCHAIN="typo"),
+            capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Unknown PPA_EDA_TOOLCHAIN", result.stderr)
 
 
 if __name__ == "__main__":

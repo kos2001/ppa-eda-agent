@@ -19,17 +19,30 @@ so the image reference below is deliberately NOT "modernised" to match
 the new org name. Verified rather than assumed: the chipfoundry image
 name returns not-found, the efabless one resolves.
 
-On the version. 2.3.10 is the newest *stable* 2.x tag upstream — this
-pipeline is already current. Newer tags are `3.0.0.dev*` pre-releases,
-deliberately not adopted: every number in reference-db came from a real
-run, and re-baselining all of them onto a development build would trade
-that for novelty.
+2.3.10 remains the stable default. Set PPA_EDA_TOOLCHAIN=openlane-dev
+to evaluate 3.0.0.dev21 in a new run directory. The selection applies to
+all pipeline clients and is recorded with results; it does not upgrade
+historical OpenDB files or qualify a development build for signoff.
 """
 
 import os
 import platform
 
-OPENLANE_IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
+TOOLCHAIN_PROFILES = {
+    "stable": {
+        "image": "ghcr.io/efabless/openlane2:2.3.10",
+        "openroad_revision": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+    },
+    "openlane-dev": {
+        "image": "ghcr.io/efabless/openlane2:3.0.0.dev21",
+        "openroad_revision": "87af90f72f3f9be1fdfa1d886f0dd8d8b8f34694",
+    },
+}
+TOOLCHAIN_PROFILE = os.environ.get("PPA_EDA_TOOLCHAIN", "stable").strip()
+if TOOLCHAIN_PROFILE not in TOOLCHAIN_PROFILES:
+    raise ValueError(f"Unknown PPA_EDA_TOOLCHAIN {TOOLCHAIN_PROFILE!r}; "
+                     f"choose from {', '.join(TOOLCHAIN_PROFILES)}")
+OPENLANE_IMAGE = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["image"]
 
 # Where that image comes from, recorded alongside results so a case can
 # be attributed to a toolchain rather than to "whatever was installed".
@@ -86,6 +99,8 @@ def toolchain_info() -> dict:
     return {
         "openlane_image": OPENLANE_IMAGE,
         "openlane_upstream": OPENLANE_UPSTREAM,
+        "profile": TOOLCHAIN_PROFILE,
+        "expected_openroad_revision": TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["openroad_revision"],
         "host": host_info(),
     }
 
@@ -111,12 +126,13 @@ def classic_steps() -> list[str]:
     import subprocess
     try:
         out = subprocess.run(
-            ["docker", "run", "--rm", OPENLANE_IMAGE, "python3", "-c",
+            ["docker", "run", "--rm", *platform_args(), OPENLANE_IMAGE, "python3", "-c",
              "from openlane.flows import Flow\n"
              "print('\\n'.join(s.id for s in Flow.factory.get('Classic').Steps))"],
             capture_output=True, text=True, encoding="utf-8", timeout=300,
         )
-        _CLASSIC_STEPS = [l.strip() for l in out.stdout.splitlines() if l.strip()]
+        _CLASSIC_STEPS = ([l.strip() for l in out.stdout.splitlines() if l.strip()]
+                          if out.returncode == 0 else [])
     except Exception:  # noqa: BLE001 - reporting field, not a gate
         _CLASSIC_STEPS = []
     return _CLASSIC_STEPS
