@@ -52,3 +52,9 @@ class FlowSelectionTests(unittest.TestCase):
                             ("--to", "Magic.DRC"), ("--pdk", "sky130A"),
                             ("--scl", "sky130_fd_sc_hd")):
             self.assertEqual(cmd[cmd.index(flag) + 1], value)
+
+    def test_upstream_backport_is_loaded_inside_the_selected_toolchain(self):
+        cmd = self.command({"flow": "UpstreamClassic"})
+        self.assertIn("/flows/upstream_classic.py", cmd)
+        self.assertIn(run_stage.IMAGE, cmd)
+        self.assertIn(str(ROOT / "pipeline/flows") + ":/flows:ro", cmd)

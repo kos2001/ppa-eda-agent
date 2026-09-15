@@ -75,7 +75,8 @@ def reject_ignored_overrides(overrides: list[str], output: str,
 
 def run_stage(design_dir: Path, tag: str, to_step: str | None,
               overrides: list[str], overwrite: bool = True,
-              scl: str | None = None, pdk: str | None = None) -> Path:
+              scl: str | None = None, pdk: str | None = None,
+              flow: str | None = None) -> Path:
     """Runs a real OpenLane flow against design_dir, returns the run dir.
 
     `pdk` selects the process design kit (sky130A, gf180mcuD, ...) and
@@ -93,11 +94,17 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
         raise FileNotFoundError(f"no config.json in {design_dir}")
 
     cfg = json.loads((design_dir / "config.json").read_text())
-    macro_signoff = (cfg.get("meta") or {}).get("flow") == "MacroSignoff"
+    selected_flow = flow or (cfg.get("meta") or {}).get("flow", "Classic")
+    if flow is not None and flow not in {"Classic", "MacroSignoff", "UpstreamClassic"}:
+        raise ValueError(f"Unsupported flow override: {flow}")
+    custom_script = {
+        "MacroSignoff": "macro_signoff.py",
+        "UpstreamClassic": "upstream_classic.py",
+    }.get(selected_flow)
     extra_mounts = (["-v", f"{REPO_ROOT / 'pipeline' / 'flows'}:/flows:ro"]
-                    if macro_signoff else [])
-    entrypoint = (["python3", "/flows/macro_signoff.py"]
-                  if macro_signoff else ["openlane"])
+                    if custom_script else [])
+    entrypoint = (["python3", f"/flows/{custom_script}"]
+                  if custom_script else ["openlane"])
     cmd = [
         "docker", "run", "--rm", *platform_args(),
         "-v", f"{PDK_ROOT}:/pdk",
@@ -114,6 +121,8 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     # keeps every existing run byte-identical.
     if pdk:
         cmd += ["--pdk", pdk]
+    if flow is not None and custom_script is None:
+        cmd += ["--flow", flow]
     if overwrite:
         cmd.append("--overwrite")
     if to_step:
@@ -232,9 +241,11 @@ def main():
                      help="stop at this OpenLane step id (default: full flow)")
     ap.add_argument("--override", action="append", default=[],
                      help="KEY=VALUE config override, repeatable")
+    ap.add_argument("--flow", choices=["Classic", "MacroSignoff", "UpstreamClassic"],
+                    help="evaluate a flow without changing the design config")
     args = ap.parse_args()
 
-    run_dir = run_stage(args.design, args.tag, args.to_step, args.override)
+    run_dir = run_stage(args.design, args.tag, args.to_step, args.override, flow=args.flow)
     metrics = read_metrics(run_dir)
     print(json.dumps({"run_dir": str(run_dir), "metrics": metrics}, indent=2))
 
