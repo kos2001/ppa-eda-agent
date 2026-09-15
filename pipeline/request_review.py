@@ -33,6 +33,7 @@ import os
 import tempfile
 
 import case_retrieval
+from case_storage import write_case_json
 import tool_retrieval
 import verify_diagnosis
 import json
@@ -369,7 +370,7 @@ def cmd_apply(args: argparse.Namespace) -> None:
          "iterations": case.get("iterations", [])})
     reviews[-1]["grounding"] = grounding
 
-    case_file.write_text(json.dumps(case, indent=2), encoding="utf-8")
+    write_case_json(case_file, case)
     print(f"applied {args.agent}'s response to {case_file.relative_to(REPO_ROOT)} "
           f"(diagnosis field, human_in_the_loop[{len(reviews) - 1}])")
     if grounding.get("checked"):

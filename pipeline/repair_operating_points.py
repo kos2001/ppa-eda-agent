@@ -37,6 +37,7 @@ from datetime import date
 from pathlib import Path
 
 import operating_point
+from case_storage import write_case_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CASES = REPO_ROOT / "reference-db" / "cases"
@@ -91,7 +92,7 @@ def repair_case(path: Path, write: bool) -> list[dict]:
             if change:
                 changes.append(change)
     if changes and write:
-        path.write_text(json.dumps(case, indent=2), encoding="utf-8")
+        write_case_json(path, case)
     return changes
 
 
