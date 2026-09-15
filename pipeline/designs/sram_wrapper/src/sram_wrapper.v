@@ -24,7 +24,21 @@ module sram_wrapper (
       addr_ctr <= addr_ctr + 8'd1;
   end
 
-  wire [7:0] addr0 = addr_ctr;
+  wire [7:0] addr0_raw = addr_ctr;
+
+  // The macro's address pins are the only remaining slew-sensitive inputs.
+  // Make the driver boundary explicit so STA can size a real standard-cell
+  // buffer for the macro load instead of relying on an unconstrained flop
+  // output directly at the macro pin.
+  wire [7:0] addr0_buf;
+  wire [7:0] addr0;
+  genvar addr_bit;
+  generate
+    for (addr_bit = 0; addr_bit < 8; addr_bit = addr_bit + 1) begin : gen_addr0_buf
+      sky130_fd_sc_hd__buf_16 addr0_driver_1 (.A(addr0_raw[addr_bit]), .X(addr0_buf[addr_bit]));
+      sky130_fd_sc_hd__buf_16 addr0_driver_2 (.A(addr0_buf[addr_bit]), .X(addr0[addr_bit]));
+    end
+  endgenerate
 
   // The slot written last cycle. This was `addr_ctr - 8'd1`, an 8-bit
   // combinational decrementer whose last gate drove the macro's addr1
@@ -44,7 +58,15 @@ module sram_wrapper (
     else
       addr_prev <= addr_ctr;
   end
-  wire [7:0] addr1 = addr_prev;
+  wire [7:0] addr1_raw = addr_prev;
+  wire [7:0] addr1_buf;
+  wire [7:0] addr1;
+  generate
+    for (addr_bit = 0; addr_bit < 8; addr_bit = addr_bit + 1) begin : gen_addr1_buf
+      sky130_fd_sc_hd__buf_16 addr1_driver_1 (.A(addr1_raw[addr_bit]), .X(addr1_buf[addr_bit]));
+      sky130_fd_sc_hd__buf_16 addr1_driver_2 (.A(addr1_buf[addr_bit]), .X(addr1[addr_bit]));
+    end
+  endgenerate
 
   wire [31:0] sram_dout0;
   wire [31:0] sram_dout1;

@@ -35,14 +35,24 @@ matching GDS/LEF remain unchanged and have the separate checks above.
 It uses SPICE, retains the original slew points, and writes provenance
 hashes and status to `../runs/characterization/manifest.json`.
 
-Two integration mismatches were verified in generated stimulus and fixed:
+Integration mismatches were verified in generated stimulus and fixed:
 
 - The shipped SPICE top-level bus pins descend; OpenRAM stimulus pins
   ascend. A copy of the top-level declaration is reordered by pin name,
   with all internal named connections preserved and a strict interface check.
-- The installed macro's bitcell hierarchy has two `xbitcell_array` levels
-  below `xbank0`, without the additional `xreplica_bitcell_array` level in
-  OpenRAM's default measurement path. `config.py` supplies the actual path.
+- The installed netlist has two `xbitcell_array` instance levels below
+  `xbank0`: the bank instance targets `replica_bitcell_array`, whose nested
+  instance targets `bitcell_array`. A later one-level configuration was a
+  regression. On 2026-09-13, the runner resolved all 8,192 configured bitcell
+  paths and their `Q`/`Q_bar` nodes against the installed SPICE, restored the
+  two-level path, and added a mandatory check before simulation. Evidence and
+  the source hash are in `storage_paths_20260913.json`.
+- The functional checker derives its `Q`/`Q_bar` probes from that same
+  validated `cell_format`.
+- The adapter disables ngspice `POST=1 PROBE` waveform storage by default.
+  Liberty generation uses `.meas` results, and retaining all transient
+  waveforms for this macro can consume excessive memory. Set
+  `spice_save_waveforms = True` when waveform dumps are needed for debugging.
 
 The standalone `fake_sram` also lacks width/height; the runner reads them
 from the installed macro LEF for Liberty area reporting.
@@ -66,11 +76,81 @@ From the repository root:
   --openram-root /private/tmp/ppa-sram-openram
 ```
 
-On this session the corrected run was launched with output in
-`/private/tmp/ppa-sram-characterize.log`. It reached ngspice transient startup but did not produce a measurement after more than nine hours, so it was terminated. The manifest remains `running` only because the process ended outside the wrapper; it must not be treated as a generated Liberty.
-The initial, incorrectly connected simulation was interrupted and discarded. The corrected netlist reached ngspice transient startup, then exceeded nine hours without advancing its log; it was terminated after confirming the process was consuming a full core and about 1.1 GB. This is recorded as an execution failure, not timing data.
+Previous runs were interrupted without producing usable timing measurements.
+The current `../runs/characterization/manifest.json` records `failed` with
+`KeyboardInterrupt`; its Liberty artifact is empty. The latest retained
+stimulus is in `/private/tmp/openram_kos2001_56745_temp/`, and the traceback
+is in `/private/tmp/ppa-sram-characterize-corrected.log`. That attempt used
+the incorrect one-level storage path. The retained simulator log ends after
+model-scale setup; it does not establish that transient time advanced.
+An earlier run reportedly consumed over nine hours, but that duration must
+not be attributed to this latest attempt or treated as timing data.
+
+The storage-path check verifies connectivity only. It neither explains the
+entire runtime problem nor supplies delay/power measurements. No simulation
+with the restored configuration has completed yet.
+
+## Restored-path execution, 2026-09-13
+
+A new run was launched at 02:13:44 UTC with all 8,192 storage paths
+validated, using the separate output directory
+`../runs/characterization-path-verified-20260913/`. Its manifest records the
+runner PID, simulator temporary directory, start time and input hashes.
+The generated measurement deck uses the restored two-level path for both
+`Q` and `Q_bar`. Initial observation confirmed a live execution but no
+completed measurement; consult the manifest and live process for later status.
+
+To preserve earlier evidence, use a new directory for each attempt:
+
+```sh
+/private/tmp/ppa-sram-venv/bin/python -u pipeline/characterize_sram.py \
+  --openram-root /private/tmp/ppa-sram-openram \
+  --output-dir pipeline/designs/sram_wrapper/runs/characterization-NEW-RUN
+```
+
+`--output-dir` refuses existing directories. Without it, the historical
+configured output directory is still used. A `running` manifest alone is
+not proof that a process remains alive or that any Liberty was generated.
+
+The runner accepts `--corner tt` (default), `--corner ss`, or `--corner ff`
+for TT/1.80 V/25 C, SS/1.60 V/100 C, or FF/1.95 V/-40 C respectively.
+SS and FF require an explicit new `--output-dir`. Each invocation uses
+one exact OpenRAM `use_specified_corners` tuple and records its PVT in the
+manifest. Setting the process/voltage/temperature lists alone is insufficient:
+OpenRAM's nominal-only mode otherwise selects the technology's nominal PVT.
+These options prepare separate measurements; they do not imply that SS or
+FF characterization has been run or validated.
+
+New runner invocations archive each simulator call under
+`simulations/000001/`, `000002/`, and so on. Each archive records the input
+stimulus, delay measurement deck when present, start/end timestamps, and
+the simulator logs before the next call overwrites them. Console messages
+announce call boundaries. `returned_unverified` means the simulator call
+returned, not that OpenRAM's subsequent measurement checks passed.
+This does not expose progress inside a transient solve and does not add
+timeouts or retries. It does not change the already-running
+`characterization-sense-verified-20260913` process or recover overwritten logs.
 
 ## Remaining acceptance work
+
+`selected_run_slew_audit.json` preserves per-corner observations and report
+hashes for the selected `sram-buffer2-probe-20260913` run. Its max-slew
+violation tables report address inputs up to 0.122157 ns, while a selected
+SS/max timing path shows falling `u_sram/clk0` slew of 0.228263 ns. The
+clock is absent from the violation table. Thus the address maximum alone
+cannot set the characterization range. These reports are not an exhaustive
+rise/fall input-slew export, and this audit deliberately remains unverified.
+
+The resolved configuration from
+`../runs/sram-buffer2-probe-20260913/72-checker-holdviolations/config.json`
+lists nine STA corners: each of `nom`, `min`, and `max` interconnect corners
+combined with TT/25 C/1.80 V, SS/100 C/1.60 V, and FF/-40 C/1.95 V.
+The current SPICE sweep covers only the first PVT combination. SS and FF
+need their own measured libraries; interconnect corners still require STA.
+That historical run also limited `TIMING_VIOLATION_CORNERS` to `*tt*`.
+The design config now explicitly selects `*` for future timing checks.
+This configuration change has not been exercised in a new physical run,
+and the existing wildcard TT macro-library mapping remains unqualified.
 
 1. Complete the actual simulation and inspect measurements, convergence,
    read/write behavior, and all generated table values. The grid checker
@@ -85,3 +165,55 @@ The initial, incorrectly connected simulation was interrupted and discarded. The
 
 The expanded characterization and interface tests passed locally. No new
 Liberty has been installed or represented as a signoff result.
+
+## Isolated simulator diagnostic
+
+`bitcell_dc_diagnostic_20260913.json` records a successful TT, 1.8 V,
+25 C DC operating-point check of one bitcell extracted from the installed
+macro, using the same PDK library and ngspice compatibility settings. The
+artifacts remain under `/private/tmp/ppa-sram-bitcell-probe/`. The storage
+nodes settle near 1.8 V and 0 V with an explicit initial-state hint. This
+confirms basic model loading and a DC solution only; it does not test macro
+read/write behavior or characterize timing. The retained warnings are
+recorded in the JSON. The full-macro run remained live without measurements
+at the time of this diagnostic. Process profiling was unavailable because
+the sandbox denied access to the process list.
+
+## Sense-enable measurement correction
+
+The restored-storage-path run subsequently reached transient initialization,
+where ngspice warned that the bank-local `s_en0` vector did not exist.
+The bank formal inputs `s_en0/1` connect to top-level `s_en0/1`; ngspice
+uses those connected node names. `sense_enable_probe.sp` and its retained
+log reproduce the failed bank-local measurement and the successful
+top-level measurement. OpenRAM's `check_sen_measure()` requires this
+measurement, so the run was deliberately interrupted (exit 130) after
+confirming the defect, not merely because observation took too long.
+Its existing manifest records the interruption.
+
+`sen_format` now points to the top level. The runner checks both sense
+nodes before simulation, in addition to the 8,192 bitcells. A new attempt
+uses `../runs/characterization-sense-verified-20260913/`; consult that
+run's manifest and live execution for status. No completed macro timing
+measurements are available yet.
+
+## Recovery, 2026-09-14 (KST)
+
+The sense-verified run's manifest still said `running`, but a successful
+process-list check found neither its PID 99166 nor any characterizer or
+ngspice process. Its Liberty was zero bytes. The exit cause is unknown.
+The original manifest was preserved; surviving simulator files, hashes,
+and the observation are saved in that run's `recovery-20260914/` directory.
+The retained log has no completed measurements. Its latest deck uses a
+6.25 ns period, but overwritten earlier logs cannot establish which
+previous checks passed.
+
+A fresh TT attempt is running under
+`../runs/characterization-archived-20260914/`, with per-call archives enabled.
+Its first simulator call started at 2026-09-13 15:08:31 UTC (September 14
+in Korea). Console output is in
+`/private/tmp/ppa-sram-characterize-archived-20260914.log`.
+This is an execution checkpoint, not a completed characterization result.
+The 35 characterization, adapter, and model-validity unit tests passed.
+Docker image listing and an OpenLane 2.3.10 container smoke check also
+succeeded, including locating OpenSTA and OpenROAD inside the container.

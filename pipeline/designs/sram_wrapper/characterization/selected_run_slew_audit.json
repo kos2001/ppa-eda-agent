@@ -1,0 +1,653 @@
+{
+  "run": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913",
+  "coverage": "violation tables and selected timing paths only",
+  "model_validity_verified": false,
+  "observations": [
+    {
+      "corner": "max_ff_n40C_1v95",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/max_ff_n40C_1v95/checks.rpt",
+      "sha256": "4d22d014f276fb8e545ca1545c5b214d08859c7ab77bfbeed45f0cd3a5ec51bf",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.058798
+        },
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.057135
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.05314
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.053066
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.105179,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "max_ss_100C_1v60",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt",
+      "sha256": "8591236a15454c79e87c8645fece79f7423857061dae002e1910200358300fb3",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.122157
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.11351
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.103393
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.102203
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.089142
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.085993
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.084954
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.084756
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.083993
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.08347
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.082343
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.081851
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.0798
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.078963
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.078881
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.066106
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.228263,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "max_tt_025C_1v80",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/max_tt_025C_1v80/checks.rpt",
+      "sha256": "893b0e5bb2f506d99c255af99da685beea0b86179030781db5292f5ebe85ca65",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.076199
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.075146
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.06817
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.067535
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.05825
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.056074
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.055503
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.055404
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.054716
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.054394
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.053613
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.053251
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.051802
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.051313
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.051226
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.133749,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "min_ff_n40C_1v95",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt",
+      "sha256": "f2810761247de9b7136d4690516d158efd76bebe1e2884924636a95e58880cb6",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.055469
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.054005
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.089429,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "min_ss_100C_1v60",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/min_ss_100C_1v60/checks.rpt",
+      "sha256": "2796a4a1e1c00ed1a65a4939db9b68f312318c3b0d4c83a5e16cc5e588fb9bbd",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.118621
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.105114
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.097549
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.096299
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.084769
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.083255
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.081762
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.081303
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.081282
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.080227
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.079791
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.079248
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.077422
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.077176
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.076686
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.064994
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.208909,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "min_tt_025C_1v80",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/min_tt_025C_1v80/checks.rpt",
+      "sha256": "d24255f8fa84d0256670177a10eae242cdea63d7db129336944fed125e0753c6",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.073998
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.069382
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.064147
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.063313
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.055153
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.0542
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.053165
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.052975
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.052867
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.05215
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.051821
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.051474
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.050189
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.050028
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.11923,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "nom_ff_n40C_1v95",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/nom_ff_n40C_1v95/checks.rpt",
+      "sha256": "d5f7061d718e4f43330d82438ec4bdf237cad6e243ccc99a1fd015ad614d5bce",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.056618
+        },
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.056232
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.051651
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.050773
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.094889,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "nom_ss_100C_1v60",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/nom_ss_100C_1v60/checks.rpt",
+      "sha256": "b9447c74cf365d99eaeb272374caee31c4d925b5c3b08e663c49606d366e53af",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.120128
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.110008
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.101042
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.099217
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.086648
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.085224
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.083601
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.082814
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.082712
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.081576
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.081448
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.080517
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.078491
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.078137
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.077726
+        },
+        {
+          "pin": "u_sram/addr1[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.065624
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.218817,
+          "line": 24
+        }
+      ]
+    },
+    {
+      "corner": "nom_tt_025C_1v80",
+      "source": "pipeline/designs/sram_wrapper/runs/sram-buffer2-probe-20260913/55-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt",
+      "sha256": "1a906193f17190339b1c62ad4ac119799497cd1cabd6871b2865d70c9e444ddd",
+      "violating_macro_inputs": [
+        {
+          "pin": "u_sram/addr0[0]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.074991
+        },
+        {
+          "pin": "u_sram/addr1[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.072583
+        },
+        {
+          "pin": "u_sram/addr1[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.066433
+        },
+        {
+          "pin": "u_sram/addr1[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.06522
+        },
+        {
+          "pin": "u_sram/addr0[3]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.056523
+        },
+        {
+          "pin": "u_sram/addr1[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.055585
+        },
+        {
+          "pin": "u_sram/addr1[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.054402
+        },
+        {
+          "pin": "u_sram/addr0[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.054027
+        },
+        {
+          "pin": "u_sram/addr0[2]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.053893
+        },
+        {
+          "pin": "u_sram/addr0[1]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.053055
+        },
+        {
+          "pin": "u_sram/addr1[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.052945
+        },
+        {
+          "pin": "u_sram/addr0[4]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.052333
+        },
+        {
+          "pin": "u_sram/addr0[7]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.050919
+        },
+        {
+          "pin": "u_sram/addr1[5]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.050684
+        },
+        {
+          "pin": "u_sram/addr0[6]",
+          "limit_ns": 0.05,
+          "slew_ns": 0.050435
+        }
+      ],
+      "clock_path_observations": [
+        {
+          "pin": "u_sram/clk0",
+          "edge": "fall",
+          "slew_ns": 0.124655,
+          "line": 24
+        }
+      ]
+    }
+  ],
+  "missing_evidence": "All macro inputs, both transition directions, at all STA corners; reported paths are not exhaustive."
+}
