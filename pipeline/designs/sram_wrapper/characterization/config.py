@@ -30,5 +30,13 @@ check_lvsdrc = False  # characterize existing netlist; physical checks run in Op
 trim_netlist = False
 keep_temp = True
 num_sim_threads = 2
-# Exact hierarchy of the installed macro, read from its SPICE instances.
+# Liberty characterization consumes .meas results; retaining every transient
+# waveform for this million-device macro is needlessly expensive.
+spice_save_waveforms = False
+# Resolve this path against the installed netlist before simulation: bank's
+# Xbitcell_array instantiates replica_bitcell_array, whose Xbitcell_array
+# instantiates bitcell_array containing the storage cells.
 cell_format = "X{name}{hier_sep}xbank0{hier_sep}xbitcell_array{hier_sep}xbitcell_array{hier_sep}xbit_r{row}_c{col}"
+# Bank formal input s_en0/1 connects to the same-named top-level net.
+# ngspice exposes that connected net, not a bank-local formal-pin alias.
+sen_format = "X{name}{hier_sep}s_en"

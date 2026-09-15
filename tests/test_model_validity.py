@@ -205,11 +205,21 @@ class VerdictTests(unittest.TestCase):
         self.assertIn("22.0x", line)
         self.assertIn("max_ss_100C_1v60", line)
 
-    def test_nothing_to_report_is_an_empty_list(self):
+    def test_no_macros_is_an_empty_list(self):
         self.assertEqual(unverified(None), [])
+
+    def test_no_reported_extrapolation_does_not_prove_macro_coverage(self):
         text = CHECKS.replace("0.880400", "0.03").replace(
             "0.566465", "0.03").replace("0.117658", "0.03")
-        self.assertEqual(unverified(check(_design(), _run(text))), [])
+        result = check(_design(), _run(text))
+        self.assertEqual(result["extrapolated_pins"], [])
+        self.assertFalse(result["model_validity_verified"])
+        self.assertIn("omit nonviolating pins", unverified(result)[0])
+
+    def test_empty_slew_violation_table_remains_unverified(self):
+        result = check(_design(), _run("max slew\nmax fanout\n"))
+        self.assertEqual(result["coverage"], "reported_slew_violations_only")
+        self.assertIn("every macro input", unverified(result)[0])
 
 
 class RealDesignTests(unittest.TestCase):
