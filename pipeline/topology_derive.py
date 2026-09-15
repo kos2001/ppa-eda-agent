@@ -32,8 +32,7 @@ Usage:
 
 --write refuses to overwrite a hand-written file. --backfill touches
 only the `topology` field of cases where it is null, and only for the
-named design, through the same json.dumps(indent=2) orchestrator.py
-writes with.
+named design, through the same compact case writer as orchestrator.py.
 """
 
 from __future__ import annotations
@@ -43,6 +42,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from case_storage import write_case_json
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DESIGNS = REPO_ROOT / "pipeline" / "designs"
@@ -141,7 +141,7 @@ def backfill(design: str, topo: dict, cases_dir: Path = CASES) -> list[str]:
         if case.get("design") != design or case.get("topology"):
             continue
         case["topology"] = topo
-        path.write_text(json.dumps(case, indent=2), encoding="utf-8")
+        write_case_json(path, case)
         changed.append(path.name)
     return changed
 
