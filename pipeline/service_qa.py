@@ -41,6 +41,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+import case_store
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
 
@@ -368,7 +370,7 @@ def store_facts(refdb: Path | str = REFDB) -> dict:
 
     for path in sorted(cases_dir.glob("*.json")):
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         cases += 1

@@ -23,7 +23,7 @@ const pipelineDir = path.resolve(__dirname, "..", "pipeline");
 // changes when the machine changes, not when a case is written.
 const toolchainCache = new Map();
 const feedbackFile = path.join(refDbDir, "feedback.jsonl");
-const PORT = 8123;
+const PORT = Number(process.env.PPA_EDA_SERVER_PORT) || 8123;
 
 // Auto-loads a real .env file at the repo root, if present — same
 // pattern as ~/gitspace/mi-report's load_profile(): the credential
@@ -119,7 +119,13 @@ async function runSimulation(period) {
 // request is pure repeated work when most files haven't changed since
 // the last request — this cache does the disk stat (cheap) every time
 // but only re-reads+re-parses a file when its mtime actually moved.
-const caseFileCache = new Map(); // fileName -> {mtimeMs, data}
+//
+// Only the light form is kept. Holding every parsed case whole kept the
+// entire store resident — the server sat at ~590 MB for a 599 MB store,
+// growing with every run — to serve a layout a reader opens one
+// candidate at a time. The full form is re-read on demand instead
+// (fullCaseCache below).
+const caseFileCache = new Map(); // fileName -> {mtimeMs, light}
 
 // Where an AI review draft is kept between asking for it and using it.
 //
@@ -180,11 +186,9 @@ async function readReviewDraft(design) {
   }
 }
 
-async function readCaseFileCached(fileName) {
+async function parseCaseFile(fileName) {
   const filePath = path.join(refDbDir, "cases", fileName);
   const { mtimeMs } = await stat(filePath);
-  const cached = caseFileCache.get(fileName);
-  if (cached && cached.mtimeMs === mtimeMs) return cached;
   const raw = await readFile(filePath, "utf-8");
   // The name is attached here rather than left for the caller because
   // it is the only thing that identifies a case. A case records `date`,
@@ -193,10 +197,43 @@ async function readCaseFileCached(fileName) {
   // 41 of the 54 cases currently on disk. Everything downstream that
   // has to order cases in time, or key a list by them, reads the time
   // out of this name.
-  const data = { ...JSON.parse(raw), file: fileName };
-  const entry = { mtimeMs, data, light: lightCase(data) };
+  return { mtimeMs, data: { ...JSON.parse(raw), file: fileName } };
+}
+
+async function readCaseFileCached(fileName) {
+  const { mtimeMs } = await stat(path.join(refDbDir, "cases", fileName));
+  const cached = caseFileCache.get(fileName);
+  if (cached && cached.mtimeMs === mtimeMs) return cached;
+  const parsed = await parseCaseFile(fileName);
+  // lightCase copies what it keeps, so the full parse is garbage as soon
+  // as this returns.
+  const entry = { mtimeMs: parsed.mtimeMs, light: lightCase(parsed.data) };
   caseFileCache.set(fileName, entry);
   return entry;
+}
+
+// The last few whole cases, for candidateDetail. A reader expanding rows
+// works through one case at a time, so two is enough to make every row
+// after the first free; the largest aes case is ~200 ms to read and
+// parse and ~100 MB of heap, which is why this is not unbounded.
+const FULL_CASE_LIMIT = 2;
+const fullCaseCache = new Map(); // fileName -> {mtimeMs, data}, LRU order
+
+async function readFullCase(fileName) {
+  const { mtimeMs } = await stat(path.join(refDbDir, "cases", fileName));
+  const hit = fullCaseCache.get(fileName);
+  if (hit && hit.mtimeMs === mtimeMs) {
+    fullCaseCache.delete(fileName);
+    fullCaseCache.set(fileName, hit);
+    return hit;
+  }
+  const parsed = await parseCaseFile(fileName);
+  fullCaseCache.delete(fileName);
+  fullCaseCache.set(fileName, parsed);
+  while (fullCaseCache.size > FULL_CASE_LIMIT) {
+    fullCaseCache.delete(fullCaseCache.keys().next().value);
+  }
+  return parsed;
 }
 
 // The list view without the two fields that are almost all of the bytes.
@@ -229,7 +266,7 @@ function lightCase(data) {
 
 // One candidate's heavy fields, on demand.
 async function candidateDetail(fileName, tag) {
-  const { data } = await readCaseFileCached(fileName);
+  const { data } = await readFullCase(fileName);
   for (const it of data.iterations ?? []) {
     for (const r of it.results ?? []) {
       if (r.tag === tag) return { layout: r.layout ?? null, netlist: r.netlist ?? null };
@@ -274,19 +311,33 @@ async function cachedReport(route, produce) {
   return body;
 }
 
+// The list, serialized, with a key that changes exactly when its content
+// can: the index text plus every case's mtime. The dashboard polls this
+// every 15 s and nearly every poll finds nothing new, so it sends back
+// the key it has (?since=) and gets `{unchanged: true}` instead of 3.2 MB
+// to download, JSON.parse and re-render. The serialized body is kept
+// for the same reason — stringifying 3 MB per request was the rest of
+// what a no-op poll cost.
+let referenceDbBody = null; // {key, body}
+
 async function loadReferenceDb() {
+  let indexRaw;
   let index;
   try {
-    index = JSON.parse(await readFile(path.join(refDbDir, "index.json"), "utf-8"));
+    indexRaw = await readFile(path.join(refDbDir, "index.json"), "utf-8");
+    index = JSON.parse(indexRaw);
   } catch {
-    return { designs: {} };
+    return { key: "empty", body: JSON.stringify({ designs: {}, key: "empty" }) };
   }
 
+  const stamps = [];
   const entries = await Promise.all(
     Object.entries(index).map(async ([designName, caseFiles]) => {
       const cases = await Promise.all(caseFiles.map(async (fileName) => {
         try {
-          return (await readCaseFileCached(fileName)).light;
+          const entry = await readCaseFileCached(fileName);
+          stamps.push(`${fileName}:${entry.mtimeMs}`);
+          return entry.light;
         } catch (err) {
           console.error(`[reference-db] failed to read ${fileName}`, err);
           return null;
@@ -295,7 +346,15 @@ async function loadReferenceDb() {
       return [designName, cases.filter((item) => item !== null)];
     })
   );
-  return { designs: Object.fromEntries(entries) };
+  const key = createHash("sha256")
+    .update(indexRaw).update("\u0000").update(stamps.sort().join("\n"))
+    .digest("hex").slice(0, 16);
+  if (referenceDbBody?.key !== key) {
+    referenceDbBody = {
+      key, body: JSON.stringify({ designs: Object.fromEntries(entries), key }),
+    };
+  }
+  return referenceDbBody;
 }
 
 // Lets the dashboard actually DRIVE the agent instead of only reading
@@ -776,11 +835,13 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "GET" && req.url === "/reference-db") {
+  if (req.method === "GET"
+      && (req.url === "/reference-db" || req.url?.startsWith("/reference-db?"))) {
     try {
-      const data = await loadReferenceDb();
+      const since = new URL(req.url, "http://localhost").searchParams.get("since");
+      const { key, body } = await loadReferenceDb();
       res.writeHead(200, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify(data));
+      res.end(since === key ? JSON.stringify({ unchanged: true, key }) : body);
     } catch (err) {
       console.error("[reference-db error]", err);
       res.writeHead(500, { ...headers, "Content-Type": "application/json" });
