@@ -65,6 +65,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import case_store
 import case_retrieval
 import surrogate
 import verify_diagnosis
@@ -135,7 +136,7 @@ def latest_case(design: str) -> dict | None:
     case_files = index.get(design, [])
     if not case_files:
         return None
-    return json.loads((REFDB / "cases" / sorted(case_files)[-1]).read_text(encoding="utf-8"))
+    return case_store.load_light(REFDB / "cases" / sorted(case_files)[-1])
 
 
 def auto_repair_coverage(case: dict) -> tuple[int, int, list[str]]:

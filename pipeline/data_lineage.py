@@ -32,6 +32,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import case_store
 import case_retrieval
 import surrogate
 import tool_retrieval
@@ -72,7 +73,7 @@ def collected(rows: list[dict]) -> dict:
     }
 
 
-def stored() -> dict:
+def stored(rows: list[dict] | None = None) -> dict:
     """Cases on disk, and what deduplication removes.
 
     The gap between the two is the point: a re-run records the same
@@ -84,12 +85,12 @@ def stored() -> dict:
     raw = 0
     for path in files:
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         raw += sum(len(it.get("results", []))
                    for it in case.get("iterations", []))
-    deduped = len(surrogate.load_dataset())
+    deduped = len(surrogate.load_dataset() if rows is None else rows)
     return {
         "case_files": len(files),
         "recorded_runs": raw,
@@ -141,10 +142,6 @@ def retrieved() -> dict:
         corpus = case_retrieval.load_cases()
     except Exception:  # noqa: BLE001 - reported, never fatal
         corpus = []
-    signatures: Counter = Counter()
-    for case in corpus:
-        for sig in case.get("shared_signatures", []) or []:
-            signatures[sig] += 1
 
     entries = tool_retrieval.MEASUREMENTS
     sources = Counter(e["design"] for e in entries)
@@ -192,7 +189,7 @@ def report() -> dict:
     rows = surrogate.load_dataset()
     return {
         "collected": collected(rows),
-        "stored": stored(),
+        "stored": stored(rows),
         "featurized": featurized(rows),
         "retrieved": retrieved(),
         "learned": learned(rows),

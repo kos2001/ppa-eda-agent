@@ -41,6 +41,8 @@ import re
 import sys
 from pathlib import Path
 
+import case_store
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
 
@@ -120,7 +122,7 @@ def main() -> int:
     print("(reference groundedness only — NOT a correctness check; see module docstring)\n")
     for design in designs:
         for name in index.get(design, []):
-            case = json.loads((REFDB / "cases" / name).read_text(encoding="utf-8"))
+            case = case_store.load_light(REFDB / "cases" / name)
             report = verify_case(case)
             if not report["checked"]:
                 print(f"{name}: skipped — {report['reason']}")

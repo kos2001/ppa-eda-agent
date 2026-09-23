@@ -1,7 +1,9 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -25,9 +27,6 @@ interface AgentState {
   // server-proxied path and the UI can skip asking for a pasted key.
   serverConfigured: boolean;
   diagnosing: boolean;
-  streamedText: string;
-  tokenCount: number;
-  elapsedMs: number;
   confirmedUpstream: string | null;
   error: string | null;
   runDiagnosis: (reportText: string) => void;
@@ -35,7 +34,19 @@ interface AgentState {
   markResultSeen: () => void;
 }
 
+// The parts of a diagnosis that change many times a second, kept apart
+// from AgentState. In one context, the 100 ms elapsed timer and every
+// streamed token re-rendered each useAgent() consumer — the whole app
+// shell, and whatever tab was open, Pipeline with its layouts included —
+// for the minutes a diagnosis runs. Only the Diagnosis page shows these.
+interface AgentStream {
+  streamedText: string;
+  tokenCount: number;
+  elapsedMs: number;
+}
+
 const AgentContext = createContext<AgentState | null>(null);
+const AgentStreamContext = createContext<AgentStream | null>(null);
 
 function notifyBrowser() {
   if (typeof Notification === "undefined") return;
@@ -64,21 +75,21 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   const [hasUnseenResult, setHasUnseenResult] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  function saveKey(k: string) {
+  const saveKey = useCallback((k: string) => {
     setStoredKey(k);
     setKey(k);
-  }
+  }, []);
 
-  function clearKey() {
+  const clearKey = useCallback(() => {
     clearStoredKey();
     setKey(null);
-  }
+  }, []);
 
-  function markResultSeen() {
+  const markResultSeen = useCallback(() => {
     setHasUnseenResult(false);
-  }
+  }, []);
 
-  function runDiagnosis(reportText: string) {
+  const runDiagnosis = useCallback((reportText: string) => {
     if (!serverConfigured && !key) return;
 
     // Ask for notification permission at the moment the user triggers a
@@ -138,27 +149,31 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     } else if (key) {
       diagnoseStream(key, reportText, callbacks, lang);
     }
-  }
+  }, [serverConfigured, key, lang]);
+
+  const value = useMemo<AgentState>(() => ({
+    key,
+    saveKey,
+    clearKey,
+    serverConfigured,
+    diagnosing,
+    confirmedUpstream,
+    error,
+    runDiagnosis,
+    hasUnseenResult,
+    markResultSeen,
+  }), [key, saveKey, clearKey, serverConfigured, diagnosing, confirmedUpstream,
+       error, runDiagnosis, hasUnseenResult, markResultSeen]);
+  const stream = useMemo<AgentStream>(
+    () => ({ streamedText, tokenCount, elapsedMs }),
+    [streamedText, tokenCount, elapsedMs],
+  );
 
   return (
-    <AgentContext.Provider
-      value={{
-        key,
-        saveKey,
-        clearKey,
-        serverConfigured,
-        diagnosing,
-        streamedText,
-        tokenCount,
-        elapsedMs,
-        confirmedUpstream,
-        error,
-        runDiagnosis,
-        hasUnseenResult,
-        markResultSeen,
-      }}
-    >
-      {children}
+    <AgentContext.Provider value={value}>
+      <AgentStreamContext.Provider value={stream}>
+        {children}
+      </AgentStreamContext.Provider>
     </AgentContext.Provider>
   );
 }
@@ -166,5 +181,11 @@ export function AgentProvider({ children }: { children: ReactNode }) {
 export function useAgent(): AgentState {
   const ctx = useContext(AgentContext);
   if (!ctx) throw new Error("useAgent must be used within AgentProvider");
+  return ctx;
+}
+
+export function useAgentStream(): AgentStream {
+  const ctx = useContext(AgentStreamContext);
+  if (!ctx) throw new Error("useAgentStream must be used within AgentProvider");
   return ctx;
 }

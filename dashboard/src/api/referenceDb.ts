@@ -390,15 +390,36 @@ export interface PipelineCase {
 
 export interface ReferenceDb {
   designs: Record<string, PipelineCase[]>;
+  // Changes exactly when the list can; sent back as ?since= so the
+  // server can answer "unchanged" instead of resending 3 MB.
+  key?: string;
 }
 
-export async function fetchReferenceDb(): Promise<ReferenceDb> {
-  const res = await fetch(REFERENCE_DB_URL);
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
-  }
-  return data;
+// One copy of the list for every page that reads it. Pipeline, Progress
+// and the manual each fetched and parsed the whole 3.2 MB on mount, and
+// tabs unmount when left, so moving between them re-downloaded it every
+// time. The Pipeline poll now costs 43 bytes when nothing changed, and
+// returns the *same object* so callers can skip re-rendering on it.
+let lastDb: ReferenceDb | null = null;
+let inFlight: Promise<ReferenceDb> | null = null;
+
+export function fetchReferenceDb(): Promise<ReferenceDb> {
+  if (inFlight) return inFlight;
+  const since = lastDb?.key;
+  const url = since ? `${REFERENCE_DB_URL}?since=${encodeURIComponent(since)}` : REFERENCE_DB_URL;
+  inFlight = (async () => {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+    }
+    if (data?.unchanged && lastDb && data.key === lastDb.key) return lastDb;
+    lastDb = data as ReferenceDb;
+    return lastDb;
+  })().finally(() => {
+    inFlight = null;
+  });
+  return inFlight;
 }
 
 const LOCAL_SERVER_URL = "http://127.0.0.1:8123";

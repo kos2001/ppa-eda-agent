@@ -552,7 +552,9 @@ def _tool_orchestrate(args: dict) -> dict:
 
 
 def _tool_get_case(args: dict) -> dict:
-    _case_file, case = request_review.latest_case(args["design"])
+    # Light, like the dashboard list this mirrors: the full aes case is
+    # 56 MB of layout geometry, which is no use in a model's context.
+    _case_file, case = request_review.latest_case(args["design"], light=True)
     return case
 
 
@@ -570,7 +572,7 @@ def _tool_request_review(args: dict) -> dict:
     # cmd_request prints the path; re-derive it the same way rather than
     # parse stdout, since latest_case() + the same date is exactly how it
     # names the file.
-    case_file, case = request_review.latest_case(args["design"])
+    case_file, case = request_review.latest_case(args["design"], light=True)
     review_file = out_file / f"{args['design']}__{case['date']}__request.md"
     return {"review_request_file": str(review_file),
             "content": review_file.read_text(encoding="utf-8") if review_file.exists() else None}
@@ -584,7 +586,7 @@ def _tool_apply_review(args: dict) -> dict:
         request_review.cmd_apply(ns)
     finally:
         tmp_path.unlink(missing_ok=True)
-    case_file, case = request_review.latest_case(args["design"])
+    case_file, case = request_review.latest_case(args["design"], light=True)
     return {"case_file": str(case_file), "human_in_the_loop": case.get("human_in_the_loop")}
 
 
@@ -596,7 +598,7 @@ def _tool_render_layout(args: dict) -> dict:
 
 
 def _tool_verify_diagnosis(args: dict) -> dict:
-    _case_file, case = request_review.latest_case(args["design"])
+    _case_file, case = request_review.latest_case(args["design"], light=True)
     return verify_diagnosis.verify_case(case)
 
 

@@ -43,6 +43,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import case_store
 import orchestrator
 import surrogate
 
@@ -190,7 +191,7 @@ def recorded_seconds() -> dict:
     per: dict[str, list] = {}
     for path in sorted(cases.glob("*.json")):
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         for iteration in case.get("iterations", []):
@@ -245,10 +246,14 @@ def declared(design: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
 
-def already_have(design: str) -> set:
-    """Configurations reference-db already holds, so they are not re-run."""
+def already_have(design: str, dataset: list[dict] | None = None) -> set:
+    """Configurations reference-db already holds, so they are not re-run.
+
+    plan() passes one dataset for every design; loading it here per
+    design re-read the whole store nine times.
+    """
     have = set()
-    for row in surrogate.load_dataset():
+    for row in (surrogate.load_dataset() if dataset is None else dataset):
         if row["design"] != design:
             continue
         have.add((json.dumps(row.get("overrides") or {}, sort_keys=True),
@@ -275,11 +280,12 @@ def scaled_die(cfg: dict, factor: float) -> list | None:
 def plan(designs: list[str]) -> list[dict]:
     """Every candidate worth running that is not already recorded."""
     out = []
+    dataset = surrogate.load_dataset()
     for design in designs:
         if design in SKIP:
             continue
         cfg = declared(design)
-        have = already_have(design)
+        have = already_have(design, dataset)
         absolute = cfg.get("FP_SIZING") == "absolute"
         for tech in TECHNOLOGIES:
             need = tech.get("needs")
