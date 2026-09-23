@@ -149,7 +149,7 @@ class PreFloorplanAxisTests(unittest.TestCase):
         if not names:
             self.skipTest("no designs")
         real = collect.already_have
-        collect.already_have = lambda design: set()
+        collect.already_have = lambda design, dataset=None: set()
         try:
             for name in names:
                 with self.subTest(design=name):
@@ -173,7 +173,7 @@ class PreFloorplanAxisTests(unittest.TestCase):
                 return True
 
         real = collect.already_have
-        collect.already_have = lambda design: Everything()
+        collect.already_have = lambda design, dataset=None: Everything()
         try:
             self.assertEqual(collect.plan([names[0]]), [])
         finally:

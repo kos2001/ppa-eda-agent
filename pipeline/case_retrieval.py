@@ -32,6 +32,8 @@ import json
 import re
 from pathlib import Path
 
+import case_store
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
 
@@ -128,7 +130,7 @@ def load_cases(refdb: Path | str = REFDB) -> list[dict]:
     out = []
     for path in sorted(cases_dir.glob("*.json")):
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         case["_file"] = path.relative_to(Path(refdb).parent).as_posix()
