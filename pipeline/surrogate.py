@@ -46,6 +46,8 @@ import math
 import random
 from pathlib import Path
 
+import case_store
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REFDB = REPO_ROOT / "reference-db"
 
@@ -131,7 +133,7 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
     seen: dict[tuple[str, str], dict] = {}
     for path in sorted(cases_dir.glob("*.json")):
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         design = case.get("design")
@@ -333,10 +335,17 @@ def _numeric(value) -> bool:
 
 
 def _ranges(rows: list[dict]) -> dict[str, tuple[float, float]]:
+    return _feature_ranges([featurize(r) for r in rows])
+
+
+# predict() featurizes each row once and works on the features from then
+# on. It used to go through _ranges and distance, which featurized every
+# row once per numeric key and again for every pair: 3.75 M featurize
+# calls in one self_improve scan, 16 s of its 26.
+def _feature_ranges(feats: list[dict]) -> dict[str, tuple[float, float]]:
     out: dict[str, tuple[float, float]] = {}
     for key in (*_NUMERIC, "die_area_um2", "routing_layers"):
-        vals = [f[key] for f in (featurize(r) for r in rows)
-                if _numeric(f.get(key))]
+        vals = [f[key] for f in feats if _numeric(f.get(key))]
         if len(vals) >= 2 and max(vals) > min(vals):
             out[key] = (min(vals), max(vals))
     return out
@@ -362,7 +371,12 @@ def distance(a: dict, b: dict, ranges: dict[str, tuple[float, float]],
     """Normalized distance between two configs, or None when they share
     no comparable feature at all — in which case they are not neighbours
     and pretending otherwise would make every point equidistant."""
-    fa, fb = featurize(a), featurize(b)
+    return _feature_distance(featurize(a), featurize(b), ranges, use_scl)
+
+
+def _feature_distance(fa: dict, fb: dict,
+                      ranges: dict[str, tuple[float, float]],
+                      use_scl: bool = True) -> float | None:
     total = 0.0
     compared = 0
     for key, (lo, hi) in ranges.items():
@@ -409,10 +423,12 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
         }
 
     use_scl = scl_is_informative(dataset)
-    ranges = _ranges(same)
+    feats = [featurize(r) for r in same]
+    ranges = _feature_ranges(feats)
+    target_feats = featurize(target)
     scored = []
-    for row in same:
-        d = distance(target, row, ranges, use_scl=use_scl)
+    for row, row_feats in zip(same, feats):
+        d = _feature_distance(target_feats, row_feats, ranges, use_scl=use_scl)
         if d is not None:
             scored.append((d, row))
     if not scored:

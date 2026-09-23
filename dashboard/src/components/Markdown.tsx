@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { memo, type ReactNode, useMemo, useState } from "react";
 import "./Markdown.css";
 import {
   countLines,
@@ -120,7 +120,11 @@ function MarkdownDoc({
   className?: string;
   railFrom?: number;
 }) {
-  const sections = toSections(parseMarkdown(source));
+  // Parsed once per source, not per render. A streaming answer
+  // re-renders on every token, and on the Ask page every earlier answer
+  // on screen was re-parsed each time — cost growing with the whole
+  // conversation, per token.
+  const sections = useMemo(() => toSections(parseMarkdown(source)), [source]);
   const titled = sections.filter((s) => s.title);
   const [active, setActive] = useState(0);
 
@@ -142,8 +146,8 @@ function MarkdownDoc({
   //
   // `blocks` is copied, not spread-shared: {...s} would alias the array
   // parseMarkdown produced, so appending here would edit the parse
-  // result. Harmless today only because the parse is redone every
-  // render, which is exactly the kind of thing that stops being true.
+  // result — which is now memoized and shared across renders, so an
+  // alias here would append the same blocks again on every render.
   const entries = sections.reduce<Section[]>((acc, s) => {
     if (!s.title && acc.length) acc[acc.length - 1].blocks.push(...s.blocks);
     else acc.push({ ...s, title: s.title ?? "Overview", blocks: [...s.blocks] });
@@ -215,4 +219,4 @@ function MarkdownDoc({
   );
 }
 
-export default MarkdownDoc;
+export default memo(MarkdownDoc);

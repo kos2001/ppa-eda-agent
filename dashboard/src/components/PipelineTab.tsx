@@ -10,6 +10,7 @@ import {
   type CandidateVerdict,
   type PipelineCase,
   type ProcessStageId,
+  type ReferenceDb,
 } from "../api/referenceDb";
 import {
   groupByDesign,
@@ -1341,9 +1342,15 @@ export default function PipelineTab() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // The db object last turned into `cases`. fetchReferenceDb returns the
+  // same object when the store has not changed, and a poll that found
+  // nothing new must not hand every memo and card below a fresh array.
+  const shownDb = useRef<ReferenceDb | null>(null);
   const loadCases = useCallback(() => {
     return fetchReferenceDb()
       .then((db) => {
+        if (db === shownDb.current) return;
+        shownDb.current = db;
         const flat = Object.values(db.designs).flat();
         flat.sort((a, b) => b.date.localeCompare(a.date));
         setCases(flat);
@@ -1373,11 +1380,19 @@ export default function PipelineTab() {
   // showed stale state until someone reloaded. GET /reference-db is
   // mtime-cached server-side, so a poll that finds nothing new costs a
   // stat per case file rather than a re-read and re-parse.
+  // A hidden tab skips the poll; the list is re-checked when it
+  // becomes visible again rather than on every tick nobody sees.
   useEffect(() => {
-    const id = window.setInterval(() => {
+    const refresh = () => {
+      if (document.visibilityState === "hidden") return;
       loadCases().then(() => setLastRefresh(new Date()));
-    }, 15000);
-    return () => window.clearInterval(id);
+    };
+    const id = window.setInterval(refresh, 15000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [loadCases]);
 
   const designNames = useMemo(

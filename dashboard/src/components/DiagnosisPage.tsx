@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLang } from "../i18n";
-import { useAgent } from "../agentContext";
+import { useAgent, useAgentStream } from "../agentContext";
 import "./Tabs.css";
 import "./DiagnosisPage.css";
 
@@ -19,19 +19,19 @@ export default function DiagnosisPage() {
     saveKey,
     serverConfigured,
     diagnosing,
-    streamedText,
-    tokenCount,
-    elapsedMs,
     confirmedUpstream,
     error,
+    hasUnseenResult,
     markResultSeen,
   } = useAgent();
+  const { streamedText, tokenCount, elapsedMs } = useAgentStream();
   const [keyInput, setKeyInput] = useState("");
 
-  // Viewing this page is what "sees" the result — clears the unseen badge.
+  // Viewing this page is what "sees" the result — clears the unseen badge,
+  // including for a result that finishes while the page is open.
   useEffect(() => {
-    markResultSeen();
-  }, [markResultSeen]);
+    if (hasUnseenResult) markResultSeen();
+  }, [hasUnseenResult, markResultSeen]);
 
   const hasActivity = diagnosing || streamedText.length > 0;
   // Server-side PPA_EDA_GATEWAY_KEY (see server/index.mjs, pattern from

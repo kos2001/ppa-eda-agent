@@ -32,6 +32,7 @@ import argparse
 import os
 import tempfile
 
+import case_store
 import case_retrieval
 from case_storage import write_case_json
 import tool_retrieval
@@ -57,13 +58,18 @@ RELEVANT_AGENTS = {
 }
 
 
-def latest_case(design: str) -> tuple[Path, dict]:
+def latest_case(design: str, light: bool = False) -> tuple[Path, dict]:
+    """The design's newest case. `light` drops the per-candidate layout
+    and netlist (see case_store) — for readers only; a caller that writes
+    the case back must take the full one or it deletes them."""
     index_file = REFDB / "index.json"
     index = json.loads(index_file.read_text(encoding="utf-8"))
     case_files = index.get(design, [])
     if not case_files:
         raise SystemExit(f"no reference-db cases found for design '{design}'")
     case_file = REFDB / "cases" / sorted(case_files)[-1]
+    if light:
+        return case_file, case_store.load_light(case_file)
     return case_file, json.loads(case_file.read_text(encoding="utf-8"))
 
 
@@ -109,7 +115,7 @@ def carried_diagnosis(design: str, case_filename: str,
     """
     cases_dir = Path(refdb) / "cases"
     try:
-        own = json.loads((cases_dir / case_filename).read_text(encoding="utf-8"))
+        own = case_store.load_light(cases_dir / case_filename)
     except (OSError, json.JSONDecodeError):
         return None
     if (own.get("diagnosis") or "").strip():
@@ -119,7 +125,7 @@ def carried_diagnosis(design: str, case_filename: str,
                      if p.name < case_filename)
     for path in reversed(earlier):
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         if case.get("design") != design:
@@ -183,7 +189,7 @@ def attempt_history(design: str, case_filename: str,
                      if p.name < case_filename)
     for path in reversed(earlier):
         try:
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
         if case.get("design") != design:
@@ -212,7 +218,7 @@ def attempt_history(design: str, case_filename: str,
 
 
 def cmd_request(args: argparse.Namespace) -> None:
-    case_file, case = latest_case(args.design)
+    case_file, case = latest_case(args.design, light=True)
 
     if case.get("winner_tag"):
         print(f"'{args.design}' latest case ({case['date']}) already has a "

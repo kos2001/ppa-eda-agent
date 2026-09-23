@@ -41,6 +41,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import functools
 import re
 import shutil
 import subprocess
@@ -66,9 +67,40 @@ _DEVICE = re.compile(r"^M\S*\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)$",
                      re.IGNORECASE)
 
 
+# The joined CDL and an index of its blocks, read once per file state.
+# The console's cell listing asks drawable() of up to 200 cells, and each
+# call re-read the library, re-joined its continuations and searched it
+# from the top: 200 full passes for one listing. Keyed on the path as
+# well as its mtime and size, so pointing CDL at another file (as the
+# tests do) is never answered from the old one.
+_CDL_CACHE: dict = {}
+
+
+def _cdl_state() -> dict:
+    st = CDL.stat()
+    key = (str(CDL), st.st_mtime_ns, st.st_size)
+    if _CDL_CACHE.get("key") != key:
+        _CDL_CACHE.clear()
+        _CDL_CACHE["key"] = key
+        _CDL_CACHE["text"] = re.sub(r"\n\+\s*", " ", CDL.read_text(encoding="utf-8"))
+    return _CDL_CACHE
+
+
 def _cdl_text() -> str:
     """The library CDL with continuation lines joined."""
-    return re.sub(r"\n\+\s*", " ", CDL.read_text(encoding="utf-8"))
+    return _cdl_state()["text"]
+
+
+def _blocks() -> dict[str, str]:
+    """Every cell's block, found in one pass over the text."""
+    state = _cdl_state()
+    if "blocks" not in state:
+        blocks: dict[str, str] = {}
+        for m in re.finditer(r"^\.SUBCKT\s+(\S+)\s.*?^\.ENDS.*?$",
+                             state["text"], re.MULTILINE | re.DOTALL):
+            blocks.setdefault(m.group(1), m.group(0))
+        state["blocks"] = blocks
+    return state["blocks"]
 
 
 def cells(pattern: str | None = None) -> list[str]:
@@ -88,6 +120,9 @@ def drawable(cell: str) -> bool:
 
 def subckt(cell: str) -> str | None:
     """One cell's CDL block, continuations already joined."""
+    block = _blocks().get(cell)
+    if block is not None:
+        return block
     match = re.search(rf"^\.SUBCKT\s+{re.escape(cell)}\s.*?^\.ENDS.*?$",
                       _cdl_text(), re.MULTILINE | re.DOTALL)
     return match.group(0) if match else None
@@ -125,6 +160,13 @@ def device_count(block: str) -> int:
 SYMBOL_DIR = PDK_ROOT / "sky130A" / "libs.tech" / "xschem" / "sky130_fd_pr"
 
 
+@functools.lru_cache(maxsize=None)
+def _has_symbol(symbol_dir: str, model: str) -> bool:
+    # A handful of models, asked about once per device line of every
+    # cell a listing checks.
+    return (Path(symbol_dir) / f"{model}.sym").is_file()
+
+
 def missing_symbols(block: str) -> dict:
     """Models this cell uses that the symbol library has no symbol for.
 
@@ -142,7 +184,7 @@ def missing_symbols(block: str) -> dict:
         if not match:
             continue
         model = match.group(5)
-        if not (SYMBOL_DIR / f"{model}.sym").is_file():
+        if not _has_symbol(str(SYMBOL_DIR), model):
             counts[model] = counts.get(model, 0) + 1
     return counts
 
