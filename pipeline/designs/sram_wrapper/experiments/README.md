@@ -61,3 +61,36 @@ qualify a wider Liberty range.
 
 OpenROAD repair_design semantics:
 https://openroad.readthedocs.io/en/latest/main/src/rsz/README.html
+
+## 2026-10-02: the "fatal errors while running Magic" tail is the old baseline
+
+The dashboard still shows `sram_wrapper__2026-09-10` `cand-baseline`: "Encountered
+one or more fatal errors while running Magic", exit 2. That candidate carries no
+overrides on purpose; it is the recorded starting point of the Magic ladder
+(commit ad37331), and Magic cannot read five layers of the macro GDS, so it dies at
+stream-out. The design's own `config.json` has since adopted the ladder's
+settings (`MAGIC_CAPTURE_ERRORS=False`, `MAGIC_DRC_USE_GDS=False`,
+`PRIMARY_GDSII_STREAMOUT_TOOL=klayout`).
+
+Re-run for real on `main` (18d5c5a), tag `sram-now`, ~3 min: the flow completes
+(exit 0, 75 step directories). Magic DRC 0, KLayout DRC 0, illegal overlap 0,
+LVS 0 on every count, XOR clean. The Magic failure no longer reproduces.
+
+What still stops a pass, by the pipeline's own verdict:
+
+- 18 max-fanout violations, identical in all nine corners. Most are clock-tree
+  buffers: `clkbuf_3_*_0_clk` drive 17-33 sinks against a limit of 10. The rest
+  are data nets (`fanout66`, `_082_`-`_088_` flops, 13-21).
+- 16 max-slew violations, all `u_sram/addr0[*]`/`addr1[*]` pins, 0.0005-0.025 ns
+  over a 0.050 ns limit.
+- One `unverified`: 16 macro pins are timed 3.1x past the liberty's
+  characterised range (0.122 ns against 0.040 ns). No change to the layout can
+  clear that; only re-characterising the macro can.
+
+Tried and recorded as a dead end: `CTS_SINK_CLUSTERING_SIZE` 5, 8 and 12 (with
+`CTS_SINK_CLUSTERING_MAX_DIAMETER` 30, 40 and 80). All three runs are
+byte-identical to the baseline: 9 clock buffers, the same 18 + 16 violations. The
+clock buffers' fanout is set by the H-tree's stop criterion, not by the cluster
+size, so the knob cannot reach it here. Raising `MAX_FANOUT_CONSTRAINT` would make
+the number go away by editing the test, and was not done.
+
