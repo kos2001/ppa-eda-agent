@@ -268,6 +268,51 @@ class TestProposeRepairsIntegration(unittest.TestCase):
         self.assertEqual(orchestrator.MIN_CORE_UTIL, 20)
 
 
+# counter4_tinydie, run tag c-hd-clock_period4 (reference-db): the config
+# declares an 8x8 um die, the candidate overrode only CLOCK_PERIOD.
+STA_0572 = """[02:18:39] ERROR    [STA-0572] -core_area '-2.880000000000001'   openroad.py:233
+                    is not a positive float.
+Error: floorplan.tcl, 100 STA-0572
+[02:18:40] ERROR    The following error was encountered while    __main__.py:187
+                    running the flow:
+                    OpenROAD.Floorplan failed with the following
+                    errors:
+                    [STA-0572] -core_area '-2.880000000000001'
+                    is not a positive float.
+"""
+TINYDIE = {"FP_SIZING": "absolute", "DIE_AREA": [0, 0, 8, 8], "CLOCK_PERIOD": 10}
+
+
+class TestDieFromDesignConfig(unittest.TestCase):
+    """35 counter4_tinydie candidates varied only CLOCK_PERIOD and died at
+    STA-0572 with a negative core area. The die-growth repair read the
+    candidate's own overrides, saw no DIE_AREA, and proposed nothing."""
+
+    def test_a_die_inherited_from_the_config_is_grown(self):
+        results = [{"tag": "c-hd-clock_period4", "overrides": {"CLOCK_PERIOD": 4},
+                    "error": STA_0572}]
+        got = orchestrator.propose_repairs(results, 1, TINYDIE)
+        self.assertEqual(len(got), 1)
+        self.assertEqual(got[0]["overrides"]["DIE_AREA"], [0, 0, 16, 16])
+        self.assertEqual(got[0]["overrides"]["CLOCK_PERIOD"], 4)  # the sweep value survives
+
+    def test_without_the_config_there_is_still_nothing_to_grow(self):
+        results = [{"tag": "t", "overrides": {"CLOCK_PERIOD": 4}, "error": STA_0572}]
+        self.assertEqual(orchestrator.propose_repairs(results, 1), [])
+
+    def test_an_explicit_die_override_wins_over_the_config(self):
+        results = [{"tag": "t", "overrides": {"DIE_AREA": [0, 0, 20, 20]}, "error": STA_0572}]
+        got = orchestrator.propose_repairs(results, 1, TINYDIE)
+        self.assertEqual(got[0]["overrides"]["DIE_AREA"], [0, 0, 40, 40])
+
+    def test_the_grown_die_keeps_the_technology(self):
+        results = [{"tag": "t", "overrides": {"CLOCK_PERIOD": 4}, "error": STA_0572,
+                    "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu9t5v0"}]
+        got = orchestrator.propose_repairs(results, 1, TINYDIE)
+        self.assertEqual((got[0]["pdk"], got[0]["scl"]),
+                         ("gf180mcuD", "gf180mcu_fd_sc_mcu9t5v0"))
+
+
 class TestEvidence(unittest.TestCase):
     def test_every_validated_rule_has_a_recorded_replay_that_fixed_it(self):
         """A rule is marked validated only when reference-db holds a real
