@@ -12,11 +12,6 @@ import "./App.css";
 // ones the first render fired.
 installFetchLogging();
 
-const AreaTab = lazy(() => import("./components/AreaTab"));
-const TimingTab = lazy(() => import("./components/TimingTab"));
-const PowerTab = lazy(() => import("./components/PowerTab"));
-const TradeoffsTab = lazy(() => import("./components/TradeoffsTab"));
-const SimulateTab = lazy(() => import("./components/SimulateTab"));
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SchematicTab = lazy(() => import("./components/SchematicTab"));
@@ -34,11 +29,6 @@ type TabId =
   | "ask"
   | "lineage"
   | "manual"
-  | "simulate"
-  | "area"
-  | "timing"
-  | "power"
-  | "tradeoffs"
   | "diagnosis";
 type Theme = "dark" | "light";
 
@@ -168,13 +158,6 @@ function AppInner() {
   // "how does this work", one by being read and one by being asked.
   const ASK_TAB: { id: TabId; label: string } = { id: "ask", label: t("tab_ask") };
   const MANUAL_TAB: { id: TabId; label: string } = { id: "manual", label: t("tab_manual") };
-  const REPORT_TABS: { id: TabId; label: string }[] = [
-    { id: "simulate", label: t("tab_simulate") },
-    { id: "area", label: t("tab_area") },
-    { id: "timing", label: t("tab_timing") },
-    { id: "power", label: t("tab_power") },
-    { id: "tradeoffs", label: t("tab_tradeoffs") },
-  ];
 
   // Every item here does something real: navigates, flips a setting that
   // persists, or writes a file. Nothing is present because a commercial
@@ -219,12 +202,7 @@ function AppInner() {
     {
       label: "Tools",
       items: [
-        { label: t("tab_simulate"), onSelect: () => setActive("simulate"), hint: "OpenSTA" },
         { label: t("agent_sidebar_title"), onSelect: () => setActive("diagnosis"), hint: "agent" },
-        { label: t("tab_area"), separatorBefore: true, onSelect: () => setActive("area") },
-        { label: t("tab_timing"), onSelect: () => setActive("timing") },
-        { label: t("tab_power"), onSelect: () => setActive("power") },
-        { label: t("tab_tradeoffs"), onSelect: () => setActive("tradeoffs") },
       ],
     },
     {
@@ -280,20 +258,6 @@ function AppInner() {
               />
             ))}
 
-          {/* Hidden when collapsed rather than shortened: a section
-              heading squeezed into a 3rem rail is a smudge, and the
-              group it names is still legible from the icons. */}
-          <span className="app__nav-label">{t("nav_reports_label")}</span>
-          {REPORT_TABS.map((tab) => (
-            <NavItem
-              key={tab.id}
-              id={tab.id}
-              label={tab.label}
-              active={active === tab.id}
-              onSelect={setActive}
-            />
-          ))}
-
           <NavItem
             id="diagnosis"
             label={t("agent_sidebar_title")}
@@ -331,11 +295,6 @@ function AppInner() {
       <div className="app__content">
         <main className="app__main">
           <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
-            {active === "simulate" && <SimulateTab />}
-            {active === "area" && <AreaTab />}
-            {active === "timing" && <TimingTab />}
-            {active === "power" && <PowerTab />}
-            {active === "tradeoffs" && <TradeoffsTab />}
             {active === "pipeline" && <PipelineTab />}
             {active === "schematic" && <SchematicTab />}
             {active === "health" && <SystemHealth standalone />}
