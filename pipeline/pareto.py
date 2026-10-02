@@ -96,3 +96,47 @@ def pick_best(points: list[ParetoPoint]) -> str | None:
     dist = crowding_distance(points, list(best_front))
     winner_idx = max(best_front, key=lambda i: dist[i])
     return points[winner_idx].key
+
+
+def pick_knee(points: list[ParetoPoint]) -> str | None:
+    """The compromise point of the Pareto front: the member closest to the
+    ideal point after each objective is scaled to [0, 1] across the front.
+
+    Replaces pick_best() for choosing a winner. pick_best breaks a tie
+    inside the front by crowding distance, which gives every extreme point
+    infinite distance — so with two or more objectives it returns whichever
+    extreme happens to come first in the list. That is the sweep order, not
+    a judgement: on the recorded store, 10 of 23 iterations with several
+    passing candidates had a front of more than one member, and each of
+    those was decided by list position.
+
+    Distance to the ideal point is compromise programming (Yu 1973; Zeleny
+    1973) and is the standard "knee" heuristic for NSGA-style fronts when no
+    preference is stated. It does not claim the knee is the best trade-off,
+    only that it is the one that is not an arbitrary extreme.
+
+    An objective that is constant across the front contributes nothing, so
+    a degenerate objective cannot move the result (the old timing-margin
+    objective was constant 0 for all 159 recorded winners). Ties go to the
+    earlier point, which keeps the choice deterministic.
+    """
+    if not points:
+        return None
+    if len(points) == 1:
+        return points[0].key
+    front = fast_nondominated_sort(points)[0]
+    if len(front) == 1:
+        return points[front[0]].key
+    n_obj = len(points[front[0]].objs)
+    lo = [min(points[i].objs[m] for i in front) for m in range(n_obj)]
+    hi = [max(points[i].objs[m] for i in front) for m in range(n_obj)]
+
+    def distance(i: int) -> float:
+        total = 0.0
+        for m in range(n_obj):
+            span = hi[m] - lo[m]
+            if span > 0:
+                total += ((points[i].objs[m] - lo[m]) / span) ** 2
+        return total
+
+    return points[min(front, key=lambda i: (distance(i), i))].key

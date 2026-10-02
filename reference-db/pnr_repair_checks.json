@@ -1,0 +1,371 @@
+[
+ {
+  "design": "counter4",
+  "stop_reason": "winner_found",
+  "expect_fixed": true,
+  "note": null,
+  "code": "GPL-0302",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": true,
+  "final_passed": true,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "dens40",
+    "overrides": {
+     "PL_TARGET_DENSITY_PCT": 40
+    },
+    "repair": null,
+    "died_with": "GPL-0302",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "dens40-iter1",
+    "overrides": {
+     "PL_TARGET_DENSITY_PCT": 44
+    },
+    "repair": {
+     "code": "GPL-0302",
+     "why": "target density 40% is below the design's own utilization; the tool suggests 42%, so use 44%"
+    },
+    "died_with": null,
+    "crashed": false,
+    "passed": true,
+    "violations": [],
+    "unverified": [],
+    "area_um2": 290.278
+   }
+  ]
+ },
+ {
+  "design": "counter4_tinydie",
+  "stop_reason": "winner_found",
+  "expect_fixed": true,
+  "note": null,
+  "code": "GPL-0307",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": true,
+  "final_passed": true,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "gf180-9t",
+    "overrides": {
+     "DIE_AREA": [
+      0,
+      0,
+      128,
+      128
+     ],
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells"
+    },
+    "repair": null,
+    "died_with": "GPL-0307",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "gf180-9t-iter1",
+    "overrides": {
+     "DIE_AREA": [
+      0,
+      0,
+      128,
+      128
+     ],
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells",
+     "PL_MAX_PHI_COEFFICIENT": 1.01
+    },
+    "repair": {
+     "code": "GPL-0307",
+     "why": "RePlAce diverged; lower the phi upper bound 1.05 -> 1.01"
+    },
+    "died_with": null,
+    "crashed": false,
+    "passed": true,
+    "violations": [],
+    "unverified": [],
+    "area_um2": 1569.25
+   }
+  ]
+ },
+ {
+  "design": "cdc_twoclock",
+  "stop_reason": "no_repairable_failures",
+  "expect_fixed": true,
+  "note": null,
+  "code": "GPL-0301",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": true,
+  "final_passed": false,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "gf180-7t",
+    "overrides": {},
+    "repair": null,
+    "died_with": "GPL-0301",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "gf180-7t-iter1",
+    "overrides": {
+     "DIE_AREA": [
+      0,
+      0,
+      104,
+      104
+     ]
+    },
+    "repair": {
+     "code": "GPL-0301",
+     "why": "utilization 122.0% > 100% on a fixed 60x60 um die; scaled each side by 1.72 toward 50%"
+    },
+    "died_with": null,
+    "crashed": false,
+    "passed": false,
+    "violations": [],
+    "unverified": [
+     "timing for clock domain 'clk_b' (declared but never constrained, so no path in it was analysed)"
+    ],
+    "area_um2": 2465.21
+   }
+  ]
+ },
+ {
+  "design": "counter4",
+  "stop_reason": "winner_found",
+  "expect_fixed": true,
+  "note": null,
+  "code": "DPL-0036",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": true,
+  "final_passed": true,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "gf180-7t-util45",
+    "overrides": {
+     "FP_CORE_UTIL": 45
+    },
+    "repair": null,
+    "died_with": "DPL-0036",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "gf180-7t-util45-iter1",
+    "overrides": {
+     "FP_CORE_UTIL": 30
+    },
+    "repair": {
+     "code": "DPL-0036",
+     "why": "legalisation failed for lack of free sites; utilization 45 -> 30"
+    },
+    "died_with": null,
+    "crashed": false,
+    "passed": false,
+    "violations": [
+     "utilization 0.755 > target 0.75"
+    ],
+    "unverified": [],
+    "area_um2": 1029.55
+   },
+   {
+    "iteration": 3,
+    "tag": "gf180-7t-util45-iter1-iter2",
+    "overrides": {
+     "FP_CORE_UTIL": 20
+    },
+    "repair": null,
+    "died_with": null,
+    "crashed": false,
+    "passed": true,
+    "violations": [],
+    "unverified": [],
+    "area_um2": 1095.4
+   }
+  ]
+ },
+ {
+  "design": "gcd",
+  "stop_reason": "max_iterations_reached",
+  "expect_fixed": true,
+  "note": null,
+  "code": "DPL-0036",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": true,
+  "final_passed": false,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "hs-util65",
+    "overrides": {
+     "FP_CORE_UTIL": 65,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells"
+    },
+    "repair": null,
+    "died_with": "DPL-0036",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "hs-util65-iter1",
+    "overrides": {
+     "FP_CORE_UTIL": 50,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells"
+    },
+    "repair": {
+     "code": "DPL-0036",
+     "why": "legalisation failed for lack of free sites; utilization 65 -> 50"
+    },
+    "died_with": null,
+    "crashed": false,
+    "passed": false,
+    "violations": [
+     "utilization 0.782 > target 0.75"
+    ],
+    "unverified": [],
+    "area_um2": 4683.31
+   },
+   {
+    "iteration": 3,
+    "tag": "hs-util65-iter1-iter2",
+    "overrides": {
+     "FP_CORE_UTIL": 35,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells"
+    },
+    "repair": null,
+    "died_with": null,
+    "crashed": false,
+    "passed": false,
+    "violations": [
+     "1 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [],
+    "area_um2": 4849.55
+   }
+  ]
+ },
+ {
+  "design": "spm",
+  "stop_reason": "winner_found",
+  "expect_fixed": true,
+  "note": null,
+  "code": "RSZ-0060",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": true,
+  "final_passed": true,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "hs-util55",
+    "overrides": {
+     "FP_CORE_UTIL": 55,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells"
+    },
+    "repair": null,
+    "died_with": "RSZ-0060",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "hs-util55-iter1",
+    "overrides": {
+     "FP_CORE_UTIL": 55,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells",
+     "PL_RESIZER_HOLD_SLACK_MARGIN": 0.0
+    },
+    "repair": {
+     "code": "RSZ-0060",
+     "why": "hold repair used up its buffer allowance chasing 0.1 ns of margin past zero; PL_RESIZER_HOLD_SLACK_MARGIN -> 0 (signoff still requires hold slack >= 0 at every corner)"
+    },
+    "died_with": null,
+    "crashed": false,
+    "passed": true,
+    "violations": [],
+    "unverified": [],
+    "area_um2": 5295.5
+   }
+  ]
+ },
+ {
+  "design": "gcd",
+  "stop_reason": "no_repairable_failures",
+  "expect_fixed": false,
+  "note": "4 ns is infeasible for gcd on sky130_fd_sc_hs; escalation is the right outcome",
+  "code": "RSZ-0060",
+  "reproduced": true,
+  "repaired": true,
+  "fixed": false,
+  "final_passed": false,
+  "steps": [
+   {
+    "iteration": 1,
+    "tag": "c-hs-clock_period4",
+    "overrides": {
+     "CLOCK_PERIOD": 4,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells"
+    },
+    "repair": null,
+    "died_with": "RSZ-0060",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   },
+   {
+    "iteration": 2,
+    "tag": "c-hs-clock_period4-iter1",
+    "overrides": {
+     "CLOCK_PERIOD": 4,
+     "PNR_EXCLUDED_CELL_FILE": "/design/pnr/hs_exclude.cells",
+     "PL_RESIZER_HOLD_SLACK_MARGIN": 0.0
+    },
+    "repair": {
+     "code": "RSZ-0060",
+     "why": "hold repair used up its buffer allowance chasing 0.1 ns of margin past zero; PL_RESIZER_HOLD_SLACK_MARGIN -> 0 (signoff still requires hold slack >= 0 at every corner)"
+    },
+    "died_with": "RSZ-0060",
+    "crashed": true,
+    "passed": false,
+    "violations": [],
+    "unverified": [],
+    "area_um2": null
+   }
+  ]
+ }
+]

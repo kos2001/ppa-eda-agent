@@ -33,10 +33,28 @@ Propose 2-4 candidates, each varying one or more of:
   dimensions and macro placement (`--initial-state-element-override` for
   a fixed macro placement, or letting OpenLane's macro placer run) matter
   more than utilization alone.
-- `PL_TARGET_DENSITY` — detailed-placement density target, distinct from
-  core utilization; worth varying independently if congestion (not PDN
-  generation) is the failure mode precedent shows for this topology
-  class.
+- `PL_TARGET_DENSITY_PCT` — global-placement density target in percent,
+  distinct from core utilization. (`PL_TARGET_DENSITY` is the OpenLane 1
+  name; OpenLane 2.3.10 does not have it and `run_stage.py` fails a run
+  that passes it.) Unset, it is `FP_CORE_UTIL + 5*GPL_CELL_PADDING + 10`.
+  It must stay above the design's own post-synthesis utilization or global
+  placement stops with GPL-0302, which prints the density to use. Measured
+  on gcd, moving it by tens of points did not clear the run-to-run noise,
+  so do not spend a candidate on it without a congestion reason.
+
+Before proposing a knob, check `docs/pnr-algorithm-review-20261002.md`: it
+records which placement, routing, CTS and resizer knobs were measured
+against a noise floor on real runs. Most were inert on the designs this
+pipeline can run (CTS clustering, routability-driven placement, the setup
+slack margin, GRT_ADJUSTMENT). The two that moved the result are resizer
+knobs, `PL_RESIZER_HOLD_SLACK_MARGIN` and `DESIGN_REPAIR_BUFFER_INPUT_PORTS`;
+`run_spec.json` can ask for them with `"polish": true`, which tries them on
+the winner and keeps only a strictly better result.
+
+Failures with a rule in `pipeline/pnr_repair.py` (GPL-0301/0302/0307,
+DPL-0036, hold-side RSZ-0060, PDN-0185 at the default utilization) are
+repaired automatically by `orchestrator.propose_repairs()`; do not spend a
+hand-written candidate on them.
 
 Write these as a `run_spec.json` (schema: see
 `pipeline/designs/counter4/run_spec.json` for a working real example) —
