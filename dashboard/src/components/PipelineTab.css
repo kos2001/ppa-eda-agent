@@ -626,6 +626,22 @@
   border-color: var(--accent);
   color: var(--accent);
 }
+.pipeline__stage-badge--polish {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+/* One line of placement/routing quality figures under an opened candidate,
+   and the sentence saying why a repaired or polished candidate exists. */
+.pipeline__quality {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 8px 0;
+}
+.pipeline__quality .tab__meta-label { margin-right: 6px; }
+.pipeline__provenance { margin: 6px 0; color: var(--text-dim); }
+.pipeline__provenance .tab__meta-label { margin-right: 8px; }
 
 .pipeline__chart { margin: 1rem 0; padding: 1rem 1rem 0; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in srgb, var(--surface-raised) 80%, transparent); }
 

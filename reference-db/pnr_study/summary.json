@@ -1,0 +1,1178 @@
+{
+  "designs": {
+    "gcd": {
+      "baseline": {
+        "passed": true,
+        "violations": [],
+        "error": null,
+        "area_um2": 3004.13,
+        "power_w": 0.0007453106227330863,
+        "wirelength": 6555,
+        "vias": 2119,
+        "repair_buffers": 95,
+        "clock_buffers": 8,
+        "first_pass_drc": 73,
+        "setup_ws": 1.7951689531895543,
+        "hold_ws": 0.11399298494459821,
+        "seconds": 90.7
+      },
+      "noise_floor_pct": {
+        "area_um2": 1.37,
+        "power_w": 3.06,
+        "wirelength": 3.42,
+        "vias": 1.42,
+        "repair_buffers": 2.11,
+        "clock_buffers": 25.0,
+        "first_pass_drc": 36.99,
+        "setup_ws": 5.86,
+        "hold_ws": 2.4
+      },
+      "knobs": [
+        {
+          "knob": "PL_TARGET_DENSITY_PCT",
+          "value": 41.0,
+          "tag": "pnr-pl_target_density_pct-41p0",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.58,
+            "power_w": 0.11,
+            "wirelength": 2.03,
+            "vias": 1.51,
+            "repair_buffers": -2.11,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 21.92,
+            "setup_ws": -0.93,
+            "hold_ws": 1.46
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_TARGET_DENSITY_PCT",
+          "value": 58.0,
+          "tag": "pnr-pl_target_density_pct-58p0",
+          "passed": false,
+          "changes": {
+            "area_um2": -0.75,
+            "power_w": -2.51,
+            "wirelength": -2.41,
+            "vias": -1.09,
+            "repair_buffers": -1.05,
+            "clock_buffers": -37.5,
+            "first_pass_drc": 6.85,
+            "setup_ws": -1.34,
+            "hold_ws": 2.4
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_TARGET_DENSITY_PCT",
+          "value": 73.0,
+          "tag": "pnr-pl_target_density_pct-73p0",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.08,
+            "power_w": -1.35,
+            "wirelength": -2.03,
+            "vias": 1.84,
+            "repair_buffers": 1.05,
+            "clock_buffers": -12.5,
+            "first_pass_drc": -9.59,
+            "setup_ws": -3.39,
+            "hold_ws": 3.73
+          },
+          "clears_noise": [
+            "hold_ws"
+          ],
+          "regresses": []
+        },
+        {
+          "knob": "PL_TIME_DRIVEN",
+          "value": false,
+          "tag": "pnr-pl_time_driven-False",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.67,
+            "power_w": 0.02,
+            "wirelength": 0.02,
+            "vias": 1.23,
+            "repair_buffers": 1.05,
+            "clock_buffers": 0.0,
+            "first_pass_drc": -16.44,
+            "setup_ws": -0.84,
+            "hold_ws": 3.14
+          },
+          "clears_noise": [
+            "hold_ws"
+          ],
+          "regresses": []
+        },
+        {
+          "knob": "PL_ROUTABILITY_DRIVEN",
+          "value": false,
+          "tag": "pnr-pl_routability_driven-False",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_WIRE_LENGTH_COEF",
+          "value": 0.1,
+          "tag": "pnr-pl_wire_length_coef-0p1",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.33,
+            "power_w": -0.18,
+            "wirelength": -0.47,
+            "vias": 0.14,
+            "repair_buffers": -1.05,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 9.59,
+            "setup_ws": -1.61,
+            "hold_ws": -1.89
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_WIRE_LENGTH_COEF",
+          "value": 0.5,
+          "tag": "pnr-pl_wire_length_coef-0p5",
+          "passed": false,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 5.72,
+            "wirelength": 1.46,
+            "vias": 0.47,
+            "repair_buffers": -3.16,
+            "clock_buffers": -37.5,
+            "first_pass_drc": 15.07,
+            "setup_ws": -6.33,
+            "hold_ws": 0.86
+          },
+          "clears_noise": [],
+          "regresses": [
+            "power_w",
+            "setup_ws"
+          ]
+        },
+        {
+          "knob": "GPL_CELL_PADDING",
+          "value": 2,
+          "tag": "pnr-gpl_cell_padding-2",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.37,
+            "power_w": -1.84,
+            "wirelength": -1.71,
+            "vias": -0.38,
+            "repair_buffers": 1.05,
+            "clock_buffers": -25.0,
+            "first_pass_drc": 10.96,
+            "setup_ws": -3.2,
+            "hold_ws": 2.54
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "GPL_CELL_PADDING",
+          "value": 4,
+          "tag": "pnr-gpl_cell_padding-4",
+          "passed": false,
+          "changes": {
+            "area_um2": 0.67,
+            "power_w": 2.65,
+            "wirelength": 1.71,
+            "vias": -0.61,
+            "repair_buffers": 0.0,
+            "clock_buffers": -25.0,
+            "first_pass_drc": 30.14,
+            "setup_ws": -1.38,
+            "hold_ws": 0.19
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "GRT_ADJUSTMENT",
+          "value": 0.1,
+          "tag": "pnr-grt_adjustment-0p1",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.05,
+            "wirelength": -0.29,
+            "vias": -0.38,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 27.4,
+            "setup_ws": -0.16,
+            "hold_ws": -0.18
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "GRT_ADJUSTMENT",
+          "value": 0.5,
+          "tag": "pnr-grt_adjustment-0p5",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": -0.1,
+            "wirelength": -0.46,
+            "vias": 0.24,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": -9.59,
+            "setup_ws": -0.28,
+            "hold_ws": -0.11
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_SIZE",
+          "value": 10,
+          "tag": "pnr-cts_sink_clustering_size-10",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_SIZE",
+          "value": 40,
+          "tag": "pnr-cts_sink_clustering_size-40",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_MAX_DIAMETER",
+          "value": 30,
+          "tag": "pnr-cts_sink_clustering_max_diameter-30",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_MAX_DIAMETER",
+          "value": 100,
+          "tag": "pnr-cts_sink_clustering_max_diameter-100",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_RESIZER_SETUP_SLACK_MARGIN",
+          "value": 0.0,
+          "tag": "pnr-pl_resizer_setup_slack_margin-0p0",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_RESIZER_SETUP_SLACK_MARGIN",
+          "value": 0.2,
+          "tag": "pnr-pl_resizer_setup_slack_margin-0p2",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+          "value": 0.0,
+          "tag": "pnr-pl_resizer_hold_slack_margin-0p0",
+          "passed": true,
+          "changes": {
+            "area_um2": -9.0,
+            "power_w": -3.18,
+            "wirelength": -3.26,
+            "vias": -4.53,
+            "repair_buffers": -28.42,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 5.48,
+            "setup_ws": -0.74,
+            "hold_ws": -53.36
+          },
+          "clears_noise": [
+            "area_um2",
+            "power_w",
+            "vias",
+            "repair_buffers"
+          ],
+          "regresses": [
+            "hold_ws"
+          ]
+        },
+        {
+          "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+          "value": 0.2,
+          "tag": "pnr-pl_resizer_hold_slack_margin-0p2",
+          "passed": true,
+          "changes": {
+            "area_um2": 8.33,
+            "power_w": 3.52,
+            "wirelength": 3.3,
+            "vias": 4.77,
+            "repair_buffers": 26.32,
+            "clock_buffers": 0.0,
+            "first_pass_drc": -5.48,
+            "setup_ws": -0.59,
+            "hold_ws": 94.07
+          },
+          "clears_noise": [
+            "hold_ws"
+          ],
+          "regresses": [
+            "area_um2",
+            "power_w",
+            "vias",
+            "repair_buffers"
+          ]
+        },
+        {
+          "knob": "DESIGN_REPAIR_MAX_SLEW_PCT",
+          "value": 0,
+          "tag": "pnr-design_repair_max_slew_pct-0",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "DESIGN_REPAIR_MAX_SLEW_PCT",
+          "value": 40,
+          "tag": "pnr-design_repair_max_slew_pct-40",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "DESIGN_REPAIR_BUFFER_INPUT_PORTS",
+          "value": false,
+          "tag": "pnr-design_repair_buffer_input_ports-False",
+          "passed": true,
+          "changes": {
+            "area_um2": -4.37,
+            "power_w": -0.75,
+            "wirelength": -1.1,
+            "vias": -6.61,
+            "repair_buffers": -36.84,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 9.59,
+            "setup_ws": 0.13,
+            "hold_ws": 1.07
+          },
+          "clears_noise": [
+            "area_um2",
+            "vias",
+            "repair_buffers"
+          ],
+          "regresses": []
+        },
+        {
+          "knob": "DESIGN_REPAIR_BUFFER_OUTPUT_PORTS",
+          "value": false,
+          "tag": "pnr-design_repair_buffer_output_ports-False",
+          "passed": true,
+          "changes": {
+            "area_um2": 9.75,
+            "power_w": 10.03,
+            "wirelength": 0.61,
+            "vias": -3.63,
+            "repair_buffers": -21.05,
+            "clock_buffers": 0.0,
+            "first_pass_drc": -16.44,
+            "setup_ws": -14.69,
+            "hold_ws": -6.04
+          },
+          "clears_noise": [
+            "vias",
+            "repair_buffers"
+          ],
+          "regresses": [
+            "area_um2",
+            "power_w",
+            "setup_ws",
+            "hold_ws"
+          ]
+        },
+        {
+          "knob": "FP_ASPECT_RATIO",
+          "value": 0.5,
+          "tag": "pnr-fp_aspect_ratio-0p5",
+          "passed": false,
+          "changes": {
+            "area_um2": 1.33,
+            "power_w": 6.82,
+            "wirelength": 0.03,
+            "vias": 1.51,
+            "repair_buffers": 0.0,
+            "clock_buffers": -37.5,
+            "first_pass_drc": 136.99,
+            "setup_ws": -3.61,
+            "hold_ws": 0.68
+          },
+          "clears_noise": [],
+          "regresses": [
+            "power_w",
+            "first_pass_drc"
+          ]
+        },
+        {
+          "knob": "FP_ASPECT_RATIO",
+          "value": 2,
+          "tag": "pnr-fp_aspect_ratio-2",
+          "passed": false,
+          "changes": {
+            "area_um2": -0.29,
+            "power_w": 3.56,
+            "wirelength": 7.09,
+            "vias": 1.46,
+            "repair_buffers": -1.05,
+            "clock_buffers": -25.0,
+            "first_pass_drc": -10.96,
+            "setup_ws": -7.68,
+            "hold_ws": 6.58
+          },
+          "clears_noise": [],
+          "regresses": [
+            "power_w",
+            "wirelength",
+            "setup_ws"
+          ]
+        }
+      ]
+    },
+    "spm": {
+      "baseline": {
+        "passed": true,
+        "violations": [],
+        "error": null,
+        "area_um2": 3689.79,
+        "power_w": 0.0013315746327862144,
+        "wirelength": 5832,
+        "vias": 1921,
+        "repair_buffers": 84,
+        "clock_buffers": 13,
+        "first_pass_drc": 22,
+        "setup_ws": 6.156391570786878,
+        "hold_ws": 0.2592097720945213,
+        "seconds": 83.7
+      },
+      "noise_floor_pct": {
+        "area_um2": 0.64,
+        "power_w": 2.77,
+        "wirelength": 2.93,
+        "vias": 0.68,
+        "repair_buffers": 1.19,
+        "clock_buffers": 7.69,
+        "first_pass_drc": 163.64,
+        "setup_ws": 5.45,
+        "hold_ws": 1.09
+      },
+      "knobs": [
+        {
+          "knob": "PL_TARGET_DENSITY_PCT",
+          "value": 48.0,
+          "tag": "pnr-pl_target_density_pct-48p0",
+          "passed": false,
+          "changes": {},
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_TARGET_DENSITY_PCT",
+          "value": 65.0,
+          "tag": "pnr-pl_target_density_pct-65p0",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.81,
+            "power_w": -2.11,
+            "wirelength": -2.25,
+            "vias": 0.26,
+            "repair_buffers": 1.19,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 140.91,
+            "setup_ws": 0.17,
+            "hold_ws": 0.21
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_TARGET_DENSITY_PCT",
+          "value": 80.0,
+          "tag": "pnr-pl_target_density_pct-80p0",
+          "passed": false,
+          "changes": {
+            "area_um2": -1.53,
+            "power_w": -3.48,
+            "wirelength": 2.01,
+            "vias": 3.38,
+            "repair_buffers": -1.19,
+            "clock_buffers": -30.77,
+            "first_pass_drc": 272.73,
+            "setup_ws": -0.34,
+            "hold_ws": 0.69
+          },
+          "clears_noise": [],
+          "regresses": [
+            "vias",
+            "first_pass_drc"
+          ]
+        },
+        {
+          "knob": "PL_TIME_DRIVEN",
+          "value": false,
+          "tag": "pnr-pl_time_driven-False",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.2,
+            "power_w": -0.23,
+            "wirelength": 0.14,
+            "vias": 1.09,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 50.0,
+            "setup_ws": -0.24,
+            "hold_ws": 1.39
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_ROUTABILITY_DRIVEN",
+          "value": false,
+          "tag": "pnr-pl_routability_driven-False",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_WIRE_LENGTH_COEF",
+          "value": 0.1,
+          "tag": "pnr-pl_wire_length_coef-0p1",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.07,
+            "power_w": -1.52,
+            "wirelength": -3.57,
+            "vias": -0.16,
+            "repair_buffers": 0.0,
+            "clock_buffers": 7.69,
+            "first_pass_drc": 50.0,
+            "setup_ws": 0.09,
+            "hold_ws": 0.83
+          },
+          "clears_noise": [
+            "wirelength"
+          ],
+          "regresses": []
+        },
+        {
+          "knob": "PL_WIRE_LENGTH_COEF",
+          "value": 0.5,
+          "tag": "pnr-pl_wire_length_coef-0p5",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.24,
+            "power_w": -2.24,
+            "wirelength": 5.49,
+            "vias": 0.99,
+            "repair_buffers": 1.19,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 127.27,
+            "setup_ws": 0.07,
+            "hold_ws": 0.89
+          },
+          "clears_noise": [],
+          "regresses": [
+            "wirelength"
+          ]
+        },
+        {
+          "knob": "GPL_CELL_PADDING",
+          "value": 2,
+          "tag": "pnr-gpl_cell_padding-2",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.41,
+            "power_w": -2.09,
+            "wirelength": 0.94,
+            "vias": -0.62,
+            "repair_buffers": 1.19,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 163.64,
+            "setup_ws": -7.44,
+            "hold_ws": 0.23
+          },
+          "clears_noise": [],
+          "regresses": [
+            "setup_ws"
+          ]
+        },
+        {
+          "knob": "GPL_CELL_PADDING",
+          "value": 4,
+          "tag": "pnr-gpl_cell_padding-4",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.31,
+            "power_w": 0.59,
+            "wirelength": -0.63,
+            "vias": 0.0,
+            "repair_buffers": 1.19,
+            "clock_buffers": 7.69,
+            "first_pass_drc": 50.0,
+            "setup_ws": -5.91,
+            "hold_ws": -0.73
+          },
+          "clears_noise": [],
+          "regresses": [
+            "setup_ws"
+          ]
+        },
+        {
+          "knob": "GRT_ADJUSTMENT",
+          "value": 0.1,
+          "tag": "pnr-grt_adjustment-0p1",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": -0.0,
+            "wirelength": 0.07,
+            "vias": 0.21,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 18.18,
+            "setup_ws": -0.03,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "GRT_ADJUSTMENT",
+          "value": 0.5,
+          "tag": "pnr-grt_adjustment-0p5",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": -0.12,
+            "wirelength": -0.43,
+            "vias": 1.15,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 18.18,
+            "setup_ws": -0.17,
+            "hold_ws": -0.01
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_SIZE",
+          "value": 10,
+          "tag": "pnr-cts_sink_clustering_size-10",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_SIZE",
+          "value": 40,
+          "tag": "pnr-cts_sink_clustering_size-40",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_MAX_DIAMETER",
+          "value": 30,
+          "tag": "pnr-cts_sink_clustering_max_diameter-30",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "CTS_SINK_CLUSTERING_MAX_DIAMETER",
+          "value": 100,
+          "tag": "pnr-cts_sink_clustering_max_diameter-100",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_RESIZER_SETUP_SLACK_MARGIN",
+          "value": 0.0,
+          "tag": "pnr-pl_resizer_setup_slack_margin-0p0",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_RESIZER_SETUP_SLACK_MARGIN",
+          "value": 0.2,
+          "tag": "pnr-pl_resizer_setup_slack_margin-0p2",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+          "value": 0.0,
+          "tag": "pnr-pl_resizer_hold_slack_margin-0p0",
+          "passed": true,
+          "changes": {
+            "area_um2": -8.68,
+            "power_w": -7.53,
+            "wirelength": -2.47,
+            "vias": -5.99,
+            "repair_buffers": -38.1,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 36.36,
+            "setup_ws": -0.17,
+            "hold_ws": -25.65
+          },
+          "clears_noise": [
+            "area_um2",
+            "power_w",
+            "vias",
+            "repair_buffers"
+          ],
+          "regresses": [
+            "hold_ws"
+          ]
+        },
+        {
+          "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+          "value": 0.2,
+          "tag": "pnr-pl_resizer_hold_slack_margin-0p2",
+          "passed": true,
+          "changes": {
+            "area_um2": 16.82,
+            "power_w": 22.09,
+            "wirelength": 8.16,
+            "vias": 14.94,
+            "repair_buffers": 73.81,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 113.64,
+            "setup_ws": -17.45,
+            "hold_ws": 122.38
+          },
+          "clears_noise": [
+            "hold_ws"
+          ],
+          "regresses": [
+            "area_um2",
+            "power_w",
+            "wirelength",
+            "vias",
+            "repair_buffers",
+            "setup_ws"
+          ]
+        },
+        {
+          "knob": "DESIGN_REPAIR_MAX_SLEW_PCT",
+          "value": 0,
+          "tag": "pnr-design_repair_max_slew_pct-0",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "DESIGN_REPAIR_MAX_SLEW_PCT",
+          "value": 40,
+          "tag": "pnr-design_repair_max_slew_pct-40",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.0,
+            "power_w": 0.0,
+            "wirelength": 0.0,
+            "vias": 0.0,
+            "repair_buffers": 0.0,
+            "clock_buffers": 0.0,
+            "first_pass_drc": 0.0,
+            "setup_ws": 0.0,
+            "hold_ws": 0.0
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "DESIGN_REPAIR_BUFFER_INPUT_PORTS",
+          "value": false,
+          "tag": "pnr-design_repair_buffer_input_ports-False",
+          "passed": true,
+          "changes": {
+            "area_um2": -4.58,
+            "power_w": -3.54,
+            "wirelength": 0.14,
+            "vias": -6.51,
+            "repair_buffers": -40.48,
+            "clock_buffers": -7.69,
+            "first_pass_drc": 9.09,
+            "setup_ws": -0.02,
+            "hold_ws": -0.07
+          },
+          "clears_noise": [
+            "area_um2",
+            "power_w",
+            "vias",
+            "repair_buffers"
+          ],
+          "regresses": []
+        },
+        {
+          "knob": "DESIGN_REPAIR_BUFFER_OUTPUT_PORTS",
+          "value": false,
+          "tag": "pnr-design_repair_buffer_output_ports-False",
+          "passed": true,
+          "changes": {
+            "area_um2": 0.37,
+            "power_w": 1.02,
+            "wirelength": -0.17,
+            "vias": 0.68,
+            "repair_buffers": -1.19,
+            "clock_buffers": 7.69,
+            "first_pass_drc": 9.09,
+            "setup_ws": -0.47,
+            "hold_ws": -0.06
+          },
+          "clears_noise": [],
+          "regresses": []
+        },
+        {
+          "knob": "FP_ASPECT_RATIO",
+          "value": 0.5,
+          "tag": "pnr-fp_aspect_ratio-0p5",
+          "passed": true,
+          "changes": {
+            "area_um2": -0.17,
+            "power_w": -1.92,
+            "wirelength": -2.09,
+            "vias": 0.94,
+            "repair_buffers": 1.19,
+            "clock_buffers": 23.08,
+            "first_pass_drc": 90.91,
+            "setup_ws": -7.87,
+            "hold_ws": 0.73
+          },
+          "clears_noise": [],
+          "regresses": [
+            "clock_buffers",
+            "setup_ws"
+          ]
+        },
+        {
+          "knob": "FP_ASPECT_RATIO",
+          "value": 2,
+          "tag": "pnr-fp_aspect_ratio-2",
+          "passed": true,
+          "changes": {
+            "area_um2": -1.15,
+            "power_w": -2.67,
+            "wirelength": 11.54,
+            "vias": 3.18,
+            "repair_buffers": -1.19,
+            "clock_buffers": 7.69,
+            "first_pass_drc": 322.73,
+            "setup_ws": -2.17,
+            "hold_ws": 0.85
+          },
+          "clears_noise": [],
+          "regresses": [
+            "wirelength",
+            "vias",
+            "first_pass_drc"
+          ]
+        }
+      ]
+    }
+  },
+  "consistent": [
+    {
+      "knob": "DESIGN_REPAIR_BUFFER_INPUT_PORTS",
+      "value": false,
+      "metric": "area_um2",
+      "designs": {
+        "gcd": -4.37,
+        "spm": -4.58
+      },
+      "also_regresses": []
+    },
+    {
+      "knob": "DESIGN_REPAIR_BUFFER_INPUT_PORTS",
+      "value": false,
+      "metric": "repair_buffers",
+      "designs": {
+        "gcd": -36.84,
+        "spm": -40.48
+      },
+      "also_regresses": []
+    },
+    {
+      "knob": "DESIGN_REPAIR_BUFFER_INPUT_PORTS",
+      "value": false,
+      "metric": "vias",
+      "designs": {
+        "gcd": -6.61,
+        "spm": -6.51
+      },
+      "also_regresses": []
+    },
+    {
+      "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+      "value": 0.0,
+      "metric": "area_um2",
+      "designs": {
+        "gcd": -9.0,
+        "spm": -8.68
+      },
+      "also_regresses": [
+        "hold_ws"
+      ]
+    },
+    {
+      "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+      "value": 0.0,
+      "metric": "power_w",
+      "designs": {
+        "gcd": -3.18,
+        "spm": -7.53
+      },
+      "also_regresses": [
+        "hold_ws"
+      ]
+    },
+    {
+      "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+      "value": 0.0,
+      "metric": "repair_buffers",
+      "designs": {
+        "gcd": -28.42,
+        "spm": -38.1
+      },
+      "also_regresses": [
+        "hold_ws"
+      ]
+    },
+    {
+      "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+      "value": 0.0,
+      "metric": "vias",
+      "designs": {
+        "gcd": -4.53,
+        "spm": -5.99
+      },
+      "also_regresses": [
+        "hold_ws"
+      ]
+    },
+    {
+      "knob": "PL_RESIZER_HOLD_SLACK_MARGIN",
+      "value": 0.2,
+      "metric": "hold_ws",
+      "designs": {
+        "gcd": 94.07,
+        "spm": 122.38
+      },
+      "also_regresses": [
+        "area_um2",
+        "power_w",
+        "repair_buffers",
+        "vias"
+      ]
+    }
+  ]
+}
