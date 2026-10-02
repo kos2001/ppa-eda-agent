@@ -33,15 +33,18 @@ import def_layout
 import design_rules
 import equiv_check
 import gf180_drc
+import live_events
 import magic_abstract_drc
 import netlist_graph
 import model_validity
 import operating_point
+import pnr_polish
+import pnr_repair
 import power_activity
 import render_layout
 import step_coverage
 import synth_explore
-from pareto import ParetoPoint, pick_best
+from pareto import ParetoPoint, pick_knee
 from toolchain import classic_steps, toolchain_info
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -310,6 +313,18 @@ def supply_rails(metrics: dict) -> list[dict]:
     return rails
 
 
+def worst_setup_slack(metrics: dict) -> float | None:
+    """Worst setup slack over every analysed corner, in ns (positive is
+    margin). None when the run reported none — never a default."""
+    corner = [v for k, v in metrics.items()
+              if k.startswith("timing__setup__ws__corner:")
+              and isinstance(v, (int, float))]
+    if corner:
+        return min(corner)
+    value = metrics.get("timing__setup__ws")
+    return value if isinstance(value, (int, float)) else None
+
+
 def score(metrics: dict, targets: dict) -> dict:
     """Checks a real metrics.json against run_spec targets.
 
@@ -498,6 +513,17 @@ def score(metrics: dict, targets: dict) -> dict:
         "area_um2": metrics.get("design__instance__area"),
         "utilization": util,
         "worst_setup_wns": worst_wns,
+        # What placement and routing actually produced, recorded beside
+        # the pass/fail. worst_setup_wns above is OpenSTA's *negative*
+        # slack, clipped at 0, so it is 0 for every passing candidate and
+        # says nothing about margin; the slack itself lives in
+        # timing__setup__ws. The core area is the silicon the floorplan
+        # costs, which instance area cannot see: 290 um^2 of cells in a
+        # 631 um^2 core and in a 480 um^2 core are the same "area" here.
+        "worst_setup_slack": worst_setup_slack(metrics),
+        "core_area_um2": metrics.get("design__core__area"),
+        "wirelength_um": metrics.get("route__wirelength"),
+        "via_count": metrics.get("route__vias"),
         "timing_corners": timing_corners,
         "power": power,
         "power_domain": power_domain,
@@ -876,6 +902,9 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     except Exception as e:  # noqa: BLE001 - recorded, never a lost run
         prediction = {"error": f"{type(e).__name__}: {e}"}
     started = time.time()
+    live_events.emit(design_dir, "candidate_start", tag=tag,
+                     overrides=cand.get("overrides", {}), pdk=pdk, scl=scl,
+                     repair=cand.get("repair"), polish=bool(cand.get("polish")))
     try:
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
                             scl=scl, pdk=pdk)
@@ -885,6 +914,12 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         result = {"tag": tag, "overrides": cand.get("overrides", {}),
                   "scl": scl, "pdk": pdk, "error": str(e)}
     result["seconds"] = round(time.time() - started, 1)
+    live_events.emit(design_dir, "candidate_done", **candidate_summary(result))
+    if cand.get("repair"):
+        # Why this candidate exists: the failure it repairs and the number
+        # it was derived from, kept with the result so the case can be
+        # audited without re-reading the previous iteration.
+        result["repair"] = cand["repair"]
     if prediction is not None:
         if "error" in prediction:
             result["prediction"] = prediction
@@ -1016,14 +1051,13 @@ def run_candidates(design_dir: Path, run_spec: dict,
 
 
 def pick_winner(results: list[dict]) -> dict | None:
-    """Picks the winner among passing candidates via constrained Pareto-
-    front ranking (see pipeline/pareto.py) instead of a single "smallest
-    area wins" heuristic — area, power, and timing margin are real,
-    independent trade-offs among passing candidates (see
-    reference-db/cases/*.json for real examples), not one axis to
-    optimize alone. Falls back gracefully when a candidate's power data
-    is unavailable (treated as 0 in that objective — see pareto.py's
-    docstring for why this is a deliberate simplification, not a bug).
+    """Picks the winner among passing candidates: the knee of the Pareto
+    front over (cell area, power, core area, setup slack) — see
+    pareto.pick_knee() and pareto_points(). Area, power, floorplan cost and
+    timing margin are real, independent trade-offs among passing
+    candidates (see reference-db/cases/*.json for real examples), not one
+    axis to optimize alone. An objective that any passing candidate lacks
+    is dropped for all of them rather than read as zero.
     """
     passing = [r for r in results if r.get("verdict", {}).get("passed")]
     if not passing:
@@ -1031,6 +1065,30 @@ def pick_winner(results: list[dict]) -> dict | None:
     if len(passing) == 1:
         return passing[0]
 
+    winner_tag = pick_knee(pareto_points(passing))
+    return next(r for r in passing if r["tag"] == winner_tag)
+
+
+# The order objectives appear in a Pareto point, and the names polish
+# applies its tolerances to. "margin" is minus the worst setup slack, so
+# that every objective is something to minimise.
+OBJECTIVES = ("area", "power", "core", "margin")
+
+
+def pareto_points(passing: list[dict]) -> list[ParetoPoint]:
+    """The objective vectors of passing candidates, all to be minimised.
+
+    One definition of "better" shared by winner selection and by polish
+    (pnr_polish.improves), so a move is judged on the same quantities a
+    winner is chosen by. The optional objectives are decided over the
+    given set, so comparing two candidates uses what both have.
+    """
+    return [ParetoPoint(key=tag, objs=tuple(o[n] for n in OBJECTIVES if n in o))
+            for tag, o in objective_table(passing)]
+
+
+def objective_table(passing: list[dict]) -> list[tuple[str, dict]]:
+    """(tag, {objective name: value}) for each passing candidate."""
     # Rank on measured power when every passing candidate has it, and on
     # the estimate otherwise — never a mixture.
     #
@@ -1050,19 +1108,61 @@ def pick_winner(results: list[dict]) -> dict | None:
     # the honest common basis.
     use_annotated = all(annotated_total_w(r) is not None for r in passing)
 
-    points = []
+    # Two objectives the ranking used to lack, each added only when every
+    # passing candidate has it (the same all-or-nothing rule, for the same
+    # reason: a missing number must not read as a good one).
+    #
+    # Core area: the floorplan's own cost. Utilization is the most swept
+    # knob in the store and it moves instance area not at all (counter4:
+    # 290.278 um^2 at FP_CORE_UTIL 25 and 35), so a ranking on instance
+    # area is structurally blind to every placement-density decision.
+    #
+    # Setup slack: the old third objective was -worst_setup_wns, which is
+    # 0 for all 159 passing candidates in the store — a constant, which
+    # discriminates nothing. Real margin is the worst setup slack.
+    use_core = all(_core_area(r["verdict"]) is not None for r in passing)
+    use_slack = all(_setup_slack(r["verdict"]) is not None for r in passing)
+
+    table = []
     for r in passing:
         v = r["verdict"]
-        area = v["area_um2"] or 0.0
         if use_annotated:
             power_total = annotated_total_w(r) or 0.0
         else:
             power_total = (v.get("power") or {}).get("total_w") or 0.0
-        margin = -v["worst_setup_wns"]  # minimize negative slack = maximize margin
-        points.append(ParetoPoint(key=r["tag"], objs=(area, power_total, margin)))
+        o = {"area": v["area_um2"] or 0.0, "power": power_total}
+        if use_core:
+            o["core"] = _core_area(v)
+        if use_slack:
+            o["margin"] = -_setup_slack(v)  # all objectives are minimised
+        table.append((r["tag"], o))
+    return table
 
-    winner_tag = pick_best(points)
-    return next(r for r in passing if r["tag"] == winner_tag)
+
+def _core_area(verdict: dict) -> float | None:
+    """Core area in um^2: recorded by score(), else rebuilt from instance
+    area and utilization (design__instance__utilization__stdcell is
+    exactly stdcell area over core area, checked on a gcd run:
+    3004.13 / 0.452166 = 6643.9 = design__core__area)."""
+    recorded = verdict.get("core_area_um2")
+    if isinstance(recorded, (int, float)) and recorded > 0:
+        return float(recorded)
+    area, util = verdict.get("area_um2"), verdict.get("utilization")
+    if area and util:
+        return area / util
+    return None
+
+
+def _setup_slack(verdict: dict) -> float | None:
+    """Worst setup slack in ns: recorded by score(), else the minimum over
+    the per-corner slacks of a stored operating point."""
+    recorded = verdict.get("worst_setup_slack")
+    if isinstance(recorded, (int, float)):
+        return float(recorded)
+    corners = (verdict.get("operating_point") or {}).get("corners") or []
+    slacks = [c["setup_ws_ns"] for c in corners
+              if isinstance(c.get("setup_ws_ns"), (int, float))]
+    return min(slacks) if slacks else None
 
 
 # Known, real failure signatures this pipeline has actually observed and
@@ -1076,10 +1176,12 @@ def pick_winner(results: list[dict]) -> dict | None:
 #    than degrading gracefully when core utilization is pushed too high
 #    for the die's power-strap geometry.
 PDN_STRAP_ERROR = "Insufficient width"
-UTIL_STEP_DOWN = 15  # percentage points; conservative, matches the gap
-                      # that separated the one passing candidate (35)
-                      # from the first failing one (55) in that case.
-MIN_CORE_UTIL = 20
+UTIL_STEP_DOWN = pnr_repair.UTIL_STEP_DOWN  # 15 percentage points;
+                      # conservative, matches the gap that separated the
+                      # one passing candidate (35) from the first failing
+                      # one (55) in that case. Defined in pnr_repair so the
+                      # DPL-0036 repair steps by the same amount.
+MIN_CORE_UTIL = pnr_repair.MIN_CORE_UTIL
 
 # 2. counter4_tinydie__2026-08-21: OpenROAD's Floorplan Init step
 #    rejects a DIE_AREA whose core area (after subtracting core margins)
@@ -1154,8 +1256,15 @@ def _repaired(result: dict, iteration: int, overrides: dict) -> dict:
     return cand
 
 
-def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
-    """Mechanically proposes a repaired candidate set from real failures."""
+def propose_repairs(results: list[dict], iteration: int,
+                    base_config: dict | None = None) -> list[dict]:
+    """Mechanically proposes a repaired candidate set from real failures.
+
+    `base_config` is the design's config.json. Patterns 1-4 read only the
+    candidate's own overrides; the pnr_repair rules also consult it, so a
+    candidate that failed on the design's default FP_CORE_UTIL or fixed
+    DIE_AREA still has a value to repair.
+    """
     next_candidates = []
     for r in results:
         error = r.get("error", "")
@@ -1230,6 +1339,13 @@ def propose_repairs(results: list[dict], iteration: int) -> list[dict]:
             new_overrides = dict(overrides)
             new_overrides["CLOCK_PERIOD"] = period
             next_candidates.append(_repaired(r, iteration, new_overrides))
+        elif (fix := pnr_repair.repair(r, base_config)) is not None:
+            # Placement / timing-repair failures whose error text carries
+            # the answer (GPL-0302 even states the density to use). See
+            # pnr_repair.RULES for each rule's evidence.
+            cand = _repaired(r, iteration, fix["overrides"])
+            cand["repair"] = {"code": fix["code"], "why": fix["why"]}
+            next_candidates.append(cand)
         # Other failure/violation modes (DRC/LVS errors, hold or DRV
         # violations, unrecognized run errors) are not auto-repaired —
         # flagged in the iteration summary instead so a person or
@@ -1306,6 +1422,40 @@ def clock_period(design_dir: Path) -> float | None:
         return None
     value = json.loads(cfg.read_text(encoding="utf-8")).get("CLOCK_PERIOD")
     return float(value) if isinstance(value, (int, float, str)) and str(value).strip() else None
+
+
+def candidate_summary(result: dict) -> dict:
+    """The few fields of a scored candidate worth announcing live: did it
+    pass, what killed it, and the numbers a reader would ask for first."""
+    v = result.get("verdict") or {}
+    codes = re.findall(r"\b[A-Z]{3}-\d{4}\b", "\n".join(
+        ln for ln in (result.get("error") or "").splitlines() if "WARNING" not in ln))
+    return {
+        "tag": result.get("tag"),
+        "passed": bool(v.get("passed")),
+        "died_with": codes[-1] if codes else None,
+        "crashed": bool(result.get("error")),
+        "violations": (v.get("violations") or [])[:4],
+        "unverified": len(v.get("unverified") or []),
+        "area_um2": v.get("area_um2"),
+        "power_w": (v.get("power") or {}).get("total_w"),
+        "setup_slack": v.get("worst_setup_slack"),
+        "utilization": v.get("utilization"),
+        "seconds": result.get("seconds"),
+    }
+
+
+def read_base_config(design_dir: Path) -> dict:
+    """The design's own config.json, or {} when it cannot be read.
+
+    Repairs consult it for the values a candidate inherited rather than
+    overrode. Unreadable is not fatal: it only costs those repairs their
+    fallback, which is how they behaved before it existed.
+    """
+    try:
+        return json.loads((design_dir / "config.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
 
 
 def run_clock_period(design_dir: Path, run_dir: Path | None,
@@ -1468,6 +1618,50 @@ def print_iteration_summary(iteration: int, results: list[dict]) -> None:
 STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failures")
 
 
+def polish_moves(spec) -> list[dict] | None:
+    """The moves a run_spec's "polish" block asks for.
+
+    `true` or a block without "moves" means the measured defaults
+    (pnr_polish.MOVES); a list of ids selects among them; a list of
+    objects supplies moves of its own. An unknown id is an error, not a
+    silent no-op: a typo that quietly skipped the polish would read as
+    "polished, nothing to gain".
+    """
+    wanted = spec.get("moves") if isinstance(spec, dict) else None
+    if wanted is None:
+        return None
+    known = {m["id"]: m for m in pnr_polish.MOVES}
+    out = []
+    for item in wanted:
+        if isinstance(item, str):
+            if item not in known:
+                raise ValueError(f"unknown polish move {item!r}; known: {sorted(known)}")
+            out.append(known[item])
+        else:
+            out.append({"id": item["id"], "overrides": item["overrides"],
+                        "why": item.get("why", "run_spec-supplied move")})
+    return out
+
+
+def polish_winner(design_dir: Path, run_spec: dict, winner: dict,
+                  base_config: dict | None, max_parallel: int = 1,
+                  verify_fn: bool = False) -> tuple[dict, list[dict]]:
+    """Tries the polish moves on a winner; returns (winner, trials).
+
+    See pnr_polish for what is tried and why a move is accepted. Trials
+    are ordinary candidates run through the ordinary flow and signoff."""
+    moves = pnr_polish.plan(winner["overrides"], base_config,
+                            polish_moves(run_spec["polish"]))
+
+    def run(cands: list[dict]) -> list[dict]:
+        return run_candidates(design_dir, {**run_spec, "candidates": cands},
+                              max_parallel=max_parallel, verify_fn=verify_fn)
+
+    return pnr_polish.polish(
+        winner, moves, run, objective_table,
+        notify=lambda kind, info: live_events.emit(design_dir, kind, **info))
+
+
 def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
                  max_parallel: int = 1, screen: bool = False,
                  verify_fn: bool = False) -> tuple[list[dict], dict | None, str, dict | None]:
@@ -1496,11 +1690,17 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
     all_iterations = []
     winner = None
     stop_reason = None
+    base_config = read_base_config(design_dir)
+    live_events.emit(design_dir, "run_start", design=design_dir.name,
+                     max_iterations=max_iterations,
+                     polish=bool(run_spec.get("polish")), screen=screen)
 
     iteration = 1
     while True:
         screened_out = []
         to_run = candidates
+        live_events.emit(design_dir, "iteration_start", iteration=iteration,
+                         candidates=[c["tag"] for c in candidates])
         if screen:
             to_run, screened_out = screen_candidates(
                 design_dir, candidates, run_spec.get("targets", {}),
@@ -1533,13 +1733,25 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
         if winner:
             print(f"\nwinner found in iteration {iteration}: {winner['tag']}")
             stop_reason = "winner_found"
+            if run_spec.get("polish"):
+                winner, trials = polish_winner(
+                    design_dir, run_spec, winner, base_config,
+                    max_parallel=max(1, max_parallel), verify_fn=verify_fn)
+                if trials:
+                    for r in trials:
+                        r["stage"] = classify_stage(r)
+                        r["produced_by_feedback"] = False
+                    print_iteration_summary(iteration + 1, trials)
+                    all_iterations.append({"iteration": iteration + 1,
+                                           "polish": True, "results": trials})
+                    print(f"\nafter polish the winner is: {winner['tag']}")
             break
         if iteration >= max_iterations:
             print(f"\nreached max_iterations ({max_iterations}) with no winner")
             stop_reason = "max_iterations_reached"
             break
 
-        next_candidates = propose_repairs(results, iteration)
+        next_candidates = propose_repairs(results, iteration, base_config)
         if not next_candidates:
             print("\nno auto-repairable failures found — stopping "
                   "(needs placement-strategist/feedback-optimizer to propose "
@@ -1547,6 +1759,16 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
             stop_reason = "no_repairable_failures"
             break
 
+        by_tag = {r["tag"]: r for r in results}
+        for c in next_candidates:
+            parent = by_tag.get(c["tag"].rsplit(f"-iter{iteration}", 1)[0], {})
+            old = parent.get("overrides", {})
+            live_events.emit(
+                design_dir, "repair", from_tag=parent.get("tag"), to_tag=c["tag"],
+                code=(c.get("repair") or {}).get("code", "pattern"),
+                why=(c.get("repair") or {}).get("why"),
+                changes={k: [old.get(k), v] for k, v in c["overrides"].items()
+                         if old.get(k) != v})
         print(f"\nauto-repair proposing {len(next_candidates)} candidate(s) "
               f"for iteration {iteration + 1}: "
               f"{[(c['tag'], c['overrides']) for c in next_candidates]}")
@@ -1554,6 +1776,8 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
         iteration += 1
 
     assert stop_reason in STOP_REASONS, f"ungated exit: {stop_reason!r}"
+    live_events.emit(design_dir, "stop", reason=stop_reason,
+                     winner=winner["tag"] if winner else None)
     return all_iterations, winner, stop_reason, exploration
 
 
@@ -1570,6 +1794,10 @@ def main():
                      help="prove each candidate's netlist is functionally "
                           "equivalent to the RTL (Yosys SAT equivalence, ~1s per "
                           "candidate); a mismatch fails the candidate outright")
+    ap.add_argument("--polish", action="store_true",
+                     help="after a candidate passes, try the measured P&R moves "
+                          "(pnr_polish.MOVES) on it and keep those that make it "
+                          "strictly better; same as a run_spec \"polish\" block")
     ap.add_argument("--screen", action="store_true",
                      help=f"pre-flight each candidate only to {SCREEN_STEP} and "
                           f"run the full flow only on survivors; wins when "
@@ -1579,6 +1807,8 @@ def main():
     run_spec = json.loads(args.run_spec.read_text(encoding="utf-8"))
     design_name = run_spec.get("design_name", args.design.name)
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
+    if args.polish and not run_spec.get("polish"):
+        run_spec["polish"] = True
 
     all_iterations, winner, stop_reason, exploration = orchestrate(
         args.design, run_spec, max_iterations, args.max_parallel,
