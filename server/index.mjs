@@ -1,9 +1,9 @@
-// Minimal local simulation server — no framework, just node:http.
-// POST /simulate {period: number} runs a real OpenSTA timing/power
-// simulation (via the openroad/opensta Docker image) against the example
-// design in ../sim/ and returns the raw report text. Local-only tool:
-// binds 127.0.0.1, not meant to be exposed.
+// Local server for the dashboard: serves the reference-db case store, runs
+// pipeline/orchestrator.py on demand and reports its progress, and fronts
+// the review/ask/diagnose endpoints. No framework, just node:http.
+// Local-only tool: binds 127.0.0.1, not meant to be exposed.
 import { createServer } from "node:http";
+import { readFileSync } from "node:fs";
 import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { appendFile, mkdir, mkdtemp, readFile, readdir, writeFile, rm, cp, access, stat } from "node:fs/promises";
@@ -15,7 +15,6 @@ import { fileURLToPath } from "node:url";
 const execFileAsync = promisify(execFile);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const simDir = path.resolve(__dirname, "..", "sim");
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const pipelineDir = path.resolve(__dirname, "..", "pipeline");
 // Tool availability, keyed by whether the container was asked too. Time
@@ -33,16 +32,36 @@ const PORT = Number(process.env.PPA_EDA_SERVER_PORT) || 8123;
 // (stable since Node 20.6) — no dependency needed. Silently no-ops if
 // .env doesn't exist, so a fresh checkout still starts fine and falls
 // back to the browser-paste-key flow.
+//
+// process.loadEnvFile does not exist before Node 20.12 / 21.7. On Node 18
+// (the WSL runner's) calling it threw a TypeError that the catch below
+// reported as "no .env file found" - a wrong message that left the key
+// unset with the file sitting right there. So the file is read by hand
+// when the built-in is missing, and the two cases are told apart.
+function loadEnv(file) {
+  if (typeof process.loadEnvFile === "function") {
+    process.loadEnvFile(file);
+    return;
+  }
+  for (const line of readFileSync(file, "utf-8").split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!m || line.trimStart().startsWith("#")) continue;
+    const value = m[2].replace(/^(["'])(.*)\1$/, "$2");
+    if (!(m[1] in process.env)) process.env[m[1]] = value;
+  }
+}
 try {
-  process.loadEnvFile(path.resolve(__dirname, "..", ".env"));
+  loadEnv(path.resolve(__dirname, "..", ".env"));
   console.log("[env] loaded .env");
-} catch {
-  console.log("[env] no .env file found — server-side gateway key not configured " +
-    "(browser-paste-key flow still works; see .env.example)");
+} catch (err) {
+  console.log(err?.code === "ENOENT"
+    ? "[env] no .env file found — server-side gateway key not configured " +
+      "(browser-paste-key flow still works; see .env.example)"
+    : `[env] could not load .env: ${err?.message ?? err}`);
 }
 
 // Any localhost dev-server port is fine — this is a local-only tool.
-const ALLOWED_ORIGIN_RE = /^http:\/\/localhost:\d+$/;
+const ALLOWED_ORIGIN_RE = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 function corsHeaders(req) {
   const origin = req.headers.origin;
@@ -54,54 +73,6 @@ function corsHeaders(req) {
     };
   }
   return {};
-}
-
-async function runSimulation(period) {
-  if (typeof period !== "number" || !Number.isFinite(period) || period <= 0) {
-    throw new Error("period must be a positive number (nanoseconds)");
-  }
-
-  const workDir = await mkdtemp(path.join(tmpdir(), "ppa-eda-sim-"));
-  try {
-    await cp(path.join(simDir, "example1.v"), path.join(workDir, "example1.v"));
-    await cp(
-      path.join(simDir, "nangate45_typ.lib.gz"),
-      path.join(workDir, "nangate45_typ.lib.gz")
-    );
-    const template = await readFile(
-      path.join(simDir, "run.tcl.template"),
-      "utf-8"
-    );
-    const tcl = template.replace("{{PERIOD}}", String(period));
-    await writeFile(path.join(workDir, "run.tcl"), tcl);
-
-    const { stdout, stderr } = await execFileAsync(
-      "docker",
-      [
-        "run",
-        "--rm",
-        "--platform",
-        "linux/amd64",
-        "--entrypoint",
-        "/OpenSTA/build/sta",
-        "-v",
-        `${workDir}:/work`,
-        "-w",
-        "/work",
-        "openroad/opensta:latest",
-        "-exit",
-        "run.tcl",
-      ],
-      { timeout: 60_000, maxBuffer: 10 * 1024 * 1024 }
-    );
-
-    if (stderr && stderr.trim()) {
-      console.error("[opensta stderr]", stderr);
-    }
-    return stdout;
-  } finally {
-    await rm(workDir, { recursive: true, force: true });
-  }
 }
 
 // Reads the real reference-db/ case store (written by
@@ -792,24 +763,6 @@ const server = createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
     res.writeHead(204, headers);
     res.end();
-    return;
-  }
-
-  // The TCL the Simulate tab is about to run, read from the same file
-  // runSimulation() fills in. Served rather than copied into the
-  // dashboard: a page that claims to run a real tool has to be able to
-  // show what it ran, and a second copy of these five lines would
-  // eventually show something the server no longer runs.
-  if (req.method === "GET" && req.url === "/simulate/script") {
-    try {
-      const template = await readFile(
-        path.join(simDir, "run.tcl.template"), "utf-8");
-      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ template }));
-    } catch (err) {
-      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: String(err.message ?? err) }));
-    }
     return;
   }
 
@@ -1685,32 +1638,14 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.method !== "POST" || req.url !== "/simulate") {
-    res.writeHead(404, { ...headers, "Content-Type": "application/json" });
-    res.end(JSON.stringify({
-      error: "POST /simulate {period}, GET /reference-db, GET /gateway-status, " +
-        "POST /diagnose {reportText}, POST /translate {text}, " +
-        "POST /pipeline/run {design}, or GET /pipeline/run-status?design=...",
-    }));
-    return;
-  }
-
-  let body = "";
-  req.on("data", (chunk) => (body += chunk));
-  req.on("end", async () => {
-    try {
-      const { period } = JSON.parse(body || "{}");
-      const output = await runSimulation(period);
-      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ output }));
-    } catch (err) {
-      console.error("[simulate error]", err);
-      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: String(err.message ?? err) }));
-    }
-  });
+  res.writeHead(404, { ...headers, "Content-Type": "application/json" });
+  res.end(JSON.stringify({
+    error: "GET /reference-db, GET /gateway-status, " +
+      "POST /diagnose {reportText}, POST /translate {text}, " +
+      "POST /pipeline/run {design}, or GET /pipeline/run-status?design=...",
+  }));
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  console.log(`ppa-eda-agent simulation server listening on http://127.0.0.1:${PORT}`);
+  console.log(`ppa-eda-agent server listening on http://127.0.0.1:${PORT}`);
 });

@@ -11,11 +11,6 @@ const dict = {
     en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or fall back to reading pasted reports and a live OpenSTA simulation.",
     ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 붙여넣은 리포트나 실시간 OpenSTA 시뮬레이션을 확인할 수도 있습니다.",
   },
-  tab_simulate: { en: "Simulate", ko: "시뮬레이션" },
-  tab_area: { en: "Area", ko: "Area" },
-  tab_timing: { en: "Timing", ko: "Timing" },
-  tab_power: { en: "Power", ko: "Power" },
-  tab_tradeoffs: { en: "Trade-offs", ko: "트레이드오프" },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
   // Named for the thing it shows rather than for the flow half it
   // belongs to ("Custom/Analog"): the page is a schematic, and that is
@@ -25,7 +20,6 @@ const dict = {
   // are a separate capability from the pipeline above (paste an existing
   // EDA report, or run a one-off OpenSTA sim), and a bare "reports"
   // label left newcomers reading them as more pipeline output.
-  nav_reports_label: { en: "analyze your own reports", ko: "직접 가져온 리포트 분석" },
 
   pipeline_panel_title: {
     en: "autonomous layout pipeline — real OpenLane2 runs from reference-db/",
@@ -37,8 +31,8 @@ const dict = {
   },
   pipeline_loading: { en: "Loading reference-db…", ko: "reference-db 불러오는 중…" },
   pipeline_error_hint: {
-    en: "is the simulation server (node server/index.mjs) running?",
-    ko: "시뮬레이션 서버(node server/index.mjs)가 실행 중인가요?",
+    en: "is the server (node server/index.mjs) running on 127.0.0.1:8123?",
+    ko: "서버(node server/index.mjs)가 127.0.0.1:8123에서 실행 중인가요?",
   },
   pipeline_empty: {
     en: "No cases yet — run pipeline/orchestrator.py on a design to populate reference-db/.",
@@ -626,121 +620,24 @@ const dict = {
     ko: "긴 진단문은 몇 분 걸릴 수 있습니다 — 이 게이트웨이 모델은 토큰 단위가 아니라 전체 번역을 한번에 전달하므로, 끝날 때까지는 아무것도 표시되지 않습니다",
   },
 
-  load_example: { en: "Load example", ko: "예시 불러오기" },
 
-  sim_panel_title: {
-    en: "live OpenSTA simulation — 5-cell design, real Nangate45 library",
-    ko: "실시간 OpenSTA 시뮬레이션 — 5셀 설계, 실제 Nangate45 라이브러리",
-  },
   // What this page is, on the page. It said "live OpenSTA simulation —
   // 5-cell design, real Nangate45 library" and stopped there, so why
   // five cells, why no area, and how this differs from the pipeline
   // lived in sim/README.md and in comments — readable by whoever
   // already knew to look.
-  sim_intro: {
-    en: "A real OpenSTA run, not a mock. Change the clock period and the tool runs again in Docker against a real standard-cell library — the numbers below are what it reported, and the raw output is there to check them against.",
-    ko: "모사가 아니라 실제 OpenSTA 실행입니다. 클록 주기를 바꾸면 Docker에서 실제 표준 셀 라이브러리로 도구가 다시 돌고, 아래 수치는 그 도구가 보고한 값입니다. 원본 출력도 함께 있어 직접 대조할 수 있습니다.",
-  },
-  sim_why_small: {
-    en: "Why a 5-cell design: small enough to finish in about a second, real enough that changing the period changes genuine timing and power behaviour. The design (3 flops, a buffer, an AND gate) and the Nangate45 library are OpenSTA's own examples, used verbatim.",
-    ko: "왜 5셀 설계인가: 1초 안에 끝날 만큼 작고, 주기를 바꾸면 진짜 타이밍·전력 거동이 달라질 만큼은 실제이기 때문입니다. 설계(플립플롭 3개, 버퍼 1개, AND 게이트 1개)와 Nangate45 라이브러리는 OpenSTA 공식 예제를 그대로 씁니다.",
-  },
-  sim_try: {
-    en: "Try it: tighten the period below ~0.13ns and the violation you see is one you caused, not one that was staged.",
-    ko: "직접 해보세요: 주기를 ~0.13ns 아래로 줄이면 나타나는 위반은 미리 준비된 것이 아니라 당신이 만든 것입니다.",
-  },
-  sim_runs_title: { en: "what actually runs", ko: "실제로 실행되는 것" },
-  sim_runs_note: {
-    en: "These five lines, filled in with the period above and executed by the openroad/opensta image. Shown because a page claiming to run a real tool should say exactly what it ran.",
-    ko: "위 주기를 채워 넣은 이 다섯 줄이 openroad/opensta 이미지에서 실행됩니다. 실제 도구를 돌린다고 말하는 화면이라면 무엇을 돌렸는지도 밝혀야 하므로 그대로 보여줍니다.",
-  },
-  sim_scope_title: { en: "what this page does not do", ko: "이 화면이 하지 않는 일" },
-  sim_scope_area: {
-    en: "No area. OpenSTA has no report_area, so only timing and power come out of it.",
-    ko: "면적은 다루지 않습니다. OpenSTA에는 report_area가 없어 타이밍과 전력만 나옵니다.",
-  },
-  sim_scope_store: {
-    en: "Nothing is recorded. These runs never enter reference-db — re-running one example design is not a measurement the case store should learn from.",
-    ko: "기록되지 않습니다. 이 실행은 reference-db에 들어가지 않습니다 — 예제 설계 하나를 반복 실행한 것은 케이스 저장소가 학습할 측정이 아닙니다.",
-  },
-  sim_scope_pnr: {
-    en: "No placement or routing. This is static timing analysis; physical design is the Layout Pipeline's job.",
-    ko: "배치·배선은 하지 않습니다. 여기는 정적 타이밍 분석이고, 물리 설계는 레이아웃 파이프라인의 일입니다.",
-  },
-  sim_place_title: { en: "where this sits", ko: "이 화면의 위치" },
-  sim_place_body: {
-    en: "Between the report tabs, which run no tool at all, and the Layout Pipeline, which runs the full OpenLane flow and needs a PDK and minutes per candidate. This one is a real run you can have in a second, so the claim that these numbers come from real tools is checkable before committing to the long path.",
-    ko: "도구를 전혀 돌리지 않는 리포트 탭들과, OpenLane 전체 플로우를 돌리며 PDK와 후보당 수십 초가 필요한 레이아웃 파이프라인 사이에 있습니다. 여기서는 1초 만에 실제 실행을 볼 수 있어, 긴 경로에 들어가기 전에 \"이 수치들이 진짜 도구에서 나온다\"를 먼저 확인할 수 있습니다.",
-  },
-  sim_clock_period: { en: "Clock period (ns)", ko: "클록 주기 (ns)" },
-  sim_run: { en: "Run simulation", ko: "시뮬레이션 실행" },
-  sim_running: { en: "Running OpenSTA…", ko: "OpenSTA 실행 중…" },
   sim_hint: {
     en: "Tightening the period below ~0.13ns will produce a real timing violation — try it.",
     ko: "주기를 ~0.13ns 아래로 줄이면 실제 타이밍 위반이 발생합니다 — 시도해보세요.",
   },
-  sim_error_hint: {
-    en: "Is the simulation server running?",
-    ko: "시뮬레이션 서버가 실행 중인가요?",
-  },
-  sim_raw_output: { en: "raw OpenSTA output", ko: "OpenSTA 원본 출력" },
-  sim_parsed_timing: { en: "parsed timing", ko: "파싱된 타이밍" },
-  sim_parsed_power: { en: "parsed power", ko: "파싱된 전력" },
   sim_diagnosis_title: {
     en: "ppa-eda-analyst — live diagnosis",
     ko: "ppa-eda-analyst — 실시간 진단",
   },
-  sim_diagnose_button: { en: "Diagnose this result", ko: "이 결과 진단하기" },
-  sim_diagnosing: {
-    en: "ppa-eda-analyst is thinking…",
-    ko: "ppa-eda-analyst가 분석 중…",
-  },
 
-  key_metrics: { en: "key metrics", ko: "핵심 지표" },
-  total_cell_area: { en: "Total cell area", ko: "전체 셀 면적" },
-  combinational: { en: "Combinational", ko: "조합" },
-  noncombinational: { en: "Noncombinational", ko: "비조합" },
-  macro_area: { en: "Macro/black box", ko: "매크로/블랙박스" },
-  bufinv_subset: {
-    en: "buf/inv (subset of combinational)",
-    ko: "buf/inv (조합 영역 일부)",
-  },
-  number_of_cells: { en: "Number of cells", ko: "셀 개수" },
-  area_breakdown: { en: "area breakdown (µm²)", ko: "면적 분포 (µm²)" },
-  area_floorplan: {
-    en: "area floorplan — block size ∝ actual area",
-    ko: "면적 플로어플랜 — 블록 크기 ∝ 실제 면적",
-  },
-  area_floorplan_caption: {
-    en: "Each block's size is proportional to its share of total cell area — the closest thing to seeing the die's real footprint from a report_area dump.",
-    ko: "각 블록의 크기는 전체 셀 면적에서 차지하는 비율에 비례합니다 — report_area 텍스트만으로 다이의 실제 면적을 가장 직관적으로 보는 방법입니다.",
-  },
 
-  wns: { en: "WNS", ko: "WNS" },
-  violated_paths: { en: "Violated paths", ko: "위반 경로" },
-  slack_per_path: { en: "slack per path (ns)", ko: "경로별 슬랙 (ns)" },
-  timing_summary: { en: "timing summary", ko: "타이밍 요약" },
 
-  total_power: { en: "Total power", ko: "총 전력" },
-  total_dynamic_power: { en: "Total dynamic power", ko: "총 동적 전력" },
-  cell_internal_power: { en: "Cell internal power", ko: "셀 내부 전력" },
-  net_switching_power: { en: "Net switching power", ko: "넷 스위칭 전력" },
-  cell_leakage_power: { en: "Cell leakage power", ko: "셀 누설 전력" },
-  power_breakdown: { en: "power breakdown", ko: "전력 분포" },
 
-  ppa_triangle_title: { en: "the PPA triangle", ko: "PPA 삼각형" },
-  ppa_triangle_caption: {
-    en: "Every optimization pulls this triangle — rarely can you improve one corner without giving up another.",
-    ko: "모든 최적화는 이 삼각형을 잡아당깁니다 — 한쪽을 개선하면서 다른 쪽을 희생하지 않는 경우는 드뭅니다.",
-  },
-  tradeoffs_chart_title: {
-    en: "how common techniques trade PPA",
-    ko: "흔한 기법들이 PPA를 어떻게 주고받는가",
-  },
-  legend_improves: { en: "improves / saves", ko: "개선 / 절약" },
-  legend_worsens: { en: "costs more / worsens", ko: "악화 / 비용 증가" },
-  legend_neutral: { en: "no meaningful change", ko: "유의미한 변화 없음" },
-  why_each_case: { en: "why, in each case", ko: "각각 왜 그런가" },
 
   server_key_configured: {
     en: "Server has its own hermes-gateway key configured (PPA_EDA_GATEWAY_KEY) — no key needed here.",

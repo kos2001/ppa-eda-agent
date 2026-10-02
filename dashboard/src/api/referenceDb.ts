@@ -108,6 +108,15 @@ export interface CandidateVerdict {
   power_domain: PowerDomain | null;
   // Optional: cases written before these were derived have none.
   operating_point?: OperatingPoint | null;
+  // What placement and routing produced, recorded beside the verdict.
+  // worst_setup_wns is OpenSTA's negative slack clipped at 0, so it is 0
+  // for every passing candidate; worst_setup_slack is the real margin in
+  // ns. Optional: older cases have none (pareto selection rebuilds core
+  // area from area / utilization and slack from operating_point).
+  worst_setup_slack?: number | null;
+  core_area_um2?: number | null;
+  wirelength_um?: number | null;
+  via_count?: number | null;
 }
 
 export interface LayoutCell {
@@ -302,6 +311,12 @@ export interface CandidateResult {
     refused?: string;
   }> | { error: string };
   produced_by_feedback?: boolean;
+  // Set on a candidate proposed by pipeline/pnr_repair.py: the tool code
+  // it repairs and the number the repair was derived from.
+  repair?: { code: string; why: string };
+  // Set on a candidate tried by pipeline/pnr_polish.py after a pass: which
+  // move it applied. Its iteration carries `polish: true`.
+  polish?: { move: string; why: string };
   // Wall-clock of this candidate's flow, written by collect.py's
   // run_one(). Optional: orchestrator.py's own runs do not record it.
   seconds?: number | null;
@@ -309,6 +324,9 @@ export interface CandidateResult {
 
 export interface IterationResult {
   iteration: number;
+  // True for the optional post-pass phase (pnr_polish.py), whose results
+  // are moves tried on the winner rather than a new candidate set.
+  polish?: boolean;
   results: CandidateResult[];
 }
 
