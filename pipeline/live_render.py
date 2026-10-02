@@ -87,8 +87,11 @@ def run_lines(snap: dict, width: int, color: bool, ascii_only: bool, verdicts: d
         lines.append("    " + verdict + f"area {_n(f['area'])} um2  power {_n(f['power'], 1e6)} uW  "
                      f"core {_n(f['core'])}  slack {_n(f['setup_ws'], 1, 2)} ns  "
                      f"wire {_n(f['wirelength'])}  vias {_n(f['vias'])}  hold-buf {_n(f['hold_buffers'])}")
-    if snap.get("error"):
+    if snap.get("error") and snap["status"] in ("failed", "stalled"):
         lines.append("    " + paint(snap["error"].splitlines()[-1][: width - 6], RED, color))
+    elif snap.get("tool_errors") and snap["status"] == "running":
+        lines.append("    " + paint(f"{snap['tool_errors']} bytes of tool errors so far (not fatal while it keeps running)",
+                                    DIM, color))
     return lines
 
 

@@ -193,12 +193,30 @@ class TestSnapshot(unittest.TestCase):
             self.assertEqual(s["finished"]["area"], 3004.0)
             self.assertEqual(s["finished"]["setup_ws"], 1.8)  # worst corner
 
-    def test_an_error_log_means_failed(self):
+    def test_an_error_log_on_a_run_that_went_quiet_means_failed(self):
         with tempfile.TemporaryDirectory() as t:
             run = make_run(Path(t), [("openroad-cts", CTS, "")], error="[RSZ-0060] Max buffer count reached.\n")
-            s = live_view.run_snapshot(run, time.time())
+            s = live_view.run_snapshot(run, time.time() + live_view.FAIL_IDLE_S + 5)
             self.assertEqual(s["status"], "failed")
             self.assertIn("RSZ-0060", s["error"])
+
+    def test_an_error_log_on_a_run_still_moving_is_not_failure(self):
+        """A successful sram_wrapper run leaves 5 KB of KLayout read errors in
+        error.log and carries on to signoff. Painting it failed on step 69
+        was a real false alarm."""
+        with tempfile.TemporaryDirectory() as t:
+            run = make_run(Path(t), [("openroad-cts", CTS, "")],
+                           error='Error while reading cell "x": Unknown layer/datatype\n')
+            s = live_view.run_snapshot(run, time.time())
+            self.assertEqual(s["status"], "running")
+            self.assertGreater(s["tool_errors"], 0)
+
+    def test_a_finished_run_with_an_error_log_is_done(self):
+        with tempfile.TemporaryDirectory() as t:
+            run = make_run(Path(t), [("openroad-cts", "", "")], done_last=True, final=True,
+                           error="Error while reading cell\n")
+            s = live_view.run_snapshot(run, time.time() + 3600)
+            self.assertEqual(s["status"], "done")
 
     def test_a_quiet_run_is_stalled_not_running(self):
         with tempfile.TemporaryDirectory() as t:
