@@ -170,5 +170,51 @@ class Verdict(unittest.TestCase):
         self.assertLessEqual(report["signed_off"], report["library"])
 
 
+class RunAll(unittest.TestCase):
+    """The whole-library sweep, with the container replaced by a stub: what is
+    under test is the bookkeeping, not magic or netgen."""
+
+    @staticmethod
+    def ok(cell, verdict="clean"):
+        return {"ok": True, "cell": cell, "verdict": verdict, "passed": verdict == "clean"}
+
+    def test_every_cell_is_recorded_and_counted_by_verdict(self):
+        written = []
+        got = ss.run_all(
+            3, ["a", "b", "c"],
+            signoff_fn=lambda c: self.ok(c, "lvs_mismatch" if c == "b" else "clean"),
+            write_fn=lambda r: written.append(r["cell"]))
+        self.assertEqual(sorted(written), ["a", "b", "c"])
+        self.assertEqual(got["by_verdict"], {"clean": 2, "lvs_mismatch": 1})
+        self.assertEqual((got["requested"], got["recorded"]), (3, 3))
+
+    def test_a_cell_that_cannot_run_is_named_and_never_recorded_as_clean(self):
+        written = []
+        got = ss.run_all(
+            2, ["a", "missing"],
+            signoff_fn=lambda c: self.ok(c) if c == "a" else
+            {"ok": False, "cell": c, "error": "no layout"},
+            write_fn=lambda r: written.append(r["cell"]))
+        self.assertEqual(written, ["a"])
+        self.assertEqual(got["failed_to_run"], {"missing": "no layout"})
+
+    def test_one_crashing_cell_does_not_stop_the_rest(self):
+        def boom(cell):
+            if cell == "b":
+                raise RuntimeError("container died")
+            return self.ok(cell)
+        written = []
+        got = ss.run_all(2, ["a", "b", "c"], signoff_fn=boom,
+                         write_fn=lambda r: written.append(r["cell"]))
+        self.assertEqual(sorted(written), ["a", "c"])
+        self.assertIn("RuntimeError", got["failed_to_run"]["b"])
+
+    def test_progress_is_reported_once_per_cell_in_order(self):
+        seen = []
+        ss.run_all(2, ["a", "b", "c"], signoff_fn=self.ok, write_fn=lambda r: None,
+                   progress=lambda done, total, cell, result: seen.append((done, total, cell)))
+        self.assertEqual(seen, [(1, 3, "a"), (2, 3, "b"), (3, 3, "c")])
+
+
 if __name__ == "__main__":
     unittest.main()
