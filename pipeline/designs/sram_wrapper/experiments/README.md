@@ -94,3 +94,46 @@ clock buffers' fanout is set by the H-tree's stop criterion, not by the cluster
 size, so the knob cannot reach it here. Raising `MAX_FANOUT_CONSTRAINT` would make
 the number go away by editing the test, and was not done.
 
+## 2026-10-02: does the macro's placement, relative to its own pin groups, matter?
+
+The question was whether placement and routing should account for the SRAM's big
+functional blocks (IO, decode, control). Those blocks are inside the hard macro,
+which OpenROAD sees only as pin groups on its four sides. Read from the LEF
+(480 x 397.5 um):
+
+| group | side |
+|---|---|
+| addr0, csb0, web0 | left |
+| din0, dout0, wmask0 | bottom |
+| addr1, csb1 | right |
+| dout1 | top |
+
+The wrapper's 8-bit counter is the controller, and it has to drive addr0 (left),
+addr1 (right) and din0 (bottom): three sides of a 480 um block from one small
+cluster. The IO placer already puts `dout0` on the bottom edge and `dout1` on the
+top, matching the macro's own pins, so IO assignment is block-aware already.
+
+`pipeline/sram_floorplan_grid.py` runs the rest as a grid (same design and flow;
+only the die and the macro's orientation change; result in
+`reference-db/sram_floorplan_grid.json`):
+
+| die | orientation | max-slew | routed wire | other |
+|---|---|---|---|---|
+| 700x700 | N (shipped) | 16 | 20,688 um | DRC/LVS 0 |
+| 700x700 | MY | 21 | 36,489 um | 31 max-cap |
+| 700x700 | MX | 28 | 83,219 um | 61 max-cap |
+| 700x700 | S | 254 | 106,302 um | 37 max-cap |
+| 540x458 | N, MY, MX, S | - | - | all four crashed: GRT-0118 congestion (MY, S) or thousands of Magic/LVS errors (N, MX) |
+
+Two readings. The orientation the design ships with is the only one that respects
+the pin sides, and every other costs 1.8x to 5x the wire and up to 16x the slew
+violations: placement relative to the pin groups is the largest lever in this
+floorplan, and it was already pulled correctly by hand. And the die cannot simply
+be shrunk to macro-plus-margin: the macro is opaque to routing, so the space around
+it is the routing channel, and a 30 um margin fails.
+
+Not tested: the macro's offset within the 700 um die (it is centred), a margin
+between 30 and 110 um, and moving the counter or splitting it per port in the RTL.
+The last is the untried block-aware change: `addr_prev` already gives port 1 its
+own register, but it is fed from `addr_ctr` across the die.
+
