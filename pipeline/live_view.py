@@ -40,6 +40,8 @@ import live_parse as lp
 
 HERE = Path(__file__).resolve().parent
 TOTAL_STEPS = 78  # Classic declares 78; a normal run writes 74 directories
+# Seconds of silence after which a run with an error.log is called failed.
+FAIL_IDLE_S = 20.0
 _STEP = re.compile(r"^(\d+)-(.+)$")
 _TAIL_BYTES = 400_000
 
@@ -122,8 +124,16 @@ def run_snapshot(run_dir: Path, now: float, stale_after: float = 180.0) -> dict:
     metrics = final_metrics(run_dir)
     log = run_dir / "flow.log"
     err = run_dir / "error.log"
-    failed = err.exists() and err.stat().st_size > 0
-    snap["error"] = read_tail(err, 4000).strip()[-600:] if failed else None
+    # A non-empty error.log does not mean the flow died: a successful
+    # sram_wrapper run leaves 5 KB of KLayout "Error while reading cell"
+    # lines in it and carries on to signoff, and the first version of this
+    # view painted that run "failed" while it was on step 69. Nothing in the
+    # run directory says "the process ended" - flow.log has no quit marker -
+    # so a flow counts as failed only when it has an error AND has gone quiet
+    # without finishing.
+    err_bytes = err.stat().st_size if err.exists() else 0
+    snap["tool_errors"] = err_bytes
+    snap["error"] = read_tail(err, 4000).strip()[-600:] if err_bytes else None
     if steps:
         no, slug, path = steps[-1]
         snap.update(step_no=no, slug=slug, step=path.name)
@@ -145,7 +155,7 @@ def run_snapshot(run_dir: Path, now: float, stale_after: float = 180.0) -> dict:
         snap["status"], snap["finished"] = "done", metrics
         end = newest_mtime([run_dir / "final" / "metrics.json"])
         snap["elapsed"] = max(0.0, end - started)
-    elif failed:
+    elif err_bytes and snap["idle"] >= FAIL_IDLE_S:
         snap["status"], snap["elapsed"] = "failed", max(0.0, newest_mtime([err]) - started)
     else:
         snap["status"] = "running" if snap["idle"] < stale_after else "stalled"
