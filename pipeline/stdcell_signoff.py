@@ -27,6 +27,7 @@ dies there.
 Usage:
     stdcell_signoff.py --cell sky130_fd_sc_hd__inv_2
     stdcell_signoff.py --scan
+    stdcell_signoff.py --all --jobs 6
 """
 from __future__ import annotations
 
@@ -342,13 +343,66 @@ def scan() -> dict:
     }
 
 
+def run_all(jobs: int = 4, cells: list[str] | None = None, *, signoff_fn=None,
+            write_fn=None, progress=None) -> dict:
+    """Signs off every cell in the library and records each as a case.
+
+    This was a one-off loop. The 2026-09-13 sweep of 437 cells took 244 s
+    serially, found the 11 LVS mismatches that stdcell_survey.py reports,
+    and left no command behind to repeat it, so the store could only get
+    older. Each cell is an independent container with its own temporary
+    directory, which is why running several at once is safe.
+
+    A cell that cannot be signed off (no layout, not in the CDL, no
+    docker) is counted and named, never recorded as a clean cell.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    signoff_fn = signoff_fn or signoff
+    write_fn = write_fn or write_case
+    todo = cells if cells is not None else stdcell_schematic.cells()
+    summary: dict = {"requested": len(todo), "by_verdict": {}, "failed_to_run": {},
+                     "recorded": 0}
+
+    def one(cell: str):
+        try:
+            return cell, signoff_fn(cell)
+        except Exception as e:  # noqa: BLE001 - one bad cell must not stop 436 others
+            return cell, {"ok": False, "cell": cell, "error": f"{type(e).__name__}: {e}"}
+
+    with ThreadPoolExecutor(max_workers=max(1, jobs)) as pool:
+        for done, (cell, result) in enumerate(pool.map(one, todo), start=1):
+            if result.get("ok"):
+                write_fn(result)
+                summary["recorded"] += 1
+                v = result["verdict"]
+                summary["by_verdict"][v] = summary["by_verdict"].get(v, 0) + 1
+            else:
+                summary["failed_to_run"][cell] = result.get("error")
+            if progress:
+                progress(done, len(todo), cell, result)
+    return summary
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--cell", default=None)
     ap.add_argument("--scan", action="store_true")
     ap.add_argument("--no-case", action="store_true")
+    ap.add_argument("--all", action="store_true",
+                    help="sign off every cell in the library and record each")
+    ap.add_argument("--jobs", type=int, default=4,
+                    help="cells signed off at once with --all (default 4)")
     args = ap.parse_args()
+
+    if args.all:
+        def show(done, total, cell, result):
+            tag = result["verdict"] if result.get("ok") else "NOT RUN"
+            print(f"[{done}/{total}] {cell}: {tag}", flush=True)
+        summary = run_all(args.jobs, progress=show)
+        print(json.dumps(summary, indent=2))
+        sys.exit(0 if not summary["failed_to_run"] else 1)
 
     if args.scan or not args.cell:
         report = scan()

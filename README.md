@@ -185,6 +185,20 @@ measured that layer and changed it where a real run backed the change:
   bottom resizes (drag its top edge, the +/- buttons, or the arrow keys),
   maximises, collapses, and remembers its size.
 
+### Retiring stored results
+
+`pipeline/store_retire.py` removes results from `reference-db/` only by an
+explicit rule, prints a plan before doing anything (`--apply` carries it out),
+and records what went and why in `reference-db/retired.json` and in the
+affected case. A failure is not retired for being a failure. Retired on
+2026-10-02: 2 `sram_wrapper` candidates configured with a variable OpenLane 2
+does not have (they were duplicates of the baseline), 10 `counter4_tinydie`
+candidates that died on a die inherited from `config.json` which the repair
+could not see until it learned to, 883 superseded standard-cell cases (each
+cell keeps its newest) and one orphaned render. `sram_wrapper`'s 2026-09-10
+`cand-baseline` is annotated as no longer reproducing rather than removed: it
+is the first rung of the Magic ladder that case narrates.
+
 ### A second metrics source, and a dataset export
 
 SRAM repair update (2026-09-12): three new full OpenLane runs reproduced
@@ -540,6 +554,7 @@ schematic `stdcell_schematic.py` derives from the CDL, and a case in
 ```sh
 python3 pipeline/stdcell_signoff.py --cell sky130_fd_sc_hd__nand2_1
 python3 pipeline/stdcell_signoff.py --scan
+python3 pipeline/stdcell_signoff.py --all --jobs 6   # the whole library
 ```
 
 Beyond "the foundry's cells are clean" (they are — a run saying otherwise
@@ -548,13 +563,15 @@ that the CDL-to-SPICE translation behind the schematic view preserves the
 circuit**. Nothing else in this repo checks that conversion; LVS checks
 it against the foundry's own geometry.
 
-**The whole library, in 230 seconds** — `pipeline/stdcell_survey.py`
-reads the store back:
+**The whole library, in 230 seconds** — `--all` runs it, and
+`pipeline/stdcell_survey.py` reads the store back. Re-run on 2026-10-02 on a
+different machine and OS (WSL, six jobs, 437 cells in about 3.5 minutes) it
+reproduced the 2026-09-13 verdicts exactly:
 
 | | cells |
 |---|---|
 | clean (DRC 0, LVS matched) | 414 |
-| no transistors — LVS compared nothing | 12 |
+| no transistors — LVS compared nothing | 10 |
 | real LVS mismatches | 11 |
 | real DRC errors | 2 |
 

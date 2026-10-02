@@ -1271,7 +1271,12 @@ def propose_repairs(results: list[dict], iteration: int,
         overrides = r["overrides"]
 
         util_override = overrides.get("FP_CORE_UTIL")
-        die_area_override = overrides.get("DIE_AREA")
+        # The die the run actually used: its own override, else the design's
+        # config.json. counter4_tinydie declares DIE_AREA [0,0,8,8] there, so
+        # every candidate that only varied CLOCK_PERIOD (35 of them) died at
+        # STA-0572 with a negative core area and was never repaired: both
+        # die patterns below read the override alone and saw nothing to grow.
+        die_area_override = overrides.get("DIE_AREA", (base_config or {}).get("DIE_AREA"))
 
         # A candidate that completed the whole flow but missed a target
         # this pipeline set (see score()) has no `error` at all, so every

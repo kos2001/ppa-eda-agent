@@ -1,0 +1,135 @@
+{
+ "entries": [
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hd-clock_period4",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hd-clock_period6",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hd-clock_period8",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hd-clock_period12",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hd-clock_period20",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hs-clock_period4",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hs-clock_period6",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hs-clock_period8",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hs-clock_period12",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "counter4_tinydie__2026-08-30__022832.json",
+   "iteration": 1,
+   "tag": "c-hs-clock_period20",
+   "rule": "inherited-die",
+   "why": "negative core area on the die declared in config.json; no DIE_AREA override for the repair to grow, so it was never repaired (propose_repairs now reads the design's die)",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "sram_wrapper__2026-08-26.json",
+   "iteration": 1,
+   "tag": "cand-rebuf8",
+   "rule": "ignored-override",
+   "why": "overrides RE_BUFFER_CELL, which OpenLane 2 does not have; the run was an unmarked duplicate of the baseline",
+   "on": "2026-10-02"
+  },
+  {
+   "kind": "result",
+   "case": "sram_wrapper__2026-08-26.json",
+   "iteration": 1,
+   "tag": "cand-rebuf12",
+   "rule": "ignored-override",
+   "why": "overrides RE_BUFFER_CELL, which OpenLane 2 does not have; the run was an unmarked duplicate of the baseline",
+   "on": "2026-10-02"
+  }
+ ],
+ "annotated": [
+  {
+   "case": "sram_wrapper__2026-09-10.json",
+   "on": "2026-10-02"
+  }
+ ],
+ "files": [
+  {
+   "on": "2026-10-02",
+   "count": 884,
+   "rules": [
+    "orphan-image",
+    "superseded"
+   ],
+   "examples": [
+    "stdcells\\sky130_fd_sc_hd__a2111o_1__2026-09-13__085809.json",
+    "stdcells\\sky130_fd_sc_hd__a2111o_1__2026-09-13__090325.json",
+    "stdcells\\sky130_fd_sc_hd__a2111o_2__2026-09-13__085809.json"
+   ],
+   "recover": "git log --diff-filter=D --name-only -- reference-db"
+  }
+ ],
+ "note": "What was retired from reference-db and why. Nothing is destroyed: the earlier content is in git history. See pipeline/store_retire.py."
+}
