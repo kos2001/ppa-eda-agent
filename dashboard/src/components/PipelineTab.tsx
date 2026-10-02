@@ -37,6 +37,7 @@ import "./PipelineTab.css";
 // PipelineTab's initial render (Pipeline is the default tab every
 // session loads). See CandidateAreaChart.tsx.
 const CandidateAreaChart = lazy(() => import("./CandidateAreaChart"));
+import ObjectivesChart from "./ObjectivesChart";
 
 const DATA_CATEGORY_ORDER: (keyof CandidateDataPointers)[] = [
   "circuit",
@@ -575,6 +576,27 @@ function PredictionLine({ prediction }: { prediction: CandidateResult["predictio
   );
 }
 
+// What placement and routing produced, in one line: the figures the winner
+// is chosen on beyond cell area and power. Absent on cases recorded before
+// score() kept them, in which case nothing is drawn rather than a dash row.
+function QualityLine({ verdict }: { verdict: CandidateVerdict }) {
+  const core = verdict.core_area_um2 ??
+    (verdict.area_um2 && verdict.utilization ? verdict.area_um2 / verdict.utilization : null);
+  const bits: [string, string][] = [];
+  if (core != null) bits.push(["core area", `${core.toFixed(0)} µm²`]);
+  if (verdict.worst_setup_slack != null) bits.push(["setup slack", `${verdict.worst_setup_slack.toFixed(2)} ns`]);
+  if (verdict.wirelength_um != null) bits.push(["routed wire", `${verdict.wirelength_um} µm`]);
+  if (verdict.via_count != null) bits.push(["vias", String(verdict.via_count)]);
+  if (bits.length === 0) return null;
+  return (
+    <p className="pipeline__quality">
+      {bits.map(([k, val]) => (
+        <span key={k}><span className="tab__meta-label">{k}</span>{val}</span>
+      ))}
+    </p>
+  );
+}
+
 function CandidateRow({
   candidate,
   caseFile,
@@ -609,7 +631,18 @@ function CandidateRow({
       {STAGE_SHORT_LABEL[candidate.stage].short}
     </span>
   );
-  const feedbackBadge = candidate.produced_by_feedback && (
+  const provenanceBadge = candidate.polish ? (
+    <span className="pipeline__stage-badge pipeline__stage-badge--polish"
+          title={`polish move: ${candidate.polish.why}`}>
+      ✦ {candidate.polish.move}
+    </span>
+  ) : candidate.repair ? (
+    <span className="pipeline__stage-badge pipeline__stage-badge--feedback"
+          title={candidate.repair.why}>
+      ↺ {candidate.repair.code}
+    </span>
+  ) : null;
+  const feedbackBadge = !candidate.repair && !candidate.polish && candidate.produced_by_feedback && (
     <span className="pipeline__stage-badge pipeline__stage-badge--feedback" title="produced by AI feedback/repair from a prior iteration's failure">
       ↺ repaired
     </span>
@@ -627,6 +660,7 @@ function CandidateRow({
         </td>
         <td>
           {stageBadge}
+          {provenanceBadge}
           {feedbackBadge}
         </td>
       </tr>
@@ -659,12 +693,15 @@ function CandidateRow({
               ? v.signoff_checks && v.signoff_checks.length > 0
                 ? <SignoffStrip checks={v.signoff_checks} compact />
                 : `${t("verdict_never_ran")}: ${v.unverified!.join("; ")}`
-              : v?.worst_setup_wns != null
-                ? `WNS ${v.worst_setup_wns}`
-                : "—"}
+              : v?.worst_setup_slack != null
+                ? `slack ${v.worst_setup_slack.toFixed(2)} ns`
+                : v?.worst_setup_wns != null
+                  ? `WNS ${v.worst_setup_wns}`
+                  : "—"}
         </td>
         <td>
           {stageBadge}
+          {provenanceBadge}
           {feedbackBadge}
         </td>
       </tr>
@@ -682,6 +719,19 @@ function CandidateRow({
             )}
             {!layout && layoutState === "error" && (
               <span className="tab__meta-label">{t("candidate_layout_error")}</span>
+            )}
+            {v && <QualityLine verdict={v} />}
+            {candidate.repair && (
+              <p className="pipeline__provenance">
+                <span className="tab__meta-label">why this candidate exists</span>
+                repair for {candidate.repair.code}: {candidate.repair.why}
+              </p>
+            )}
+            {candidate.polish && (
+              <p className="pipeline__provenance">
+                <span className="tab__meta-label">why this candidate exists</span>
+                polish move {candidate.polish.move}: {candidate.polish.why}
+              </p>
             )}
             {v && <TimingCorners corners={v.timing_corners} />}
             {v && <PowerSummary verdict={v} />}
@@ -1136,6 +1186,26 @@ function DesignGroupSection({
   );
 }
 
+// The candidates a winner was actually chosen among: the iteration that
+// holds it. In a polish iteration the incumbent it was compared with sits
+// in an earlier iteration, found by the tag the polish trials extend.
+function winnerFieldCandidates(pipelineCase: PipelineCase): CandidateResult[] {
+  const winner = pipelineCase.winner_tag;
+  if (!winner) return [];
+  const idx = pipelineCase.iterations.findIndex((it) => it.results.some((r) => r.tag === winner));
+  if (idx < 0) return [];
+  const iter = pipelineCase.iterations[idx];
+  const field = [...iter.results];
+  if (iter.polish) {
+    const marker = "-polish-";
+    const bases = new Set(iter.results.map((r) => r.tag.split(marker)[0]));
+    for (const earlier of pipelineCase.iterations.slice(0, idx)) {
+      for (const r of earlier.results) if (bases.has(r.tag)) field.push(r);
+    }
+  }
+  return field;
+}
+
 function CaseCard({
   pipelineCase,
   defaultOpen,
@@ -1263,6 +1333,11 @@ function CaseCard({
           </div>
         )}
 
+        <ObjectivesChart
+          candidates={winnerFieldCandidates(pipelineCase)}
+          winnerTag={pipelineCase.winner_tag}
+        />
+
         <div className="tab__meta">
           <span>
             <span className="tab__meta-label">outcome</span>
@@ -1280,7 +1355,10 @@ function CaseCard({
 
         {pipelineCase.iterations.map((iter) => (
           <div key={iter.iteration} className="pipeline__iteration">
-            <div className="tab__meta-label">iteration {iter.iteration}</div>
+            <div className="tab__meta-label">
+              iteration {iter.iteration}
+              {iter.polish ? " · polish — moves tried on the winner, kept only if signoff still passes and the result is cheaper" : ""}
+            </div>
             <table className="tab__summary">
               <thead>
                 <tr>

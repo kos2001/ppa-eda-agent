@@ -74,42 +74,6 @@ const manual = (
   </svg>
 );
 
-/** A waveform under a play head — running a real simulation. */
-const simulate = (
-  <svg {...BOX}>
-    <path d="M1.5 11h2V5h3v6h3V7h3v4h2" />
-  </svg>
-);
-
-/** A filled rectangle — area is the one metric that is a shape. */
-const area = (
-  <svg {...BOX}>
-    <rect x="2.5" y="2.5" width="11" height="11" rx="1" />
-    <path d="M2.5 9.5h11M9.5 2.5v11" />
-  </svg>
-);
-
-const timing = (
-  <svg {...BOX}>
-    <circle cx="8" cy="8" r="5.75" />
-    <path d="M8 4.75V8l2.25 1.75" />
-  </svg>
-);
-
-const power = (
-  <svg {...BOX}>
-    <path d="M9 1.5 3.5 9H8l-1 5.5L12.5 7H8z" />
-  </svg>
-);
-
-/** Two pans — what trade-offs are. */
-const tradeoffs = (
-  <svg {...BOX}>
-    <path d="M8 2.5v11M4 13.5h8" />
-    <path d="M2 5.5h12M4.5 5.5 2.5 9.5h4zM11.5 5.5l-2 4h4z" />
-  </svg>
-);
-
 /** A spark — the live agent, distinct from the pages that only read. */
 const diagnosis = (
   <svg {...BOX}>
@@ -138,7 +102,6 @@ const collapse = (
 // exports both loses fast refresh, which oxlint flags. Every mark here
 // is a static element, so there was never a component to write.
 export const NAV_ICONS: Record<string, ReactElement> = {
-  pipeline, health, progress, lineage, ask, manual, schematic,
-  simulate, area, timing, power, tradeoffs, diagnosis,
+  pipeline, health, progress, lineage, ask, manual, schematic, diagnosis,
   expand, collapse,
 };

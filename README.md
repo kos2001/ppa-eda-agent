@@ -5,8 +5,7 @@ PPA (Power, Performance, Area): it runs real RTL through real OpenLane2
 placement/routing, evaluates the result against real signoff data, and
 repairs what it can on its own. The dashboard is that agent's control
 surface — trigger a real run and watch it work — not a static report
-viewer, though it can also read pasted Synopsys/OpenSTA reports and
-drive a live OpenSTA simulation on demand.
+viewer.
 
 Not related to [ppa-agent](https://github.com/kos2001/ppa-agent) (Ansible
 Personal Package Archive tooling) despite the shared acronym — same three
@@ -21,27 +20,22 @@ diving into the components below.
 ```
 .claude/agents/ppa-eda-analyst.md   Claude Code subagent: diagnoses PPA
                                      issues from pasted/given report text
-references/                         Report format knowledge the agent and
-                                     the dashboard's parsers are built on:
+references/                         Report format knowledge the agent is
+                                     built on:
   report-area.md                      Design Compiler report_area
   report-timing.md                    PrimeTime report_timing
   report-power.md                     PrimePower report_power
   see-also.md                         Real open-source examples (OpenSTA,
                                        Yosys) and documented format variants
-sim/                                 A real 5-cell OpenSTA design (from
-                                     OpenSTA's own examples/) used to drive
-                                     live simulation
-server/index.mjs                    Local server that runs that design
-                                     through the openroad/opensta Docker
-                                     image on demand
+server/index.mjs                    Local server for the dashboard: serves
+                                     the reference-db case store, runs
+                                     pipeline/orchestrator.py on demand and
+                                     reports its progress
 dashboard/                          React + Vite + TypeScript UI — the
                                      DTCO agent's control surface: trigger
                                      a real pipeline/orchestrator.py run
                                      and watch it live, browse past
-                                     reference-db/ cases, paste a report
-                                     and see it visualized, or run a real
-                                     simulation and get a live agent
-                                     diagnosis
+                                     reference-db/ cases, open a schematic
 docs/superpowers/                   Design specs and implementation plans
                                      from how this was built
 pipeline/                           Autonomous layout pipeline: real
@@ -160,6 +154,36 @@ regenerates from. The module reports the ceiling, its source, how far
 past it a run sits and the grid that would cover it; it does not run
 OpenRAM, since regeneration is a SPICE sweep of hours producing a new
 GDS/LEF/lib set that has to be verified before anything trusts it.
+
+### Placement and routing decisions
+
+The placer and router are OpenROAD's; this repository decides what to run,
+what to do when a run dies, and which pass wins. The 2026-10-02 review
+([`docs/pnr-algorithm-review-20261002.md`](docs/pnr-algorithm-review-20261002.md))
+measured that layer and changed it where a real run backed the change:
+
+- `pipeline/pnr_repair.py` reads OpenROAD's own error text (GPL-0301/0302/0307,
+  DPL-0036, hold-side RSZ-0060) and proposes the repair it names, with the
+  magnitude it states. `pipeline/pnr_repair_check.py` replays each failure
+  through the live loop and records whether the repair got past it.
+- Winner selection ranks cell area, power, core area and real setup slack and
+  takes the knee of the Pareto front. The old margin objective was 0 for all
+  159 recorded passes.
+- `--polish` (or `"polish": true` in a run_spec) tries measured moves on a
+  winner and keeps those that pass signoff and cost less. Measured on gcd:
+  3004 -> 2603 um2 (-13.4%).
+- `pipeline/pnr_study.py` moves each OpenLane placement/routing/CTS/resizer
+  knob alone against a noise floor. Most were inert on these designs; the
+  hold slack margin and input-port buffering were not.
+- `pipeline/live_view.py -f` watches a run in the terminal: global-placement
+  convergence, detailed-routing violations per iteration, a cell-density map,
+  and the orchestrator's repair/polish decisions as they happen.
+- In the dashboard, an opened case shows a parallel-coordinates chart of the
+  objectives a winner is chosen on (cell area, power, core area, setup slack:
+  top is best, Pareto-front candidates solid, the winner thick). Candidates
+  say which repair rule or polish move created them. The console at the
+  bottom resizes (drag its top edge, the +/- buttons, or the arrow keys),
+  maximises, collapses, and remembers its size.
 
 ### A second metrics source, and a dataset export
 
@@ -289,7 +313,7 @@ answer to Innovus / Fusion Compiler / Calibre. It is not the answer to
 Cadence Virtuoso, which is where custom and mixed-signal designers
 actually work: schematic capture, transistor-level simulation, custom
 polygon layout, LVS back to the schematic. This repo had no path to any
-of it (`sim/` runs OpenSTA, which has no transistor in it anywhere).
+of it.
 
 **Virtuoso has no single open-source counterpart.** It is one program;
 the open-source equivalent is five, which is why
@@ -706,30 +730,19 @@ adds those four pieces around the existing tabs:
   holds 71-75% of the window at every size, against 45-74% before, with
   no horizontal overflow anywhere.
 
-Behind that shell: four report-visualization tabs (Area, Timing, Power,
-Trade-offs) plus a live Simulate tab and a Diagnosis page. Fully client-side for the
-report-paste tabs — no backend needed. Simulate needs the local
-simulation server (below); Diagnosis needs a hermes-gateway client key.
+Behind that shell: the Layout Pipeline (the default view), schematics,
+progress, system health, data lineage, the manual, an ask page and the
+Diagnosis page. The report-paste tabs (Area, Timing, Power, Trade-offs)
+and the live OpenSTA Simulate tab were removed on 2026-10-02: they read
+pasted material rather than operating the agent, which is what `soul.md`
+says this dashboard is for. Nothing else imported them, and `git log`
+holds them if they are wanted back.
 
 ```sh
 cd dashboard
 npm install
 npm run dev
 ```
-
-### Simulate tab (real OpenSTA, not mocked)
-
-Requires Docker. Pulls `openroad/opensta:latest` (amd64 image, runs via
-emulation on Apple Silicon) on first use.
-
-```sh
-node server/index.mjs   # listens on 127.0.0.1:8123
-```
-
-Then use the Simulate tab's clock-period input and "Run simulation"
-button — it runs the bundled `sim/example1.v` design through OpenSTA and
-shows real timing/power results. Tightening the period below ~0.13ns
-produces a genuine timing violation.
 
 ### Diagnosis page (live agent, via hermes-gateway)
 
@@ -763,23 +776,7 @@ description of one to build yourself.
    (or set it in `server/index.mjs`'s own environment so the dashboard
    never has to handle it — see `.env.example`) — stored only in this
    browser's `localStorage` if pasted.
-6. Run a simulation on the Simulate tab, then click "Diagnose this
-   result." The diagnosis streams in (as one real SSE chunk — `hermes
-   chat --oneshot` only returns a complete answer when the process
-   exits, so this doesn't token-stream the way a raw model API call
-   would), and you'll get a browser notification (and a badge on the
-   Diagnosis nav tab) when it's done, even if you've switched to another
-   tab.
-
-## Status
-
-Report parsers (`dashboard/src/parsers/`) have been validated against
-real, non-synthetic report text — see `references/see-also.md` for what
-was pulled from OpenSTA's own test suite and what bugs that testing
-caught (the parsers originally assumed a slack-number position that turned
-out to be Synopsys-specific, not universal).
-
-`report_area` has no live-simulation path: OpenSTA is a timing/power tool
-only, it doesn't do synthesis, so there's no way to generate a real
-`report_area`-equivalent the way Simulate does for timing/power. The Area
-tab is paste-only.
+6. The pasted key (or the server-side one) is also what the Layout
+   Pipeline tab's translate and review steps use. The page's own
+   "diagnose a simulation result" trigger was the Simulate tab, which has
+   been removed, so today this page is where the key is entered.
