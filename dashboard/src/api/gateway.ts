@@ -136,7 +136,7 @@ export async function diagnoseStream(
           {
             role: "user",
             content:
-              `Diagnose this OpenSTA simulation output:\n\n${reportText}` +
+              `Diagnose this EDA report output:\n\n${reportText}` +
               languageInstruction(lang),
           },
         ],

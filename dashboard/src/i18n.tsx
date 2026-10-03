@@ -8,8 +8,8 @@ const dict = {
   eyebrow: { en: "DTCO AI Agent", ko: "DTCO AI 에이전트" },
   title: { en: "DTCO Agent Console", ko: "DTCO 에이전트 콘솔" },
   subtitle: {
-    en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or fall back to reading pasted reports and a live OpenSTA simulation.",
-    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 붙여넣은 리포트나 실시간 OpenSTA 시뮬레이션을 확인할 수도 있습니다.",
+    en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or ask the diagnosis agent to inspect an existing EDA report.",
+    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 진단 에이전트에 기존 EDA 리포트 분석을 요청할 수 있습니다.",
   },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
   // Named for the thing it shows rather than for the flow half it
@@ -17,8 +17,8 @@ const dict = {
   // what someone is looking for when they want to see one.
   tab_schematic: { en: "Schematic", ko: "회로도" },
   // Names what these tabs *are for* rather than what they contain. They
-  // are a separate capability from the pipeline above (paste an existing
-  // EDA report, or run a one-off OpenSTA sim), and a bare "reports"
+  // are a separate capability from the pipeline above (ask the diagnosis
+  // agent to inspect an existing EDA report), and a bare "reports"
   // label left newcomers reading them as more pipeline output.
 
   pipeline_panel_title: {
@@ -612,8 +612,8 @@ const dict = {
   },
   pipeline_agent_legend_title: { en: "which agent does what — 8 subagents", ko: "어떤 에이전트가 무엇을 하는지 — 8개 서브에이전트" },
   pipeline_agent_legend_diagnosis_note: {
-    en: "Separate from the 8-stage pipeline — the report-paste / live-simulation diagnosis agent behind the sidebar's own tab.",
-    ko: "8단계 파이프라인과는 별개 — 사이드바의 진단 탭에서 리포트 붙여넣기/실시간 시뮬레이션 진단을 담당하는 에이전트입니다.",
+    en: "Separate from the 8-stage pipeline — the on-demand EDA report diagnosis agent in the sidebar's own tab.",
+    ko: "8단계 파이프라인과는 별개 — 사이드바의 진단 탭에서 요청 시 EDA 리포트를 분석하는 에이전트입니다.",
   },
   pipeline_translate_long_wait_hint: {
     en: "long diagnosis text can take a few minutes — this gateway model delivers the full translation at once, not token-by-token, so nothing appears until it's done",
@@ -686,8 +686,20 @@ const dict = {
     ko: "PPA 트레이드오프를 명시한 해결책 제안",
   },
   agent_idle: {
-    en: "Run a simulation in the Simulate tab, then click \"Diagnose this result\" to see this agent work live, right here.",
-    ko: "Simulate 탭에서 시뮬레이션을 돌린 뒤 \"Diagnose this result\"를 누르면 이 에이전트가 실시간으로 작동하는 걸 여기서 볼 수 있습니다.",
+    en: "Paste an EDA report above to start a grounded diagnosis.",
+    ko: "위에 EDA 리포트를 붙여 넣어 근거 기반 진단을 시작하세요.",
+  },
+  diagnosis_input_title: { en: "Report to diagnose", ko: "진단할 리포트" },
+  diagnosis_input_placeholder: {
+    en: "Paste OpenSTA, OpenROAD, Yosys, PrimeTime, or other EDA report text…",
+    ko: "OpenSTA, OpenROAD, Yosys, PrimeTime 등 EDA 리포트 텍스트를 붙여 넣으세요…",
+  },
+  diagnosis_input_characters: { en: "characters", ko: "자" },
+  diagnosis_run: { en: "Diagnose report", ko: "리포트 진단" },
+  diagnosis_running: { en: "Diagnosing…", ko: "진단 중…" },
+  diagnosis_key_required: {
+    en: "Configure a gateway key above before starting the diagnosis.",
+    ko: "진단을 시작하기 전에 위에서 게이트웨이 키를 설정하세요.",
   },
   agent_streaming_live: { en: "● streaming live", ko: "● 실시간 스트리밍 중" },
   agent_tokens: { en: "chunks", ko: "청크" },

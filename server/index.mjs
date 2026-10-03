@@ -12,6 +12,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createReportCache, reportStoreKey } from "./report-cache.mjs";
+import { createLineDecoder } from "./stream-lines.mjs";
+import { handleJsonRequest } from "./http-json.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -493,24 +495,26 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
     state.tail.push(line);
     if (state.tail.length > MAX_TAIL_LINES) state.tail.shift();
   };
-  const onChunk = (chunk) => {
+  const onLine = (line) => {
     // Split on carriage returns as well as newlines. OpenLane redraws
     // its progress bar in place with \r and only emits \n when the bar
     // is finished, so splitting on \n alone accumulates every
     // intermediate update into one enormous line and the live view sees
     // exactly one step — the last. Measured: a full 78-step run produced
     // a single parseable "Stage" line, at 78/78.
-    for (const line of chunk.toString("utf-8").split(/\r\n|\r|\n/)) {
-      if (!line.trim()) continue;
-      trackProgress(state, line);
-      // Progress-bar redraws are the point of the above and pure noise
-      // in a readable tail — hundreds of near-identical lines would
-      // evict everything else from a 200-line buffer.
-      if (!STAGE_LINE.test(line)) pushLine(line);
-    }
+    if (!line.trim()) return;
+    trackProgress(state, line);
+    // Progress-bar redraws are the point of the above and pure noise
+    // in a readable tail — hundreds of near-identical lines would
+    // evict everything else from a 200-line buffer.
+    if (!STAGE_LINE.test(line)) pushLine(line);
   };
-  proc.stdout.on("data", onChunk);
-  proc.stderr.on("data", onChunk);
+  // stdout and stderr need independent buffers: their chunks can interleave,
+  // but a partial line on one stream must never be joined to the other.
+  const stdoutLines = createLineDecoder(onLine);
+  const stderrLines = createLineDecoder(onLine);
+  proc.stdout.on("data", (chunk) => stdoutLines.write(chunk));
+  proc.stderr.on("data", (chunk) => stderrLines.write(chunk));
 
   // Poll the run directory while the process lives. 1.5 s is well under
   // the time any OpenLane step takes, and it is a directory listing.
@@ -526,6 +530,8 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
     finishProgress(state);
   });
   proc.on("close", (code) => {
+    stdoutLines.end();
+    stderrLines.end();
     if (state.status === "running") {
       state.status = code === 0 ? "done" : "error";
       if (code !== 0) state.error = `orchestrator.py exited with code ${code}`;
@@ -816,11 +822,8 @@ const server = createServer(async (req, res) => {
   // per real step of pipeline/request_review.py's own workflow —
   // generate the request, get a review, apply it back into the case.
   if (req.method === "POST" && req.url === "/review/request") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design }) => {
       try {
-        const { design } = JSON.parse(body || "{}");
         if (!isSafeDesignName(design)) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design (bare directory name) required" }));
@@ -854,11 +857,8 @@ const server = createServer(async (req, res) => {
   // the moment the request is generated, rather than making a person ask
   // for something that already exists.
   if (req.method === "POST" && req.url === "/review/cached") {
-    let cachedBody = "";
-    req.on("data", (c) => (cachedBody += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design, requestText, lang }) => {
       try {
-        const { design, requestText, lang } = JSON.parse(cachedBody || "{}");
         if (!isSafeDesignName(design) || typeof requestText !== "string") {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design and requestText required" }));
@@ -889,11 +889,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/review/ask") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ requestText, lang, design, refresh }) => {
       try {
-        const { requestText, lang, design, refresh } = JSON.parse(body || "{}");
         if (typeof requestText !== "string" || !requestText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "requestText (non-empty string) required" }));
@@ -957,11 +954,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/review/apply") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design, agent, responseText }) => {
       try {
-        const { design, agent, responseText } = JSON.parse(body || "{}");
         if (!isSafeDesignName(design) || typeof agent !== "string" || !agent.trim()
             || typeof responseText !== "string" || !responseText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
@@ -994,14 +988,17 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/pipeline/run") {
-    let runBody = "";
-    req.on("data", (chunk) => (runBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design, maxIterations }) => {
       try {
-        const { design, maxIterations } = JSON.parse(runBody || "{}");
         if (!isSafeDesignName(design)) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design (bare directory name under pipeline/designs/) required" }));
+          return;
+        }
+        if (maxIterations != null
+            && (!Number.isInteger(maxIterations) || maxIterations < 1 || maxIterations > 1000)) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "maxIterations must be an integer from 1 to 1000" }));
           return;
         }
         if (!(await designExists(design))) {
@@ -1048,11 +1045,8 @@ const server = createServer(async (req, res) => {
   // whole array can. Stored beside the cases so it is backed up and
   // versioned with them.
   if (req.method === "POST" && req.url === "/feedback") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ message, kind, page }) => {
       try {
-        const { message, kind, page } = JSON.parse(body || "{}");
         if (typeof message !== "string" || !message.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "message (non-empty string) required" }));
@@ -1298,11 +1292,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/analog/stdcell") {
-    let stdBody = "";
-    req.on("data", (chunk) => (stdBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ cell }) => {
       try {
-        const { cell } = JSON.parse(stdBody || "{}");
         if (!/^[A-Za-z0-9_]+$/.test(cell ?? "")) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "cell required" }));
@@ -1363,12 +1354,10 @@ const server = createServer(async (req, res) => {
   // A cone is how a design too big to draw whole gets looked at — see
   // pipeline/netlist_cone.py. Returns the cell id the viewer can open.
   if (req.method === "POST" && req.url === "/analog/cone") {
-    let coneBody = "";
-    req.on("data", (chunk) => (coneBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({
+      design, seed, depth = 4, direction = "fanin",
+    }) => {
       try {
-        const { design, seed, depth = 4, direction = "fanin" } =
-          JSON.parse(coneBody || "{}");
         if (!isSafeDesignName(design) || typeof seed !== "string" || !seed.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design and seed required" }));
@@ -1406,11 +1395,10 @@ const server = createServer(async (req, res) => {
   // call, because that IS the flow — and doing it in one place is what
   // keeps a stale deck from being simulated against an edited drawing.
   if (req.method === "POST" && req.url === "/analog/run") {
-    let analogBody = "";
-    req.on("data", (chunk) => (analogBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({
+      cell, corner = "tt", pdk = "sky130A",
+    }) => {
       try {
-        const { cell, corner = "tt", pdk = "sky130A" } = JSON.parse(analogBody || "{}");
         // Only the analog root is runnable: a gate-level schematic is a
         // view of a netlist, with no stimulus and no analysis in it.
         if (!/^analog\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cell ?? "")) {
@@ -1498,11 +1486,8 @@ const server = createServer(async (req, res) => {
   // checkout that has not configured a key yet.
   if (req.method === "POST" && (req.url === "/ask" || req.url === "/ask/sources")) {
     const wantsAnswer = req.url === "/ask";
-    let askBody = "";
-    req.on("data", (chunk) => (askBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ question }) => {
       try {
-        const { question } = JSON.parse(askBody || "{}");
         if (typeof question !== "string" || !question.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "question (non-empty string) required" }));
@@ -1548,18 +1533,15 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/diagnose") {
-    let diagBody = "";
-    req.on("data", (chunk) => (diagBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ reportText, lang }) => {
       try {
-        const { reportText, lang } = JSON.parse(diagBody || "{}");
         if (typeof reportText !== "string" || !reportText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "reportText (non-empty string) required" }));
           return;
         }
         await proxyChat(
-          withLanguage(`Diagnose this OpenSTA simulation output:\n\n${reportText}`, lang),
+          withLanguage(`Diagnose this EDA report output:\n\n${reportText}`, lang),
           res, headers);
       } catch (err) {
         console.error("[diagnose proxy error]", err);
@@ -1584,11 +1566,8 @@ const server = createServer(async (req, res) => {
   // replacing the original — see docs/superpowers/specs/
   // 2026-08-21-autonomous-layout-agent-design.md.
   if (req.method === "POST" && req.url === "/translate") {
-    let translateBody = "";
-    req.on("data", (chunk) => (translateBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ text }) => {
       try {
-        const { text } = JSON.parse(translateBody || "{}");
         if (typeof text !== "string" || !text.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "text (non-empty string) required" }));
