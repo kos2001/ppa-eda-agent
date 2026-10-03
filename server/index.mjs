@@ -11,6 +11,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createReportCache, reportStoreKey } from "./report-cache.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -252,35 +253,9 @@ async function candidateDetail(fileName, tag) {
 // JSON parsing alone in python) before it can count anything, so
 // /self-improve took 8.3 s and /data-lineage 7.5 s on every visit to the
 // health and lineage pages, for a store that changes only when a run
-// finishes. Keyed by the newest case mtime and the case count: a new or
-// rewritten case moves the key, nothing else does.
-const reportCache = new Map(); // route -> {key, body}
-
-async function storeKey() {
-  let newest = 0;
-  let count = 0;
-  try {
-    const names = await readdir(path.join(refDbDir, "cases"));
-    for (const name of names) {
-      if (!name.endsWith(".json")) continue;
-      const { mtimeMs } = await stat(path.join(refDbDir, "cases", name));
-      if (mtimeMs > newest) newest = mtimeMs;
-      count += 1;
-    }
-  } catch {
-    return null;
-  }
-  return `${count}:${newest}`;
-}
-
-async function cachedReport(route, produce) {
-  const key = await storeKey();
-  const hit = reportCache.get(route);
-  if (key !== null && hit && hit.key === key) return hit.body;
-  const body = await produce();
-  if (key !== null) reportCache.set(route, { key, body });
-  return body;
-}
+// finishes. Every case and auxiliary report input participates in invalidation.
+const cachedReport = createReportCache(() =>
+  reportStoreKey(refDbDir, path.join(pipelineDir, "designs")));
 
 // The list, serialized, with a key that changes exactly when its content
 // can: the index text plus every case's mtime. The dashboard polls this
@@ -809,7 +784,14 @@ const server = createServer(async (req, res) => {
   // a case JSON, but this endpoint is reachable directly, so it must
   // not be usable to read arbitrary files.
   if (req.method === "GET" && req.url?.startsWith("/reference-db/layouts/")) {
-    const name = decodeURIComponent(req.url.slice("/reference-db/layouts/".length));
+    let name;
+    try {
+      name = decodeURIComponent(new URL(req.url, "http://localhost").pathname.slice("/reference-db/layouts/".length));
+    } catch {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "invalid layout image name" }));
+      return;
+    }
     if (!/^[A-Za-z0-9_.-]+\.png$/.test(name)) {
       res.writeHead(400, { ...headers, "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "invalid layout image name" }));
