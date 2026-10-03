@@ -22,6 +22,12 @@ STA: `*-openroad-*sta*/*.log`).
 
 ## Verdict checklist
 
+Before the gates below, record the case's design, PDK, standard-cell library,
+toolchain identity, candidate overrides, and the file or step that supplied each
+metric. Missing required metrics block a PASS; they are not zeros. Compare two
+candidates directly only when those provenance fields match, except when a
+declared PDK/SCL comparison intentionally changes one of them.
+
 1. **Correctness gate first**: `magic__drc_error__count`,
    `design__lvs_error__count` (and the more granular
    `design__lvs_{device,net,property,unmatched_*}` counts if the summary
@@ -37,6 +43,9 @@ STA: `*-openroad-*sta*/*.log`).
    power with activity annotation — note explicitly if the metrics don't
    include a power breakdown rather than reporting zeros as if they were
    real).
+5. **Completeness**: confirm the run reached the expected final steps and that
+   each hard-gate metric came from the final signoff artifact. TritonRoute DRC
+   is useful intermediate evidence but cannot stand in for Magic signoff DRC.
 
 ## Reporting
 
