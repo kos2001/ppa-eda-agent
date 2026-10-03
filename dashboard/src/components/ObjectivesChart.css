@@ -29,7 +29,7 @@
 .objchart__svg { width: 100%; min-width: 580px; max-height: 300px; display: block; }
 .objchart__band { fill: var(--surface); opacity: 0.34; }
 .objchart__band--best { fill: var(--good-soft); opacity: 0.22; }
-.objchart__band--worst { fill: var(--critical-soft); opacity: 0.16; }
+.objchart__band--worst { fill: var(--warn-soft); opacity: 0.16; }
 .objchart__guide { stroke: var(--border); stroke-width: 0.7; stroke-dasharray: 3 4; }
 .objchart__axis { stroke: var(--border-strong); stroke-width: 1; }
 .objchart__axis-label { fill: var(--text); font-size: 11px; font-weight: 700; }

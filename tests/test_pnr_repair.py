@@ -295,6 +295,9 @@ class TestDieFromDesignConfig(unittest.TestCase):
         self.assertEqual(len(got), 1)
         self.assertEqual(got[0]["overrides"]["DIE_AREA"], [0, 0, 16, 16])
         self.assertEqual(got[0]["overrides"]["CLOCK_PERIOD"], 4)  # the sweep value survives
+        self.assertEqual(got[0]["repair"]["code"], "STA-0572")
+        self.assertIn("8x8", got[0]["repair"]["why"])
+        self.assertIn("16x16", got[0]["repair"]["why"])
 
     def test_without_the_config_there_is_still_nothing_to_grow(self):
         results = [{"tag": "t", "overrides": {"CLOCK_PERIOD": 4}, "error": STA_0572}]

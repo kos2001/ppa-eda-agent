@@ -592,13 +592,63 @@ function QualityLine({ verdict }: { verdict: CandidateVerdict }) {
   );
 }
 
+type FailureRecovery = {
+  kind: "recovered" | "available";
+  label: string;
+  detail: string;
+};
+
+function dieAreaDimensions(value: unknown): string | null {
+  if (!Array.isArray(value) || value.length !== 4 ||
+      !value.every((coordinate) => typeof coordinate === "number")) return null;
+  const [x0, y0, x1, y1] = value as number[];
+  return `${x1 - x0} × ${y1 - y0} µm`;
+}
+
+// A failed row is only one step in a bounded repair chain. Older case files
+// predate per-candidate repair metadata, but their tags and overrides still
+// preserve the chain, so connect the original failure to the measured result
+// instead of leaving a large red log that looks terminal.
+function failureRecovery(
+  candidate: CandidateResult,
+  allCandidates: CandidateResult[]
+): FailureRecovery | null {
+  const error = candidate.error ?? "";
+  if (!error.includes("STA-0572") || !error.includes("core_area")) return null;
+
+  const descendants = allCandidates.filter(
+    (other) => other.tag.startsWith(`${candidate.tag}-iter`)
+  );
+  const passed = descendants.find((other) => other.verdict?.passed);
+  if (passed) {
+    const dimensions = dieAreaDimensions(passed.overrides.DIE_AREA);
+    return {
+      kind: "recovered",
+      label: "RECOVERED BY AUTO-REPAIR",
+      detail: `DIE_AREA grew${dimensions ? ` to ${dimensions}` : ""}; ${passed.tag} passed the full flow.`,
+    };
+  }
+
+  const proposed = descendants[0];
+  const dimensions = dieAreaDimensions(proposed?.overrides.DIE_AREA);
+  return {
+    kind: "available",
+    label: proposed ? "AUTO-REPAIR PROPOSED" : "REPAIR AVAILABLE",
+    detail: proposed
+      ? `The next iteration enlarges DIE_AREA${dimensions ? ` to ${dimensions}` : ""}.`
+      : "Increase DIE_AREA. Absolute floorplan margins leave no positive core at the current size.",
+  };
+}
+
 function CandidateRow({
   candidate,
+  allCandidates,
   caseFile,
   expanded,
   onToggle,
 }: {
   candidate: CandidateResult;
+  allCandidates: CandidateResult[];
   caseFile: string | null | undefined;
   expanded: boolean;
   onToggle: () => void;
@@ -644,14 +694,26 @@ function CandidateRow({
   );
 
   if (candidate.error) {
+    const recovery = failureRecovery(candidate, allCandidates);
     return (
       <tr>
         <td>{candidate.tag}</td>
         <td>
           <span className="pill pill--critical">FAIL TO RUN</span>
         </td>
-        <td colSpan={2} className="pipeline__error-cell">
-          {candidate.error}
+        <td colSpan={3} className="pipeline__error-cell">
+          {recovery ? (
+            <>
+              <div className={`pipeline__recovery pipeline__recovery--${recovery.kind}`}>
+                <strong>{recovery.label}</strong>
+                <span>{recovery.detail}</span>
+              </div>
+              <details className="pipeline__raw-error">
+                <summary>original OpenLane error</summary>
+                <pre>{candidate.error}</pre>
+              </details>
+            </>
+          ) : candidate.error}
         </td>
         <td>
           {stageBadge}
@@ -1382,6 +1444,7 @@ function CaseCard({
                   <CandidateRow
                     key={c.tag}
                     candidate={c}
+                    allCandidates={candidates}
                     caseFile={pipelineCase.file}
                     expanded={expandedTags.has(c.tag)}
                     onToggle={() => toggle(c.tag)}

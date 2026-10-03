@@ -1458,7 +1458,19 @@ def propose_repairs(results: list[dict], iteration: int,
                 x0 + (x1 - x0) * DIE_AREA_GROWTH_FACTOR,
                 y0 + (y1 - y0) * DIE_AREA_GROWTH_FACTOR,
             ]
-            next_candidates.append(_repaired(r, iteration, new_overrides))
+            cand = _repaired(r, iteration, new_overrides)
+            old_width, old_height = x1 - x0, y1 - y0
+            new_width = new_overrides["DIE_AREA"][2] - new_overrides["DIE_AREA"][0]
+            new_height = new_overrides["DIE_AREA"][3] - new_overrides["DIE_AREA"][1]
+            cand["repair"] = {
+                "code": "STA-0572",
+                "why": (
+                    f"absolute {old_width:g}x{old_height:g} um die produced a "
+                    "non-positive core after floorplan margins; grow DIE_AREA "
+                    f"to {new_width:g}x{new_height:g} um"
+                ),
+            }
+            next_candidates.append(cand)
         elif PDN_STRAP_ERROR in error and isinstance(die_area_override, list) \
                 and len(die_area_override) == 4:
             # Same PDN strap failure as pattern #1, but this candidate has
