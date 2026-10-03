@@ -1,43 +1,160 @@
-.objchart { margin: 10px 0 14px; }
-.objchart__svg { width: 100%; max-width: 760px; height: auto; display: block; }
-
+.objchart {
+  margin: 1rem 0 1.15rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
+}
+.objchart__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border);
+}
+.objchart__header strong {
+  display: block;
+  margin-top: 0.16rem;
+  font-size: 0.88rem;
+}
+.objchart__header > span {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+}
+.objchart__plot-wrap { min-width: 0; overflow-x: auto; }
+.objchart__scroll-hint { display: none; }
+.objchart__svg { width: 100%; min-width: 580px; max-height: 300px; display: block; }
+.objchart__band { fill: var(--surface); opacity: 0.34; }
+.objchart__band--best { fill: var(--good-soft); opacity: 0.22; }
+.objchart__band--worst { fill: var(--critical-soft); opacity: 0.16; }
+.objchart__guide { stroke: var(--border); stroke-width: 0.7; stroke-dasharray: 3 4; }
 .objchart__axis { stroke: var(--border-strong); stroke-width: 1; }
-.objchart__axis-label { fill: var(--text); font-size: 11px; font-weight: 600; }
-.objchart__tick { fill: var(--text-dim); font-size: 9.5px; }
-
+.objchart__axis-label { fill: var(--text); font-size: 11px; font-weight: 700; }
+.objchart__unit { fill: var(--text-dim); font-size: 8px; }
+.objchart__tick { fill: var(--text-dim); font-size: 8.5px; font-family: var(--mono); }
+.objchart__rank-label { fill: var(--text-dim); font-size: 7.5px; font-weight: 700; letter-spacing: 0.08em; }
+.objchart__series { cursor: pointer; }
 .objchart__line {
   fill: none;
   stroke: var(--text-dim);
-  stroke-width: 1.4;
-  opacity: 0.35;
+  stroke-width: 1.35;
+  opacity: 0.36;
   stroke-linejoin: round;
-  cursor: pointer;
-  transition: opacity 0.12s, stroke-width 0.12s;
+  transition: opacity 120ms, stroke-width 120ms;
 }
-.objchart__line--front { stroke: var(--accent); opacity: 0.9; stroke-width: 1.8; }
-.objchart__line--winner { stroke: var(--good); opacity: 1; stroke-width: 3.2; }
-.objchart__line--dim { opacity: 0.12; }
-.objchart__line:hover { stroke-width: 3; opacity: 1; }
+.objchart__line--front { stroke: var(--accent); opacity: 0.88; stroke-width: 1.9; }
+.objchart__line--winner { stroke: var(--good); opacity: 1; stroke-width: 3.4; }
+.objchart__line--dim { opacity: 0.09; }
+.objchart__line--active { opacity: 1; stroke-width: 3.6; }
+.objchart__hit { fill: none; stroke: transparent; stroke-width: 14; }
+.objchart__point { fill: var(--surface); stroke: var(--text-dim); stroke-width: 1.2; opacity: 0.7; }
+.objchart__point--front { stroke: var(--accent); opacity: 1; }
+.objchart__point--winner { fill: var(--good); stroke: var(--surface); stroke-width: 1.8; opacity: 1; }
+.objchart__point--dim { opacity: 0.08; }
+.objchart__point--active { fill: var(--surface); opacity: 1; stroke-width: 2.4; }
+.objchart__point--winner.objchart__point--active { fill: var(--good); }
 
-.objchart__winner-label { fill: var(--good); font-size: 11px; font-weight: 600; }
+.objchart__candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+}
+.objchart__candidate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  max-width: 15rem;
+  padding: 0.25rem 0.45rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.63rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.objchart__candidate:hover,
+.objchart__candidate:focus-visible,
+.objchart__candidate--active { border-color: var(--accent); color: var(--text); outline: none; }
+.objchart__candidate--winner { border-color: var(--good); }
+.objchart__dot {
+  flex: 0 0 auto;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--text-dim);
+  opacity: 0.55;
+}
+.objchart__dot--front { background: var(--accent); opacity: 1; }
+.objchart__dot--winner { background: var(--good); opacity: 1; box-shadow: 0 0 0 2px var(--good-soft); }
 
+.objchart__readout {
+  margin-top: 0.65rem;
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 74%, transparent);
+}
+.objchart__readout-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-bottom: 0.55rem;
+}
+.objchart__readout-title strong { font-family: var(--mono); font-size: 0.78rem; }
+.objchart__readout-title span {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.objchart__metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.45rem; }
+.objchart__metric { min-width: 0; padding-left: 0.5rem; border-left: 2px solid var(--border-strong); }
+.objchart__metric > span,
+.objchart__metric > small { display: block; color: var(--text-dim); font-size: 0.58rem; }
+.objchart__metric > strong { display: block; margin: 0.1rem 0; font-family: var(--mono); font-size: 0.76rem; }
 .objchart__legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
+  gap: 0.35rem 1rem;
   align-items: center;
+  margin-top: 0.65rem;
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: 0.62rem;
 }
+.objchart__legend > span:last-child { margin-left: auto; }
 .objchart__swatch {
   display: inline-block;
   width: 18px;
   height: 0;
+  margin-right: 4px;
   border-top: 2px solid var(--text-dim);
   opacity: 0.5;
   vertical-align: middle;
-  margin-right: 4px;
 }
 .objchart__swatch--front { border-top-color: var(--accent); opacity: 1; }
 .objchart__swatch--winner { border-top: 3px solid var(--good); opacity: 1; }
-.objchart__readout { flex-basis: 100%; color: var(--text); }
+
+@media (max-width: 760px) {
+  .objchart { padding: 0.75rem; }
+  .objchart__header strong { font-size: 0.8rem; }
+  .objchart__legend > span:last-child { flex-basis: 100%; margin-left: 0; }
+  .objchart__scroll-hint {
+    display: block;
+    margin: 0.45rem 0 -0.2rem;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    text-align: right;
+  }
+}
