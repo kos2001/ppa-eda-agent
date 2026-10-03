@@ -49,17 +49,31 @@ def read(design_dir: Path | str) -> list[dict]:
     """The events of the latest orchestrate() run: everything after the
     last `run_start`. Unparseable lines (a write caught half-done) are
     skipped rather than raised."""
+    out: list[dict] = []
+    # Scan backwards in bounded blocks, stopping at the latest run_start.
+    # Old runs can be arbitrarily large; a one-second observer refresh
+    # should only read and parse the run it is displaying. Keep bytes until
+    # a whole line is assembled so block boundaries cannot split UTF-8.
     try:
-        text = events_path(design_dir).read_text(encoding="utf-8")
+        with open(events_path(design_dir), "rb") as f:
+            f.seek(0, 2)
+            pos = f.tell()
+            pending = b""
+            while pos:
+                size = min(pos, 64 * 1024)
+                pos -= size
+                f.seek(pos)
+                lines = (f.read(size) + pending).split(b"\n")
+                pending = lines.pop(0) if pos else b""
+                for line in reversed(lines):
+                    try:
+                        ev = json.loads(line)
+                    except (ValueError, UnicodeError):
+                        continue
+                    if isinstance(ev, dict):
+                        out.append(ev)
+                        if ev.get("type") == "run_start":
+                            return list(reversed(out))
     except OSError:
         return []
-    out: list[dict] = []
-    for line in text.splitlines():
-        try:
-            ev = json.loads(line)
-        except ValueError:
-            continue
-        if isinstance(ev, dict):
-            out.append(ev)
-    starts = [i for i, e in enumerate(out) if e.get("type") == "run_start"]
-    return out[starts[-1]:] if starts else out
+    return list(reversed(out))
