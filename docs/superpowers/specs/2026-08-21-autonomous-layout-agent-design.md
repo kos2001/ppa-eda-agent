@@ -568,7 +568,7 @@ claimed as fully working:
   could reduce wait time but wasn't attempted), just making an
   already-working feature legible instead of looking hung.
 
-## Performance: reference-db caching and deferred chart loading
+## Performance: reference-db caching and dependency-free chart rendering
 
 Two real, measured performance fixes made while the user was away
 (explicit "find what needs it yourself" instruction) — both low-risk,
@@ -587,21 +587,16 @@ measurements rather than assumed:
    file's content directly and confirmed the very next request reflects
    the change (cache invalidates correctly on mtime change) — not just
    a "trust the timestamp" assumption.
-2. **Deferred recharts chunk** (`CandidateAreaChart.tsx`, split out of
-   `PipelineTab.tsx`). Real measurement via Playwright on the production
-   build (`vite preview`, not dev mode): recharts' internal
-   `CategoricalChart` chunk is 88KB gzipped — the single largest JS
-   chunk in the app — and was statically imported at the top of
-   `PipelineTab.tsx`, the default/first tab every session loads,
-   forcing it into the initial render's blocking script graph. Moved
-   the one chart that uses it (the case card's "candidate area
-   comparison" bar chart) into its own component behind
-   `lazy(() => import(...))` + `Suspense`. Measured before/after: the
-   `CategoricalChart` chunk's request now starts at 85.7ms, *after*
-   `domContentLoadedEventEnd` (62.5ms) — it no longer blocks initial
-   paint, just loads in parallel and fills in shortly after. Confirmed
-   the chart still renders correctly post-change (real browser check,
-   not just a successful build).
+2. **Dependency-free comparison charts** (`CandidateAreaChart.tsx` and
+   `ObjectivesChart.tsx`). The first optimization deferred Recharts' 88KB
+   gzipped internal chunk so it did not block the initial render. The richer
+   candidate comparison later made that dependency unnecessary: the area view
+   is now semantic HTML/CSS and the Pareto view is a small inline SVG. Removing
+   Recharts eliminated its 356.93KB output chunk (103.32KB gzipped) and reduced
+   Vite's transformed module count from 652 to 79. Playwright checks exercise
+   the real case store at desktop and mobile widths, including multi-candidate
+   area rows, the four-axis Pareto view, internal mobile scrolling, and pinned
+   candidate readouts.
 
 ## Graph engineering: total guards + a ledger for the orchestrate loop
 

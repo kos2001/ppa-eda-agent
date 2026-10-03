@@ -1,0 +1,139 @@
+.area-chart { margin-top: 0.7rem; min-width: 0; }
+.area-chart__axis {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin: 0 12.7rem 0.35rem min(14rem, 28%);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+}
+.area-chart__axis span:last-child { text-align: right; }
+.area-chart__rows {
+  display: flex;
+  flex-direction: column;
+  max-height: 31rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.area-chart__row {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 14rem) minmax(8rem, 1fr) 6.2rem 4.6rem;
+  grid-template-areas: "identity track value status" "identity delta delta delta";
+  align-items: center;
+  column-gap: 0.65rem;
+  row-gap: 0.12rem;
+  min-height: 3rem;
+  padding: 0.38rem 0.45rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 68%, transparent);
+}
+.area-chart__row:first-child { border-top: 0; }
+.area-chart__row--winner {
+  background: linear-gradient(90deg, var(--good-soft), transparent 76%);
+  box-shadow: inset 3px 0 0 var(--good);
+}
+.area-chart__identity {
+  grid-area: identity;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.area-chart__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.area-chart__iteration {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.08rem 0.24rem;
+}
+.area-chart__track {
+  grid-area: track;
+  position: relative;
+  height: 0.72rem;
+  overflow: hidden;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, transparent 24.5%, var(--border) 25%, transparent 25.5%, transparent 49.5%, var(--border) 50%, transparent 50.5%, transparent 74.5%, var(--border) 75%, transparent 75.5%),
+    color-mix(in srgb, var(--surface-raised) 74%, transparent);
+}
+.area-chart__bar {
+  display: block;
+  width: max(calc(var(--area-ratio) * 100%), 2px);
+  height: 100%;
+  border-radius: 2px;
+  transition: width 180ms ease;
+}
+.area-chart__bar--passed { background: var(--accent); }
+.area-chart__bar--rejected {
+  background: repeating-linear-gradient(135deg, var(--critical) 0 4px, var(--critical-soft) 4px 8px);
+}
+.area-chart__row--winner .area-chart__bar { background: var(--good); }
+.area-chart__value {
+  grid-area: value;
+  text-align: right;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+.area-chart__status {
+  grid-area: status;
+  justify-self: end;
+  min-width: 4.1rem;
+  padding: 0.16rem 0.32rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.area-chart__status--winner { color: var(--good); background: var(--good-soft); }
+.area-chart__status--passed { color: var(--accent); background: var(--accent-soft); }
+.area-chart__status--rejected { color: var(--critical); background: var(--critical-soft); }
+.area-chart__delta { grid-area: delta; color: var(--text-dim); font-size: 0.62rem; }
+.area-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-top: 0.65rem;
+  color: var(--text-dim);
+  font-size: 0.66rem;
+}
+.area-chart__key {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.45rem;
+  margin-right: 0.28rem;
+  border-radius: 1px;
+  vertical-align: middle;
+  background: var(--accent);
+}
+.area-chart__key--winner { background: var(--good); }
+.area-chart__key--rejected {
+  background: repeating-linear-gradient(135deg, var(--critical) 0 3px, var(--critical-soft) 3px 6px);
+}
+@media (max-width: 760px) {
+  .area-chart__axis { display: none; }
+  .area-chart__row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "identity value status" "track track track" "delta delta delta";
+    padding: 0.55rem 0.35rem;
+  }
+  .area-chart__track { height: 0.62rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .area-chart__bar { transition: none; }
+}

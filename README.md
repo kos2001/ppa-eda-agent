@@ -197,10 +197,13 @@ measured that layer and changed it where a real run backed the change:
 - `pipeline/live_view.py -f` watches a run in the terminal: global-placement
   convergence, detailed-routing violations per iteration, a cell-density map,
   and the orchestrator's repair/polish decisions as they happen.
-- In the dashboard, an opened case shows a parallel-coordinates chart of the
-  objectives a winner is chosen on (cell area, power, core area, setup slack:
-  top is best, Pareto-front candidates solid, the winner thick). Candidates
-  say which repair rule or polish move created them. The console at the
+- In the dashboard, an opened case shows a horizontal area comparison with
+  iteration, signoff state, winner, and delta from the best passing area. Its
+  parallel-coordinates chart shows the objectives a winner is chosen on (cell
+  area, power, core area, setup slack), with selectable candidates and an
+  axis-by-axis readout; top is best, Pareto-front candidates are solid, and the
+  winner is thick. Candidates say which repair rule or polish move created
+  them. The console at the
   bottom resizes (drag its top edge, the +/- buttons, or the arrow keys),
   maximises, collapses, and remembers its size.
 

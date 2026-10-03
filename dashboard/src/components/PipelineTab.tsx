@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchCandidateDetail,
   fetchReferenceDb,
@@ -29,15 +29,10 @@ import LayoutView from "./LayoutView";
 import MarkdownDoc from "./Markdown";
 import SlackChart from "./SlackChart";
 import StageArtifacts from "./StageArtifacts";
+import CandidateAreaChart from "./CandidateAreaChart";
+import ObjectivesChart from "./ObjectivesChart";
 import "./Tabs.css";
 import "./PipelineTab.css";
-
-// Lazy: recharts' internal chunk is the largest in the app (~88KB
-// gzipped) — deferring it keeps it off the critical path for
-// PipelineTab's initial render (Pipeline is the default tab every
-// session loads). See CandidateAreaChart.tsx.
-const CandidateAreaChart = lazy(() => import("./CandidateAreaChart"));
-import ObjectivesChart from "./ObjectivesChart";
 
 const DATA_CATEGORY_ORDER: (keyof CandidateDataPointers)[] = [
   "circuit",
@@ -1251,9 +1246,17 @@ function CaseCard({
       candidate.verdict.violations.length === 0 &&
       (candidate.verdict.unverified?.length ?? 0) > 0
   ).length;
-  const chartData = candidates
-    .filter((candidate) => candidate.verdict?.area_um2 != null)
-    .map((candidate) => ({ name: candidate.tag, area: candidate.verdict?.area_um2 ?? 0, passed: Boolean(candidate.verdict?.passed) }));
+  const chartData = pipelineCase.iterations.flatMap((iteration) =>
+    iteration.results
+      .filter((candidate) => candidate.verdict?.area_um2 != null)
+      .map((candidate) => ({
+        name: candidate.tag,
+        area: candidate.verdict?.area_um2 ?? 0,
+        passed: Boolean(candidate.verdict?.passed),
+        winner: candidate.tag === pipelineCase.winner_tag,
+        iteration: iteration.iteration,
+      }))
+  );
 
   function toggle(tag: string) {
     setExpandedTags((prev) => {
@@ -1326,10 +1329,14 @@ function CaseCard({
 
         {chartData.length > 0 && (
           <div className="pipeline__chart">
-            <div className="tab__meta-label">candidate area comparison · lower is better</div>
-            <Suspense fallback={<div style={{ height: 220 }} />}>
-              <CandidateAreaChart data={chartData} />
-            </Suspense>
+            <div className="pipeline__chart-head">
+              <div>
+                <div className="tab__meta-label">candidate area comparison</div>
+                <strong>What size did each attempt achieve?</strong>
+              </div>
+              <span>Measured cell area · lower is better only after signoff passes</span>
+            </div>
+            <CandidateAreaChart data={chartData} />
           </div>
         )}
 
