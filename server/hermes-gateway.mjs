@@ -17,10 +17,11 @@
 // -- it just renders in one step instead of trickling in.
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
-import { writeFile, unlink, mkdtemp } from "node:fs/promises";
+import { writeFile, rm, mkdtemp } from "node:fs/promises";
 import { tmpdir, homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { handleJsonRequest } from "./http-json.mjs";
 
 // Same .env server/index.mjs already loads (process.loadEnvFile, Node
 // 20.6+ built-in) -- one shared secret, one file, so there is nothing to
@@ -140,7 +141,9 @@ async function runHermes(prompt) {
       });
     });
   } finally {
-    await unlink(queryFile).catch(() => {});
+    // Remove the unique temporary directory too. Deleting only query.txt
+    // left one empty ppa-agent-* directory behind for every model call.
+    await rm(dir, { recursive: true, force: true }).catch(() => {});
   }
 }
 
@@ -164,17 +167,7 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  let body = "";
-  req.on("data", (c) => (body += c));
-  req.on("end", async () => {
-    let parsed;
-    try {
-      parsed = JSON.parse(body || "{}");
-    } catch {
-      res.writeHead(400, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "invalid JSON body" }));
-      return;
-    }
+  handleJsonRequest(req, res, {}, async (parsed) => {
     const messages = Array.isArray(parsed.messages) ? parsed.messages : [];
     const last = messages[messages.length - 1];
     const prompt = typeof last?.content === "string" ? last.content : "";

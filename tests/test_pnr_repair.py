@@ -320,7 +320,8 @@ class TestEvidence(unittest.TestCase):
         import json
         path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             "reference-db", "pnr_repair_checks.json")
-        replays = json.load(open(path, encoding="utf-8"))
+        with open(path, encoding="utf-8") as stream:
+            replays = json.load(stream)
         for rule in pnr_repair.RULES:
             if not rule["validated"]:
                 continue

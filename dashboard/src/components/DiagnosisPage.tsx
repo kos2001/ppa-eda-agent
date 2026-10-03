@@ -19,6 +19,7 @@ export default function DiagnosisPage() {
     saveKey,
     serverConfigured,
     diagnosing,
+    runDiagnosis,
     confirmedUpstream,
     error,
     hasUnseenResult,
@@ -26,6 +27,7 @@ export default function DiagnosisPage() {
   } = useAgent();
   const { streamedText, tokenCount, elapsedMs } = useAgentStream();
   const [keyInput, setKeyInput] = useState("");
+  const [reportText, setReportText] = useState("");
 
   // Viewing this page is what "sees" the result — clears the unseen badge,
   // including for a result that finishes while the page is open.
@@ -100,6 +102,35 @@ export default function DiagnosisPage() {
           </div>
         </div>
       )}
+
+      <div className="panel">
+        <span className="panel__title">{t("diagnosis_input_title")}</span>
+        <div className="panel__body report-input">
+          <textarea
+            aria-label={t("diagnosis_input_title")}
+            value={reportText}
+            onChange={(event) => setReportText(event.target.value)}
+            placeholder={t("diagnosis_input_placeholder")}
+            rows={12}
+            disabled={diagnosing}
+          />
+          <div className="report-input__actions">
+            <span className="diagnosis-page__count">
+              {reportText.length.toLocaleString()} {t("diagnosis_input_characters")}
+            </span>
+            <button
+              className="diagnosis-page__run"
+              onClick={() => runDiagnosis(reportText)}
+              disabled={!isReady || diagnosing || !reportText.trim()}
+            >
+              {diagnosing ? t("diagnosis_running") : t("diagnosis_run")}
+            </button>
+          </div>
+          {!isReady && (
+            <p className="diagnosis-page__input-hint">{t("diagnosis_key_required")}</p>
+          )}
+        </div>
+      </div>
 
       {!hasActivity && isReady && (
         <div className="panel">

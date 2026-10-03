@@ -158,7 +158,7 @@ function formatCachedAt(iso: string): string {
 
 // Agent legend — every subagent that touches this pipeline, in pipeline
 // order, plus ppa-eda-analyst (not one of the 8 stages; it's the
-// separate report-paste/live-simulation diagnosis agent behind the
+// separate on-demand EDA report diagnosis agent behind the
 // sidebar's "ppa-eda-analyst" tab). Deduplicates routing-candidate-
 // evaluator (owns 2 stages) automatically via the Map below.
 function AgentRolesLegend() {
