@@ -311,8 +311,8 @@ export interface CandidateResult {
     refused?: string;
   }> | { error: string };
   produced_by_feedback?: boolean;
-  // Set on a candidate proposed by pipeline/pnr_repair.py: the tool code
-  // it repairs and the number the repair was derived from.
+  // Set on an auto-repaired candidate: the tool code it repairs and the
+  // measured/configured value the repair was derived from.
   repair?: { code: string; why: string };
   // Set on a candidate tried by pipeline/pnr_polish.py after a pass: which
   // move it applied. Its iteration carries `polish: true`.

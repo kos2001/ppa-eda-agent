@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import "./CandidateAreaChart.css";
 
 export interface CandidateAreaChartDatum {
@@ -29,8 +28,8 @@ export default function CandidateAreaChart({ data }: { data: CandidateAreaChartD
         {data.map((entry) => {
           const ratio = entry.area / max;
           const delta = bestPassing == null ? null : ((entry.area - bestPassing) / bestPassing) * 100;
-          const style = { "--area-ratio": ratio } as CSSProperties;
-          const status = entry.winner ? "winner" : entry.passed ? "passed" : "rejected";
+          const style = { width: `${ratio * 100}%` };
+          const status = entry.winner ? "winner" : entry.passed ? "passed" : "failed";
           return (
             <div
               className={`area-chart__row ${entry.winner ? "area-chart__row--winner" : ""}`}
@@ -44,7 +43,7 @@ export default function CandidateAreaChart({ data }: { data: CandidateAreaChartD
               </div>
               <div className="area-chart__track" aria-hidden="true">
                 <span
-                  className={`area-chart__bar area-chart__bar--${entry.passed ? "passed" : "rejected"}`}
+                  className={`area-chart__bar area-chart__bar--${entry.passed ? "passed" : "failed"}`}
                   style={style}
                 />
               </div>
@@ -66,7 +65,7 @@ export default function CandidateAreaChart({ data }: { data: CandidateAreaChartD
       <div className="area-chart__legend" aria-hidden="true">
         <span><i className="area-chart__key area-chart__key--winner" />winner</span>
         <span><i className="area-chart__key area-chart__key--passed" />signoff pass</span>
-        <span><i className="area-chart__key area-chart__key--rejected" />rejected / incomplete</span>
+        <span><i className="area-chart__key area-chart__key--failed" />rejected / incomplete</span>
       </div>
     </div>
   );

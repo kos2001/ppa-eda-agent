@@ -69,13 +69,13 @@
 }
 .area-chart__bar {
   display: block;
-  width: max(calc(var(--area-ratio) * 100%), 2px);
+  min-width: 2px;
   height: 100%;
   border-radius: 2px;
   transition: width 180ms ease;
 }
 .area-chart__bar--passed { background: var(--accent); }
-.area-chart__bar--rejected {
+.area-chart__bar--failed {
   background: repeating-linear-gradient(135deg, var(--critical) 0 4px, var(--critical-soft) 4px 8px);
 }
 .area-chart__row--winner .area-chart__bar { background: var(--good); }
@@ -102,7 +102,7 @@
 }
 .area-chart__status--winner { color: var(--good); background: var(--good-soft); }
 .area-chart__status--passed { color: var(--accent); background: var(--accent-soft); }
-.area-chart__status--rejected { color: var(--critical); background: var(--critical-soft); }
+.area-chart__status--failed { color: var(--critical); background: var(--critical-soft); }
 .area-chart__delta { grid-area: delta; color: var(--text-dim); font-size: 0.62rem; }
 .area-chart__legend {
   display: flex;
@@ -122,7 +122,7 @@
   background: var(--accent);
 }
 .area-chart__key--winner { background: var(--good); }
-.area-chart__key--rejected {
+.area-chart__key--failed {
   background: repeating-linear-gradient(135deg, var(--critical) 0 3px, var(--critical-soft) 3px 6px);
 }
 @media (max-width: 760px) {
