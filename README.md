@@ -18,6 +18,10 @@ diving into the components below.
 ## What's here
 
 ```
+AGENTS.md                           Repository-wide evidence, experiment,
+                                     and validation rules for coding agents
+.codex/skills/ppa-eda-flow/         Project skill for bounded, reproducible
+                                     OpenLane experiment work
 .claude/agents/ppa-eda-analyst.md   Claude Code subagent: diagnoses PPA
                                      issues from pasted/given report text
 references/                         Report format knowledge the agent is
@@ -83,6 +87,18 @@ Requires Docker and a local sky130 PDK (fetched once via `volare`, see
 the spec doc). Standard-cell-only, digital designs for now — no SRAM
 bitcell layout yet (see the spec's "Known limitations").
 
+Validate a plan before starting Docker or any EDA tool:
+
+```sh
+python3 pipeline/orchestrator.py --design pipeline/designs/counter4 \
+  --run-spec pipeline/designs/counter4/run_spec.json --validate-only
+```
+
+This checks sweep structure, normalized tag collisions, duplicate
+override/PDK/SCL configurations, positive iteration counts, and the optional
+`candidate_budget`. It prints the maximum initial candidate count and its
+sources. A completed case records the same `search_plan` beside its metrics.
+
 ```sh
 cd pipeline
 python3 orchestrator.py --design designs/counter4 \
@@ -104,10 +120,13 @@ via a `sweeps` entry — `{"param": "FP_CORE_UTIL", "values": [25, 35,
 45, 55, 65], "tag_prefix": "sweep-util"}` expands to one candidate per
 value (`orchestrator.py`'s `expand_sweeps()` — a small, dependency-free
 idea borrowed from the OpenROAD Project's own
-[AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/tools/AutoTuner),
+[AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/blob/master/docs/user/InstructionsForAutoTuner.md),
 without pulling in its full Ray/hyperopt search machinery, which this
 pipeline's scale doesn't need yet — see the design spec's "Borrowed
-from prior art" section). Every candidate runs through a real OpenLane
+from prior art" section). New searches should also declare
+`candidate_budget` plus `search.mode`, `search.objective`,
+`search.reference`, and `search.seed` when randomized. Every candidate runs
+through a real OpenLane
 flow, concurrently when `--max-parallel` is greater than 1 (keep the
 default of 1 on memory-limited machines), scored against the spec's
 targets using OpenLane's own real `metrics.json`
@@ -793,7 +812,7 @@ description of one to build yourself.
    (or set it in `server/index.mjs`'s own environment so the dashboard
    never has to handle it — see `.env.example`) — stored only in this
    browser's `localStorage` if pasted.
-6. The pasted key (or the server-side one) is also what the Layout
-   Pipeline tab's translate and review steps use. The page's own
-   "diagnose a simulation result" trigger was the Simulate tab, which has
-   been removed, so today this page is where the key is entered.
+6. Paste an OpenSTA, OpenROAD, Yosys, PrimeTime, or other EDA report and
+   click **Diagnose report**. The answer streams on the same page. The
+   pasted key (or the server-side one) is also what the Layout Pipeline
+   tab's translate and review steps use.

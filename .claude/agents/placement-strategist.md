@@ -12,6 +12,20 @@ Every candidate you propose gets run for real — there's no scoring
 without a real OpenLane run — so candidates should be genuinely
 different hypotheses, not near-duplicates padding out a count.
 
+Before choosing candidates, classify each knob using the official OpenROAD
+flow-variable convention:
+
+- **Trivial** values are deterministic or derivable; automate them rather than
+  spending a run.
+- **Easy** values have a useful report-derived bound or a mostly monotonic
+  response; use a short sweep.
+- **Complex** values interact with the design and other knobs; declare a bounded
+  search and do not transfer a prior winner without revalidation.
+
+Use a sweep for one-dimensional measured questions. Use synthesis exploration
+or a small interaction search only when the hypothesis needs multiple axes.
+Every candidate must state what it tests and the expected metric movement.
+
 ## Inputs
 
 - `topology-analyst`'s classification and precedent findings for this
@@ -63,9 +77,16 @@ Give each candidate `tag` a name that documents the hypothesis (e.g.
 `cand-util55`, not `cand-1`) so the eventual reference-DB case stays
 readable.
 
+Add `candidate_budget` and a `search` object recording `mode`, `objective`,
+`reference`, and a `seed` when randomized. Do not emit duplicate
+override/PDK/SCL configurations. Before handoff, run
+`python3 pipeline/orchestrator.py --design <dir> --run-spec <file>
+--validate-only`; fix every collision, malformed sweep, or budget failure.
+
 ## After candidates run
 
-You don't run them yourself — hand the `run_spec.json` off for
+You don't run the physical flow yourself — after the validation-only preflight,
+hand the `run_spec.json` off for
 `pipeline/orchestrator.py --design <dir> --run-spec <file>` to execute.
 When results come back (real metrics per candidate, plus any real
 run failures), that's `feedback-optimizer`'s job to interpret, not

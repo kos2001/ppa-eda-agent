@@ -657,10 +657,28 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
     merged with any base "overrides" the entry also specifies (e.g. to
     sweep FP_CORE_UTIL within an already-fixed DIE_AREA).
     """
+    sweeps = run_spec.get("sweeps", [])
+    if not isinstance(sweeps, list):
+        raise ValueError("run_spec 'sweeps' must be a list")
+
     expanded = []
-    for sweep in run_spec.get("sweeps", []):
+    for index, sweep in enumerate(sweeps):
+        where = f"sweeps[{index}]"
+        if not isinstance(sweep, dict):
+            raise ValueError(f"{where} must be an object")
+        param = sweep.get("param")
+        if not isinstance(param, str) or not param.strip():
+            raise ValueError(f"{where}.param must be a non-empty string")
+        values = sweep.get("values")
+        if not isinstance(values, list) or not values:
+            raise ValueError(f"{where}.values must be a non-empty list")
         base_overrides = sweep.get("overrides", {})
-        for value in sweep["values"]:
+        if not isinstance(base_overrides, dict):
+            raise ValueError(f"{where}.overrides must be an object")
+        tag_prefix = sweep.get("tag_prefix", param)
+        if not isinstance(tag_prefix, str) or not tag_prefix.strip():
+            raise ValueError(f"{where}.tag_prefix must be a non-empty string")
+        for value in values:
             # Run tags become real directory names (runs/<tag>/) passed to
             # OpenLane's --run-tag. A space in that name breaks OpenLane's
             # own internal subprocess invocations in a real, reproducible
@@ -673,12 +691,131 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
             # of a space-free string — confirmed by rerunning with only
             # the tag changed. Sanitize here rather than assume every
             # sweep value is filesystem/CLI-safe.
-            tag = safe_tag(f"{sweep.get('tag_prefix', sweep['param'])}-{value}")
+            tag = safe_tag(f"{tag_prefix}-{value}")
             expanded.append({
                 "tag": tag,
-                "overrides": {**base_overrides, sweep["param"]: value},
+                "overrides": {**base_overrides, param: value},
             })
     return expanded
+
+
+def validate_candidates(candidates: list[dict],
+                        candidate_budget: int | None = None) -> list[dict]:
+    """Rejects plans that would waste or corrupt real flow runs."""
+    if not isinstance(candidates, list):
+        raise ValueError("run_spec 'candidates' must be a list")
+    if candidate_budget is not None:
+        if (isinstance(candidate_budget, bool)
+                or not isinstance(candidate_budget, int)
+                or candidate_budget < 1):
+            raise ValueError("candidate_budget must be a positive integer")
+        if len(candidates) > candidate_budget:
+            raise ValueError(
+                f"candidate plan has {len(candidates)} candidates, exceeding "
+                f"candidate_budget={candidate_budget}")
+
+    tags: dict[str, str] = {}
+    configs: dict[str, str] = {}
+    normalized = []
+    for index, candidate in enumerate(candidates):
+        where = f"candidates[{index}]"
+        if not isinstance(candidate, dict):
+            raise ValueError(f"{where} must be an object")
+        raw_tag = candidate.get("tag")
+        if not isinstance(raw_tag, str) or not raw_tag.strip():
+            raise ValueError(f"{where}.tag must be a non-empty string")
+        overrides = candidate.get("overrides", {})
+        if not isinstance(overrides, dict):
+            raise ValueError(f"{where}.overrides must be an object")
+
+        tag = safe_tag(raw_tag)
+        if tag in tags:
+            raise ValueError(
+                f"candidate tags {tags[tag]!r} and {raw_tag!r} both map to "
+                f"run directory {tag!r}")
+        tags[tag] = raw_tag
+
+        identity = json.dumps({
+            "overrides": overrides,
+            "pdk": candidate.get("pdk"),
+            "scl": candidate.get("scl"),
+        }, sort_keys=True, separators=(",", ":"))
+        if identity in configs:
+            raise ValueError(
+                f"candidates {configs[identity]!r} and {raw_tag!r} have the "
+                "same overrides, PDK, and standard-cell library")
+        configs[identity] = raw_tag
+        normalized.append({**candidate, "tag": tag, "overrides": overrides})
+    return normalized
+
+
+def validate_run_plan(run_spec: dict, max_iterations: int) -> dict:
+    """Validates a run spec without invoking synthesis, Docker, or OpenLane."""
+    if not isinstance(run_spec, dict):
+        raise ValueError("run_spec must be a JSON object")
+    if (isinstance(max_iterations, bool) or not isinstance(max_iterations, int)
+            or max_iterations < 1):
+        raise ValueError("max_iterations must be a positive integer")
+    if not isinstance(run_spec.get("targets", {}), dict):
+        raise ValueError("run_spec 'targets' must be an object")
+
+    explicit = run_spec.get("candidates", [])
+    if not isinstance(explicit, list):
+        raise ValueError("run_spec 'candidates' must be a list")
+    swept = expand_sweeps(run_spec)
+    budget = run_spec.get("candidate_budget")
+    validate_candidates(explicit + swept)
+
+    explore = run_spec.get("explore_synthesis")
+    explore_count = 0
+    if explore is not None:
+        if not isinstance(explore, dict):
+            raise ValueError("explore_synthesis must be an object")
+        explore_count = explore.get("count", 3)
+        if (isinstance(explore_count, bool)
+                or not isinstance(explore_count, int)
+                or explore_count < 1):
+            raise ValueError("explore_synthesis.count must be a positive integer")
+        if not isinstance(explore.get("overrides", {}), dict):
+            raise ValueError("explore_synthesis.overrides must be an object")
+
+    planned = len(explicit) + len(swept) + explore_count
+    if planned == 0:
+        raise ValueError("run_spec.json must have a non-empty 'candidates', "
+                         "'sweeps' or 'explore_synthesis' entry")
+    if budget is not None:
+        validate_candidates([], budget)
+        if planned > budget:
+            raise ValueError(
+                f"candidate plan has up to {planned} candidates, exceeding "
+                f"candidate_budget={budget}")
+
+    search = run_spec.get("search", {})
+    if not isinstance(search, dict):
+        raise ValueError("run_spec 'search' must be an object")
+    mode = search.get("mode")
+    if mode is not None and (not isinstance(mode, str) or not mode.strip()):
+        raise ValueError("search.mode must be a non-empty string")
+    if mode is None:
+        kinds = sum(bool(x) for x in (explicit, swept, explore_count))
+        mode = "hybrid" if kinds > 1 else (
+            "synthesis-exploration" if explore_count else
+            "sweep" if swept else "explicit")
+
+    return {
+        "mode": mode,
+        "objective": search.get("objective"),
+        "reference": search.get("reference"),
+        "seed": search.get("seed"),
+        "candidate_budget": budget,
+        "planned_candidates_max": planned,
+        "candidate_sources": {
+            "explicit": len(explicit),
+            "sweep": len(swept),
+            "synthesis_exploration": explore_count,
+        },
+        "max_iterations": max_iterations,
+    }
 
 
 def verify_function(design_dir: Path, run_dir: Path, verdict: dict) -> dict | None:
@@ -1514,7 +1651,8 @@ def collect_constraints(design_dir: Path) -> dict | None:
 def write_case(design_name: str, design_dir: Path, iterations: list[dict],
                winner: dict | None, stop_reason: str | None = None,
                exploration: dict | None = None,
-               expected_outcome: str | None = None) -> Path:
+               expected_outcome: str | None = None,
+               search_plan: dict | None = None) -> Path:
     REFDB.mkdir(parents=True, exist_ok=True)
     (REFDB / "cases").mkdir(exist_ok=True)
     (REFDB / "layouts").mkdir(exist_ok=True)
@@ -1575,6 +1713,9 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         # sweep. Recorded so the choice is auditable instead of taken on
         # trust — including which strategies were rejected.
         "synthesis_exploration": exploration,
+        # Declared search method and the maximum number of initial full-flow
+        # candidates. Keep experiment intent and cost bounds beside metrics.
+        "search_plan": search_plan,
         # Real rendered layout of this case's most informative candidate,
         # stored under reference-db/ so it outlives the run directory.
         "layout_image": capture_layout_image(design_name, design_dir, subject),
@@ -1686,12 +1827,18 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
     `screen` runs each candidate to SCREEN_STEP first and only pays for
     the full flow on survivors (see screen_candidates()).
     """
+    # Fail malformed, colliding, duplicate, or over-budget plans before the
+    # synthesis exploration can spend tool time.
+    validate_run_plan(run_spec, max_iterations)
     explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
-    candidates = (run_spec.get("candidates", []) + expand_sweeps(run_spec)
-                  + explored_candidates)
+    candidates = validate_candidates(
+        run_spec.get("candidates", []) + expand_sweeps(run_spec)
+        + explored_candidates,
+        run_spec.get("candidate_budget"),
+    )
     if not candidates:
-        raise ValueError("run_spec.json must have a non-empty 'candidates', "
-                          "'sweeps' or 'explore_synthesis' entry")
+        detail = exploration.get("error") if exploration else "no candidates"
+        raise ValueError(f"candidate generation produced no candidates: {detail}")
     all_iterations = []
     winner = None
     stop_reason = None
@@ -1807,13 +1954,22 @@ def main():
                      help=f"pre-flight each candidate only to {SCREEN_STEP} and "
                           f"run the full flow only on survivors; wins when "
                           f"failures are common (see screen_candidates())")
+    ap.add_argument("--validate-only", action="store_true",
+                    help="validate and print the bounded candidate plan without "
+                         "running synthesis, Docker, or OpenLane")
     args = ap.parse_args()
 
     run_spec = json.loads(args.run_spec.read_text(encoding="utf-8"))
     design_name = run_spec.get("design_name", args.design.name)
-    max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
+    max_iterations = (args.max_iterations if args.max_iterations is not None
+                      else run_spec.get("max_iterations", 3))
     if args.polish and not run_spec.get("polish"):
         run_spec["polish"] = True
+
+    search_plan = validate_run_plan(run_spec, max_iterations)
+    if args.validate_only:
+        print(json.dumps(search_plan, indent=2, sort_keys=True))
+        return
 
     all_iterations, winner, stop_reason, exploration = orchestrate(
         args.design, run_spec, max_iterations, args.max_parallel,
@@ -1824,7 +1980,8 @@ def main():
     case_file = write_case(design_name, args.design, all_iterations, winner,
                             stop_reason,
                             exploration=exploration,
-                            expected_outcome=run_spec.get("expected_outcome"))
+                            expected_outcome=run_spec.get("expected_outcome"),
+                            search_plan=search_plan)
     print(f"\nwinner: {winner['tag'] if winner else 'none — needs a new candidate set'}")
     print(f"stop reason: {stop_reason}")
     print(f"case written to: {case_file}")

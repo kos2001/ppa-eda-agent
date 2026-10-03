@@ -5,5 +5,11 @@
     { "param": "CLOCK_PERIOD", "values": [3, 5, 8, 12, 20], "tag_prefix": "sweep-clk" }
   ],
   "candidates": [],
+  "candidate_budget": 5,
+  "search": {
+    "mode": "sweep",
+    "objective": "signoff-clean Pareto knee across area, power, core area, and setup slack",
+    "reference": "reference-db cases for gcd"
+  },
   "max_iterations": 1
 }
