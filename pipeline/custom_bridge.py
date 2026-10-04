@@ -828,7 +828,7 @@ def fit_viewbox(svg: str, margin: float = 0.02) -> str:
 
 def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                      out: Path | str | None = None,
-                     timeout: int = 300) -> BridgeResult:
+                     timeout: int = 300, circuit_only: bool = False) -> BridgeResult:
     """Draw the schematic — xschem's own renderer, as SVG.
 
     A flow that starts at a schematic and never shows one is asking to be
@@ -847,7 +847,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
         return BridgeResult(status=ExecutionStatus.ERROR,
                             errors=[f"no such schematic: {schematic}"],
                             metadata={"reason": "missing_schematic"})
-    out = Path(out).resolve() if out else schematic.with_suffix(".svg")
+    out = Path(out).resolve() if out else schematic.with_suffix(".circuit.svg" if circuit_only else ".svg")
     out.parent.mkdir(parents=True, exist_ok=True)
     if not (PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc").is_file():
         return BridgeResult(status=ExecutionStatus.ERROR,
@@ -857,10 +857,20 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
     rcfile, rc_in_container = rcfile_for(schematic, pdk)
 
     started = time.time()
+    # A drawing-only view: remove analysis/code boxes from xschem's in-memory
+    # canvas, never save the edited sheet or use it for netlisting/simulation.
+    clean_canvas = (
+        "xschem unselect_all; set review_hidden 0; "
+        "foreach {review_name review_sym review_type} [xschem instance_list] {"
+        "if {[string match devices/code* $review_sym] || "
+        "[string match devices/netlist* $review_sym]} {"
+        "xschem select instance $review_name; incr review_hidden}}; "
+        "if {$review_hidden > 0} {xschem delete}; "
+    ) if circuit_only else ""
     exe = resolve("xschem")
     if exe:
         argv = [exe, "-q", "-x", "--rcfile", str(rcfile),
-                "--command", f"xschem zoom_full; xschem print svg {out}",
+                "--command", clean_canvas + f"xschem zoom_full; xschem print svg {out}",
                 str(schematic)]
         via = "local"
     else:
@@ -877,7 +887,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                 "-v", f"{out.parent}:/out",
                 XSCHEM_IMAGE, "xschem", "-q", "-x",
                 "--rcfile", rc_in_container,
-                "--command", f"xschem zoom_full; xschem print svg /out/{out.name}",
+                "--command", clean_canvas + f"xschem zoom_full; xschem print svg /out/{out.name}",
                 f"/design/{inner}"]
         via = "docker"
 
@@ -905,6 +915,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
         execution_time=round(time.time() - started, 3),
         metadata={"backend": "xschem", "via": via, "schematic": str(schematic),
                   "svg": str(out) if out.is_file() else None, "pdk": pdk,
+                  "view": "circuit" if circuit_only else "sheet",
                   "returncode": r.returncode},
     )
 

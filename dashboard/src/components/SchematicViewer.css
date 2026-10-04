@@ -75,7 +75,7 @@
 .schview--full .schview__bar { border-top: 1px solid var(--border-strong); }
 
 /* Native geometry and text stay intact; paper recolors library layers only. */
-.schview__sheet { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
+.schview__sheet { position: absolute; inset: 0; }
 .schview__drawing { max-width: none; display: block; }
 .schview__drawing text.schview__label { cursor: pointer; }
 .schview__drawing text.schview__selected { fill: #ffe76d; stroke: #6a531a; stroke-width: .7; paint-order: stroke; font-weight: bold; }
@@ -97,5 +97,6 @@
 .schview--paper .schview__drawing text.schview__connected { fill: #004bc6; }
 .schview__bar { padding: 6px; flex-wrap: wrap; }
 .schview__bar button:disabled { opacity: .4; cursor: default; }
+.schview__large-note { flex-basis: 100%; font-size: 9px; color: var(--text-dim); }
 @media (max-width: 1100px) { .schview__hint { display: none; } }
 @media (max-width: 760px) { .schview__badge { display: none; } }

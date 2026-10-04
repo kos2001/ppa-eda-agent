@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL as BACKEND } from "../api/config";
 import { useLang } from "../i18n";
 import SchematicViewer from "./SchematicViewer";
@@ -24,8 +24,29 @@ export default function SchematicWorkspace({ cell, onOpen, parents, onBack, onSt
   const [query, setQuery] = useState("");
   const [list, setList] = useState<"instance" | "net" | "checks">("instance");
   const [full, setFull] = useState(false);
+  const [inspectorVisible, setInspectorVisible] = useState(false);
+  const workspaceRef = useRef<HTMLElement>(null);
+  const fullButtonRef = useRef<HTMLButtonElement>(null);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [analysisText, setAnalysisText] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  useEffect(() => {
+    if (!full) return;
+    const overflow = document.body.style.overflow;
+    const returnFocus = document.activeElement as HTMLElement | null;
+    document.body.style.overflow = "hidden";
+    workspaceRef.current?.querySelector<HTMLElement>(".schview__frame")?.focus();
+    const keyboard = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setFull(false); }
+      if (event.key !== "Tab") return;
+      const targets = [...(workspaceRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input, summary, [tabindex="0"]') ?? [])].filter(el => el.getClientRects().length);
+      const first = targets[0], last = targets.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    window.addEventListener("keydown", keyboard);
+    return () => { document.body.style.overflow = overflow; window.removeEventListener("keydown", keyboard); if (returnFocus?.isConnected) returnFocus.focus(); };
+  }, [full]);
   useEffect(() => {
     const controller = new AbortController();
     setSheet(null); setError(null); setSelection(null); setQuery(""); setSourceOpen(false);
@@ -45,21 +66,26 @@ export default function SchematicWorkspace({ cell, onOpen, parents, onBack, onSt
   const matches = list === "instance"
     ? devices.filter(c => `${c.name} ${c.symbol} ${c.type}`.toLowerCase().includes(needle))
     : (sheet?.nets ?? []).filter(n => `${n.name} ${n.aliases.join(" ")}`.toLowerCase().includes(needle));
-  const src = `${BACKEND}/analog/svg?cell=${encodeURIComponent(cell)}&v=${sheet?.sha256 ?? refresh}`;
-  const select = (value: SheetSelection) => { setSelection(value); setSourceOpen(false); };
+  const src = `${BACKEND}/analog/svg?cell=${encodeURIComponent(cell)}&view=${analysisText ? "sheet" : "circuit"}&v=${sheet?.sha256 ?? refresh}`;
+  const select = (value: SheetSelection) => {
+    setSelection(value); setSourceOpen(false);
+    if (value?.kind === "instance" && sheet?.components.find(c => c.name === value.name)?.symbol.startsWith("devices/code")) setAnalysisText(true);
+  };
   const params = active ? { ...active.defaults, ...active.attributes } : {};
   const mainParams = ["model", "W", "L", "nf", "mult", "m", "value", "spiceprefix"].filter(k => k in params);
   const supplyParams = ["VPWR", "VGND", "VPB", "VNB"].filter(k => k in params);
   const sourceLine = active?.line ?? (selection?.kind === "net" ? sheet?.components.find(c => c.attributes.lab === selection.name)?.line : null);
   const selectedSymbol = active ? sheet?.symbols.find(s => s.symbol === active.symbol) : null;
 
-  return <section className={`sheet-workspace${full ? " sheet-workspace--full" : ""}`} aria-label={say("Circuit review workspace", "회로 검토 작업공간")}>
+  return <section ref={workspaceRef} className={`sheet-workspace${full ? " sheet-workspace--full" : ""}${full && !inspectorVisible ? " sheet-workspace--canvas-only" : ""}`} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={say("Circuit review workspace", "회로 검토 작업공간")}>
     <div className="sheet-workspace__heading">
       <div className="sheet-workspace__title"><small>{say("CIRCUIT REVIEW", "회로 검토")}</small><strong>{cell.split("/").slice(1).join(" / ")}</strong></div>
       <div className="sheet-workspace__actions">
+        <button type="button" aria-pressed={analysisText} onClick={() => setAnalysisText(v => !v)}>{say("Analysis text", "해석 코드")}</button>
         {!!parents.length && <button type="button" onClick={onBack}>← {say("Up one level", "상위 회로")}</button>}
         <button type="button" onClick={() => setRefresh(v => v + 1)}>{say("Reload sheet", "회로 새로고침")}</button>
-        <button type="button" onClick={() => setFull(v => !v)}>{full ? say("Close full screen", "전체 화면 닫기") : say("Full screen", "전체 화면")}</button>
+        {full && <button type="button" aria-pressed={inspectorVisible} onClick={() => setInspectorVisible(v => !v)}>{inspectorVisible ? say("Hide inspector", "검사 패널 접기") : say("Show inspector", "검사 패널 열기")}</button>}
+        <button type="button" ref={fullButtonRef} aria-pressed={full} onClick={() => setFull(v => !v)}>{full ? say("Close full screen", "전체 화면 닫기") : say("Full screen", "전체 화면")}</button>
       </div>
     </div>
     <div className="sheet-workspace__summary">
@@ -67,7 +93,7 @@ export default function SchematicWorkspace({ cell, onOpen, parents, onBack, onSt
     </div>
     {!!parents.length && <p className="sheet-workspace__breadcrumb">{[...parents, cell].map(p => p.split("/").slice(1).join("/")).join(" → ")}</p>}
     <div className="sheet-workspace__body">
-      <div className="sheet-workspace__canvas"><SchematicViewer src={src} alt={`schematic of ${cell}`} inspection={sheet} selection={selection} onSelect={select} onClose={full ? () => setFull(false) : undefined} /></div>
+      <div className="sheet-workspace__canvas"><SchematicViewer src={src} alt={`schematic of ${cell}`} inspection={sheet} selection={selection} onSelect={select} expanded={full} onFullScreen={full ? undefined : () => { fullButtonRef.current?.focus(); setFull(true); }} /></div>
       <aside className="sheet-workspace__inspector" aria-label={say("Circuit inspector", "회로 검사 패널")}>
         {error && <p role="alert">{error}</p>}
         <div className="sheet-workspace__tabs" role="group" aria-label={say("Inspection lists", "검사 목록")}>

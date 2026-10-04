@@ -6,8 +6,10 @@ import "./SchematicViewer.css";
 const STEP = 1.3;
 type Transform = { scale: number; x: number; y: number };
 
-export default function SchematicViewer({ src, alt, onClose, inspection, selection, onSelect }: {
+export default function SchematicViewer({ src, alt, onClose, onFullScreen, expanded, inspection, selection, onSelect }: {
   src: string; alt: string; onClose?: () => void;
+  onFullScreen?: () => void;
+  expanded?: boolean;
   inspection?: SheetInspection | null; selection?: SheetSelection;
   onSelect?: (value: SheetSelection) => void;
 }) {
@@ -16,21 +18,41 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
   const [t, setT] = useState<Transform>({ scale: 1, x: 0, y: 0 });
   const [paper, setPaper] = useState(true);
   const [status, setStatus] = useState("loading");
+  const [largeSheet, setLargeSheet] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const drag = useRef<{ x: number; y: number; ox: number; oy: number; moved: boolean } | null>(null);
   const size = useRef({ width: 1000, height: 700, x: 0, y: 0 });
+  const cameraMode = useRef<"fit" | "readable" | "manual">("fit");
 
   const fit = useCallback(() => {
     const f = frameRef.current, s = size.current;
     if (!f || !svgRef.current) return;
+    cameraMode.current = "fit";
     const scale = Math.min((f.clientWidth - 32) / s.width, (f.clientHeight - 32) / s.height);
     setT({ scale, x: (f.clientWidth - s.width * scale) / 2, y: (f.clientHeight - s.height * scale) / 2 });
+  }, []);
+  const readable = useCallback(() => {
+    const f = frameRef.current, svg = svgRef.current;
+    if (!f || !svg) return;
+    cameraMode.current = "readable";
+    const fonts = [...svg.querySelectorAll("text")].map(n => Number(n.getAttribute("font-size"))).filter(n => n > 0).sort((a, b) => a - b);
+    const font = fonts[Math.floor(fonts.length / 2)] || 14;
+    const scale = Math.max(Math.min((f.clientWidth - 32) / size.current.width, (f.clientHeight - 32) / size.current.height), 12 / font);
+    const label = svg.querySelector<SVGGraphicsElement>('text[data-kind="instance"]') ?? svg.querySelector<SVGGraphicsElement>("text");
+    let cx = size.current.x + size.current.width / 2, cy = size.current.y + size.current.height / 2;
+    if (label) {
+      const b = label.getBBox(), matrix = label.transform.baseVal.consolidate()?.matrix;
+      const p = new DOMPoint(b.x + b.width / 2, b.y + b.height / 2).matrixTransform(matrix ?? undefined);
+      cx = p.x; cy = p.y;
+    }
+    setT({ scale, x: f.clientWidth / 2 - (cx - size.current.x) * scale, y: f.clientHeight / 2 - (cy - size.current.y) * scale });
   }, []);
   const zoom = useCallback((factor: number, cx?: number, cy?: number) => {
     const f = frameRef.current;
     if (!f) return;
+    cameraMode.current = "manual";
     const x = cx ?? f.clientWidth / 2, y = cy ?? f.clientHeight / 2;
     setT(prev => {
       const scale = Math.min(40, Math.max(0.02, prev.scale * factor));
@@ -59,10 +81,22 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
     }).catch(e => { if (!controller.signal.aborted) setStatus(String(e.message ?? e)); });
     return () => controller.abort();
   }, [src, alt, fit]);
+  // Change the vector viewport, never scale a composited screenshot of it.
+  useEffect(() => {
+    const svg = svgRef.current, frame = frameRef.current;
+    if (!svg || !frame || status !== "ready") return;
+    svg.setAttribute("width", String(frame.clientWidth));
+    svg.setAttribute("height", String(frame.clientHeight));
+    svg.setAttribute("viewBox", `${size.current.x - t.x / t.scale} ${size.current.y - t.y / t.scale} ${frame.clientWidth / t.scale} ${frame.clientHeight / t.scale}`);
+  }, [t, status]);
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return;
-    const observer = new ResizeObserver(fit); observer.observe(frame);
+    const observer = new ResizeObserver(() => {
+      if (cameraMode.current === "readable") readable();
+      else if (cameraMode.current === "fit") fit();
+      else setT(prev => ({ ...prev }));
+    }); observer.observe(frame);
     const wheel = (e: WheelEvent) => {
       e.preventDefault();
       const r = frame.getBoundingClientRect();
@@ -70,7 +104,8 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
     };
     frame.addEventListener("wheel", wheel, { passive: false });
     return () => { observer.disconnect(); frame.removeEventListener("wheel", wheel); };
-  }, [fit, zoom]);
+  }, [fit, readable, zoom]);
+  useEffect(() => { fit(); }, [expanded, fit]);
   useEffect(() => {
     if (!onClose) return;
     const escape = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -95,11 +130,21 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
       text.classList.toggle("schview__connected", connected.has(name) && kind === "instance");
     }
   }, [inspection, selection, status]);
+  useEffect(() => {
+    const svg = svgRef.current, frame = frameRef.current;
+    if (!svg || !frame || status !== "ready") return;
+    const fonts = [...svg.querySelectorAll("text")].map(n => Number(n.getAttribute("font-size"))).filter(n => n > 0).sort((a, b) => a - b);
+    const fitted = Math.min((frame.clientWidth - 32) / size.current.width, (frame.clientHeight - 32) / size.current.height);
+    const isLarge = (fonts[Math.floor(fonts.length / 2)] ?? 14) * fitted < 9;
+    setLargeSheet(isLarge);
+    if (isLarge) readable();
+  }, [status, inspection?.cell, readable]);
 
   const focusSelection = () => {
     const svg = svgRef.current, frame = frameRef.current;
     const label = svg?.querySelector<SVGGraphicsElement>(".schview__selected");
     if (!svg || !frame || !label) return;
+    cameraMode.current = "manual";
     const b = label.getBBox(), m = label.transform.baseVal.consolidate()?.matrix;
     const c = new DOMPoint(b.x + b.width / 2, b.y + b.height / 2).matrixTransform(m ?? undefined);
     const scale = Math.min(5, Math.max(t.scale, frame.clientWidth / 360));
@@ -114,7 +159,7 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
         else if (e.key === "Escape") onSelect?.(null);
       }}
       onPointerDown={e => { if (e.button !== 0) return; e.currentTarget.focus(); e.currentTarget.setPointerCapture(e.pointerId); drag.current = { x: e.clientX, y: e.clientY, ox: t.x, oy: t.y, moved: false }; }}
-      onPointerMove={e => { const d = drag.current; if (!d) return; if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 4) d.moved = true; if (d.moved) setT(prev => ({ ...prev, x: d.ox + e.clientX - d.x, y: d.oy + e.clientY - d.y })); }}
+      onPointerMove={e => { const d = drag.current; if (!d) return; if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 4) d.moved = true; if (d.moved) { cameraMode.current = "manual"; setT(prev => ({ ...prev, x: d.ox + e.clientX - d.x, y: d.oy + e.clientY - d.y })); } }}
       onPointerUp={e => {
         if (drag.current && !drag.current.moved) {
           const target = document.elementFromPoint(e.clientX, e.clientY)?.closest<SVGElement>("text[data-kind]");
@@ -122,7 +167,7 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
         }
         drag.current = null;
       }} onPointerCancel={() => { drag.current = null; }} onDoubleClick={fit}>
-      <div ref={sheetRef} className="schview__sheet" style={{ transform: `translate(${t.x}px, ${t.y}px) scale(${t.scale})` }} />
+      <div ref={sheetRef} className="schview__sheet" />
       {status !== "ready" && <p className="schview__status" role={status === "loading" ? "status" : "alert"}>{status === "loading" ? say("Reading xschem drawing…", "xschem 회로도를 읽는 중…") : status}</p>}
       <span className="schview__badge">xschem · {say("source drawing", "원본 회로도")}</span>
     </div>
@@ -131,10 +176,13 @@ export default function SchematicViewer({ src, alt, onClose, inspection, selecti
       <span className="schview__zoom">{Math.round(t.scale * 100)}%</span>
       <button type="button" onClick={() => zoom(STEP)} aria-label={say("Zoom in", "확대")}>+</button>
       <button type="button" onClick={fit}>{say("Fit sheet", "전체 보기")}</button>
+      <button type="button" onClick={readable}>{say("Readable view", "읽기 크기")}</button>
+      {onFullScreen && <button type="button" onClick={onFullScreen}>{say("Expand canvas", "도면 전체화면")}</button>}
       <button type="button" onClick={focusSelection} disabled={!selection}>{say("Locate selection", "선택 위치")}</button>
       <button type="button" onClick={() => setPaper(v => !v)} aria-pressed={paper}>{say("Paper", "도면 배경")}</button>
       <span className="schview__hint">{say("scroll · zoom / drag · pan / click · inspect", "휠 · 확대 / 드래그 · 이동 / 이름 클릭 · 검사")}</span>
       {onClose && <button type="button" className="schview__close" onClick={onClose}>{say("Close", "닫기")}</button>}
+      {largeSheet && <small className="schview__large-note">{say("Large sheet · readable section opens first; Fit sheet shows all.", "큰 회로는 읽을 수 있는 부분부터 열립니다. 전체 보기로 모두 확인하세요.")}</small>}
     </div>
   </div>;
 }

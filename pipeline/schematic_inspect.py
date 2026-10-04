@@ -137,6 +137,25 @@ def transform(x: float, y: float, rot: int, flip: int, ox: float, oy: float):
 def inspect(cell: str, root: Path = ROOT) -> dict:
     root = root.resolve()
     sheet = sheet_path(cell, root)
+    result = inspect_source(sheet, root, cell)
+    provenance = safe_file(sheet.with_suffix('.layout.json'), [sheet.parent])
+    if provenance and provenance.stat().st_size < 100_000:
+        try:
+            layout = json.loads(provenance.read_text())
+            if layout.get('after_sha256') == result['sha256'] and layout.get('symbols') == result['symbols']:
+                result['layout'] = layout
+                for error in layout.get('native_erc_errors', []):
+                    result['issues'].append({'kind': 'native_netlist_diagnostic',
+                                            'message': 'Preserved from original native netlisting: ' + str(error)})
+        except (ValueError, OSError, AttributeError):
+            pass
+    return result
+
+
+def inspect_source(sheet: Path, root: Path = ROOT, cell: str | None = None) -> dict:
+    """Internal source reader; HTTP callers must go through sheet_path first."""
+    root = root.resolve()
+    sheet = sheet.resolve()
     text = sheet.read_text(encoding="utf-8")
     parsed = list(records(text))
     if sum(f[0] == "C" for _, f in parsed) > MAX_INSTANCES:
@@ -261,7 +280,7 @@ def inspect(cell: str, root: Path = ROOT) -> dict:
                            "message": f"Unattached pin: {terminals[0]['instance']}.{terminals[0]['pin']}"})
     symbol_sources = [{"symbol": name, "source": info["source"], "sha256": info["sha256"]}
                       for name, info in definitions.items() if info]
-    return {"cell": cell, "source": str(sheet.relative_to(root)), "source_text": text,
+    return {"cell": cell or sheet.stem, "source": str(sheet.relative_to(root)) if sheet.is_relative_to(root) else str(sheet), "source_text": text,
             "sha256": hashlib.sha256(text.encode()).hexdigest(),
             "modified_at": datetime.fromtimestamp(sheet.stat().st_mtime, timezone.utc).isoformat(),
             "basis": "xschem source geometry + symbol pin interfaces; review preview, not native ERC/LVS",

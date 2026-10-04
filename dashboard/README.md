@@ -102,7 +102,13 @@ bindings. Follow a local child sheet or open a SKY130 HD gate's underlying CDL
 transistors, then return to its parent. Source and review JSON can be downloaded;
 the original SVG remains available separately. The inverter and NAND sheets use
 connected supply rails and conventional CMOS stacks. Geometry review notes are
-not native ERC/LVS/signoff. See [the source and validation contract](../docs/schematic-review-20261004.md).
+not native ERC/LVS/signoff. Imported MOS standard cells now receive connected
+layouts only after native before/after netlists match; preserved well diagnostics
+remain in Review. Large drawings open at readable text size; Fit sheet shows all.
+Full screen / Expand canvas fills the viewport, initially hides the inspector,
+and retains zoom, fit and selection. Show inspector restores the panel; Escape
+closes fullscreen. Analysis text toggles code boxes without editing the source.
+See [the source and validation contract](../docs/schematic-review-20261004.md).
 
 Validation: `npm --prefix dashboard run build`, `npm --prefix dashboard run lint`
 and the root Python test suite.

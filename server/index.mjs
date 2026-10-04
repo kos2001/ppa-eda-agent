@@ -1303,7 +1303,9 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
-    const id = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
+    const params = new URL(req.url, "http://localhost").searchParams;
+    const id = params.get("cell") ?? "";
+    const circuitOnly = params.get("view") === "circuit";
     if (!/^(analog|gate)\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
       res.writeHead(400, { ...headers, "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
@@ -1314,7 +1316,7 @@ const server = createServer(async (req, res) => {
       ? path.join(pipelineDir, "designs", design, "sch")
       : path.join(pipelineDir, "analog", design);
     const sch = path.join(dir, `${cell}.sch`);
-    const svg = path.join(dir, `${cell}.svg`);
+    const svg = path.join(dir, `${cell}${circuitOnly ? ".circuit" : ""}.svg`);
     try {
       const schStat = await stat(sch);
       const svgStat = await stat(svg).catch(() => null);
@@ -1323,7 +1325,7 @@ const server = createServer(async (req, res) => {
           "python3",
           ["-c",
            "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
-           `r = custom_bridge.render_schematic(${JSON.stringify(sch)}); ` +
+           `r = custom_bridge.render_schematic(${JSON.stringify(sch)}, circuit_only=${circuitOnly ? "True" : "False"}); ` +
            "print(json.dumps(r.to_dict()))"],
           { cwd: pipelineDir, timeout: 300_000, maxBuffer: 8 * 1024 * 1024 }
         );
