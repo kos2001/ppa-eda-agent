@@ -1,0 +1,51 @@
+# Extracted verbatim from /private/tmp/ppa-sram-closure-20261004/sram_wrapper/runs/sram-closure-20261004-baseline/55-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= nom_tt_025C_1v80 Corner ===================================
+
+max slew
+
+Pin                                        Limit        Slew       Slack
+------------------------------------------------------------------------
+u_sram/addr0[0]                         0.050000    0.074991   -0.024991 (VIOLATED)
+u_sram/addr1[2]                         0.050000    0.072583   -0.022583 (VIOLATED)
+u_sram/addr1[3]                         0.050000    0.066433   -0.016433 (VIOLATED)
+u_sram/addr1[1]                         0.050000    0.065220   -0.015220 (VIOLATED)
+u_sram/addr0[3]                         0.050000    0.056523   -0.006523 (VIOLATED)
+u_sram/addr1[7]                         0.050000    0.055585   -0.005585 (VIOLATED)
+u_sram/addr1[6]                         0.050000    0.054402   -0.004402 (VIOLATED)
+u_sram/addr0[5]                         0.050000    0.054027   -0.004027 (VIOLATED)
+u_sram/addr0[2]                         0.050000    0.053893   -0.003893 (VIOLATED)
+u_sram/addr0[1]                         0.050000    0.053055   -0.003055 (VIOLATED)
+u_sram/addr1[4]                         0.050000    0.052945   -0.002945 (VIOLATED)
+u_sram/addr0[4]                         0.050000    0.052333   -0.002333 (VIOLATED)
+u_sram/addr0[7]                         0.050000    0.050919   -0.000919 (VIOLATED)
+u_sram/addr1[5]                         0.050000    0.050684   -0.000684 (VIOLATED)
+u_sram/addr0[6]                         0.050000    0.050435   -0.000435 (VIOLATED)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+clkbuf_3_2_0_clk/X                       10     31    -21 (VIOLATED)
+clkbuf_3_3_0_clk/X                       10     29    -19 (VIOLATED)
+clkbuf_3_1_0_clk/X                       10     27    -17 (VIOLATED)
+clkbuf_3_0_0_clk/X                       10     21    -11 (VIOLATED)
+clkbuf_3_5_0_clk/X                       10     21    -11 (VIOLATED)
+clkbuf_3_7_0_clk/X                       10     21    -11 (VIOLATED)
+fanout66/X                               10     21    -11 (VIOLATED)
+clkbuf_3_4_0_clk/X                       10     19     -9 (VIOLATED)
+_082_/Q                                  10     17     -7 (VIOLATED)
+clkbuf_0_clk/X                           10     17     -7 (VIOLATED)
+clkbuf_3_6_0_clk/X                       10     17     -7 (VIOLATED)
+_083_/Q                                  10     15     -5 (VIOLATED)
+_086_/Q                                  10     15     -5 (VIOLATED)
+_088_/Q                                  10     15     -5 (VIOLATED)
+_084_/Q                                  10     13     -3 (VIOLATED)
+_085_/Q                                  10     11        (VIOLATED)
+_087_/Q                                  10     11        (VIOLATED)
+_089_/Q                                  10     11        (VIOLATED)
+
+
+
+===========================================================================

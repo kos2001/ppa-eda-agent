@@ -1,4 +1,72 @@
-# One additional SRAM experiment, 2026-09-13
+# SRAM physical repair and model audit
+
+## 2026-10-04: fanout repaired, complete macro input audit
+
+Two new full runs completed on OpenLane 2.3.10 with the same RTL/PDK/HD cells.
+The current baseline reproduced 18 fanout and 16 macro address-slew violations.
+`sram-closure-20261004-fanout` added 44 non-inverting buffers in 18 internal
+single-driver nets and enabled post-GRT timing repair. Final fanout and
+capacitance counts are zero in every corner. Setup, hold, antenna, Magic DRC,
+KLayout DRC, routing DRC and LVS counts remain zero. Area changes from 200147
+to 200638 um². The remaining 16 address-slew violations still block a pass.
+
+The same final STA processes now export all 57 signal inputs of `u_sram`
+in all nine corners, with max/min and rise/fall slew. Coverage has no missing
+corner, pin or unknown edge. The largest observed input is **web0**, not an
+address or clock: 0.481151 ns in the baseline and 0.483124 ns in the repair,
+both max/rise in SS/max. It was absent from the old DRV violation table.
+The complete audit identifies 27 pins beyond the 0.04 ns model range.
+`model_validity.check` now consumes these extra reports when available and
+preserves the conservative incomplete-coverage behavior on older runs.
+
+**Neither run is a final PASS.** Complete pin coverage does not qualify
+per-arc tables or the wildcard TT Liberty mapping for SS/FF. The previous
+0.260 ns characterization plan missed this control-pin slew. The planned
+grid now retains the original points and extends to **0.560 ns**, covering
+the new worst input plus 15% headroom. This changes the simulation plan,
+not the production Liberty or a signoff limit.
+
+The OpenRAM runtime was restored at the validated revision and ngspice 46
+with KLU. `characterize_sram.py --prepare-only` verified the canonical macro
+interface, all 8192 bitcell paths and both sense-enable nodes against the
+installed SPICE, and archived the real prepared-netlist hashes. Its status is
+`prepared_inputs_only`: **no new simulation measurements or Liberty were
+generated**. Characterize TT/SS/FF separately before installing models.
+
+Commands/specs, raw final metrics, all per-corner input CSVs, DRV excerpts,
+antenna and buffer reports, immutable flow-source snapshots, preparation
+manifest and environment revisions are retained in `evidence-20261004/`.
+Full binaries and prepared SPICE remain under
+`/private/tmp/ppa-sram-closure-20261004/`. The default run spec now compares
+the current baseline and the measured physical fanout repair, replacing four
+effective duplicates whose Magic settings were already in the design config.
+
+To rerun the physical experiment:
+
+```sh
+python3 pipeline/orchestrator.py --design pipeline/designs/sram_wrapper \
+  --run-spec pipeline/designs/sram_wrapper/run_spec.json --validate-only
+python3 pipeline/orchestrator.py --design pipeline/designs/sram_wrapper \
+  --run-spec pipeline/designs/sram_wrapper/run_spec.json
+```
+
+To prepare a new characterization directory without launching simulation:
+
+```sh
+/private/tmp/ppa-sram-venv-20261004/bin/python pipeline/characterize_sram.py \
+  --openram-root /private/tmp/ppa-sram-openram-20261004 \
+  --output-dir /private/tmp/NEW-SRAM-PREFLIGHT --prepare-only
+```
+
+Omit `--prepare-only` and use another new output directory for actual SPICE.
+Use explicit `--corner ss` / `--corner ff` invocations for those PVT models.
+
+Repository validation after these changes: `python3 -m unittest discover -s
+tests` ran 1144 tests successfully (4 skipped); `cd dashboard && npm run build`
+passed. These software checks are separate from the remaining physical and
+macro-model signoff failures above.
+
+The earlier entries below are historical observations.
 
 Ran `sram-slew010-probe-20260913` with the existing two-stage address
 buffers and `MAX_TRANSITION_CONSTRAINT=0.10` (baseline: 0.75).
@@ -93,4 +161,3 @@ byte-identical to the baseline: 9 clock buffers, the same 18 + 16 violations. Th
 clock buffers' fanout is set by the H-tree's stop criterion, not by the cluster
 size, so the knob cannot reach it here. Raising `MAX_FANOUT_CONSTRAINT` would make
 the number go away by editing the test, and was not done.
-

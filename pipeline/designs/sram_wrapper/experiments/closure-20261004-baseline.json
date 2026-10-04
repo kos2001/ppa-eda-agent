@@ -1,0 +1,22 @@
+{
+  "design_name": "sram_wrapper",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "sram-closure-20261004-baseline",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {}
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Reproduce current SRAM integration and collect physical, electrical and complete macro-input slew evidence",
+    "reference": "pipeline/designs/sram_wrapper/experiments/README.md:2026-10-02"
+  },
+  "_why": "The TT relaxed macro library remains diagnostic and wildcard mapped. Neither a clean layout nor clean electrical counts qualifies its PVT mapping or timing table range."
+}

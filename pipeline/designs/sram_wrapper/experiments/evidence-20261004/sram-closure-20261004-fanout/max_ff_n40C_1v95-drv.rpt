@@ -1,0 +1,17 @@
+# Extracted verbatim from /private/tmp/ppa-sram-closure-20261004/sram_wrapper/runs/sram-closure-20261004-fanout/60-openroad-stapostpnr/max_ff_n40C_1v95/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= max_ff_n40C_1v95 Corner ===================================
+
+max slew
+
+Pin                                        Limit        Slew       Slack
+------------------------------------------------------------------------
+u_sram/addr1[1]                         0.050000    0.060672   -0.010672 (VIOLATED)
+u_sram/addr0[0]                         0.050000    0.058383   -0.008383 (VIOLATED)
+u_sram/addr1[2]                         0.050000    0.056702   -0.006702 (VIOLATED)
+u_sram/addr1[3]                         0.050000    0.053071   -0.003071 (VIOLATED)
+
+
+
+===========================================================================

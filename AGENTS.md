@@ -33,6 +33,20 @@ Treat final Magic DRC, Netgen LVS, every reported timing corner, and requested
 functional equivalence as hard gates before comparing PPA. TritonRoute's DRC is
 an intermediate routing signal and does not replace signoff DRC.
 
+Candidate `flow` selects a supported flow explicitly. `FanoutRepair` and
+`MacroFanoutRepair` are opt-in SKY130 HD physical experiments: they split
+internal single-driver nets after antenna insertion and rerun placement,
+routing and antenna repair without changing the final SDC. A later diode
+pass can reintroduce fanout violations; inspect the final reports. They are
+not covered by the current surrogate. Custom flow sources are snapshotted
+before execution and retained with hashes in the run directory.
+
+For SRAM, use final `macro_inputs.csv` / `macro_slew_audit.py` in addition to
+the violation table. Nonviolating control or clock inputs can exceed the
+Liberty table range. Complete input-edge coverage does not establish PVT or
+per-arc model validity. `characterize_sram.py --prepare-only` validates and
+archives inputs; it produces no measurements or qualified Liberty.
+
 ## Experiment workflow
 
 Validate every edited run spec before a costly tool invocation:
