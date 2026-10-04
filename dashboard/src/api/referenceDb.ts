@@ -302,6 +302,8 @@ export interface NetlistGraph {
 }
 
 export interface CandidateResult {
+  evaluation_provenance?: { complete: boolean; compatibility_key?: string; reason?: string };
+  step_coverage?: { declared: number; executed: number; missing_signoff: string[] };
   not_evaluated?: boolean;
   budget_exhausted?: string;
   evaluation_fidelity?: "screen" | "full_flow" | "not_evaluated";
@@ -350,6 +352,32 @@ export interface CandidateResult {
   // Wall-clock of this candidate's flow, written by collect.py's
   // run_one(). Optional: orchestrator.py's own runs do not record it.
   seconds?: number | null;
+}
+
+export interface ArtifactInventory {
+  run_available: boolean;
+  reason?: string;
+  limited?: boolean;
+  steps: { id: string; files: number; snapshot_recorded: boolean }[];
+  files: { id: string; step: string; bytes: number }[];
+}
+
+export interface ArtifactText {
+  id: string;
+  content: string;
+  truncated: boolean;
+  bytes: number;
+  limit_bytes: number;
+  modified_at: string;
+}
+
+export async function fetchArtifacts(file: string, tag: string, id?: string): Promise<ArtifactInventory | ArtifactText> {
+  const params = new URLSearchParams({ file, tag });
+  if (id !== undefined) params.set("id", id);
+  const response = await fetch(`${LOCAL_SERVER_URL}/reference-db/artifacts?${params}`, { signal: AbortSignal.timeout(30_000) });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error ?? `HTTP ${response.status}`);
+  return body;
 }
 
 export interface IterationResult {

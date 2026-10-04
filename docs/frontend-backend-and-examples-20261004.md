@@ -65,9 +65,12 @@ their schematics and testbenches are available in the Schematic workspace.
 
 | Primary source | Verified features | Ideas applied here / possible follow-up |
 | --- | --- | --- |
-| [SiliconCompiler Dashboard tutorial](https://docs.siliconcompiler.com/en/v0.38.3/user_guide/tutorials/dashboard_tutorial.html) | Project/node metrics, flow graph, file/manifest views, cross-run graphs | Applied: measured summary and design-to-case navigation. Follow-up: compare compatible runs by PDK/SCL/toolchain. |
-| [OpenROAD Web Viewer](https://openroad.readthedocs.io/en/latest/main/src/web/README.html) | Browser layout tiles, timing-path highlighting, heatmaps, portable timing report | Applied: actual layout previews with provenance. Follow-up: detailed interactive layer/path viewing after checking the pinned OpenROAD binary's web capabilities. |
-| [LanEx](https://github.com/AkshatIsWired/lanex) | LibreLane cockpit, verification evidence, run analytics and design-space exploration | Applied: evidence-first overview and circuit catalog. Follow-up: per-check links into archived reports. |
+| [SiliconCompiler Dashboard tutorial](https://docs.siliconcompiler.com/en/v0.38.3/user_guide/tutorials/dashboard_tutorial.html) | Project/node metrics, flow graph, file/manifest views, cross-run graphs | Applied: selected-candidate metrics, raw area/power observations, recorded flow snapshots and JSON export. Unknown source compatibility stays explicit. |
+| [OpenROAD Web Viewer](https://openroad.readthedocs.io/en/latest/main/src/web/README.html) | Browser layout tiles, timing-path highlighting, heatmaps, portable timing report | Applied: recorded DEF zoom/pan, layer visibility, instance/net search and geometric cell-footprint map. Native tile/path analysis needs actual tool support and recorded data. |
+| [LanEx](https://github.com/AkshatIsWired/lanex) | LibreLane cockpit, verification evidence, run analytics and design-space exploration | Applied: per-check evidence matrix linking to native text reports and highlighted metrics, with missing files distinguished. |
+
+The follow-up implementation and its data contracts are documented in
+[applied visualization patterns](eda-visualization-patterns-20261004.md).
 
 These are reviewed references, not newly installed dependencies or executed
 flows. OpenROAD's current web-viewer documentation does not prove that the

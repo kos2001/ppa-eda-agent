@@ -6,6 +6,7 @@ import { groupByDesign, recordedAt } from "./caseGrouping";
 import { candidateSummary, CANDIDATE_STATES } from "./overviewData";
 import "./OverviewTab.css";
 import EvaluationPanel from "./EvaluationPanel";
+import RunInspector from "./RunInspector";
 
 interface Example {
   design: string;
@@ -30,11 +31,11 @@ const DESCRIPTIONS: Record<string, [string, string]> = {
 };
 const REFERENCES = [
   { name: "SiliconCompiler", url: "https://docs.siliconcompiler.com/en/v0.38.3/user_guide/tutorials/dashboard_tutorial.html",
-    detail: ["Run metrics, flow graph and cross-run comparisons", "실행 지표, 흐름 그래프, 실행 간 비교"] },
+    detail: ["Applied: selected-run metrics, area/power observations and flow snapshots", "적용: 선택 실행 지표, 면적·전력 관측값, 흐름 스냅샷"] },
   { name: "OpenROAD Web Viewer", url: "https://openroad.readthedocs.io/en/latest/main/src/web/README.html",
-    detail: ["Layout tiles, timing paths and heatmaps", "레이아웃 타일, 타이밍 경로, 히트맵"] },
+    detail: ["Applied: zoom/pan, layer visibility, geometry search and cell footprint map", "적용: 확대·이동, 레이어 선택, 도형 검색, 셀 면적 분포"] },
   { name: "LanEx", url: "https://github.com/AkshatIsWired/lanex",
-    detail: ["LibreLane cockpit, verification evidence and DSE", "LibreLane 제어 화면, 검증 근거, 설계 공간 탐색"] },
+    detail: ["Applied: per-check source reports, highlighted metrics and unknown states", "적용: 검사별 원본 보고서, 지표 강조, 미확인 상태 표시"] },
 ];
 
 async function apiJson<T>(endpoint: string): Promise<T> {
@@ -43,8 +44,9 @@ async function apiJson<T>(endpoint: string): Promise<T> {
   return response.json();
 }
 
-export default function OverviewTab({ onOpenDesign, onOpenSchematic }: {
+export default function OverviewTab({ onOpenDesign, onOpenCase, onOpenSchematic }: {
   onOpenDesign: (design: string) => void;
+  onOpenCase: (design: string, file: string) => void;
   onOpenSchematic: () => void;
 }) {
   const { lang } = useLang();
@@ -140,6 +142,7 @@ export default function OverviewTab({ onOpenDesign, onOpenSchematic }: {
       <p>{say("Physical checks do not establish SRAM model qualification or functional equivalence. Open the case for its constraints and model audit.", "물리 검증 결과만으로 SRAM 모델 적합성이나 기능 등가성이 확정되지 않습니다. 케이스에서 제약과 모델 감사를 확인하세요.")}</p>
     </section>
     <EvaluationPanel refresh={refresh} />
+    {db && <RunInspector cases={Object.values(db.designs).flat()} onOpenCase={onOpenCase} />}
     <section aria-label={say("Circuit examples", "회로 예제")}>
       <div className="overview__section-heading"><h3>{say("Circuit examples", "회로 예제")}</h3><span>{shown.length} / {catalog.length}</span></div>
       <div className="overview__filters">
