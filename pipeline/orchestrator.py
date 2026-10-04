@@ -929,6 +929,15 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     models = model_validity.check(design_dir, run_dir)
     verdict["unverified"] += model_validity.unverified(models)
     verdict["model_validity"] = models
+    if (cand.get("flow") in ("FanoutRepair", "MacroFanoutRepair")
+            or (run_dir / "custom_flow_provenance.json").is_file()):
+        from sta_report import repair_parasitic_audit
+        audit = repair_parasitic_audit(run_dir, [c["corner"] for c in verdict["timing_corners"]])
+        verdict["repair_parasitic_audit"] = audit
+        if not audit["verified"]:
+            verdict["unverified"].append(
+                "inserted repair drivers lack complete final SPEF annotation, or the required "
+                "corner reports are missing; provisional timing/DRV values cannot establish closure")
     # The violation table omits clock/data macro inputs below the DRV limit.
     # Preserve the exhaustive extra report without treating coverage as
     # Liberty range or PVT qualification.

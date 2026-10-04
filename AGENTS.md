@@ -41,11 +41,31 @@ pass can reintroduce fanout violations; inspect the final reports. They are
 not covered by the current surrogate. Custom flow sources are snapshotted
 before execution and retained with hashes in the run directory.
 
+For coupled antenna/fanout repair, `FANOUT_REPAIR_ROUNDS` is bounded to 1–3.
+Use headroom on measured nets before expanding a global target: stronger global
+buffering can create new capacitance, slew and antenna failures. Preserve every
+pass's report, use unique instance names across passes, and evaluate the last
+routed result rather than an intermediate zero count.
+
+Dedicated macro input buffers are an opt-in physical experiment. Validate all
+requested pins and their existing power mappings before rewiring. Only known
+non-inverting masters, or two known inverters preserving polarity, are allowed.
+Verify original pin connectivity independently. Seed cells outside the macro,
+legalize and route them, and protect their sizes only after net repair. Library
+transition lookups must account for different slew thresholds and both edges;
+they rank candidates but do not replace final extracted STA.
+
 For SRAM, use final `macro_inputs.csv` / `macro_slew_audit.py` in addition to
 the violation table. Nonviolating control or clock inputs can exceed the
 Liberty table range. Complete input-edge coverage does not establish PVT or
 per-arc model validity. `characterize_sram.py --prepare-only` validates and
 archives inputs; it produces no measurements or qualified Liberty.
+
+Sample a stalled owned SPICE process before changing numerical settings. Model
+parsing and matrix solving are different bottlenecks. An experimental simulator
+patch needs pinned source/build hashes and comparisons with the original model
+selection and PVT device currents. Partial libraries and completed small-device
+probes cannot qualify the full SRAM.
 
 ## Experiment workflow
 

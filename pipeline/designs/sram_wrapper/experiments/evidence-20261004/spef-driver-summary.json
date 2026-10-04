@@ -1,0 +1,176 @@
+{
+  "source": "final max SPEF and OpenDB of sram-closure-20261004-fanout",
+  "scope": "wire capacitance excludes pin capacitance; R*C is a diagnostic proxy, not Elmore or measured timing",
+  "rows": [
+    {
+      "pin": "addr0[0]",
+      "net": "addr0\\[0\\]",
+      "driver_master": "sky130_fd_sc_hd__clkbuf_2",
+      "driver_distance_um": 15.897,
+      "wire_cap_pf": 0.00210829,
+      "shortest_path_resistance_ohm": 67.6105,
+      "R_path_times_total_wire_C_ns": 0.00014254254104499999,
+      "driver_sinks_including_diodes": 1
+    },
+    {
+      "pin": "addr0[1]",
+      "net": "addr0\\[1\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 72.635,
+      "wire_cap_pf": 0.00991941,
+      "shortest_path_resistance_ohm": 110.82780000000001,
+      "R_path_times_total_wire_C_ns": 0.001099346387598,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr0[2]",
+      "net": "addr0\\[2\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 65.155,
+      "wire_cap_pf": 0.011521,
+      "shortest_path_resistance_ohm": 130.44406,
+      "R_path_times_total_wire_C_ns": 0.00150284601526,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr0[3]",
+      "net": "addr0\\[3\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 83.927,
+      "wire_cap_pf": 0.0133105,
+      "shortest_path_resistance_ohm": 155.67130000000003,
+      "R_path_times_total_wire_C_ns": 0.0020720628386500005,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr0[4]",
+      "net": "addr0\\[4\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 64.388,
+      "wire_cap_pf": 0.0108656,
+      "shortest_path_resistance_ohm": 101.5362,
+      "R_path_times_total_wire_C_ns": 0.0011032517347199999,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr0[5]",
+      "net": "addr0\\[5\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 75.268,
+      "wire_cap_pf": 0.0121229,
+      "shortest_path_resistance_ohm": 112.8759,
+      "R_path_times_total_wire_C_ns": 0.00136838324811,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr0[6]",
+      "net": "addr0\\[6\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 62.847,
+      "wire_cap_pf": 0.00901141,
+      "shortest_path_resistance_ohm": 98.02669999999999,
+      "R_path_times_total_wire_C_ns": 0.0008833587846469998,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr0[7]",
+      "net": "addr0\\[7\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 68.468,
+      "wire_cap_pf": 0.00919316,
+      "shortest_path_resistance_ohm": 137.78570000000002,
+      "R_path_times_total_wire_C_ns": 0.0012666859858120002,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[0]",
+      "net": "addr1\\[0\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 17.733,
+      "wire_cap_pf": 0.00142789,
+      "shortest_path_resistance_ohm": 63.674099999999996,
+      "R_path_times_total_wire_C_ns": 9.0919610649e-05,
+      "driver_sinks_including_diodes": 1
+    },
+    {
+      "pin": "addr1[1]",
+      "net": "addr1\\[1\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 157.714,
+      "wire_cap_pf": 0.0278241,
+      "shortest_path_resistance_ohm": 236.5268,
+      "R_path_times_total_wire_C_ns": 0.00658114533588,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[2]",
+      "net": "addr1\\[2\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 135.294,
+      "wire_cap_pf": 0.0245071,
+      "shortest_path_resistance_ohm": 214.22057,
+      "R_path_times_total_wire_C_ns": 0.005249924931047,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[3]",
+      "net": "addr1\\[3\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 142.255,
+      "wire_cap_pf": 0.0218215,
+      "shortest_path_resistance_ohm": 194.22852999999998,
+      "R_path_times_total_wire_C_ns": 0.004238357867395,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[4]",
+      "net": "addr1\\[4\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 60.615,
+      "wire_cap_pf": 0.0104936,
+      "shortest_path_resistance_ohm": 117.81899999999999,
+      "R_path_times_total_wire_C_ns": 0.0012363454584,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[5]",
+      "net": "addr1\\[5\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 71.034,
+      "wire_cap_pf": 0.00840661,
+      "shortest_path_resistance_ohm": 119.7827,
+      "R_path_times_total_wire_C_ns": 0.001006966443647,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[6]",
+      "net": "addr1\\[6\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 62.095,
+      "wire_cap_pf": 0.0131627,
+      "shortest_path_resistance_ohm": 105.6404,
+      "R_path_times_total_wire_C_ns": 0.00139051289308,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "addr1[7]",
+      "net": "addr1\\[7\\]",
+      "driver_master": "sky130_fd_sc_hd__buf_16",
+      "driver_distance_um": 70.055,
+      "wire_cap_pf": 0.012362,
+      "shortest_path_resistance_ohm": 159.23490000000004,
+      "R_path_times_total_wire_C_ns": 0.0019684618338000003,
+      "driver_sinks_including_diodes": 3
+    },
+    {
+      "pin": "web0",
+      "net": "net105",
+      "driver_master": "sky130_fd_sc_hd__clkbuf_2",
+      "driver_distance_um": 174.777,
+      "wire_cap_pf": 0.0257928,
+      "shortest_path_resistance_ohm": 149.181,
+      "R_path_times_total_wire_C_ns": 0.0038477956968000003,
+      "driver_sinks_including_diodes": 5
+    }
+  ]
+}

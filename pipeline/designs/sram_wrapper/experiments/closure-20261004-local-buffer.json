@@ -1,0 +1,31 @@
+{
+  "design_name": "sram_wrapper",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "sram-closure-20261004-local16",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "FANOUT_REPAIR_LIMIT": 10,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "RUN_POST_GRT_RESIZER_TIMING": true,
+        "MACRO_BUFFER_PINS": "[\"u_sram/addr0[0]\",\"u_sram/addr0[1]\",\"u_sram/addr0[2]\",\"u_sram/addr0[3]\",\"u_sram/addr0[4]\",\"u_sram/addr0[5]\",\"u_sram/addr0[6]\",\"u_sram/addr0[7]\",\"u_sram/addr1[0]\",\"u_sram/addr1[1]\",\"u_sram/addr1[2]\",\"u_sram/addr1[3]\",\"u_sram/addr1[4]\",\"u_sram/addr1[5]\",\"u_sram/addr1[6]\",\"u_sram/addr1[7]\",\"u_sram/din0[0]\",\"u_sram/din0[1]\",\"u_sram/din0[2]\",\"u_sram/din0[3]\",\"u_sram/din0[4]\",\"u_sram/din0[5]\",\"u_sram/din0[6]\",\"u_sram/din0[7]\",\"u_sram/web0\"]",
+        "MACRO_BUFFER_CELL": "sky130_fd_sc_hd__buf_16",
+        "MACRO_BUFFER_OFFSET_UM": 2.0
+      },
+      "flow": "MacroFanoutRepair"
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Isolate 25 measured non-clock macro inputs with size-preserved dedicated buf_16 cells seeded outside the nearest macro edge; legalize, reroute and evaluate all final gates",
+    "reference": "reference-db/cases/sram_wrapper__2026-10-04__010407.json; final ODB driver distances and shared weak drivers"
+  },
+  "_why": "Complex physical interaction, budget one complete run. No clock input or signoff constraint is changed. This is a geometric baseline for placement/load-aware optimization, not optimal RC-tree dynamic programming or qualified macro timing."
+}

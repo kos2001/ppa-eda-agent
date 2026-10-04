@@ -112,6 +112,37 @@ class TestParseDrv(unittest.TestCase):
 
 
 class TestReadRunRefusesToBeVacuous(unittest.TestCase):
+    def test_repair_parasitics_reject_partial_macro_driver_and_missing_corner(self):
+        # Verbatim section from the local paired-inverter physical run.
+        text = """report_parasitic_annotation -report_unannotated
+============================================================================
+Found 37 unannotated drivers.
+ clkload0/Y
+Found 84 partially unannotated drivers.
+ macro_pin_buffer_1/Y
+  u_sram/addr0[0]
+ macro_pin_prebuffer_2/Y
+  macro_pin_buffer_2/A
+
+===========================================================================
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            step = run / "62-openroad-stapostpnr/max_ss_100C_1v60"
+            step.mkdir(parents=True)
+            report = step / "checks.rpt"
+            report.write_text(text)
+            audit = sta_report.repair_parasitic_audit(run, [step.name])
+            self.assertFalse(audit["verified"])
+            self.assertEqual(audit["corners"][step.name]["incomplete_repair_drivers"],
+                             ["macro_pin_buffer_1/Y", "macro_pin_prebuffer_2/Y"])
+            # An ordinary unannotated dummy load is outside this audit's scope.
+            report.write_text(text.split("Found 84 partially")[0])
+            self.assertTrue(sta_report.repair_parasitic_audit(run, [step.name])["verified"])
+            self.assertFalse(sta_report.repair_parasitic_audit(run, [step.name, "missing"])["verified"])
+            report.write_text("no annotation report")
+            self.assertFalse(sta_report.repair_parasitic_audit(run, [step.name])["verified"])
+
     def test_a_step_with_no_reports_raises_rather_than_returning_empty(self):
         """Real bug this pins: mid-PnR STA writes reports flat in the step
         directory while pre/post-PnR use per-corner subdirectories. Only

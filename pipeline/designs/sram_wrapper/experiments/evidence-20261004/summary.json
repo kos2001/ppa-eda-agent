@@ -26,8 +26,52 @@
       "16 max-slew (DRV) violation(s)"
     ],
     "unverified": [
-      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/web0 at 0.483 ns against a model characterised to 0.040 ns (12.1x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification"
+      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/web0 at 0.483 ns against a model characterised to 0.040 ns (12.1x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification",
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
     ],
     "evidence": "pipeline/designs/sram_wrapper/experiments/evidence-20261004/sram-closure-20261004-fanout"
+  },
+  {
+    "tag": "sram-closure-20261004-local16",
+    "case": "reference-db/cases/sram_wrapper__2026-10-04__055823.json",
+    "flow": "MacroFanoutRepair",
+    "seconds": 279.0,
+    "area_um2": 201326,
+    "passed": false,
+    "violations": [
+      "16 max-slew (DRV) violation(s)"
+    ],
+    "unverified": [
+      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk0 at 0.108 ns against a model characterised to 0.040 ns (2.7x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification",
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
+    ],
+    "evidence": "pipeline/designs/sram_wrapper/experiments/evidence-20261004/sram-closure-20261004-local16"
+  },
+  {
+    "tag": "sram-closure-20261004-local-inv8-inv16",
+    "case": "reference-db/cases/sram_wrapper__2026-10-04__062025.json",
+    "flow": "MacroFanoutRepair",
+    "seconds": 807.9,
+    "area_um2": 201415,
+    "passed": false,
+    "violations": [],
+    "unverified": [
+      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk0 at 0.108 ns against a model characterised to 0.040 ns (2.7x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification",
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
+    ],
+    "evidence": "pipeline/designs/sram_wrapper/experiments/evidence-20261004/sram-closure-20261004-local-inv8-inv16"
+  },
+  {
+    "tag": "sram-closure-20261004-inv8-inv16-spef",
+    "case": "reference-db/cases/sram_wrapper__2026-10-04__062713.json",
+    "flow": "MacroFanoutRepair",
+    "seconds": 403.5,
+    "area_um2": 201415,
+    "passed": false,
+    "violations": [],
+    "unverified": [
+      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk1 at 0.211 ns against a model characterised to 0.040 ns (5.3x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification"
+    ],
+    "evidence": "pipeline/designs/sram_wrapper/experiments/evidence-20261004/sram-closure-20261004-inv8-inv16-spef"
   }
 ]

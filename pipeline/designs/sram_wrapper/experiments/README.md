@@ -161,3 +161,45 @@ byte-identical to the baseline: 9 clock buffers, the same 18 + 16 violations. Th
 clock buffers' fanout is set by the H-tree's stop criterion, not by the cluster
 size, so the knob cannot reach it here. Raising `MAX_FANOUT_CONSTRAINT` would make
 the number go away by editing the test, and was not done.
+
+## 2026-10-04: local paired inverters clear physical electrical rules
+
+The new `MacroPinBuffers` step gives 25 address/data/web inputs dedicated cells
+seeded outside the nearest macro edge, followed by legalization and routing.
+It validates the entire pin list, established power connections and known cell
+interfaces before mutation. Optional inv8/inv16 pairs preserve polarity; final
+size protection occurs after net repair. An independent OpenDB probe checks
+102,898 original connected pins and zero or two inversions per changed path.
+
+The first buf16 and inv8/inv16 runs had net/instance name collisions that caused
+OpenSTA to interpret SPEF internal nodes as instance pins. Their provisional
+slew values are **unverified**. The same issue affects earlier fanout-repair
+runs; those case records now retain an explicit annotation warning. Do not rank
+those provisional timings against fully extracted results.
+
+The corrective `sram-closure-20261004-inv8-inv16-spef` run separates net and
+instance names and has complete SPEF annotation for inserted repair drivers at
+all nine corners. Final measured results:
+
+| Check | Result |
+|---|---:|
+| Max address input slew, all corners | 0.046794 ns (limit 0.050 ns) |
+| Max slew / fanout / capacitance violations | 0 / 0 / 0 |
+| Setup / hold violations | 0 / 0 |
+| Antenna / Magic DRC / KLayout DRC / LVS | 0 / 0 / 0 / 0 |
+| Cell area | 201415 um² |
+| Macro input edges audited | 2052, complete |
+
+The 25 inputs use 50 dedicated inverters. This is measured local placement and
+cell-family selection, not an implemented optimal buffering DP. The final
+checks pass under the existing models, but **the overall verdict remains
+unverified**: 27 macro inputs exceed the current 0.040 ns table range; the worst
+is clk1 at 0.211 ns. The supplied macro's TT-only wildcard PVT mapping also
+requires qualification. No qualified replacement Liberty was installed.
+
+`run_spec.json` now compares the unchanged baseline with this measured physical
+candidate, retaining a two-candidate budget and all original final constraints.
+Use `closure-20261004-inverter-spef.json` to reproduce the isolated candidate.
+The complete compact reports, per-pass repair reports and immutable execution
+sources are in `evidence-20261004/`; the measured case is
+`reference-db/cases/sram_wrapper__2026-10-04__062713.json`.
