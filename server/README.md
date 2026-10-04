@@ -27,6 +27,11 @@ Core read endpoints:
 - `GET /reference-db/layouts/<name>.png`: stored layout image.
 - `GET /gateway-status`, `GET /toolchain-status`: existing model/tool status probes.
 - `GET /analog/cells`: checked-in and generated schematic inventory.
+- `GET /analog/inspect?cell=<analog|gate>/<design>/<cell>`: read-only source,
+  symbol hashes, geometric pin/net preview, hierarchy and review notes; no EDA
+  execution. Restricted source roots, an 8,000-element cap, no Tcl evaluation.
+  This does not produce native ERC/LVS or expand bus expressions.
+- `GET /analog/svg?cell=…`: xschem's native SVG, cached beside the source.
 
 Existing pipeline/run, review, diagnosis, ask, translation and streaming API
 contracts are preserved. The backend never serves `dashboard/dist/`. Local EDA

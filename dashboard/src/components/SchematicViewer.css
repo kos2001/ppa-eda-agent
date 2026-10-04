@@ -73,3 +73,29 @@
   border: 0;
 }
 .schview--full .schview__bar { border-top: 1px solid var(--border-strong); }
+
+/* Native geometry and text stay intact; paper recolors library layers only. */
+.schview__sheet { position: absolute; top: 0; left: 0; transform-origin: 0 0; will-change: transform; }
+.schview__drawing { max-width: none; display: block; }
+.schview__drawing text.schview__label { cursor: pointer; }
+.schview__drawing text.schview__selected { fill: #ffe76d; stroke: #6a531a; stroke-width: .7; paint-order: stroke; font-weight: bold; }
+.schview__drawing text.schview__connected { fill: #ffe76d; text-decoration: underline; }
+.schview__frame:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.schview__status { position: absolute; inset: 40% 0 auto; text-align: center; color: var(--text-dim); font: 11px var(--mono); }
+.schview__badge { position: absolute; top: 8px; left: 10px; color: #718094; font: 9px var(--mono); background: #ffffffdd; border: 1px solid #cad0d9; border-radius: 2px; padding: 4px 6px; pointer-events: none; }
+.schview:not(.schview--paper) .schview__badge { background: #10151cdd; border-color: #39434d; color: #b3beca; }
+.schview--paper .schview__frame { background: #f6f8fc; }
+.schview--paper .schview__drawing .l0 { fill: #f6f8fc; stroke: #f6f8fc; }
+.schview--paper .schview__drawing .l1, .schview--paper .schview__drawing .l6 { fill: #006987; stroke: #006987; }
+.schview--paper .schview__drawing .l4 { fill: #245167; stroke: #245167; }
+.schview--paper .schview__drawing .l7 { fill: #9b4449; stroke: #9b4449; }
+.schview--paper .schview__drawing text { fill: #283b51; }
+.schview--paper .schview__drawing text[fill="#00ccee"] { fill: #006987; }
+.schview--paper .schview__drawing text[fill="#aaaa00"] { fill: #8b581b; }
+.schview--paper .schview__drawing text[fill="#ff0000"] { fill: #9b4449; }
+.schview--paper .schview__drawing text.schview__selected { fill: #004bc6; stroke: #d4e6ff; stroke-width: 2.5; paint-order: stroke; }
+.schview--paper .schview__drawing text.schview__connected { fill: #004bc6; }
+.schview__bar { padding: 6px; flex-wrap: wrap; }
+.schview__bar button:disabled { opacity: .4; cursor: default; }
+@media (max-width: 1100px) { .schview__hint { display: none; } }
+@media (max-width: 760px) { .schview__badge { display: none; } }

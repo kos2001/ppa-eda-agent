@@ -92,7 +92,7 @@
      viewer inside pans and zooms, so the panel's job is to hold a
      window of a stable size. Proportional for the same reason the rest
      of the chrome is — see EdaShell.css on zoom. */
-  height: clamp(240px, 52vh, 720px);
+  height: auto;
   background: #000;
 }
 

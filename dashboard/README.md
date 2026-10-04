@@ -95,5 +95,14 @@ Ask, Manual and Diagnosis. See
 [`../docs/frontend-backend-and-examples-20261004.md`](../docs/frontend-backend-and-examples-20261004.md)
 for architecture, circuit inventory and external reference comparisons.
 
+Schematic opens a circuit review workspace with native xschem symbols/wires,
+paper/dark canvas, selection, pan/zoom, a device/net inspector, D/G/S/B and
+symbolic sizing, source attributes, and implicit standard-cell power/well
+bindings. Follow a local child sheet or open a SKY130 HD gate's underlying CDL
+transistors, then return to its parent. Source and review JSON can be downloaded;
+the original SVG remains available separately. The inverter and NAND sheets use
+connected supply rails and conventional CMOS stacks. Geometry review notes are
+not native ERC/LVS/signoff. See [the source and validation contract](../docs/schematic-review-20261004.md).
+
 Validation: `npm --prefix dashboard run build`, `npm --prefix dashboard run lint`
 and the root Python test suite.
