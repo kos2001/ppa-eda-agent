@@ -1,0 +1,47 @@
+[
+  {
+    "tag": "aes-closure-20261004-baseline",
+    "case": "reference-db/cases/aes__2026-10-04__003344.json",
+    "flow": "design default",
+    "seconds": 1272.7,
+    "area_um2": 132476,
+    "passed": false,
+    "violations": [
+      "15 routing antenna violation(s)",
+      "2 max-capacitance (DRV) violation(s)",
+      "4 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-baseline"
+  },
+  {
+    "tag": "aes-closure-20261004-repair",
+    "case": "reference-db/cases/aes__2026-10-04.json",
+    "flow": "FanoutRepair",
+    "seconds": 1438.3,
+    "area_um2": 134633,
+    "passed": false,
+    "violations": [
+      "6 routing antenna violation(s)",
+      "17 max-slew (DRV) violation(s)",
+      "2 max-capacitance (DRV) violation(s)",
+      "2 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-repair"
+  },
+  {
+    "tag": "aes-closure-20261004-cap-v2",
+    "case": "reference-db/cases/aes__2026-10-04__005633.json",
+    "flow": "FanoutRepair",
+    "seconds": 1332.9,
+    "area_um2": 134658,
+    "passed": false,
+    "violations": [
+      "6 routing antenna violation(s)",
+      "6 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-cap-v2"
+  }
+]

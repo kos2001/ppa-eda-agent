@@ -178,10 +178,40 @@ def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
             if prev is None or entry["slew_ns"] > prev["slew_ns"]:
                 worst[row["pin"]] = entry
 
+    audit = None
+    if list(Path(run_dir).glob("*stapostpnr/*/macro_inputs.csv")):
+        from macro_slew_audit import read_audit
+        cfg = json.loads((Path(design_dir) / "config.json").read_text())
+        expected = {name: 57 for macro, spec in (cfg.get("MACROS") or {}).items()
+                    if macro == "sky130_sram_1kbyte_1rw1r_32x256_8"
+                    for name in spec.get("instances", {})}
+        try:
+            audit = read_audit(run_dir, expected)
+        except (OSError, ValueError, KeyError) as exc:
+            audit = {"coverage_complete": False, "error": str(exc), "rows": []}
+        for row in audit["rows"]:
+            ceiling = ceilings.get(row["pin"].split("/", 1)[0])
+            values = {edge: row[edge] for edge in ("max_rise_ns", "max_fall_ns", "min_rise_ns", "min_fall_ns")
+                      if row[edge] is not None}
+            if ceiling is None or not values:
+                continue
+            edge = max(values, key=values.get)
+            slew = values[edge]
+            if slew <= ceiling:
+                continue
+            entry = {"pin": row["pin"], "corner": row["corner"], "edge": edge,
+                     "slew_ns": slew, "characterised_to_ns": ceiling,
+                     "times_past_ceiling": round(slew / ceiling, 1)}
+            prev = worst.get(row["pin"])
+            if prev is None or slew > prev["slew_ns"]:
+                worst[row["pin"]] = entry
+
     pins = sorted(worst.values(), key=lambda e: -e["slew_ns"])
     return {
-        "coverage": "reported_slew_violations_only",
+        "coverage": ("all_macro_input_edges" if audit and audit["coverage_complete"]
+                     else "reported_slew_violations_only"),
         "model_validity_verified": False,
+        "complete_input_audit": ({k: v for k, v in audit.items() if k != "rows"} if audit else None),
         "macro_ceilings_ns": ceilings,
         "corners_read": len(reports),
         "extrapolated_pins": pins,
@@ -205,6 +235,9 @@ def unverified(result: dict | None) -> list[str]:
         "rise/fall slew at every corner, checked against its Liberty arc "
         "axes and explicit PVT mapping"
     )
+    if result.get("coverage") == "all_macro_input_edges":
+        coverage = ("every macro input's rise/fall slew was exported at every corner; "
+                    "per-arc Liberty range and explicit PVT mapping still require qualification")
     if not result["extrapolated_pins"]:
         return [coverage]
     pins = result["extrapolated_pins"]

@@ -139,6 +139,11 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
         design = case.get("design")
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
+                # The current feature vector does not describe inserted
+                # buffer trees. Do not train on or silently merge those
+                # experiments with a stock-flow candidate.
+                if result.get("flow") in {"FanoutRepair", "MacroFanoutRepair"}:
+                    continue
                 overrides = result.get("overrides") or {}
                 # The library is part of the identity of a run. Without
                 # it two candidates that differ only by technology

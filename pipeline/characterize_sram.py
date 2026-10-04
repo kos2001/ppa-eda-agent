@@ -179,7 +179,11 @@ def main() -> None:
                     help="one signoff PVT per run (default: tt)")
     ap.add_argument("--output-dir", type=Path,
                     help="new result directory; refuses to overwrite an existing run")
+    ap.add_argument("--prepare-only", action="store_true",
+                    help="validate and archive the actual inputs without running SPICE or generating Liberty")
     args = ap.parse_args()
+    if args.prepare_only and args.output_dir is None:
+        ap.error("--prepare-only requires a new --output-dir")
     if args.corner != "tt" and args.output_dir is None:
         ap.error("--corner ss/ff requires a new --output-dir")
     if args.output_dir:
@@ -248,6 +252,14 @@ def main() -> None:
         "corner_scope": f"{process} {voltage}V {temperature}C only; does not qualify other PVT corners",
     }
     record = out / "manifest.json"
+    if args.prepare_only:
+        manifest.update(status="prepared_inputs_only",
+                        finished_at=datetime.now(timezone.utc).isoformat(),
+                        measurements_generated=False)
+        record.write_text(json.dumps(manifest, indent=2) + "\n")
+        print(f"Prepared and validated inputs only; no SPICE or Liberty generated: {record}")
+        end_openram()
+        return
     record.write_text(json.dumps(manifest, indent=2) + "\n")
     from openram.characterizer.stimuli import stimuli
     stimuli.run_sim = archive_simulations(stimuli.run_sim, Path(OPTS.openram_temp), out)

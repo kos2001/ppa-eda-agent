@@ -4,32 +4,23 @@
     "max_core_utilization": 0.75
   },
   "candidates": [
-    { "tag": "cand-baseline", "overrides": {} },
+    { "tag": "cand-current-baseline", "overrides": {} },
     {
-      "tag": "G-capture",
-      "overrides": { "MAGIC_CAPTURE_ERRORS": false }
-    },
-    {
-      "tag": "H-lefdrc",
+      "tag": "cand-physical-fanout",
+      "flow": "MacroFanoutRepair",
       "overrides": {
-        "MAGIC_CAPTURE_ERRORS": false,
-        "MAGIC_DRC_USE_GDS": false
-      }
-    },
-    {
-      "tag": "I-klayoutgds",
-      "overrides": {
-        "MAGIC_CAPTURE_ERRORS": false,
-        "MAGIC_DRC_USE_GDS": false,
-        "PRIMARY_GDSII_STREAMOUT_TOOL": "klayout"
+        "FANOUT_REPAIR_LIMIT": 10,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "RUN_POST_GRT_RESIZER_TIMING": true
       }
     }
   ],
-  "candidate_budget": 4,
+  "candidate_budget": 2,
   "search": {
     "mode": "explicit",
-    "objective": "signoff-clean macro integration",
-    "reference": "reference-db cases for sram_wrapper"
+    "objective": "Bounded baseline versus physical fanout repair, retaining all checks and reporting unqualified macro timing",
+    "reference": "reference-db/cases/sram_wrapper__2026-10-04__010407.json"
   },
   "max_iterations": 1
 }

@@ -1,0 +1,28 @@
+# Extracted verbatim from /private/tmp/ppa-sram-closure-20261004/sram_wrapper/runs/sram-closure-20261004-fanout/60-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= nom_tt_025C_1v80 Corner ===================================
+
+max slew
+
+Pin                                        Limit        Slew       Slack
+------------------------------------------------------------------------
+u_sram/addr0[0]                         0.050000    0.076398   -0.026398 (VIOLATED)
+u_sram/addr1[1]                         0.050000    0.073130   -0.023130 (VIOLATED)
+u_sram/addr1[2]                         0.050000    0.069050   -0.019050 (VIOLATED)
+u_sram/addr1[3]                         0.050000    0.066338   -0.016338 (VIOLATED)
+u_sram/addr1[6]                         0.050000    0.056799   -0.006799 (VIOLATED)
+u_sram/addr0[3]                         0.050000    0.056124   -0.006124 (VIOLATED)
+u_sram/addr1[7]                         0.050000    0.055669   -0.005669 (VIOLATED)
+u_sram/addr0[5]                         0.050000    0.054765   -0.004765 (VIOLATED)
+u_sram/addr0[2]                         0.050000    0.053676   -0.003676 (VIOLATED)
+u_sram/addr1[4]                         0.050000    0.053457   -0.003457 (VIOLATED)
+u_sram/addr0[4]                         0.050000    0.052964   -0.002964 (VIOLATED)
+u_sram/addr0[1]                         0.050000    0.052295   -0.002295 (VIOLATED)
+u_sram/addr0[7]                         0.050000    0.051387   -0.001387 (VIOLATED)
+u_sram/addr0[6]                         0.050000    0.051171   -0.001171 (VIOLATED)
+u_sram/addr1[5]                         0.050000    0.050950   -0.000950 (VIOLATED)
+
+
+
+===========================================================================

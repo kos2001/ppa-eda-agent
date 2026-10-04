@@ -727,6 +727,8 @@ def validate_candidates(candidates: list[dict],
         overrides = candidate.get("overrides", {})
         if not isinstance(overrides, dict):
             raise ValueError(f"{where}.overrides must be an object")
+        if candidate.get("flow") not in (None, "Classic", "MacroSignoff", "UpstreamClassic", "FanoutRepair", "MacroFanoutRepair"):
+            raise ValueError(f"{where}.flow is unsupported: {candidate['flow']!r}")
 
         tag = safe_tag(raw_tag)
         if tag in tags:
@@ -739,11 +741,12 @@ def validate_candidates(candidates: list[dict],
             "overrides": overrides,
             "pdk": candidate.get("pdk"),
             "scl": candidate.get("scl"),
+            "flow": candidate.get("flow"),
         }, sort_keys=True, separators=(",", ":"))
         if identity in configs:
             raise ValueError(
                 f"candidates {configs[identity]!r} and {raw_tag!r} have the "
-                "same overrides, PDK, and standard-cell library")
+                "same overrides, PDK, standard-cell library, and flow")
         configs[identity] = raw_tag
         normalized.append({**candidate, "tag": tag, "overrides": overrides})
     return normalized
@@ -926,6 +929,20 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     models = model_validity.check(design_dir, run_dir)
     verdict["unverified"] += model_validity.unverified(models)
     verdict["model_validity"] = models
+    # The violation table omits clock/data macro inputs below the DRV limit.
+    # Preserve the exhaustive extra report without treating coverage as
+    # Liberty range or PVT qualification.
+    if list(run_dir.glob("*stapostpnr/*/macro_inputs.csv")):
+        try:
+            import macro_slew_audit
+            cfg = json.loads((design_dir / "config.json").read_text())
+            expected = {name: 57
+                        for macro, spec in (cfg.get("MACROS") or {}).items()
+                        if macro == "sky130_sram_1kbyte_1rw1r_32x256_8"
+                        for name in spec.get("instances", {})}
+            verdict["macro_input_audit"] = macro_slew_audit.read_audit(run_dir, expected)
+        except (OSError, ValueError, KeyError) as exc:
+            verdict["macro_input_audit"] = {"coverage_complete": False, "error": str(exc)}
     # A Magic DRC count taken on DEF/LEF abstracts (MAGIC_DRC_USE_GDS=
     # false) that is nothing but nwell.4 on standard-cell rows is a
     # check Magic could not run on geometry, not a bad layout — measured
@@ -1033,6 +1050,8 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     # reason. Never fatal: a broken predictor must not cost a real run.
     prediction = None
     try:
+        if cand.get("flow") in {"FanoutRepair", "MacroFanoutRepair"}:
+            raise ValueError("Surrogate features do not describe the physical fanout repair flow")
         import surrogate
         config = json.loads((design_dir / "config.json").read_text(encoding="utf-8"))
         prediction = surrogate.predict_candidate(design_dir.name, cand, config)
@@ -1043,14 +1062,17 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                      overrides=cand.get("overrides", {}), pdk=pdk, scl=scl,
                      repair=cand.get("repair"), polish=bool(cand.get("polish")))
     try:
+        flow_args = {"flow": cand["flow"]} if cand.get("flow") else {}
         run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
-                            scl=scl, pdk=pdk)
+                            scl=scl, pdk=pdk, **flow_args)
         result = score_run_dir(design_dir, run_dir, run_spec, cand, tag,
                                scl, pdk, verify_fn)
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         result = {"tag": tag, "overrides": cand.get("overrides", {}),
                   "scl": scl, "pdk": pdk, "error": str(e)}
     result["seconds"] = round(time.time() - started, 1)
+    if cand.get("flow"):
+        result["flow"] = cand["flow"]
     live_events.emit(design_dir, "candidate_done", **candidate_summary(result))
     if cand.get("repair"):
         # Why this candidate exists: the failure it repairs and the number
