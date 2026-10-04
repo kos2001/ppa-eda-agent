@@ -38,6 +38,12 @@ geometry. A step folder or state snapshot proves an artifact exists, not that
 signoff passed. A geometric cell-footprint map is not congestion or IR-drop
 evidence. Keep missing run files and unknown source compatibility explicit.
 
+For schematic review, retain native xschem drawings and actual symbol pin
+interfaces. Geometry previews do not establish ERC/LVS, expand buses, or resolve
+symbolic sizing. Keep unresolved symbols and implicit power/well attributes
+visible. Re-drafting a source sheet requires independent native before/after
+netlist comparison, including ordered terminals and device parameters.
+
 Candidate `flow` selects a supported flow explicitly. `FanoutRepair` and
 `MacroFanoutRepair` are opt-in SKY130 HD physical experiments: they split
 internal single-driver nets after antenna insertion and rerun placement,

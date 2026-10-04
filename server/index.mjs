@@ -1281,6 +1281,27 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url?.startsWith("/analog/inspect?")) {
+    const cell = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
+    if (!/^(analog|gate)\/[A-Za-z0-9_][A-Za-z0-9_.-]*\/[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(cell)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
+      return;
+    }
+    try {
+      const { stdout } = await execFileAsync("python3", ["schematic_inspect.py", "--cell", cell],
+        { cwd: pipelineDir, timeout: 30_000, maxBuffer: 16 * 1024 * 1024 });
+      res.writeHead(200, { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" });
+      res.end(stdout);
+    } catch (err) {
+      let body;
+      try { body = JSON.parse(err.stdout); } catch { body = { error: "Could not inspect this schematic" }; }
+      res.writeHead(422, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify(body));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
     const id = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
     if (!/^(analog|gate)\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {

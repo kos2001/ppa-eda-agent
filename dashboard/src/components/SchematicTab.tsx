@@ -17,7 +17,7 @@
 // the drawing in front of you rather than a deck that may predate it.
 import { useCallback, useEffect, useState } from "react";
 import { API_BASE_URL as BACKEND } from "../api/config";
-import SchematicViewer from "./SchematicViewer";
+import SchematicWorkspace from "./SchematicWorkspace";
 import { log } from "../console/log";
 import "./SchematicTab.css";
 
@@ -85,7 +85,7 @@ export default function SchematicTab() {
   const [direction, setDirection] = useState<typeof DIRECTIONS[number]>("fanin");
   const [coning, setConing] = useState(false);
   const [coneNote, setConeNote] = useState<string | null>(null);
-  const [full, setFull] = useState(false);
+  const [parents, setParents] = useState<string[]>([]);
   const [stdQuery, setStdQuery] = useState("");
   const [stdCells, setStdCells] = useState<
     { cell: string; drawable: boolean; signoff: string | null }[]>([]);
@@ -101,9 +101,8 @@ export default function SchematicTab() {
       .then((body) => {
         if (cancelled) return;
         setCells(body.cells ?? []);
-        // A testbench first: it is the one that can actually be run, and
-        // landing on a cell with a disabled button reads as broken.
-        const first = (body.cells ?? []).find((c: Cell) => c.simulatable)
+        // Start with a small circuit rather than its analysis commands.
+        const first = (body.cells ?? []).find((c: Cell) => c.kind === "analog" && !c.simulatable && c.design !== "stdcell")
           ?? (body.cells ?? [])[0];
         if (first) setSelected(first.id);
       })
@@ -154,6 +153,7 @@ export default function SchematicTab() {
       const listed = await (await fetch(`${BACKEND}/analog/cells`)).json();
       setCells(listed.cells ?? []);
       setSelected(body.id);
+      setParents([]);
       setForced(false);
     } catch (err) {
       setError(String((err as Error).message ?? err));
@@ -181,7 +181,7 @@ export default function SchematicTab() {
     return () => { cancelled = true; clearTimeout(id); };
   }, [stdQuery]);
 
-  const openStdCell = useCallback(async (cell: string) => {
+  const openStdCell = useCallback(async (cell: string, parent?: string) => {
     setOpening(cell);
     setError(null);
     log("cmd", "stdcell", `open ${cell}`);
@@ -197,6 +197,7 @@ export default function SchematicTab() {
       const listed = await (await fetch(`${BACKEND}/analog/cells`)).json();
       setCells(listed.cells ?? []);
       setSelected(body.id);
+      setParents(p => parent ? [...p, parent] : []);
       setResult(null);
       setForced(false);
     } catch (err) {
@@ -241,23 +242,9 @@ export default function SchematicTab() {
 
   return (
     <div className="tab schematic">
-      {full && selected && (
-        <SchematicViewer
-          src={`${BACKEND}/analog/svg?cell=${encodeURIComponent(selected)}`}
-          alt={`schematic of ${selected}`}
-          onClose={() => setFull(false)}
-        />
-      )}
       <section className="panel schematic__panel">
         <span className="panel__title">
           Schematic
-          {selected && (
-            <button type="button" className="schematic__expand"
-                    onClick={() => setFull(true)}
-                    title="full screen (Esc to leave)">
-              full screen
-            </button>
-          )}
         </span>
         <div className="schematic__body">
           <nav className="schematic__cells" aria-label="cells">
@@ -280,7 +267,7 @@ export default function SchematicTab() {
                       type="button"
                       key={c.id}
                       className={c.id === selected ? "schematic__cell is-active" : "schematic__cell"}
-                      onClick={() => { setSelected(c.id); setResult(null); setError(null); setForced(false); }}
+                      onClick={() => { setSelected(c.id); setParents([]); setResult(null); setError(null); setForced(false); }}
                     >
                       <b>{c.cell}</b>
                       <span>{c.design}</span>
@@ -309,13 +296,11 @@ export default function SchematicTab() {
                 </button>
               </div>
             ) : selected ? (
-              // The SVG stays a resource the browser loads (xschem's own
-              // file, unmodified except for the viewBox), and the viewer
-              // scales it with a transform — so zooming costs no request
-              // and no re-parse.
-              <SchematicViewer
-                src={`${BACKEND}/analog/svg?cell=${encodeURIComponent(selected)}`}
-                alt={`schematic of ${selected}`}
+              <SchematicWorkspace
+                cell={selected} parents={parents}
+                opening={opening !== null} onStandardCell={master => { void openStdCell(master, selected); }}
+                onOpen={id => { setParents(p => [...p, selected]); setSelected(id); setResult(null); setError(null); }}
+                onBack={() => { const parent = parents.at(-1); if (parent) { setSelected(parent); setParents(p => p.slice(0, -1)); setResult(null); setError(null); } }}
               />
             ) : (
               <p className="schematic__hint">Select a cell.</p>

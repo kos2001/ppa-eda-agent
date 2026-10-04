@@ -1,5 +1,6 @@
 import os
 import http.client
+import json
 from pathlib import Path
 import shutil
 import socket
@@ -37,6 +38,17 @@ class ServerHttpTests(unittest.TestCase):
                     time.sleep(0.05)
             else:
                 self.fail("server startup timed out")
+            with urlopen(base + "/analog/inspect?cell=analog/inv/inv_tb", timeout=5) as response:
+                review = json.load(response)
+                self.assertEqual(review["cell"], "analog/inv/inv_tb")
+                self.assertEqual(review["counts"]["devices"], 4)
+                self.assertEqual(len(review["sha256"]), 64)
+                self.assertIn("review preview", review["basis"])
+            for cell in ["analog/../secret", "gate/test/..", "analog/test/file/extra"]:
+                with self.assertRaises(HTTPError) as error:
+                    urlopen(base + "/analog/inspect?cell=" + cell, timeout=2)
+                self.assertEqual(error.exception.code, 400)
+                error.exception.close()
             for name in ["%", "%FF.png", "%2Fsecret.png"]:
                 with self.assertRaises(HTTPError) as error:
                     urlopen(base + "/reference-db/layouts/" + name, timeout=2)
