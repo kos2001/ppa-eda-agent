@@ -15,6 +15,7 @@ import { createReportCache, reportStoreKey } from "./report-cache.mjs";
 import { createLineDecoder } from "./stream-lines.mjs";
 import { handleJsonRequest } from "./http-json.mjs";
 import { designExamples } from "./examples.mjs";
+import { artifactInventory, readArtifact } from "./artifacts.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -767,6 +768,31 @@ const server = createServer(async (req, res) => {
       res.end(JSON.stringify({ examples }));
     } catch (error) {
       res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+
+  if (req.method === "GET" && new URL(req.url, "http://localhost").pathname === "/reference-db/artifacts") {
+    const params = new URL(req.url, "http://localhost").searchParams;
+    const file = params.get("file") ?? "";
+    const tag = params.get("tag") ?? "";
+    if (!file.endsWith(".json") || path.basename(file) !== file || file.includes("..") || !tag) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "file and tag are required" }));
+      return;
+    }
+    try {
+      const { light: caseData } = await readCaseFileCached(file);
+      const candidate = caseData.iterations.flatMap(it => it.results).find(row => row.tag === tag);
+      const options = { workspaceRoot: path.resolve(__dirname, "..") };
+      const result = candidate && (params.has("id")
+        ? await readArtifact(candidate, params.get("id"), options)
+        : await artifactInventory(candidate, options));
+      res.writeHead(result ? 200 : 404, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify(result ?? { error: "Recorded artifact unavailable" }));
+    } catch (error) {
+      res.writeHead(404, { ...headers, "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: String(error.message ?? error) }));
     }
     return;

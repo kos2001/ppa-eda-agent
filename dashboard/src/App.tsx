@@ -94,6 +94,7 @@ function AppInner() {
   // Start with measured history; a design card opens its real pipeline cases.
   const [active, setActive] = useState<TabId>("overview");
   const [selectedDesign, setSelectedDesign] = useState<string | null>(null);
+  const [selectedCase, setSelectedCase] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
   );
@@ -297,8 +298,8 @@ function AppInner() {
       <div className="app__content">
         <main className="app__main">
           <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
-            {active === "overview" && <OverviewTab onOpenDesign={(design) => { setSelectedDesign(design); setActive("pipeline"); }} onOpenSchematic={() => setActive("schematic")} />}
-            {active === "pipeline" && <PipelineTab initialDesign={selectedDesign} />}
+            {active === "overview" && <OverviewTab onOpenDesign={(design) => { setSelectedDesign(design); setSelectedCase(null); setActive("pipeline"); }} onOpenCase={(design, file) => { setSelectedDesign(design); setSelectedCase(file); setActive("pipeline"); }} onOpenSchematic={() => setActive("schematic")} />}
+            {active === "pipeline" && <PipelineTab initialDesign={selectedDesign} initialCase={selectedCase} />}
             {active === "schematic" && <SchematicTab />}
             {active === "health" && <SystemHealth standalone />}
             {active === "progress" && <ProgressTab />}

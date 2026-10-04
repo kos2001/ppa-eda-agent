@@ -33,6 +33,11 @@ Treat final Magic DRC, Netgen LVS, every reported timing corner, and requested
 functional equivalence as hard gates before comparing PPA. TritonRoute's DRC is
 an intermediate routing signal and does not replace signoff DRC.
 
+For visual review, use the selected case's recorded source reports and DEF
+geometry. A step folder or state snapshot proves an artifact exists, not that
+signoff passed. A geometric cell-footprint map is not congestion or IR-drop
+evidence. Keep missing run files and unknown source compatibility explicit.
+
 Candidate `flow` selects a supported flow explicitly. `FanoutRepair` and
 `MacroFanoutRepair` are opt-in SKY130 HD physical experiments: they split
 internal single-driver nets after antenna insertion and rerun placement,

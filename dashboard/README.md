@@ -69,6 +69,15 @@ references. Selecting a recorded design opens its newest pipeline case.
 Configuration-only examples show that no measurements exist. Browsing never
 launches experiments.
 
+The run workspace applies patterns from SiliconCompiler, OpenROAD Web Viewer
+and LanEx: select up to six recorded candidates, inspect area/power observations
+and a per-check evidence matrix, export selected JSON, then open native source
+reports with matching metrics highlighted. Historical-case navigation opens the
+selected case. Missing source compatibility blocks ranking claims; absent run
+directories are shown explicitly. Geometry loads only when the layout tab opens.
+The DEF viewer supports zoom, pan, layer toggles, instance/net search and a
+16×16 cell-footprint map. See [the applied patterns](../docs/eda-visualization-patterns-20261004.md).
+
 Candidate verification includes recorded check completeness and model coverage.
 Physical checks alone do not establish model qualification or functional
 equivalence. Missing verdicts/checks stay unknown; failed flows and measured

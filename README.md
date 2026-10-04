@@ -824,6 +824,11 @@ timing coverage and qualified comparison groups; missing metrics and
 budget-deferred candidates remain explicit. Optional measured-cost scheduling
 uses compatible observations without predicting PPA.
 
+The [reference-inspired visualization workspace](docs/eda-visualization-patterns-20261004.md)
+adds candidate metric comparisons, a clickable verification matrix and native
+source reports. The recorded DEF viewer supports zoom/pan, layer visibility,
+instance/net search and a geometric cell-footprint map.
+
 
 ### Diagnosis page (live agent, via hermes-gateway)
 

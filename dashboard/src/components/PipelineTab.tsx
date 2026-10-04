@@ -1196,11 +1196,13 @@ function DesignGroupSection({
   defaultOpen,
   onApplied,
   focusDesign,
+  focusCase,
 }: {
   group: DesignGroup;
   defaultOpen: boolean;
   onApplied: () => void;
   focusDesign: string | null;
+  focusCase: string | null;
 }) {
   const { t } = useLang();
   const [open, setOpen] = useState(defaultOpen);
@@ -1242,7 +1244,8 @@ function DesignGroupSection({
               pipelineCase={c}
               defaultOpen={false}
               onApplied={onApplied}
-              focusDesign={index === 0 ? focusDesign : null}
+              focusDesign={!focusCase && index === 0 ? focusDesign : null}
+              focusCase={focusCase}
             />
           ))}
         </div>
@@ -1276,11 +1279,13 @@ function CaseCard({
   defaultOpen,
   onApplied,
   focusDesign,
+  focusCase,
 }: {
   pipelineCase: PipelineCase;
   defaultOpen: boolean;
   onApplied: () => void;
   focusDesign: string | null;
+  focusCase: string | null;
 }) {
   const { t } = useLang();
   // Collapsed by default for all but the newest case. Measured problem
@@ -1296,11 +1301,11 @@ function CaseCard({
   // pointing at work without taking you to it is the scattering this
   // whole redesign is meant to remove.
   useEffect(() => {
-    if (focusDesign && focusDesign === pipelineCase.design) {
+    if ((focusDesign && focusDesign === pipelineCase.design) || (focusCase && focusCase === pipelineCase.file)) {
       setOpen(true);
       cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [focusDesign, pipelineCase.design]);
+  }, [focusDesign, focusCase, pipelineCase.design, pipelineCase.file]);
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
   const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
@@ -1503,7 +1508,7 @@ function CaseCard({
 // real pipeline/orchestrator.py candidate-generation-and-auto-repair
 // loop spawns server-side against real OpenLane, and the panel polls
 // its live status until a new reference-db case shows up below.
-export default function PipelineTab({ initialDesign = null }: { initialDesign?: string | null }) {
+export default function PipelineTab({ initialDesign = null, initialCase = null }: { initialDesign?: string | null; initialCase?: string | null }) {
   const { t } = useLang();
   const [cases, setCases] = useState<PipelineCase[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1527,6 +1532,7 @@ export default function PipelineTab({ initialDesign = null }: { initialDesign?: 
 
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [focusDesign, setFocusDesign] = useState<string | null>(initialDesign);
+  const [focusCase, setFocusCase] = useState<string | null>(initialCase);
 
   useEffect(() => {
     let cancelled = false;
@@ -1579,6 +1585,7 @@ export default function PipelineTab({ initialDesign = null }: { initialDesign?: 
             // Re-set even if unchanged, so clicking the same design twice
             // scrolls back to it instead of doing nothing.
             setFocusDesign(null);
+            setFocusCase(null);
             window.setTimeout(() => setFocusDesign(d), 0);
           }}
           onRunStarted={loadCases}
@@ -1629,6 +1636,7 @@ export default function PipelineTab({ initialDesign = null }: { initialDesign?: 
           defaultOpen={index === 0}
           onApplied={loadCases}
           focusDesign={focusDesign}
+          focusCase={focusCase}
         />
       ))}
     </div>

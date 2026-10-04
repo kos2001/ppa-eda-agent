@@ -283,7 +283,9 @@ function Feedback({
                   ))}
                 </td>
                 <td>
-                  {c.verdict
+                  {c.not_evaluated
+                    ? <span className="pill">NOT EVALUATED</span>
+                    : c.verdict
                     ? <span className={`pill ${c.verdict.passed ? "pill--good" : "pill--critical"}`}>
                         {c.verdict.passed ? "PASS" : "FAIL"}
                       </span>

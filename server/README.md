@@ -23,6 +23,7 @@ Core read endpoints:
 - `GET /evaluation-report`: measured timing coverage, stage costs and source-compatible Pareto groups; refreshes a derived cache without EDA execution.
 - `GET /reference-db`: measured cases, with conditional `?since=` refresh.
 - `GET /reference-db/candidate?file=…&tag=…`: deferred layout/netlist detail.
+- `GET /reference-db/artifacts?file=…&tag=…`: available native text reports and recorded step snapshots. Add `&id=…` from that inventory to read an excerpt, limited to 200 KB. No arbitrary host paths; absent run files remain unavailable.
 - `GET /reference-db/layouts/<name>.png`: stored layout image.
 - `GET /gateway-status`, `GET /toolchain-status`: existing model/tool status probes.
 - `GET /analog/cells`: checked-in and generated schematic inventory.
