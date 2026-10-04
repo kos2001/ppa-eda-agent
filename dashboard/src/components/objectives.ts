@@ -30,22 +30,21 @@ export interface ObjectivePoint {
 }
 
 function coreArea(v: CandidateVerdict): number | null {
-  if (typeof v.core_area_um2 === "number" && v.core_area_um2 > 0) return v.core_area_um2;
-  if (v.area_um2 && v.utilization) return v.area_um2 / v.utilization;
+  if (typeof v.core_area_um2 === "number" && Number.isFinite(v.core_area_um2) && v.core_area_um2 > 0) return v.core_area_um2;
+  if (v.area_um2 && v.utilization && Number.isFinite(v.area_um2) && Number.isFinite(v.utilization) && v.area_um2 > 0 && v.utilization > 0) return v.area_um2 / v.utilization;
   return null;
 }
 
 function setupSlack(v: CandidateVerdict): number | null {
-  if (typeof v.worst_setup_slack === "number") return v.worst_setup_slack;
+  if (v.worst_setup_slack != null) return typeof v.worst_setup_slack === "number" && Number.isFinite(v.worst_setup_slack) ? v.worst_setup_slack : null;
   const slacks = (v.operating_point?.corners ?? [])
-    .map((c) => c.setup_ws_ns)
-    .filter((s): s is number => typeof s === "number");
-  return slacks.length ? Math.min(...slacks) : null;
+    .map((c) => c.setup_ws_ns);
+  return slacks.length && slacks.every(s => typeof s === "number" && Number.isFinite(s)) ? Math.min(...slacks as number[]) : null;
 }
 
 function powerW(c: CandidateResult): number | null {
   const v = c.verdict;
-  return v?.power?.total_w ?? null;
+  return typeof v?.power?.total_w === "number" ? v.power.total_w : null;
 }
 
 // Power measured against a testbench's real activity, when the design has
@@ -61,7 +60,7 @@ function annotatedPowerW(c: CandidateResult): number | null {
 }
 
 export function isPassing(c: CandidateResult): boolean {
-  return !c.error && !!c.verdict?.passed;
+  return !c.not_evaluated && !c.error && !!c.verdict?.passed;
 }
 
 // a dominates b when it is no worse on every objective and better on one.
@@ -86,7 +85,7 @@ export function objectivePoints(candidates: CandidateResult[]): {
   used: ObjectiveName[];
 } {
   const passing = candidates.filter(isPassing);
-  const useAnnotated = passing.length > 0 && passing.every((c) => annotatedPowerW(c) != null);
+  const useAnnotated = passing.length > 0 && passing.every((c) => Number.isFinite(annotatedPowerW(c)));
   const rows = passing.map((c) => {
     const v = c.verdict as CandidateVerdict;
     const slack = setupSlack(v);
@@ -100,7 +99,7 @@ export function objectivePoints(candidates: CandidateResult[]): {
     };
   });
   const used = OBJECTIVES.map((o) => o.name).filter((name) =>
-    rows.every((r) => (name === "margin" ? r.slack : r[name]) != null),
+    rows.length > 0 && rows.every((r) => Number.isFinite(name === "margin" ? r.slack : r[name])),
   );
   const points: ObjectivePoint[] = rows.map((r) => {
     const values: ObjectivePoint["values"] = {};

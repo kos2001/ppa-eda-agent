@@ -83,6 +83,20 @@ reference, and randomized seed when applicable under `search`. Give each
 candidate one testable hypothesis. Change one independent axis at a time unless
 the hypothesis is specifically about an interaction.
 
+For new bounded digital searches, also declare `evaluation_budget` with
+`max_evaluations` and/or `max_wall_seconds`. Screening, synthesis exploration,
+repair and polish share admissions. The deadline stops new evaluations;
+already-admitted verification completes. Never label a budget-deferred candidate
+as a failed tool run or include it in measured coverage without a real screen.
+
+Use `python3 pipeline/evaluation_archive.py` to inspect measured costs and
+compatible Pareto groups before proposing a new search. Legacy source provenance
+must stay unknown. `search.evaluation_order: measured_cost` is optional and only
+uses compatible full-flow timing cohorts with at least three observations. It
+does not predict PPA. See `docs/evaluation-harness-20261004.md` for the counting
+contract. Equivalence to generated RTL does not validate that RTL against a spec;
+keep independent golden verification and physical/model gates distinct.
+
 Use real tool feedback for correction: locate the first failing stage and its
 exact error, check the current local contract, make the smallest justified
 change, validate the plan again, then rerun. A run with an ignored option,

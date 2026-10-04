@@ -149,6 +149,8 @@ def auto_repair_coverage(case: dict) -> tuple[int, int, list[str]]:
     matched = []
     for it in case["iterations"]:
         for r in it["results"]:
+            if r.get("not_evaluated"):
+                continue
             if r.get("verdict", {}).get("passed"):
                 continue
             total += 1
@@ -212,7 +214,9 @@ def scan_design(design: str, write: bool = False) -> dict:
     # None here — treat those as review-eligible (the old behaviour),
     # since we can't tell which kind of OPEN they were.
     stop_reason = case.get("stop_reason")
-    budget_exhausted = stop_reason == "max_iterations_reached"
+    iteration_budget_exhausted = stop_reason == "max_iterations_reached"
+    evaluation_budget_exhausted = stop_reason == "evaluation_budget_exhausted"
+    budget_exhausted = iteration_budget_exhausted or evaluation_budget_exhausted
     expected = expected_outcome(design)
     # An OPEN case on a design declared to fail is the design doing its
     # job (see expected_outcome()). Nothing to review, nothing to
@@ -252,7 +256,9 @@ def scan_design(design: str, write: bool = False) -> dict:
         status = "OPEN, expected to fail (negative control)"
     elif reviewed:
         status = "OPEN, reviewed"
-    elif budget_exhausted:
+    elif evaluation_budget_exhausted:
+        status = "OPEN, evaluation budget exhausted (not a review case)"
+    elif iteration_budget_exhausted:
         status = "OPEN, iteration budget exhausted (not a review case)"
     else:
         status = "OPEN, needs review"
@@ -281,7 +287,10 @@ def scan_design(design: str, write: bool = False) -> dict:
         "review_request": review_request_path,
         "review_request_generated": generated,
         "needs_review": needs_review,
-        "retry_with_more_budget": budget_retry_command(design, case) if budget_exhausted else None,
+        "retry_with_more_budget": budget_retry_command(design, case) if iteration_budget_exhausted else None,
+        "evaluation_budget_action": ({"limits": (case.get("evaluation_budget") or {}).get("limits"),
+                                     "next_step": "review evaluation_budget in run_spec; validate before rerunning"}
+                                    if evaluation_budget_exhausted else None),
         # A budget-exhausted case tells us nothing about whether a new
         # propose_repairs() pattern is needed — the existing ones were
         # still firing. Only a reviewed, genuinely-stuck case does.

@@ -627,6 +627,7 @@ class TestStopReasonsAreTotal(unittest.TestCase):
         outcomes = set()
         for reason in orchestrator.STOP_REASONS:
             mapped = {
+                "evaluation_budget_exhausted": "evaluation budget exhausted before a verified winner",
                 "winner_found": "passed",
                 "max_iterations_reached":
                     "no candidate met targets after all iterations",

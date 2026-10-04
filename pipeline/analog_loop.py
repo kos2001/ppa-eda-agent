@@ -53,7 +53,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 ANALOG_DIR = REPO_ROOT / "pipeline" / "analog"
 CASE_DIR = REPO_ROOT / "reference-db" / "analog"
 
-# Mirrors orchestrator.STOP_REASONS so a caller (scan(), the dashboard)
+# Shares the iteration-level stop reasons with the digital orchestrator,
+# without digital evaluation admission limits, so a caller (scan(), the dashboard)
 # can branch on a value instead of parsing prose — and so "ran out of
 # budget" never reads as "genuinely stuck", which is the distinction
 # self_improve.py records as the difference between a re-run and a

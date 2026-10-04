@@ -243,7 +243,7 @@ class Coverage(unittest.TestCase):
         # "ran out of budget" never reads as "genuinely stuck".
         import orchestrator
         self.assertEqual(set(analog_loop.STOP_REASONS),
-                         set(orchestrator.STOP_REASONS))
+                         set(orchestrator.STOP_REASONS) - {"evaluation_budget_exhausted"})
 
 
 if __name__ == "__main__":

@@ -32,6 +32,8 @@ import cdc_check
 import def_layout
 import design_rules
 import equiv_check
+import evaluation_budget
+import evaluation_provenance
 import gf180_drc
 import live_events
 import magic_abstract_drc
@@ -177,6 +179,8 @@ def classify_stage(result: dict) -> str:
     matches most specifically, not because this pipeline runs them as
     separate steps.
     """
+    if result.get("evaluation_fidelity") == "screen":
+        return "physical_constraint"
     if "error" in result:
         # Match only against non-WARNING lines — run_stage.py's captured
         # error text is a raw tail of OpenLane's output, which includes
@@ -580,11 +584,14 @@ def expand_synthesis_exploration(design_dir: Path, run_spec: dict) -> tuple[list
         return [], None
     count = int(spec.get("count", 3))
     base_overrides = spec.get("overrides", {})
+    started = time.monotonic()
     try:
         results = synth_explore.explore(
             design_dir, tag="synth-explore", clock_period_ns=clock_period(design_dir))
     except Exception as e:  # noqa: BLE001 - recorded, not silenced
-        return [], {"error": f"{type(e).__name__}: {e}"}
+        return [], {"error": f"{type(e).__name__}: {e}",
+                    "evaluation": {"kind": "synthesis_exploration", "status": "failed",
+                                   "seconds": round(time.monotonic() - started, 6)}}
 
     picks = synth_explore.suggest_candidates(results, count)
     candidates = [{
@@ -597,6 +604,8 @@ def expand_synthesis_exploration(design_dir: Path, run_spec: dict) -> tuple[list
     return candidates, {
         "results": results,
         "chosen": [p["overrides"]["SYNTH_STRATEGY"] for p in picks],
+        "evaluation": {"kind": "synthesis_exploration", "status": "completed",
+                       "seconds": round(time.monotonic() - started, 6)},
         "best_area": synth_explore.rank(results, "area")[0]["strategy"],
         "best_slack": synth_explore.rank(results, "fmax")[0]["strategy"],
         "note": ("pre-PnR synthesis metrics only — post-route area and "
@@ -762,6 +771,7 @@ def validate_run_plan(run_spec: dict, max_iterations: int) -> dict:
     if not isinstance(run_spec.get("targets", {}), dict):
         raise ValueError("run_spec 'targets' must be an object")
 
+    limits = evaluation_budget.validate_limits(run_spec.get("evaluation_budget"))
     explicit = run_spec.get("candidates", [])
     if not isinstance(explicit, list):
         raise ValueError("run_spec 'candidates' must be a list")
@@ -796,6 +806,8 @@ def validate_run_plan(run_spec: dict, max_iterations: int) -> dict:
     search = run_spec.get("search", {})
     if not isinstance(search, dict):
         raise ValueError("run_spec 'search' must be an object")
+    if search.get("evaluation_order", "spec") not in {"spec", "measured_cost"}:
+        raise ValueError("search.evaluation_order must be spec or measured_cost")
     mode = search.get("mode")
     if mode is not None and (not isinstance(mode, str) or not mode.strip()):
         raise ValueError("search.mode must be a non-empty string")
@@ -810,7 +822,9 @@ def validate_run_plan(run_spec: dict, max_iterations: int) -> dict:
         "objective": search.get("objective"),
         "reference": search.get("reference"),
         "seed": search.get("seed"),
+        "evaluation_order": search.get("evaluation_order", "spec"),
         "candidate_budget": budget,
+        "evaluation_budget": limits,
         "planned_candidates_max": planned,
         "candidate_sources": {
             "explicit": len(explicit),
@@ -1057,6 +1071,8 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
     # nothing. A prediction that cannot be made (too few runs of this
     # design, no comparable parameter) is recorded as refused, with the
     # reason. Never fatal: a broken predictor must not cost a real run.
+    evaluation_started = time.monotonic()
+    inputs = evaluation_provenance.capture_inputs(design_dir)
     prediction = None
     try:
         if cand.get("flow") in {"FanoutRepair", "MacroFanoutRepair"}:
@@ -1066,20 +1082,44 @@ def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
         prediction = surrogate.predict_candidate(design_dir.name, cand, config)
     except Exception as e:  # noqa: BLE001 - recorded, never a lost run
         prediction = {"error": f"{type(e).__name__}: {e}"}
-    started = time.time()
+    started = evaluation_started
+    stage_costs = {"preparation": round(time.monotonic() - started, 6)}
     live_events.emit(design_dir, "candidate_start", tag=tag,
                      overrides=cand.get("overrides", {}), pdk=pdk, scl=scl,
                      repair=cand.get("repair"), polish=bool(cand.get("polish")))
     try:
         flow_args = {"flow": cand["flow"]} if cand.get("flow") else {}
-        run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
-                            scl=scl, pdk=pdk, **flow_args)
-        result = score_run_dir(design_dir, run_dir, run_spec, cand, tag,
-                               scl, pdk, verify_fn)
+        flow_started = time.monotonic()
+        try:
+            run_dir = run_stage(design_dir, tag, to_step=None, overrides=overrides,
+                                scl=scl, pdk=pdk, **flow_args)
+        finally:
+            stage_costs["openlane"] = round(time.monotonic() - flow_started, 6)
+        assessment_started = time.monotonic()
+        try:
+            result = score_run_dir(design_dir, run_dir, run_spec, cand, tag,
+                                   scl, pdk, verify_fn)
+        finally:
+            stage_costs["assessment_and_verification"] = round(time.monotonic() - assessment_started, 6)
     except Exception as e:  # noqa: BLE001 - report and keep evaluating others
         result = {"tag": tag, "overrides": cand.get("overrides", {}),
                   "scl": scl, "pdk": pdk, "error": str(e)}
-    result["seconds"] = round(time.time() - started, 1)
+    result["seconds"] = round(time.monotonic() - started, 6)
+    if result.get("run_dir"):
+        provenance_started = time.monotonic()
+        result["evaluation_provenance"] = evaluation_provenance.complete_context(
+            design_dir, Path(result["run_dir"]), cand, inputs, toolchain_info(), verify_fn,
+            ((result.get("data") or {}).get("constraint_pdk") or {}).get("pdk_version"))
+        stage_costs["provenance"] = round(time.monotonic() - provenance_started, 6)
+        result["seconds"] = round(time.monotonic() - started, 6)
+    result["stage_costs"] = stage_costs
+    result["evaluation_fidelity"] = "full_flow"
+    result["evaluation_inputs"] = inputs
+    result["verification_requested"] = bool(verify_fn)
+    if "screen_evaluation" in cand:
+        result["screen_evaluation"] = cand["screen_evaluation"]
+    if "scheduling" in cand:
+        result["scheduling"] = cand["scheduling"]
     if cand.get("flow"):
         result["flow"] = cand["flow"]
     live_events.emit(design_dir, "candidate_done", **candidate_summary(result))
@@ -1127,7 +1167,7 @@ SCREEN_STEP = "OpenROAD.GeneratePDN"
 
 
 def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
-                       max_parallel: int = 1) -> tuple[list[dict], list[dict]]:
+                       max_parallel: int = 1, budget=None) -> tuple[list[dict], list[dict]]:
     """Runs each candidate only as far as SCREEN_STEP and prunes the ones
     whose early utilization already exceeds the target. Returns
     (survivors, pruned).
@@ -1147,14 +1187,26 @@ def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
         tag = f"{cand['tag']}-screen"
         overrides = [f"{k}={override_value(v)}"
                      for k, v in cand.get("overrides", {}).items()]
+        ticket = budget.start("screen", cand["tag"]) if budget else None
+        if budget and ticket is None:
+            return {"cand": cand, "denied": True}
+        started = time.monotonic()
+        record = {"fidelity": SCREEN_STEP}
         try:
-            run_dir = run_stage(design_dir, tag, to_step=SCREEN_STEP,
-                                 overrides=overrides)
+            flow_args = {"flow": cand["flow"]} if cand.get("flow") else {}
+            run_dir = run_stage(design_dir, tag, to_step=SCREEN_STEP, overrides=overrides,
+                                pdk=cand.get("pdk"), scl=cand.get("scl"), **flow_args)
             metrics = read_metrics(run_dir)
-            return {"cand": cand,
-                     "early_util": metrics.get("design__instance__utilization__stdcell")}
-        except Exception:  # noqa: BLE001 — let the real run record it
-            return {"cand": cand, "early_util": None}
+            early = metrics.get("design__instance__utilization__stdcell")
+            record.update(status="completed", early_utilization=early, run_dir=str(run_dir))
+        except Exception as error:  # preserve screening failure before full evaluation
+            early = None
+            record.update(status="failed", error=str(error))
+        finally:
+            record["seconds"] = round(time.monotonic() - started, 6)
+            if budget:
+                budget.finish(ticket, record["status"])
+        return {"cand": {**cand, "screen_evaluation": record}, "early_util": early}
 
     if max_parallel <= 1 or len(candidates) <= 1:
         screened = [screen_one(c) for c in candidates]
@@ -1167,6 +1219,9 @@ def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
             screened = [by_tag[c["tag"]] for c in candidates]
 
     for item in screened:
+        if item.get("denied"):
+            pruned.append(evaluation_budget.deferred(item["cand"], budget))
+            continue
         cand, early = item["cand"], item["early_util"]
         if early is not None and early > max_util:
             pruned.append({
@@ -1183,6 +1238,8 @@ def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
                     "power": None, "power_domain": None,
                 },
                 "screened_out": True,
+                "screen_evaluation": cand["screen_evaluation"],
+                "evaluation_fidelity": "screen",
             })
         else:
             survivors.append(cand)
@@ -1190,16 +1247,26 @@ def screen_candidates(design_dir: Path, candidates: list[dict], targets: dict,
 
 
 def run_candidates(design_dir: Path, run_spec: dict,
-                   max_parallel: int = 1, verify_fn: bool = False) -> list[dict]:
+                   max_parallel: int = 1, verify_fn: bool = False, budget=None) -> list[dict]:
     candidates = run_spec["candidates"]
+    def evaluate(cand):
+        ticket = budget.start("full_flow", cand["tag"]) if budget else None
+        if budget and ticket is None:
+            return evaluation_budget.deferred(cand, budget)
+        result = None
+        try:
+            result = run_candidate(design_dir, run_spec, cand, verify_fn)
+            return result
+        finally:
+            if budget:
+                budget.finish(ticket, "failed" if result is None or result.get("error") else "completed")
     if max_parallel <= 1 or len(candidates) <= 1:
-        return [run_candidate(design_dir, run_spec, cand, verify_fn)
-                for cand in candidates]
+        return [evaluate(cand) for cand in candidates]
 
     results_by_tag = {}
     with ThreadPoolExecutor(max_workers=min(max_parallel, len(candidates))) as executor:
         futures = {
-            executor.submit(run_candidate, design_dir, run_spec, cand, verify_fn): cand["tag"]
+            executor.submit(evaluate, cand): cand["tag"]
             for cand in candidates
         }
         for future in as_completed(futures):
@@ -1227,7 +1294,8 @@ def pick_winner(results: list[dict]) -> dict | None:
     axis to optimize alone. An objective that any passing candidate lacks
     is dropped for all of them rather than read as zero.
     """
-    passing = [r for r in results if r.get("verdict", {}).get("passed")]
+    passing = [r for r in results if not r.get("not_evaluated") and not r.get("error")
+               and r.get("verdict", {}).get("passed")]
     if not passing:
         return None
     if len(passing) == 1:
@@ -1274,7 +1342,11 @@ def objective_table(passing: list[dict]) -> list[tuple[str, dict]]:
     # either all have one or none do, and the mixed case only arises
     # when a simulation actually failed — exactly when the estimate is
     # the honest common basis.
-    use_annotated = all(annotated_total_w(r) is not None for r in passing)
+    def finite(value):
+        return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+    use_annotated = all(finite(annotated_total_w(r)) for r in passing)
+    use_power = use_annotated or all(finite((r["verdict"].get("power") or {}).get("total_w")) for r in passing)
+    use_area = all(finite(r["verdict"].get("area_um2")) for r in passing)
 
     # Two objectives the ranking used to lack, each added only when every
     # passing candidate has it (the same all-or-nothing rule, for the same
@@ -1288,17 +1360,21 @@ def objective_table(passing: list[dict]) -> list[tuple[str, dict]]:
     # Setup slack: the old third objective was -worst_setup_wns, which is
     # 0 for all 159 passing candidates in the store — a constant, which
     # discriminates nothing. Real margin is the worst setup slack.
-    use_core = all(_core_area(r["verdict"]) is not None for r in passing)
-    use_slack = all(_setup_slack(r["verdict"]) is not None for r in passing)
+    use_core = all(finite(_core_area(r["verdict"])) for r in passing)
+    use_slack = all(finite(_setup_slack(r["verdict"])) for r in passing)
 
     table = []
     for r in passing:
         v = r["verdict"]
         if use_annotated:
-            power_total = annotated_total_w(r) or 0.0
+            power_total = annotated_total_w(r)
         else:
-            power_total = (v.get("power") or {}).get("total_w") or 0.0
-        o = {"area": v["area_um2"] or 0.0, "power": power_total}
+            power_total = (v.get("power") or {}).get("total_w")
+        o = {}
+        if use_area:
+            o["area"] = v["area_um2"]
+        if use_power:
+            o["power"] = power_total
         if use_core:
             o["core"] = _core_area(v)
         if use_slack:
@@ -1313,10 +1389,11 @@ def _core_area(verdict: dict) -> float | None:
     exactly stdcell area over core area, checked on a gcd run:
     3004.13 / 0.452166 = 6643.9 = design__core__area)."""
     recorded = verdict.get("core_area_um2")
-    if isinstance(recorded, (int, float)) and recorded > 0:
+    if isinstance(recorded, (int, float)) and not isinstance(recorded, bool) and math.isfinite(recorded) and recorded > 0:
         return float(recorded)
     area, util = verdict.get("area_um2"), verdict.get("utilization")
-    if area and util:
+    if (all(isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+            for value in (area, util)) and area > 0 and util > 0):
         return area / util
     return None
 
@@ -1325,11 +1402,14 @@ def _setup_slack(verdict: dict) -> float | None:
     """Worst setup slack in ns: recorded by score(), else the minimum over
     the per-corner slacks of a stored operating point."""
     recorded = verdict.get("worst_setup_slack")
-    if isinstance(recorded, (int, float)):
-        return float(recorded)
+    if recorded is not None:
+        return (float(recorded) if isinstance(recorded, (int, float)) and not isinstance(recorded, bool)
+                and math.isfinite(recorded) else None)
     corners = (verdict.get("operating_point") or {}).get("corners") or []
-    slacks = [c["setup_ws_ns"] for c in corners
-              if isinstance(c.get("setup_ws_ns"), (int, float))]
+    if any(not isinstance(c.get("setup_ws_ns"), (int, float)) or isinstance(c.get("setup_ws_ns"), bool)
+           or not math.isfinite(c["setup_ws_ns"]) for c in corners):
+        return None
+    slacks = [c["setup_ws_ns"] for c in corners]
     return min(slacks) if slacks else None
 
 
@@ -1719,6 +1799,7 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
     # value (STOP_REASONS) a caller (self_improve.py, the dashboard) can
     # branch on without parsing outcome's prose.
     outcome = {
+        "evaluation_budget_exhausted": "evaluation budget exhausted before a verified winner",
         "winner_found": "passed",
         "max_iterations_reached": "no candidate met targets after all iterations",
         "no_repairable_failures": "no candidate met targets — no auto-repairable "
@@ -1759,12 +1840,19 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
         # Declared search method and the maximum number of initial full-flow
         # candidates. Keep experiment intent and cost bounds beside metrics.
         "search_plan": search_plan,
+        "evaluation_budget": next((it["evaluation_budget"] for it in reversed(iterations)
+                                   if "evaluation_budget" in it), None),
         # Real rendered layout of this case's most informative candidate,
         # stored under reference-db/ so it outlives the run directory.
         "layout_image": capture_layout_image(design_name, design_dir, subject),
         "layout_image_tag": subject["tag"] if subject else None,
     }
     write_case_json(case_file, case)
+    try:
+        import evaluation_archive
+        evaluation_archive.refresh(REFDB)
+    except Exception as error:
+        print(f"  (archive refresh deferred: {error})", file=sys.stderr)
 
     index_file = REFDB / "index.json"
     index = json.loads(index_file.read_text(encoding="utf-8")) if index_file.exists() else {}
@@ -1781,7 +1869,9 @@ def write_case(design_name: str, design_dir: Path, iterations: list[dict],
 def print_iteration_summary(iteration: int, results: list[dict]) -> None:
     print(f"\n=== iteration {iteration} summary ===")
     for r in results:
-        if "error" in r:
+        if r.get("not_evaluated"):
+            print(f"  {r['tag']}: NOT EVALUATED — {r.get('budget_exhausted')}")
+        elif "error" in r:
             print(f"  {r['tag']}: FAILED TO RUN — {r['error']}")
         else:
             v = r["verdict"]
@@ -1804,7 +1894,8 @@ def print_iteration_summary(iteration: int, results: list[dict]) -> None:
 # sdlc-graph-engineering's "total guards" + "the ledger is the
 # load-bearing part" principles, applied here without adopting that
 # project's plugin/graph-file machinery this pipeline doesn't need).
-STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failures")
+STOP_REASONS = ("winner_found", "max_iterations_reached", "no_repairable_failures",
+                "evaluation_budget_exhausted")
 
 
 def polish_moves(spec) -> list[dict] | None:
@@ -1834,7 +1925,7 @@ def polish_moves(spec) -> list[dict] | None:
 
 def polish_winner(design_dir: Path, run_spec: dict, winner: dict,
                   base_config: dict | None, max_parallel: int = 1,
-                  verify_fn: bool = False) -> tuple[dict, list[dict]]:
+                  verify_fn: bool = False, budget=None) -> tuple[dict, list[dict]]:
     """Tries the polish moves on a winner; returns (winner, trials).
 
     See pnr_polish for what is tried and why a move is accepted. Trials
@@ -1844,7 +1935,8 @@ def polish_winner(design_dir: Path, run_spec: dict, winner: dict,
 
     def run(cands: list[dict]) -> list[dict]:
         return run_candidates(design_dir, {**run_spec, "candidates": cands},
-                              max_parallel=max_parallel, verify_fn=verify_fn)
+                              max_parallel=max_parallel, verify_fn=verify_fn,
+                              **({"budget": budget} if budget else {}))
 
     return pnr_polish.polish(
         winner, moves, run, objective_table,
@@ -1873,12 +1965,28 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
     # Fail malformed, colliding, duplicate, or over-budget plans before the
     # synthesis exploration can spend tool time.
     validate_run_plan(run_spec, max_iterations)
-    explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
+    limits = run_spec.get("evaluation_budget")
+    budget = evaluation_budget.EvaluationBudget(limits) if limits else None
+    explored_candidates, exploration = [], None
+    if run_spec.get("explore_synthesis") and budget:
+        ticket = budget.start("synthesis_exploration", "synth-explore")
+        if ticket is None:
+            exploration = {"not_evaluated": True, "budget_exhausted": True}
+        else:
+            try:
+                explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
+            finally:
+                budget.finish(ticket, "failed" if exploration is None or exploration.get("error") else "completed")
+            exploration["evaluation"] = dict(ticket)
+    else:
+        explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
     candidates = validate_candidates(
         run_spec.get("candidates", []) + expand_sweeps(run_spec)
         + explored_candidates,
         run_spec.get("candidate_budget"),
     )
+    if not candidates and budget and budget.snapshot()["not_evaluated"]:
+        return [{"iteration": 1, "results": [], "evaluation_budget": budget.snapshot()}], None, "evaluation_budget_exhausted", exploration
     if not candidates:
         detail = exploration.get("error") if exploration else "no candidates"
         raise ValueError(f"candidate generation produced no candidates: {detail}")
@@ -1892,6 +2000,12 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
 
     iteration = 1
     while True:
+        if (run_spec.get("search") or {}).get("evaluation_order") == "measured_cost":
+            import evaluation_archive
+            import evaluation_scheduler
+            report = evaluation_archive.build_report(REFDB)
+            candidates = evaluation_scheduler.order(candidates, design_dir.name, toolchain_info(), report["cost_cohorts"],
+                                                     evaluation_provenance.capture_inputs(design_dir), verify_fn)
         screened_out = []
         to_run = candidates
         live_events.emit(design_dir, "iteration_start", iteration=iteration,
@@ -1899,7 +2013,7 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
         if screen:
             to_run, screened_out = screen_candidates(
                 design_dir, candidates, run_spec.get("targets", {}),
-                max_parallel=max(1, max_parallel))
+                max_parallel=max(1, max_parallel), **({"budget": budget} if budget else {}))
             print(f"\nscreen ({SCREEN_STEP}): {len(to_run)} of "
                   f"{len(candidates)} candidate(s) survive", file=sys.stderr)
         results = run_candidates(
@@ -1907,6 +2021,7 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
             {**run_spec, "candidates": to_run},
             max_parallel=max(1, max_parallel),
             verify_fn=verify_fn,
+            **({"budget": budget} if budget else {}),
         )
         # Pruned candidates are real, measured rejections and belong in
         # the iteration's results exactly like any other — dropping them
@@ -1915,7 +2030,8 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
         # real utilization violation, which propose_repairs() acts on.
         results = results + screened_out
         for r in results:
-            r["stage"] = classify_stage(r)
+            if not r.get("not_evaluated") or r.get("screen_evaluation"):
+                r["stage"] = classify_stage(r)
             # True when this candidate exists only because
             # propose_repairs() proposed it from a prior iteration's
             # failure — i.e. this candidate IS one firing of the
@@ -1923,6 +2039,8 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
             r["produced_by_feedback"] = iteration > 1
         print_iteration_summary(iteration, results)
         all_iterations.append({"iteration": iteration, "results": results})
+        if budget:
+            all_iterations[-1]["evaluation_budget"] = budget.snapshot()
 
         winner = pick_winner(results)
         if winner:
@@ -1931,15 +2049,22 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
             if run_spec.get("polish"):
                 winner, trials = polish_winner(
                     design_dir, run_spec, winner, base_config,
-                    max_parallel=max(1, max_parallel), verify_fn=verify_fn)
+                    max_parallel=max(1, max_parallel), verify_fn=verify_fn,
+                    **({"budget": budget} if budget else {}))
                 if trials:
                     for r in trials:
-                        r["stage"] = classify_stage(r)
+                        if not r.get("not_evaluated") or r.get("screen_evaluation"):
+                            r["stage"] = classify_stage(r)
                         r["produced_by_feedback"] = False
                     print_iteration_summary(iteration + 1, trials)
                     all_iterations.append({"iteration": iteration + 1,
                                            "polish": True, "results": trials})
                     print(f"\nafter polish the winner is: {winner['tag']}")
+                if budget:
+                    all_iterations[-1]["evaluation_budget"] = budget.snapshot()
+            break
+        if budget and budget.snapshot()["not_evaluated"]:
+            stop_reason = "evaluation_budget_exhausted"
             break
         if iteration >= max_iterations:
             print(f"\nreached max_iterations ({max_iterations}) with no winner")
