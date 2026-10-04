@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./DataLineage.css";
+import { API_BASE_URL } from "../api/config";
 
 // What the console could not previously say.
 //
@@ -61,7 +62,7 @@ type Report = {
   learned: { targets: TargetRow[]; threshold: number };
 };
 
-const SERVER = "http://localhost:8123";
+const SERVER = API_BASE_URL;
 
 function shortLib(name: string): string {
   return name.replace(/^sky130_fd_sc_/, "sky130 ").replace(/^gf180mcu_fd_sc_/, "gf180 ");

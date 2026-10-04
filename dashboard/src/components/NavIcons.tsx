@@ -102,6 +102,7 @@ const collapse = (
 // exports both loses fast refresh, which oxlint flags. Every mark here
 // is a static element, so there was never a component to write.
 export const NAV_ICONS: Record<string, ReactElement> = {
+  overview: <svg {...BOX}><rect x="2" y="2" width="5" height="5" rx="1" /><rect x="9" y="2" width="5" height="5" rx="1" /><rect x="2" y="9" width="5" height="5" rx="1" /><rect x="9" y="9" width="5" height="5" rx="1" /></svg>,
   pipeline, health, progress, lineage, ask, manual, schematic, diagnosis,
   expand, collapse,
 };

@@ -1,32 +1,84 @@
-# React + TypeScript + Vite
+# PPA frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Independent React + TypeScript + Vite application. It calls HTTP/JSON and
+streaming APIs; filesystem access, EDA execution and private model credentials
+belong to `../server/` and `../pipeline/`. Node 22.12+ is the shared development
+baseline. The backend has no npm dependencies.
 
-Currently, two official plugins are available:
+From the repository root, start two terminals:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm --prefix server start
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+```sh
+npm --prefix dashboard ci
+npm --prefix dashboard run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Open http://127.0.0.1:5173. The API is at http://127.0.0.1:8123;
+`GET /health` checks API availability without launching an EDA tool.
+
+Copy `dashboard/.env.example` to `dashboard/.env.local` to change public
+endpoints. Restart Vite after editing. Vite embeds `VITE_*` values into the
+frontend build; keys belong in the repository-root `.env` read by the backend.
+Existing server-side gateway proxy and optional browser-pasted-key fallback
+remain available.
+
+For different ports, from the repository root:
+
+```sh
+PPA_EDA_SERVER_PORT=8124 PPA_EDA_FRONTEND_ORIGINS=http://127.0.0.1:5174 npm --prefix server start
+```
+
+```sh
+VITE_API_BASE_URL=http://127.0.0.1:8124 npm --prefix dashboard run dev -- --host 127.0.0.1 --port 5174 --strictPort
+```
+
+All frontend consumers share `src/api/config.ts`, including layout images,
+streaming requests, status checks, data lineage and the console transcript.
+No page needs to know a fixed backend port.
+
+If edits on an external/network drive are not reflected in development, start
+Vite with `PPA_EDA_WATCH_POLLING=1`. This opts into polling at 500 ms; native
+watching remains the default. See [Vite watcher options](https://vite.dev/config/server-options#server-watch).
+
+## Static build
+
+```sh
+VITE_API_BASE_URL=http://127.0.0.1:8123 npm --prefix dashboard run build
+npm --prefix dashboard run preview -- --host 127.0.0.1 --port 4173 --strictPort
+```
+
+`dist/` can be served by an independent static server. The backend remains a
+loopback service. For a same-origin reverse proxy, build with
+`VITE_API_BASE_URL=/api`; forward `/api/*` to `127.0.0.1:8123/*`, stripping
+`/api` and preserving streaming responses and image content types. It serves
+no frontend assets. Custom frontend origins use an exact comma-separated
+`PPA_EDA_FRONTEND_ORIGINS` allowlist; by default HTTP localhost development
+ports are allowed. A remote browser needs a tunnel or an authenticated proxy
+to reach the local execution service.
+
+## Screens
+
+The initial Overview · Examples screen discovers real configurations through
+`GET /examples` and measured history through `GET /reference-db`. It includes
+layout previews labelled with their source case time, candidate verification
+distribution, searchable circuit examples and links to external EDA UI
+references. Selecting a recorded design opens its newest pipeline case.
+Configuration-only examples show that no measurements exist. Browsing never
+launches experiments.
+
+Candidate verification includes recorded check completeness and model coverage.
+Physical checks alone do not establish model qualification or functional
+equivalence. Missing verdicts/checks stay unknown; failed flows and measured
+violations have separate counts. Historical physical passes do not imply the
+latest run passed. SRAM model audits remain visible on individual cases.
+
+Other screens: Layout Pipeline, Schematic, Progress, System Health, Data & RAG,
+Ask, Manual and Diagnosis. See
+[`../docs/frontend-backend-and-examples-20261004.md`](../docs/frontend-backend-and-examples-20261004.md)
+for architecture, circuit inventory and external reference comparisons.
+
+Validation: `npm --prefix dashboard run build`, `npm --prefix dashboard run lint`
+and the root Python test suite.

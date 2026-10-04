@@ -1235,7 +1235,7 @@ function DesignGroupSection({
               pipelineCase={c}
               defaultOpen={false}
               onApplied={onApplied}
-              focusDesign={focusDesign}
+              focusDesign={index === 0 ? focusDesign : null}
             />
           ))}
         </div>
@@ -1489,7 +1489,7 @@ function CaseCard({
 // real pipeline/orchestrator.py candidate-generation-and-auto-repair
 // loop spawns server-side against real OpenLane, and the panel polls
 // its live status until a new reference-db case shows up below.
-export default function PipelineTab() {
+export default function PipelineTab({ initialDesign = null }: { initialDesign?: string | null }) {
   const { t } = useLang();
   const [cases, setCases] = useState<PipelineCase[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1512,7 +1512,7 @@ export default function PipelineTab() {
   }, []);
 
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [focusDesign, setFocusDesign] = useState<string | null>(null);
+  const [focusDesign, setFocusDesign] = useState<string | null>(initialDesign);
 
   useEffect(() => {
     let cancelled = false;
