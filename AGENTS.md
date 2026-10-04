@@ -43,6 +43,11 @@ interfaces. Geometry previews do not establish ERC/LVS, expand buses, or resolve
 symbolic sizing. Keep unresolved symbols and implicit power/well attributes
 visible. Re-drafting a source sheet requires independent native before/after
 netlist comparison, including ordered terminals and device parameters.
+The connected CMOS layout may preserve identical existing undriven-well
+diagnostics only with exit 0, both native files and equal netlists. Record those
+diagnostics with source/symbol hashes and keep them visible in Review; do not
+claim ERC clean. Reject new diagnostics or other netlisting failures. Drawing-only
+code-box removal must never save the transient canvas or feed a simulation.
 
 Candidate `flow` selects a supported flow explicitly. `FanoutRepair` and
 `MacroFanoutRepair` are opt-in SKY130 HD physical experiments: they split

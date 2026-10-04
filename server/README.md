@@ -32,6 +32,11 @@ Core read endpoints:
   execution. Restricted source roots, an 8,000-element cap, no Tcl evaluation.
   This does not produce native ERC/LVS or expand bus expressions.
 - `GET /analog/svg?cell=…`: xschem's native SVG, cached beside the source.
+  `&view=circuit` caches a separate `.circuit.svg` with analysis/code boxes
+  removed from the transient drawing canvas. Default / `view=sheet` returns the
+  full sheet. Rendering never saves that canvas or changes the `.sch` source.
+  Inspection includes matching layout provenance and preserved native netlisting
+  diagnostics for re-drafted standard cells; source/symbol changes invalidate it.
 
 Existing pipeline/run, review, diagnosis, ask, translation and streaming API
 contracts are preserved. The backend never serves `dashboard/dist/`. Local EDA

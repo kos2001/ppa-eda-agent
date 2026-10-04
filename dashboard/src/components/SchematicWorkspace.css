@@ -53,9 +53,14 @@
 .sheet-workspace__source code { display: block; }
 .sheet-workspace__source code[data-selected] { background: var(--surface-raised); color: var(--accent); outline: 1px solid var(--accent); }
 .sheet-workspace__source span { display: inline-block; color: var(--text-dim); width: 4ch; margin-right: 10px; text-align: right; }
-.sheet-workspace--full { position: fixed; inset: 0; z-index: 200; overflow: auto; }
-.sheet-workspace--full .sheet-workspace__canvas { height: calc(100dvh - 180px); min-height: 380px; }
-.sheet-workspace--full .sheet-workspace__inspector { max-height: calc(100dvh - 180px); }
+.sheet-workspace--full { position: fixed; inset: 0; z-index: 200; overflow: hidden; height: 100dvh; }
+.sheet-workspace--full .sheet-workspace__body { flex: 1; overflow: hidden; }
+.sheet-workspace--full .sheet-workspace__canvas { height: auto; min-height: 0; }
+.sheet-workspace--full .sheet-workspace__inspector { max-height: none; min-height: 0; }
+.sheet-workspace--full .sheet-workspace__footer p { display: none; }
+.sheet-workspace--full .sheet-workspace__source { flex: none; max-height: 25dvh; }
+.sheet-workspace--canvas-only .sheet-workspace__body { grid-template-columns: minmax(0, 1fr); }
+.sheet-workspace--canvas-only .sheet-workspace__inspector { display: none; }
 @media (max-width: 1080px) { .sheet-workspace__body { grid-template-columns: minmax(0, 1fr) 230px; } }
 @media (max-width: 760px) {
  .sheet-workspace__body { grid-template-columns: minmax(0, 1fr); }
@@ -64,6 +69,7 @@
  .sheet-workspace__summary { gap: 10px; }
  .sheet-workspace__heading { padding: 10px; }
  .sheet-workspace__actions { width: 100%; }
- .sheet-workspace--full .sheet-workspace__canvas { height: 52dvh; min-height: 300px; }
- .sheet-workspace--full .sheet-workspace__inspector { max-height: none; }
+ .sheet-workspace--full:not(.sheet-workspace--canvas-only) .sheet-workspace__body { grid-template-rows: minmax(0, 2fr) minmax(0, 1fr); }
+ .sheet-workspace--full .sheet-workspace__canvas { height: auto; min-height: 0; }
+ .sheet-workspace--full .sheet-workspace__footer { display: none; }
 }

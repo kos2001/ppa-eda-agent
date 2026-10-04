@@ -15,12 +15,48 @@ PDK CDL importer; unsupported devices still fail explicitly. Large full-chip
 sheets retain the existing guard and bounded cone extraction workflow.
 
 The viewer supports pointer-centered zoom, dragging, fit, selection location,
-full screen with the inspector, paper/dark backgrounds, English/Korean controls,
+full screen with an optional inspector, paper/dark backgrounds, English/Korean controls,
 and mobile layouts. Keyboard zoom/fit operates only when the canvas is focused.
 Source and review JSON exports carry source text/hash and symbol provenance.
 Source lines identify the selected instance; native SVG is independently
 available. Labels and connected device names are highlighted, not inferred
 timing paths or electrical operating points.
+
+Fullscreen opens the drawing across the viewport with the inspector collapsed,
+fits the complete sheet, locks background scrolling and contains keyboard focus.
+Show inspector restores device/net review beside the drawing; Escape or Close
+full screen returns to the page. On narrow displays the optional inspector sits
+below the canvas. The drawing toolbar also offers Expand canvas.
+
+Zoom changes the native SVG's viewBox rather than scaling a composited CSS layer.
+Large sheets initially open a section with a median annotation size of at least
+12 screen pixels. Readable view restores that size; Fit sheet deliberately shows
+the whole drawing, which can make text small. Resize preserves the current view
+mode. Circuit view omits analysis/code boxes only from xschem's transient drawing
+canvas; Analysis text restores the complete native sheet. Neither view saves the
+temporary canvas or changes simulation inputs.
+
+## Connected standard-cell layout
+
+`pipeline/schematic_layout.py` improves the PDK CDL importer's single-column
+placement. It groups resolved MOS devices by conduction connectivity, places
+PMOS above NMOS, aligns serial devices, separates parallel branches and routes
+orthogonal nets. Named stubs remain where a route would collide with a different
+net or symbol annotation. Supply and well bindings stay distinct. Existing
+attributes, ordered port declarations and actual PDK D/G/S/B interfaces survive.
+This bounded layout supports 1–80 resolved MOS devices. Unsupported inputs or
+failed comparisons retain the imported drawing, with a layout failure reported
+by the converter. Digital gate sheets remain gate views; drill down into a
+standard cell to inspect its transistors.
+
+Activation requires both a source-pin comparison and independent native xschem
+before/after netlist equality, including ordered terminals, parameters and
+subcircuit declarations. Netlisting must exit 0 and produce both files. Existing
+undriven-well diagnostics may survive only when identical before and after;
+other errors or changed diagnostics reject the draft. This is **not an ERC-clean
+or LVS verdict**. Matching `.layout.json` provenance includes original/final
+hashes, symbol hashes and preserved diagnostics, which appear in the Review
+panel. Source or symbol changes invalidate those recorded diagnostics.
 
 ## Read-only inspection contract
 
@@ -58,6 +94,15 @@ paper mode; geometry and exported text remain native.
   (2 inverter and 4 NAND devices); both native netlist return codes 0. Native SVGs
   regenerated. Temporary comparisons live outside the repository. No SPICE
   simulation or physical evaluation was needed for these layout edits.
+- Connected layout applied to all 13 already-imported standard cells (inverter,
+  NAND2/3, AOI, OAI, mux, XNOR and delay variants). Each original/revised native
+  netlist pair matched; original undriven VNB/VPB diagnostics remained visible.
+  Source hashes and per-cell results are recorded in
+  [the layout audit](schematic-layout-audit-20261004.json).
+- Layout regression tests reject terminal changes, new native errors and
+  nonzero netlisting exits without mutating the source. They also cover series
+  and parallel NAND placement, preserved parameters/ports, and source/symbol
+  invalidation of recorded native provenance.
 - Unit coverage: mirror/rotation, multiline attributes, label joins, ground,
   crossings versus T junctions, conflicting names, missing interfaces, open and
   intentional no-connect pins, scalar bit labels versus bus ranges, hierarchy,
