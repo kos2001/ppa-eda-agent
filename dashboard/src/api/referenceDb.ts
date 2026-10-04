@@ -302,6 +302,11 @@ export interface NetlistGraph {
 }
 
 export interface CandidateResult {
+  not_evaluated?: boolean;
+  budget_exhausted?: string;
+  evaluation_fidelity?: "screen" | "full_flow" | "not_evaluated";
+  stage_costs?: Record<string, number>;
+  screen_evaluation?: { fidelity: string; seconds: number; status: string };
   tag: string;
   overrides: Record<string, unknown>;
   // The technology this candidate ran on. Recorded beside `overrides`
@@ -383,6 +388,12 @@ export interface SynthesisExploration {
 }
 
 export interface PipelineCase {
+  evaluation_budget?: {
+    started_evaluations: number;
+    elapsed_seconds: number;
+    limits: { max_evaluations?: number; max_wall_seconds?: number };
+    not_evaluated: { tag: string; reason: string }[];
+  } | null;
   design: string;
   date: string;
   // The case file's own name under reference-db/cases/, sent by the

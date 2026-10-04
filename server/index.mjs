@@ -1149,9 +1149,23 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Where the data comes from and who reads it. SystemHealth answers
-  // "does anything need attention"; this answers "what is in here and
-  // where does it go", which had no answer anywhere in the console.
+  // Derived measured-cost history and qualified, compatible Pareto groups.
+  if (req.method === "GET" && req.url === "/evaluation-report") {
+    try {
+      const stdout = await cachedReport("/evaluation-report", async () => (await execFileAsync(
+        "python3", ["evaluation_archive.py", "--write"],
+        { cwd: pipelineDir, timeout: 180_000, maxBuffer: 32 * 1024 * 1024 }
+      )).stdout);
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (error) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+
+  // Where the data comes from and who reads it.
   if (req.method === "GET" && req.url === "/data-lineage") {
     try {
       const stdout = await cachedReport("/data-lineage", async () => (await execFileAsync(

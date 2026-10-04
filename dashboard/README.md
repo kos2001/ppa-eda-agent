@@ -75,6 +75,12 @@ equivalence. Missing verdicts/checks stay unknown; failed flows and measured
 violations have separate counts. Historical physical passes do not imply the
 latest run passed. SRAM model audits remain visible on individual cases.
 
+The evaluation panel reads `GET /evaluation-report` for actual timing coverage,
+stage costs and source-compatible Pareto groups. Missing historical timing and
+provenance stay unknown. Budget-deferred candidates are shown as `NOT EVALUATED`,
+with any completed screening preserved; they are excluded from tool-failure
+counts. See [the evaluation contract](../docs/evaluation-harness-20261004.md).
+
 Other screens: Layout Pipeline, Schematic, Progress, System Health, Data & RAG,
 Ask, Manual and Diagnosis. See
 [`../docs/frontend-backend-and-examples-20261004.md`](../docs/frontend-backend-and-examples-20261004.md)

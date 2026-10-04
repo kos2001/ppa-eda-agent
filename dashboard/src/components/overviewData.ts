@@ -6,6 +6,7 @@ export const CANDIDATE_STATES: CandidateState[] = ["clean", "violations", "unkno
 // An absent verdict/check is unknown, even if a legacy case says passed.
 // Model coverage can block a candidate whose physical checks were clean.
 export function candidateState(result: CandidateResult): CandidateState {
+  if (result.not_evaluated) return "unknown";
   if (result.error) return "error";
   const verdict = result.verdict;
   if (!verdict) return "unknown";
@@ -18,7 +19,7 @@ export function candidateState(result: CandidateResult): CandidateState {
 export function candidateSummary(cases: PipelineCase[]) {
   const counts: Record<CandidateState, number> = { clean: 0, violations: 0, unknown: 0, error: 0 };
   for (const c of cases) for (const iteration of c.iterations ?? []) {
-    for (const result of iteration.results ?? []) counts[candidateState(result)]++;
+    for (const result of iteration.results ?? []) if (!result.not_evaluated || result.screen_evaluation) counts[candidateState(result)]++;
   }
   return counts;
 }

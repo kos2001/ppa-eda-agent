@@ -3,6 +3,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { normalizeBaseUrl, isApiRequest } from "../dashboard/src/api/config.ts";
 import { candidateState, candidateSummary } from "../dashboard/src/components/overviewData.ts";
+import { candidateCount } from "../dashboard/src/components/caseGrouping.ts";
+import { coverageCurve } from "../dashboard/src/components/progressTimeline.ts";
 
 assert.equal(normalizeBaseUrl(" http://127.0.0.1:8124/ "), "http://127.0.0.1:8124");
 assert.equal(normalizeBaseUrl("/api/"), "/api");
@@ -25,6 +27,13 @@ assert.equal(candidateState({ verdict: { ...clean, signoff_checks: undefined } }
 assert.equal(candidateState({ verdict: { ...clean, signoff_checks: [{ key: "drc", count: 2 }] } }), "violations");
 assert.equal(candidateState({ error: "STA-0572" }), "error");
 assert.equal(candidateState({}), "unknown");
+const budgetFixture = { design: "budget-fixture", recorded_at: "2026-10-04", iterations: [{ results: [
+  { tag: "unrun", not_evaluated: true, overrides: { CLOCK_PERIOD: 9 } },
+  { tag: "screened", not_evaluated: true, overrides: { CLOCK_PERIOD: 10 }, screen_evaluation: { seconds: 1 } },
+]}] };
+assert.equal(candidateCount(budgetFixture), 1);
+assert.deepEqual(candidateSummary([budgetFixture]), { clean: 0, violations: 0, unknown: 1, error: 0 });
+assert.equal(coverageCurve([budgetFixture]).at(-1).samples, 1);
 // Model qualification remains open even when recorded physical counts are 0.
 assert.equal(candidateState({ verdict: { ...clean, model_validity: { macro_arc_audit: { model_qualified: false } } } }), "unknown");
 

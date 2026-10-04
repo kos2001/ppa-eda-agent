@@ -5,6 +5,7 @@ import { useLang } from "../i18n";
 import { groupByDesign, recordedAt } from "./caseGrouping";
 import { candidateSummary, CANDIDATE_STATES } from "./overviewData";
 import "./OverviewTab.css";
+import EvaluationPanel from "./EvaluationPanel";
 
 interface Example {
   design: string;
@@ -138,6 +139,7 @@ export default function OverviewTab({ onOpenDesign, onOpenSchematic }: {
       <ul className="overview__legend">{CANDIDATE_STATES.map(state => <li key={state}><i className={`overview__segment--${state}`} /><span>{labels[state]}</span><b>{db ? counts[state] : "—"}</b></li>)}</ul>
       <p>{say("Physical checks do not establish SRAM model qualification or functional equivalence. Open the case for its constraints and model audit.", "물리 검증 결과만으로 SRAM 모델 적합성이나 기능 등가성이 확정되지 않습니다. 케이스에서 제약과 모델 감사를 확인하세요.")}</p>
     </section>
+    <EvaluationPanel refresh={refresh} />
     <section aria-label={say("Circuit examples", "회로 예제")}>
       <div className="overview__section-heading"><h3>{say("Circuit examples", "회로 예제")}</h3><span>{shown.length} / {catalog.length}</span></div>
       <div className="overview__filters">

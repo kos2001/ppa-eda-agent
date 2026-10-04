@@ -20,6 +20,7 @@ Core read endpoints:
 
 - `GET /health`: API liveness (`status`, `service`, `api_version`); no claim of EDA tool readiness.
 - `GET /examples`: discovers design `config.json` and `run_spec.json`, without executing them.
+- `GET /evaluation-report`: measured timing coverage, stage costs and source-compatible Pareto groups; refreshes a derived cache without EDA execution.
 - `GET /reference-db`: measured cases, with conditional `?since=` refresh.
 - `GET /reference-db/candidate?file=…&tag=…`: deferred layout/netlist detail.
 - `GET /reference-db/layouts/<name>.png`: stored layout image.

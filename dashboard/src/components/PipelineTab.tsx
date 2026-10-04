@@ -249,6 +249,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const [openStage, setOpenStage] = useState<ProcessStageId | null>(null);
   const stages = pipelineCase.process_stages ?? FALLBACK_PROCESS_STAGES;
   const candidates = pipelineCase.iterations.flatMap((it) => it.results);
+  const measuredCandidates = candidates.filter(c => !c.not_evaluated || c.screen_evaluation);
   const stageCounts: Partial<Record<ProcessStageId, number>> = {};
   for (const c of candidates) {
     if (c.stage) stageCounts[c.stage] = (stageCounts[c.stage] ?? 0) + 1;
@@ -271,7 +272,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   // "6/9 reached Verification" understated that six candidates went all
   // the way through. The pipeline looked broken while working.
   const gateFlow = new Map<ProcessStageId, { entered: number; lost: number }>();
-  let alive = candidates.length;
+  let alive = measuredCandidates.length;
   for (const gate of GATE_ORDER) {
     const lost = gate === "verification_ppa" ? 0 : (stageCounts[gate] ?? 0);
     gateFlow.set(gate, { entered: alive, lost });
@@ -281,7 +282,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   function countFor(id: ProcessStageId): { count: number; total: number; note: string } {
     switch (id) {
       case "extraction":
-        return { count: candidates.length, total: candidates.length, note: "circuit/layout data per candidate" };
+        return { count: measuredCandidates.length, total: candidates.length, note: "evaluated candidates; inspect recorded artifacts" };
       case "topology":
         return pipelineCase.topology
           ? { count: 1, total: 1, note: `${pipelineCase.topology.has_macros ? "macro-heavy" : "std-cell only"}, ${pipelineCase.topology.sequential_element_estimate} flops` }
@@ -295,7 +296,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
         if (!flow) return { count: 0, total: candidates.length, note: "" };
         const survived = flow.entered - flow.lost;
         const note = id === "verification_ppa"
-          ? `${survived} of ${candidates.length} completed signoff`
+          ? `${survived} of ${measuredCandidates.length} completed signoff`
           : flow.lost > 0
             ? `${flow.lost} of ${flow.entered} stopped here`
             // "all 1 passed" reads badly; say what actually happened.
@@ -694,6 +695,12 @@ function CandidateRow({
     </span>
   );
 
+  if (candidate.not_evaluated) {
+    return <tr><td>{candidate.tag}</td><td><span className="pill">NOT EVALUATED</span></td>
+      <td colSpan={3}>{candidate.budget_exhausted} · {t("evaluation_not_run")}
+        {candidate.screen_evaluation && <span> · screen {candidate.screen_evaluation.status} · {candidate.screen_evaluation.seconds.toFixed(2)} s</span>}
+      </td></tr>;
+  }
   if (candidate.error) {
     const recovery = failureRecovery(candidate, allCandidates);
     return (
@@ -1297,7 +1304,9 @@ function CaseCard({
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
   const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
-  const failed = candidates.length - passed;
+  const deferred = candidates.filter(candidate => candidate.not_evaluated).length;
+  const screenedOnly = candidates.filter(candidate => candidate.not_evaluated && candidate.screen_evaluation).length;
+  const failed = candidates.length - deferred - passed;
   // Candidates blocked only because a signoff step never ran. They are
   // inside `failed`, but calling them "violated guardrails" is wrong —
   // nothing rejected them, nothing checked them. Counted so the note can
@@ -1344,7 +1353,7 @@ function CaseCard({
             {pipelineCase.winner_tag ? "CLOSED" : "OPEN"}
           </span>
           <span className="pipeline__case-toggle-meta">
-            {candidates.length} {t("pipeline_case_candidates")} · {passed} PASS · {failed} FAIL
+            {candidates.length - deferred + screenedOnly} {t("pipeline_case_candidates")} · {passed} PASS · {failed} FAIL{deferred > 0 ? ` · ${deferred} NOT EVALUATED${screenedOnly ? ` (${screenedOnly} screen only)` : ""}` : ""}
           </span>
         </button>
       </div>
@@ -1353,6 +1362,11 @@ function CaseCard({
 
   return (
     <div className="panel" ref={cardRef}>
+      {pipelineCase.evaluation_budget && <p className="pipeline__note">
+        {t("evaluation_budget_label")} · {pipelineCase.evaluation_budget.started_evaluations} / {pipelineCase.evaluation_budget.limits.max_evaluations ?? "∞"}
+        {" · "}{pipelineCase.evaluation_budget.elapsed_seconds.toFixed(1)} s
+        {" · "}{pipelineCase.evaluation_budget.not_evaluated.length} NOT EVALUATED
+      </p>}
       <span className="panel__title">
         <button className="pipeline__case-collapse" onClick={() => setOpen(false)}>
           ▾
@@ -1372,7 +1386,7 @@ function CaseCard({
               </span>
             )}
           </div>
-          <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length} candidates</span></div>
+          <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length - deferred + screenedOnly} measured candidates{deferred > 0 ? ` · ${deferred} NOT EVALUATED` : ""}</span></div>
           <div className="metric-card metric-card--good"><span className="metric-card__label">passed</span><strong className="metric-card__value">{passed}</strong><span className="metric-card__note">verified candidates</span></div>
           <div className={`metric-card ${failed > 0 ? "metric-card--critical" : ""}`}><span className="metric-card__label">{unverified ? "not passed" : "rejected"}</span><strong className="metric-card__value">{failed}</strong><span className="metric-card__note">{unverified ? `${failed - unverified} rejected · ${unverified} never checked` : "failed or violated guardrails"}</span></div>
         </div>

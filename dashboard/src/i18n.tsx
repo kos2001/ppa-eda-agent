@@ -5,6 +5,8 @@ export type Lang = "en" | "ko";
 const LANG_STORAGE_KEY = "ppa-eda-agent-dashboard:lang";
 
 const dict = {
+  evaluation_not_run: { en: "Budget prevented execution; no measured verdict", ko: "예산으로 미실행 · 측정된 검증 결과 없음" },
+  evaluation_budget_label: { en: "Evaluation budget", ko: "평가 예산" },
   macro_model_title: { en: "Macro timing model coverage", ko: "매크로 타이밍 모델 검증 범위" },
   macro_model_qualified: { en: "Model qualified", ko: "모델 검증 완료" },
   macro_model_unqualified: { en: "Model unqualified", ko: "모델 미검증" },
@@ -542,6 +544,9 @@ const dict = {
     ko: "자동복구가 계속 새 후보를 제안하던 중 반복 한도에 걸렸습니다. 판단이 아니라 횟수만 더 주면 됩니다. 권장: {n}회.",
   },
   ac_btn_budget: { en: "re-run with {n} iterations", ko: "{n}회로 재실행" },
+  ac_state_evaluation_budget: { en: "EVALUATION BUDGET EXHAUSTED", ko: "평가 예산 소진" },
+  ac_ask_evaluation_budget: { en: "Inspect the recorded limits and deferred candidates. Update evaluation_budget in the run spec and validate before rerunning.", ko: "기록된 한도와 미실행 후보를 확인하세요. 실행 계획의 evaluation_budget을 조정하고 검증한 후 재실행하세요." },
+  ac_btn_evaluation_budget: { en: "inspect evaluation budget ↓", ko: "평가 예산 확인 ↓" },
 
   ac_state_run: { en: "NEVER RUN", ko: "미실행" },
   ac_ask_run: {

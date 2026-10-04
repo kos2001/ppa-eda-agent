@@ -817,6 +817,13 @@ credentials are backend settings in the root `.env`. See
 The overview reads actual case metrics and GDS renders, discovers all design
 configurations, and opens a selected design's newest pipeline case.
 
+The [evaluation harness](docs/evaluation-harness-20261004.md) adds shared
+evaluation/time admissions, stage cost records and a persistent Pareto archive
+partitioned by source, constraints and technology provenance. Overview displays
+timing coverage and qualified comparison groups; missing metrics and
+budget-deferred candidates remain explicit. Optional measured-cost scheduling
+uses compatible observations without predicting PPA.
+
 
 ### Diagnosis page (live agent, via hermes-gateway)
 
