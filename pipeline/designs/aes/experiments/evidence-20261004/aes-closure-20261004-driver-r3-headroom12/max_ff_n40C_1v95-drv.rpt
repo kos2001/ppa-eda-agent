@@ -1,0 +1,15 @@
+# Extracted verbatim from /private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/max_ff_n40C_1v95/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= max_ff_n40C_1v95 Corner ===================================
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+fanout1023/X                             16     18     -2 (VIOLATED)
+fanout1007/X                             16     17        (VIOLATED)
+
+
+
+===========================================================================

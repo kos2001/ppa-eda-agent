@@ -1,0 +1,29 @@
+{
+  "limit": 16,
+  "inserted_buffers": 2,
+  "repaired_nets": [
+    {
+      "net": "net431",
+      "clock": false,
+      "driver": "fanout431/X",
+      "original_sinks": 17,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_65",
+          "net": "fanout_repair_net_65",
+          "sink_count": 8
+        },
+        {
+          "instance": "fanout_repair_66",
+          "net": "fanout_repair_net_66",
+          "sink_count": 9
+        }
+      ],
+      "limit": 16,
+      "remaining_driver_sinks": 2
+    }
+  ],
+  "skipped_nets": [],
+  "scope": "signal input pin counts; weighted Liberty fanout and timing require final STA"
+}

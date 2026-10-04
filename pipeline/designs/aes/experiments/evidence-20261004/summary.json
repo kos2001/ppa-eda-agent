@@ -82,5 +82,33 @@
       "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
     ],
     "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-targeted14-r2"
+  },
+  {
+    "tag": "aes-closure-20261004-driver-upsize",
+    "case": "reference-db/cases/aes__2026-10-04__071933.json",
+    "flow": "FanoutRepair",
+    "seconds": 1203.8,
+    "area_um2": 134966,
+    "passed": false,
+    "violations": [
+      "4 routing antenna violation(s)",
+      "5 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-driver-upsize"
+  },
+  {
+    "tag": "aes-closure-20261004-driver-r3-headroom12",
+    "case": "reference-db/cases/aes__2026-10-04__074008.json",
+    "flow": "FanoutRepair",
+    "seconds": 1043.5,
+    "area_um2": 135161,
+    "passed": false,
+    "violations": [
+      "2 routing antenna violation(s)",
+      "2 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-driver-r3-headroom12"
   }
 ]

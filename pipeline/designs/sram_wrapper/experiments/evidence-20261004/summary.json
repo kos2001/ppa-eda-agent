@@ -70,7 +70,7 @@
     "passed": false,
     "violations": [],
     "unverified": [
-      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk1 at 0.211 ns against a model characterised to 0.040 ns (5.3x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification"
+      "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk1 at 0.211 ns against a model characterised to 0.040 ns (5.3x past the last table entry, corner max_ss_100C_1v60) — these delays are off the end of the table, not measurements, and signoff needs a re-characterised liberty. every macro input's rise/fall slew was exported at every corner; per-arc Liberty range and explicit PVT mapping still require qualification; declared macro PVT is mismatched or unknown in 6 corner-model mapping(s), 1944 timing-table input-axis check(s) are outside their ranges; extracted output loads and measured model provenance remain unqualified"
     ],
     "evidence": "pipeline/designs/sram_wrapper/experiments/evidence-20261004/sram-closure-20261004-inv8-inv16-spef"
   }

@@ -32,8 +32,13 @@ Work from measured artifacts and keep the experiment bounded and reproducible.
 5. Run the full orchestrator only when the task authorizes new physical results.
    Use the validated run spec rather than composing ad hoc shell overrides.
 6. Evaluate hard gates first: completed metrics, functional check when requested,
-   signoff DRC/LVS, and all timing corners. Then compare the Pareto tradeoff in
-   area, power, core area, setup slack, wirelength, and vias where present.
+   signoff DRC/LVS, and all timing corners. For a macro candidate, run
+   `python3 pipeline/macro_model_audit.py --design <design-dir> --run-dir <run-dir>`
+   and retain its full audit beside the compact case summary. Use effective
+   resolved corner mappings and actual related/constrained input axes; matching
+   PVT labels and complete input records do not qualify measured tables. Output
+   loads and functional/PVT provenance remain separate checks. Then compare
+   the Pareto tradeoff in area, power, core area, setup slack, wirelength, and vias where present.
 7. Correct failures from observed feedback. Find the first failing stage, retain
    the exact error code and metric source, check the installed tool's current
    contract, propose one minimal repair, validate, then rerun. Do not turn an

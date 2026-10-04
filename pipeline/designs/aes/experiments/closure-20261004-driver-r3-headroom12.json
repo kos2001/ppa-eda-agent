@@ -1,0 +1,37 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-closure-20261004-driver-r3-headroom12",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\":8,\"_09030_\":8,\"net395\":14,\"net628\":14,\"net647\":14,\"net747\":14,\"net1048\":14,\"net1303\":14,\"net901\":14,\"net535\":12,\"net641\":12,\"net734\":12,\"net752\":12,\"net966\":12}",
+        "FANOUT_REPAIR_ROUNDS": 3,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"fanout901\":\"sky130_fd_sc_hd__buf_8\",\"_20258_\":\"sky130_fd_sc_hd__o2bb2ai_4\"}"
+      },
+      "flow": "FanoutRepair"
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Reserve headroom on five final measured fanout17 nets and test one final bounded third buffer/reroute/antenna pass, preserving the successful driver sizes and final SDC",
+    "reference": "aes__2026-10-04__071933: slew0, cap0, antenna4, fanout5 at fanout535/641/734/752/966 outputs; DRC/LVS/setup/hold0 and all9 repair-driver SPEF annotations complete"
+  },
+  "_why": "One additional full-flow correction after measured feedback, bounded to the supported third repair pass. The interaction between tighter targets and a final diode insertion is the hypothesis; neither timing nor manufacturing constraints are relaxed."
+}

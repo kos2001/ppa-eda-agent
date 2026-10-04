@@ -1,0 +1,312 @@
+Analysis of sampling ngspice (pid 74634) every 1 millisecond
+Process:         ngspice [74634]
+Path:            /private/tmp/*/ngspice
+Load Address:    0x1009f8000
+Identifier:      ngspice
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  Python [74621]
+Target Type:     live task
+
+Date/Time:       2026-10-04 16:15:18.687 +0900
+Launch Time:     2026-10-04 15:08:42.249 +0900
+OS Version:      macOS 26.7 (25G229)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         3.4G
+Physical footprint (peak):  3.4G
+Idle exit:                  untracked
+----
+
+Call graph:
+    789 Thread_11305511   DispatchQueue_1: com.apple.main-thread  (serial)
+      789 start  (in dyld) + 6992  [0x184df84e4]
+        789 main  (in ngspice) + 4652  [0x1009f9a38]
+          789 dosim  (in ngspice) + 948  [0x100a490b8]
+            789 if_run  (in ngspice) + 1412  [0x100a4c0f4]
+              789 CKTdoJob  (in ngspice) + 676  [0x100d2fee8]
+                738 DCtran  (in ngspice) + 2348  [0x100d38ab4]
+                + 423 NIiter  (in ngspice) + 1464  [0x100d72a34]
+                + ! 423 CKTload  (in ngspice) + 200  [0x100d30760]
+                + !   128 BSIM3v32load  (in ngspice) + 2928  [0x100abf934]
+                + !   : 127 BSIM3v32load  (in ngspice) + 3004,4572,...  [0x100abf980,0x100abffa0,...]
+                + !   : 1 exp  (in libsystem_m.dylib) + 84  [0x194f7b414]
+                + !   79 BSIM3v32load  (in ngspice) + 14156  [0x100ac2510]
+                + !   : 77 BSIM3v32load  (in ngspice) + 17696,17704,...  [0x100ac32e4,0x100ac32ec,...]
+                + !   : 2 exp  (in libsystem_m.dylib) + 104  [0x194f7b428]
+                + !   66 BSIM3v32load  (in ngspice) + 20500  [0x100ac3dd8]
+                + !   : 64 BSIM3v32load  (in ngspice) + 196,212,...  [0x100abee88,0x100abee98,...]
+                + !   : 2 NIintegrate  (in ngspice) + 128,312  [0x100d72304,0x100d723bc]
+                + !   20 BSIM3v32load  (in ngspice) + 1608  [0x100abf40c]
+                + !   : 19 BSIM3v32load  (in ngspice) + 1968,2392,...  [0x100abf574,0x100abf71c,...]
+                + !   : 1 exp  (in libsystem_m.dylib) + 16  [0x194f7b3d0]
+                + !   17 BSIM3v32load  (in ngspice) + 1420  [0x100abf350]
+                + !   : 13 exp  (in libsystem_m.dylib) + 104,80,...  [0x194f7b428,0x194f7b410,...]
+                + !   : 4 BSIM3v32load  (in ngspice) + 1560,1504,...  [0x100abf3dc,0x100abf3a4,...]
+                + !   15 BSIM3v32load  (in ngspice) + 848  [0x100abf114]
+                + !   : 13 BSIM3v32load  (in ngspice) + 960,900,...  [0x100abf184,0x100abf148,...]
+                + !   : 2 exp  (in libsystem_m.dylib) + 28,44  [0x194f7b3dc,0x194f7b3ec]
+                + !   8 BSIM3v32load  (in ngspice) + 9112  [0x100ac115c]
+                + !   : 5 exp  (in libsystem_m.dylib) + 44,104  [0x194f7b3ec,0x194f7b428]
+                + !   : 3 BSIM3v32load  (in ngspice) + 11032,11220,...  [0x100ac18dc,0x100ac1998,...]
+                + !   8 exp  (in libsystem_m.dylib) + 152  [0x194f7b458]
+                + !   7 BSIM3v32load  (in ngspice) + 736  [0x100abf0a4]
+                + !   : 4 BSIM3v32load  (in ngspice) + 792  [0x100abf0dc]
+                + !   : 2 exp  (in libsystem_m.dylib) + 80,124  [0x194f7b410,0x194f7b43c]
+                + !   : 1 DYLD-STUB$$exp  (in ngspice) + 0  [0x100d9c8d4]
+                + !   7 BSIM3v32load  (in ngspice) + 2824  [0x100abf8cc]
+                + !   : 5 log  (in libsystem_m.dylib) + 100,200,...  [0x194f7b1e4,0x194f7b248,...]
+                + !   : 2 BSIM3v32load  (in ngspice) + 2844,2916  [0x100abf8e0,0x100abf928]
+                + !   7 BSIM3v32load  (in ngspice) + 10172  [0x100ac1580]
+                + !   : 6 BSIM3v32load  (in ngspice) + 692,716,...  [0x100abf078,0x100abf090,...]
+                + !   : 1 DEVpnjlim  (in ngspice) + 0  [0x100d42a60]
+                + !   7 BSIM4v5load  (in ngspice) + 33364  [0x100b06690]
+                + !   : 7 BSIM4v5load  (in ngspice) + 16580,264,...  [0x100b02500,0x100afe544,...]
+                + !   6 BSIM3v32load  (in ngspice) + 2804  [0x100abf8b8]
+                + !   : 6 exp  (in libsystem_m.dylib) + 68,0,...  [0x194f7b404,0x194f7b3c0,...]
+                + !   6 BSIM4v5load  (in ngspice) + 7612  [0x100b001f8]
+                + !   : 6 BSIM4v5load  (in ngspice) + 7760,8216,...  [0x100b0028c,0x100b00454,...]
+                + !   4 BSIM3v32load  (in ngspice) + 13940  [0x100ac2438]
+                + !   : 3 BSIM3v32load  (in ngspice) + 13952,14028,...  [0x100ac2444,0x100ac2490,...]
+                + !   : 1 DYLD-STUB$$log  (in ngspice) + 4  [0x100d9cae8]
+                + !   3 BSIM3v32load  (in ngspice) + 8656  [0x100ac0f94]
+                + !   : 1 BSIM3v32load  (in ngspice) + 8764  [0x100ac1000]
+                + !   : 1 DYLD-STUB$$log  (in ngspice) + 0  [0x100d9cae4]
+                + !   : 1 log  (in libsystem_m.dylib) + 68  [0x194f7b1c4]
+                + !   3 BSIM3v32load  (in ngspice) + 10020  [0x100ac14e8]
+                + !   : 3 DEVfetlim  (in ngspice) + 52  [0x100d42b8c]
+                + !   2 BSIM3v32load  (in ngspice) + 10084  [0x100ac1528]
+                + !   : 2 DEVfetlim  (in ngspice) + 52,244  [0x100d42b8c,0x100d42c4c]
+                + !   2 BSIM3v32load  (in ngspice) + 20468  [0x100ac3db8]
+                + !   : 2 NIintegrate  (in ngspice) + 8,128  [0x100d7228c,0x100d72304]
+                + !   2 BSIM4v5load  (in ngspice) + 4608  [0x100aff63c]
+                + !   : 2 BSIM4v5load  (in ngspice) + 4672,5136  [0x100aff67c,0x100aff84c]
+                + !   2 BSIM4v5load  (in ngspice) + 24460  [0x100b043c8]
+                + !   : 2 BSIM4v5load  (in ngspice) + 24960,26048  [0x100b045bc,0x100b049fc]
+                + !   2 log  (in libsystem_m.dylib) + 244  [0x194f7b274]
+                + !   1 BSIM3v32load  (in ngspice) + 6496  [0x100ac0724]
+                + !   : 1 BSIM3v32load  (in ngspice) + 7164  [0x100ac09c0]
+                + !   1 BSIM3v32load  (in ngspice) + 7268  [0x100ac0a28]
+                + !   : 1 exp  (in libsystem_m.dylib) + 80  [0x194f7b410]
+                + !   1 BSIM3v32load  (in ngspice) + 10056  [0x100ac150c]
+                + !   : 1 DEVlimvds  (in ngspice) + 0  [0x100d42a00]
+                + !   1 BSIM3v32load  (in ngspice) + 10112  [0x100ac1544]
+                + !   : 1 DEVlimvds  (in ngspice) + 0  [0x100d42a00]
+                + !   1 BSIM3v32load  (in ngspice) + 10212  [0x100ac15a8]
+                + !   : 1 DEVpnjlim  (in ngspice) + 64  [0x100d42aa0]
+                + !   1 BSIM3v32load  (in ngspice) + 14136  [0x100ac24fc]
+                + !   : 1 log  (in libsystem_m.dylib) + 120  [0x194f7b1f8]
+                + !   1 BSIM3v32load  (in ngspice) + 20436  [0x100ac3d98]
+                + !   : 1 NIintegrate  (in ngspice) + 0  [0x100d72284]
+                + !   1 BSIM3v32load  (in ngspice) + 0  [0x100abedc4]
+                + !   1 BSIM4v5load  (in ngspice) + 1992  [0x100afec04]
+                + !   : 1 BSIM4v5load  (in ngspice) + 2204  [0x100afecd8]
+                + !   1 BSIM4v5load  (in ngspice) + 2964  [0x100afefd0]
+                + !   : 1 exp  (in libsystem_m.dylib) + 112  [0x194f7b430]
+                + !   1 BSIM4v5load  (in ngspice) + 3568  [0x100aff22c]
+                + !   : 1 exp  (in libsystem_m.dylib) + 120  [0x194f7b438]
+                + !   1 BSIM4v5load  (in ngspice) + 3892  [0x100aff370]
+                + !   : 1 BSIM4v5load  (in ngspice) + 4116  [0x100aff450]
+                + !   1 BSIM4v5load  (in ngspice) + 5404  [0x100aff958]
+                + !   : 1 BSIM4v5load  (in ngspice) + 6104  [0x100affc14]
+                + !   1 BSIM4v5load  (in ngspice) + 5596  [0x100affa18]
+                + !   : 1 BSIM4v5load  (in ngspice) + 5784  [0x100affad4]
+                + !   1 BSIM4v5load  (in ngspice) + 10604  [0x100b00da8]
+                + !   : 1 BSIM4v5load  (in ngspice) + 11144  [0x100b00fc4]
+                + !   1 BSIM4v5load  (in ngspice) + 12784  [0x100b0162c]
+                + !   : 1 exp  (in libsystem_m.dylib) + 16  [0x194f7b3d0]
+                + !   1 BSIM4v5load  (in ngspice) + 22480  [0x100b03c0c]
+                + !   : 1 BSIM4v5load  (in ngspice) + 23008  [0x100b03e1c]
+                + !   1 BSIM4v5load  (in ngspice) + 33132  [0x100b065a8]
+                + !   : 1 NIintegrate  (in ngspice) + 120  [0x100d722fc]
+                + !   1 BSIM4v5load  (in ngspice) + 33164  [0x100b065c8]
+                + !   : 1 NIintegrate  (in ngspice) + 412  [0x100d72420]
+                + !   1 BSIM4v5load  (in ngspice) + 39780  [0x100b07fa0]
+                + !   : 1 BSIM4v5load  (in ngspice) + 30224  [0x100b05a4c]
+                + !   1 BSIM4v5load  (in ngspice) + 40892  [0x100b083f8]
+                + !   : 1 DEVfetlim  (in ngspice) + 88  [0x100d42bb0]
+                + !   1 BSIM4v5load  (in ngspice) + 41588  [0x100b086b0]
+                + !     1 BSIM4v5load  (in ngspice) + 720  [0x100afe70c]
+                + 145 NIiter  (in ngspice) + 164  [0x100d72520]
+                + ! 145 CKTload  (in ngspice) + 200  [0x100d30760]
+                + !   38 BSIM3v32load  (in ngspice) + 2928  [0x100abf934]
+                + !   : 38 BSIM3v32load  (in ngspice) + 3004,5072,...  [0x100abf980,0x100ac0194,...]
+                + !   29 BSIM3v32load  (in ngspice) + 14156  [0x100ac2510]
+                + !   : 29 BSIM3v32load  (in ngspice) + 17696,14800,...  [0x100ac32e4,0x100ac2794,...]
+                + !   22 BSIM3v32load  (in ngspice) + 20500  [0x100ac3dd8]
+                + !   : 22 BSIM3v32load  (in ngspice) + 196,9428,...  [0x100abee88,0x100ac1298,...]
+                + !   8 BSIM3v32load  (in ngspice) + 1608  [0x100abf40c]
+                + !   : 8 BSIM3v32load  (in ngspice) + 1760,1608,...  [0x100abf4a4,0x100abf40c,...]
+                + !   6 BSIM3v32load  (in ngspice) + 1420  [0x100abf350]
+                + !   : 5 exp  (in libsystem_m.dylib) + 80,60,...  [0x194f7b410,0x194f7b3fc,...]
+                + !   : 1 BSIM3v32load  (in ngspice) + 1504  [0x100abf3a4]
+                + !   5 BSIM3v32load  (in ngspice) + 9112  [0x100ac115c]
+                + !   : 4 exp  (in libsystem_m.dylib) + 44  [0x194f7b3ec]
+                + !   : 1 BSIM3v32load  (in ngspice) + 13848  [0x100ac23dc]
+                + !   4 BSIM3v32load  (in ngspice) + 848  [0x100abf114]
+                + !   : 3 BSIM3v32load  (in ngspice) + 1172,1332,...  [0x100abf258,0x100abf2f8,...]
+                + !   : 1 exp  (in libsystem_m.dylib) + 28  [0x194f7b3dc]
+                + !   3 BSIM3v32load  (in ngspice) + 10020  [0x100ac14e8]
+                + !   : 2 DEVfetlim  (in ngspice) + 88,132  [0x100d42bb0,0x100d42bdc]
+                + !   : 1 BSIM3v32load  (in ngspice) + 10044  [0x100ac1500]
+                + !   3 BSIM4v5load  (in ngspice) + 7612  [0x100b001f8]
+                + !   : 3 BSIM4v5load  (in ngspice) + 9960,9932  [0x100b00b24,0x100b00b08]
+                + !   2 BSIM3v32load  (in ngspice) + 736  [0x100abf0a4]
+                + !   : 2 BSIM3v32load  (in ngspice) + 792,808  [0x100abf0dc,0x100abf0ec]
+                + !   2 BSIM3v32load  (in ngspice) + 6496  [0x100ac0724]
+                + !   : 2 exp  (in libsystem_m.dylib) + 0  [0x194f7b3c0]
+                + !   2 BSIM4v5load  (in ngspice) + 4608  [0x100aff63c]
+                + !   : 2 BSIM4v5load  (in ngspice) + 5148,5328  [0x100aff858,0x100aff90c]
+                + !   2 BSIM4v5load  (in ngspice) + 24460  [0x100b043c8]
+                + !   : 2 BSIM4v5load  (in ngspice) + 25984,27488  [0x100b049bc,0x100b04f9c]
+                + !   2 exp  (in libsystem_m.dylib) + 152  [0x194f7b458]
+                + !   1 ASRCload  (in ngspice) + 508  [0x100a6dc90]
+                + !   : 1 IFeval  (in ngspice) + 248  [0x100d4bda4]
+                + !   :   1 PTeval  (in ngspice) + 112  [0x100d4bf08]
+                + !   :     1 PTeval  (in ngspice) + 740  [0x100d4c17c]
+                + !   :       1 PTuminus  (in ngspice) + 0  [0x100d5d57c]
+                + !   1 BSIM3v32load  (in ngspice) + 2804  [0x100abf8b8]
+                + !   : 1 exp  (in libsystem_m.dylib) + 104  [0x194f7b428]
+                + !   1 BSIM3v32load  (in ngspice) + 2824  [0x100abf8cc]
+                + !   : 1 log  (in libsystem_m.dylib) + 100  [0x194f7b1e4]
+                + !   1 BSIM3v32load  (in ngspice) + 8656  [0x100ac0f94]
+                + !   : 1 BSIM3v32load  (in ngspice) + 8772  [0x100ac1008]
+                + !   1 BSIM3v32load  (in ngspice) + 10056  [0x100ac150c]
+                + !   : 1 DEVlimvds  (in ngspice) + 0  [0x100d42a00]
+                + !   1 BSIM3v32load  (in ngspice) + 10084  [0x100ac1528]
+                + !   : 1 DEVfetlim  (in ngspice) + 52  [0x100d42b8c]
+                + !   1 BSIM3v32load  (in ngspice) + 10212  [0x100ac15a8]
+                + !   : 1 BSIM3v32load  (in ngspice) + 452  [0x100abef88]
+                + !   1 BSIM3v32load  (in ngspice) + 13940  [0x100ac2438]
+                + !   : 1 BSIM3v32load  (in ngspice) + 14036  [0x100ac2498]
+                + !   1 BSIM4v5load  (in ngspice) + 4244  [0x100aff4d0]
+                + !   : 1 BSIM4v5load  (in ngspice) + 4320  [0x100aff51c]
+                + !   1 BSIM4v5load  (in ngspice) + 5404  [0x100aff958]
+                + !   : 1 exp  (in libsystem_m.dylib) + 104  [0x194f7b428]
+                + !   1 BSIM4v5load  (in ngspice) + 5596  [0x100affa18]
+                + !   : 1 BSIM4v5load  (in ngspice) + 6948  [0x100afff60]
+                + !   1 BSIM4v5load  (in ngspice) + 7356  [0x100b000f8]
+                + !   : 1 exp  (in libsystem_m.dylib) + 28  [0x194f7b3dc]
+                + !   1 BSIM4v5load  (in ngspice) + 13136  [0x100b0178c]
+                + !   : 1 BSIM4v5load  (in ngspice) + 21220  [0x100b03720]
+                + !   1 BSIM4v5load  (in ngspice) + 13396  [0x100b01890]
+                + !   : 1 BSIM4v5load  (in ngspice) + 13744  [0x100b019ec]
+                + !   1 BSIM4v5load  (in ngspice) + 33332  [0x100b06670]
+                + !   : 1 BSIM4v5load  (in ngspice) + 33336  [0x100b06674]
+                + !   1 CAPload  (in ngspice) + 388  [0x100b6e30c]
+                + !   : 1 NIintegrate  (in ngspice) + 0  [0x100d72284]
+                + !   1 log  (in libsystem_m.dylib) + 244  [0x194f7b274]
+                + 135 NIiter  (in ngspice) + 348  [0x100d725d8]
+                + ! 135 SMPluFac  (in ngspice) + 692  [0x100d7c544]
+                + !   132 klu_refactor  (in ngspice) + 892,876,...  [0x100d823a8,0x100d82398,...]
+                + !   3 klu_refactor  (in ngspice) + 340  [0x100d82180]
+                + !     3 klu_scale  (in ngspice) + 236  [0x100d8293c]
+                + !       3 klu_scale  (in ngspice) + 420,468  [0x100d829f4,0x100d82a24]
+                + 23 NIiter  (in ngspice) + 856  [0x100d727d4]
+                + ! 22 NIconvTest  (in ngspice) + 156  [0x100d71fe4]
+                + ! : 22 CKTconvTest  (in ngspice) + 92  [0x100d327e0]
+                + ! :   19 BSIM3v32convTest  (in ngspice) + 324,20,...  [0x100abeca8,0x100abeb78,...]
+                + ! :   3 BSIM4v5convTest  (in ngspice) + 800,1228,...  [0x100afd668,0x100afd814,...]
+                + ! 1 NIconvTest  (in ngspice) + 76  [0x100d71f94]
+                + 6 NIiter  (in ngspice) + 744  [0x100d72764]
+                + ! 6 _platform_memmove  (in libsystem_platform.dylib) + 88,104  [0x1851cd3b8,0x1851cd3c8]
+                + 6 NIiter  (in ngspice) + 776  [0x100d72784]
+                +   6 SMPsolve  (in ngspice) + 176  [0x100d7d188]
+                +     3 klu_solve  (in ngspice) + 1320  [0x100d83078]
+                +     : 3 klu_lsolve  (in ngspice) + 300,360,...  [0x100d7ee64,0x100d7eea0,...]
+                +     3 klu_solve  (in ngspice) + 1364  [0x100d830a4]
+                +       3 klu_usolve  (in ngspice) + 428,376  [0x100d7f0fc,0x100d7f0c8]
+                51 DCtran  (in ngspice) + 2548  [0x100d38b7c]
+                  51 CKTtrunc  (in ngspice) + 272  [0x100d37654]
+                    26 BSIM3v32trunc  (in ngspice) + 72  [0x100acf20c]
+                    ! 24 CKTterr  (in ngspice) + 892,252,...  [0x100d37224,0x100d36fa4,...]
+                    ! 2 CKTterr  (in ngspice) + 348  [0x100d37004]
+                    !   1 DYLD-STUB$$memcpy  (in ngspice) + 0  [0x100d9cb44]
+                    !   1 _platform_memmove  (in libsystem_platform.dylib) + 436  [0x1851cd514]
+                    10 BSIM3v32trunc  (in ngspice) + 112  [0x100acf234]
+                    ! 10 CKTterr  (in ngspice) + 920,892,...  [0x100d37240,0x100d37224,...]
+                    6 BSIM3v32trunc  (in ngspice) + 92  [0x100acf220]
+                    ! 6 CKTterr  (in ngspice) + 60,892,...  [0x100d36ee4,0x100d37224,...]
+                    3 CKTterr  (in ngspice) + 944  [0x100d37258]
+                    2 BSIM3v32trunc  (in ngspice) + 36,52  [0x100acf1e8,0x100acf1f8]
+                    1 BSIM4v5trunc  (in ngspice) + 104  [0x100b1b974]
+                    ! 1 CKTterr  (in ngspice) + 348  [0x100d37004]
+                    !   1 DYLD-STUB$$memcpy  (in ngspice) + 0  [0x100d9cb44]
+                    1 BSIM4v5trunc  (in ngspice) + 124  [0x100b1b988]
+                    ! 1 CKTterr  (in ngspice) + 844  [0x100d371f4]
+                    1 BSIM4v5trunc  (in ngspice) + 200  [0x100b1b9d4]
+                    ! 1 CKTterr  (in ngspice) + 228  [0x100d36f8c]
+                    1 BSIM4v5trunc  (in ngspice) + 64  [0x100b1b94c]
+
+Total number in stack (recursive counted multiple, when >=5):
+        26       BSIM3v32load  (in ngspice) + 0  [0x100abedc4]
+        21       exp  (in libsystem_m.dylib) + 0  [0x194f7b3c0]
+        20       BSIM4v5load  (in ngspice) + 0  [0x100afe43c]
+        6       CKTterr  (in ngspice) + 0  [0x100d36ea8]
+        6       NIintegrate  (in ngspice) + 0  [0x100d72284]
+        6       log  (in libsystem_m.dylib) + 0  [0x194f7b180]
+        5       DEVfetlim  (in ngspice) + 0  [0x100d42b58]
+
+Sort by top of stack, same collapsed (when >= 5):
+        BSIM3v32load  (in ngspice)        433
+        klu_refactor  (in ngspice)        132
+        exp  (in libsystem_m.dylib)        61
+        CKTterr  (in ngspice)        45
+        BSIM4v5load  (in ngspice)        37
+        BSIM3v32convTest  (in ngspice)        19
+        log  (in libsystem_m.dylib)        11
+        DEVfetlim  (in ngspice)        9
+        NIintegrate  (in ngspice)        8
+        _platform_memmove  (in libsystem_platform.dylib)        7
+
+Binary Images:
+       0x1009f8000 -        0x100e06ee7 +ngspice (0) <08584CB5-BF8A-32D4-BB26-4A4D41206745> /tmp/*/ngspice
+       0x100f2c000 -        0x100f56eb3 +libreadline.8.3.dylib (0) <AC73508B-038F-3D00-AB11-39103B8FC41E> /opt/homebrew/*/libreadline.8.3.dylib
+       0x184d50000 -        0x184da2b4b  libobjc.A.dylib (951.7) <1D62B376-2303-376A-B993-9432A2004EB6> /usr/lib/libobjc.A.dylib
+       0x184da3000 -        0x184dd7d58  libdyld.dylib (1387) <70073E6E-4CDD-314F-BBDF-EC7FF6CE2DFC> /usr/lib/system/libdyld.dylib
+       0x184dd8000 -        0x184e8b4ff  dyld (1.0.0 - 1387) <0263B88E-0B22-3B33-BBC0-483BE879B513> /usr/lib/dyld
+       0x184e8c000 -        0x184e8f228  libsystem_blocks.dylib (96) <B33F1440-9364-38E4-AF85-8A21BFF24324> /usr/lib/system/libsystem_blocks.dylib
+       0x184e90000 -        0x184ee455f  libxpc.dylib (3102.160.5) <E26A36A6-4B8F-321C-AE17-54353F9EEE84> /usr/lib/system/libxpc.dylib
+       0x184ee5000 -        0x184f059ff  libsystem_trace.dylib (1861.160.4) <314A8A89-4715-32B9-ABC2-B3087149C8B7> /usr/lib/system/libsystem_trace.dylib
+       0x184f06000 -        0x184fb45f7  libcorecrypto.dylib (1922.160.10) <057A41E9-2A2E-39CD-B198-387734EED870> /usr/lib/system/libcorecrypto.dylib
+       0x184fb5000 -        0x185005257  libsystem_malloc.dylib (812.160.5) <B7ED74D2-5A24-3F39-9296-EE5688FF4B63> /usr/lib/system/libsystem_malloc.dylib
+       0x185006000 -        0x18504d23f  libdispatch.dylib (1542.160.2) <80E75F3F-333F-38A8-A3DD-6279FCDB771B> /usr/lib/system/libdispatch.dylib
+       0x18504e000 -        0x185050ffb  libsystem_featureflags.dylib (103) <5725BCFE-07F3-3629-9B44-551A435E2DE2> /usr/lib/system/libsystem_featureflags.dylib
+       0x185051000 -        0x1850d21e7  libsystem_c.dylib (1752.160.4) <3498CA79-EF40-3587-AD44-75187CEE7D95> /usr/lib/system/libsystem_c.dylib
+       0x1850d3000 -        0x185163ae7  libc++.1.dylib (2100.43) <32327062-C3A2-389E-ABFE-68A9942422E3> /usr/lib/libc++.1.dylib
+       0x185164000 -        0x18517e75f  libc++abi.dylib (2100.43) <CCDE1614-20B7-354C-B201-99C5C4CC589D> /usr/lib/libc++abi.dylib
+       0x18517f000 -        0x1851bc2f7  libsystem_kernel.dylib (12377.161.15.700.19) <EE805B14-29F2-360D-9A2C-3221A1211833> /usr/lib/system/libsystem_kernel.dylib
+       0x1851bd000 -        0x1851c9b3b  libsystem_pthread.dylib (539.100.4) <A58BEABD-7AC0-35F8-BCFF-E4FFBD79E938> /usr/lib/system/libsystem_pthread.dylib
+       0x1851ca000 -        0x1851d2963  libsystem_platform.dylib (375.120.2) <3AF14164-15FE-3623-9EE3-46DE29FD5B5A> /usr/lib/system/libsystem_platform.dylib
+       0x1851d3000 -        0x1852026eb  libsystem_info.dylib (600) <0037F576-2C50-36F0-9F36-6CB7A049D5B1> /usr/lib/system/libsystem_info.dylib
+       0x1891a3000 -        0x1891ace5f  libsystem_darwin.dylib (1752.160.4) <B808D04B-2798-36C9-96F6-35534BDFCF11> /usr/lib/system/libsystem_darwin.dylib
+       0x18960e000 -        0x1896201b6  libsystem_notify.dylib (348.160.3) <922BDCF4-CD33-3EEB-BC56-9DCAE54F8F65> /usr/lib/system/libsystem_notify.dylib
+       0x18b8df000 -        0x18b8f9f7b  libsystem_networkextension.dylib (2226.161.1.700.2) <83F224A4-40C4-3106-A97B-788D1D961DCB> /usr/lib/system/libsystem_networkextension.dylib
+       0x18b97c000 -        0x18b993fdf  libsystem_asl.dylib (406) <FF6BE113-1093-3D23-8A55-E0A5B327CA8E> /usr/lib/system/libsystem_asl.dylib
+       0x18d535000 -        0x18d53d387  libsystem_symptoms.dylib (2169.160.3.701.1) <7F0D4E31-268A-3EBB-8A2C-30CCC771A5A5> /usr/lib/system/libsystem_symptoms.dylib
+       0x1917da000 -        0x191812373  libsystem_containermanager.dylib (725.160.3.701.2) <118BC21E-B17D-32A2-9B65-16256131974F> /usr/lib/system/libsystem_containermanager.dylib
+       0x192bec000 -        0x192bf05d7  libsystem_configuration.dylib (1405.160.3.701.3) <7725D903-1D37-33E7-82AF-2260661C81A8> /usr/lib/system/libsystem_configuration.dylib
+       0x192bf1000 -        0x192bf799f  libsystem_sandbox.dylib (2680.160.6.700.3) <7B54AAA3-EB32-3853-8F0E-EB956EC957A1> /usr/lib/system/libsystem_sandbox.dylib
+       0x19424c000 -        0x19424f1fb  libquarantine.dylib (196.160.2.700.3) <45146171-F0C1-3104-AE01-6AAD841A70B5> /usr/lib/system/libquarantine.dylib
+       0x1949eb000 -        0x1949f1d03  libsystem_coreservices.dylib (191.5.1) <BF51842C-BC69-3725-9EB2-7A52804963F8> /usr/lib/system/libsystem_coreservices.dylib
+       0x194f7a000 -        0x194fb7a77  libsystem_m.dylib (3312.100.1) <A2858495-5B01-3D11-955D-FF6F25E88A6E> /usr/lib/system/libsystem_m.dylib
+       0x194fb9000 -        0x194fbc527  libmacho.dylib (1387) <95DEC6C1-4480-3303-8A52-9AFC3D8C9219> /usr/lib/system/libmacho.dylib
+       0x194fd6000 -        0x194fe33a7  libcommonCrypto.dylib (600035) <EBA6E4D0-4DD2-33BB-BF95-48A58591AAAD> /usr/lib/system/libcommonCrypto.dylib
+       0x194fe4000 -        0x194fedca3  libunwind.dylib (2100.2) <201827AE-90B0-38B1-9729-50455B607293> /usr/lib/system/libunwind.dylib
+       0x194ff6000 -        0x195000c1f  libcopyfile.dylib (240.160.2.702.1) <BA7266A8-BF4B-32BF-A323-F4B2EBCDC0B0> /usr/lib/system/libcopyfile.dylib
+       0x195001000 -        0x195004987  libcompiler_rt.dylib (103.3) <9EE26D98-97BF-3BE0-B6BE-425284AB2D24> /usr/lib/system/libcompiler_rt.dylib
+       0x195005000 -        0x19500978b  libsystem_collections.dylib (1752.160.4) <34CEFA68-1E15-32F2-A5B1-97C0170A77C5> /usr/lib/system/libsystem_collections.dylib
+       0x19500a000 -        0x19500d4cf  libsystem_secinit.dylib (168.100.7) <B6B286B6-6E08-3578-8AFC-E4C55697C760> /usr/lib/system/libsystem_secinit.dylib
+       0x19500e000 -        0x195010bf7  libremovefile.dylib (85.100.6) <33530415-3DB6-3556-A59A-24C22681D632> /usr/lib/system/libremovefile.dylib
+       0x195011000 -        0x195011f27  libkeymgr.dylib (31) <AD45B9EE-CE2B-3E1F-B96B-15F7F9FA3712> /usr/lib/system/libkeymgr.dylib
+       0x195012000 -        0x19501ae3f  libsystem_dnssd.dylib (2881.160.4.700.1) <71833E65-58B3-3C06-A4F3-D69D476CCC3C> /usr/lib/system/libsystem_dnssd.dylib
+       0x19501b000 -        0x19502009b  libcache.dylib (95) <A13AF0DC-5928-38BE-97FF-E04C29EF96AF> /usr/lib/system/libcache.dylib
+       0x195021000 -        0x195022ce3  libSystem.B.dylib (1356) <E9E4C9A6-16BB-392C-96AA-07797764E2A1> /usr/lib/libSystem.B.dylib
+       0x1b7e28000 -        0x1b7e642af  libncurses.5.4.dylib (79) <FA09099A-F6BE-3E5D-976D-5D7FF7EB153C> /usr/lib/libncurses.5.4.dylib
+       0x288cf9000 -        0x288d00349  libRosetta.dylib (367.9) <3DBB2990-262D-3776-8FAC-B88C0373DCF0> /usr/lib/libRosetta.dylib
+       0x28a90c000 -        0x28a90fa4b  libsystem_darwindirectory.dylib (122) <6246210A-5279-391D-8F58-E62A87CAB309> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x28a910000 -        0x28a91a39b  libsystem_eligibility.dylib (319.160.17) <85C0486B-60BE-3E10-ABBF-DD74341B7376> /usr/lib/system/libsystem_eligibility.dylib
+       0x28a91b000 -        0x28a92288b  libsystem_sanitizers.dylib (26.1) <A8C4F7FC-3443-35F7-B306-068D06237ED0> /usr/lib/system/libsystem_sanitizers.dylib
+       0x28a923000 -        0x28a923bbf  libsystem_trial.dylib (474.2.18.2.1) <83FF8DEB-1153-35BA-99C3-2AEF9B7559CD> /usr/lib/system/libsystem_trial.dylib

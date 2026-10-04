@@ -1,0 +1,18 @@
+{
+  "liberty_sha256": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361",
+  "functions": {
+    "sky130_fd_sc_hd__buf_4": {
+      "replacement": "sky130_fd_sc_hd__buf_8",
+      "identical_liberty_functions": [
+        "(A)"
+      ]
+    },
+    "sky130_fd_sc_hd__o2bb2ai_2": {
+      "replacement": "sky130_fd_sc_hd__o2bb2ai_4",
+      "identical_liberty_functions": [
+        "(!B1&!B2)|(A1_N&A2_N)"
+      ]
+    }
+  },
+  "source_liberty": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib"
+}

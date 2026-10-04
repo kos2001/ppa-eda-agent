@@ -89,6 +89,32 @@ change, validate the plan again, then rerun. A run with an ignored option,
 colliding tag, missing output, or tool failure is an invalid experiment; do not
 store its result as design evidence.
 
+Measured driver sizing is opt-in through `FANOUT_REPAIR_DRIVER_CELLS`. Check the
+actual Liberty Boolean functions and every original OpenDB pin connection
+before a same-family upsize. Keep final SDC limits unchanged, reload the edited
+DB through normal placement/routing, and inspect final cell masters and all
+corner reports. A slew/cap improvement can still leave fanout and antenna
+failures; record those candidates as rejected.
+
+For macro-model audits, prefer the run's `resolved.json` mapping over the
+original design config:
+
+```sh
+python3 pipeline/macro_model_audit.py --design <design> --run-dir <run>
+```
+
+Compare declared PVT and actual per-table related/constrained input axes.
+Expand bus pins and convert Liberty time units. Matching labels
+alone do not qualify measurements. Repeated table/edge extrapolation checks are
+not physical violation counts. Missing libraries, unknown edges, output-load
+coverage and unmeasured PVT provenance must remain unverified.
+
+Check the pinned simulator's batch behavior before adding output-retention
+optimizations. ngspice 46 already extracts `.meas` vectors automatically in
+batch mode; the recorded nonlinear RC comparison shows no RSS benefit from an
+explicit `.save` list. Sample the full process to establish its current
+bottleneck instead of assuming waveform retention is responsible.
+
 ## Checks
 
 Fast checks do not require Docker or a PDK:

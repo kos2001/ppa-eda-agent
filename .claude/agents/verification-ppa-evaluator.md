@@ -46,6 +46,15 @@ declared PDK/SCL comparison intentionally changes one of them.
 5. **Completeness**: confirm the run reached the expected final steps and that
    each hard-gate metric came from the final signoff artifact. TritonRoute DRC
    is useful intermediate evidence but cannot stand in for Magic signoff DRC.
+6. **Macro models and parasitics**: require final extracted SPEF annotation for
+   inserted repair drivers at every corner. For macros, inspect
+   `model_validity.macro_arc_audit`: effective resolved library mapping, declared
+   PVT, and the related/constrained transition axes of each timing table.
+   Complete input-edge records and zero DRV counts do not qualify an old
+   TT-only model at SS/FF. Matching PVT labels do not prove measured tables;
+   output-load range and functional/PVT provenance remain separate gates.
+   Extrapolation check counts repeat across tables/edges and are not physical
+   violation counts. Keep incomplete or unqualified evidence in `unverified`.
 
 ## Reporting
 
