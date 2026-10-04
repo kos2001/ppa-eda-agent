@@ -26,7 +26,8 @@ import {
 } from "../console/log";
 import "./EdaShell.css";
 
-export const BACKEND = "http://127.0.0.1:8123";
+import { API_BASE_URL } from "../api/config";
+export const BACKEND = API_BASE_URL;
 
 // ---------------------------------------------------------------------
 // Menu bar
@@ -398,7 +399,7 @@ export function StatusBar({ design, tab }: { design: string | null; tab: string 
     <footer className="eda-status">
       <span className={`eda-status__pill is-${gateway}`} title={`${BACKEND}`}>
         <i />
-        {gateway === "ok" ? "server 8123" : gateway === "error" ? "server offline" : "server …"}
+        {gateway === "ok" ? `server ${new URL(BACKEND || "/", window.location.href).port || "API"}` : gateway === "error" ? "server offline" : "server …"}
       </span>
       <span className="eda-status__pill" title="hermes-gateway key resolved server-side">
         <i className={configured ? "is-good" : "is-idle"} />

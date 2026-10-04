@@ -789,7 +789,7 @@ adds those four pieces around the existing tabs:
   holds 71-75% of the window at every size, against 45-74% before, with
   no horizontal overflow anywhere.
 
-Behind that shell: the Layout Pipeline (the default view), schematics,
+Behind that shell: Overview · Examples (the default view), Layout Pipeline, schematics,
 progress, system health, data lineage, the manual, an ask page and the
 Diagnosis page. The report-paste tabs (Area, Timing, Power, Trade-offs)
 and the live OpenSTA Simulate tab were removed on 2026-10-02: they read
@@ -797,11 +797,26 @@ pasted material rather than operating the agent, which is what `soul.md`
 says this dashboard is for. Nothing else imported them, and `git log`
 holds them if they are wanted back.
 
+The frontend (`dashboard/`) and backend (`server/`) are independent packages.
+Start each in its own terminal from the repository root:
+
 ```sh
-cd dashboard
-npm install
-npm run dev
+npm --prefix server start
 ```
+
+```sh
+npm --prefix dashboard ci
+npm --prefix dashboard run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Open http://127.0.0.1:5173. Configure the public API URL through
+`dashboard/.env.local` (`VITE_API_BASE_URL`); the API port and private gateway
+credentials are backend settings in the root `.env`. See
+[frontend setup](dashboard/README.md), [backend setup](server/README.md), and
+[architecture and example references](docs/frontend-backend-and-examples-20261004.md).
+The overview reads actual case metrics and GDS renders, discovers all design
+configurations, and opens a selected design's newest pipeline case.
+
 
 ### Diagnosis page (live agent, via hermes-gateway)
 

@@ -16,7 +16,7 @@
 // netlists the schematic and simulates it, so what you measure is always
 // the drawing in front of you rather than a deck that may predate it.
 import { useCallback, useEffect, useState } from "react";
-import { BACKEND } from "./EdaShell";
+import { API_BASE_URL as BACKEND } from "../api/config";
 import SchematicViewer from "./SchematicViewer";
 import { log } from "../console/log";
 import "./SchematicTab.css";

@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import { createReportCache, reportStoreKey } from "./report-cache.mjs";
 import { createLineDecoder } from "./stream-lines.mjs";
 import { handleJsonRequest } from "./http-json.mjs";
+import { designExamples } from "./examples.mjs";
 
 const execFileAsync = promisify(execFile);
 
@@ -25,7 +26,7 @@ const pipelineDir = path.resolve(__dirname, "..", "pipeline");
 // changes when the machine changes, not when a case is written.
 const toolchainCache = new Map();
 const feedbackFile = path.join(refDbDir, "feedback.jsonl");
-const PORT = Number(process.env.PPA_EDA_SERVER_PORT) || 8123;
+
 
 // Auto-loads a real .env file at the repo root, if present — same
 // pattern as ~/gitspace/mi-report's load_profile(): the credential
@@ -63,19 +64,26 @@ try {
     : `[env] could not load .env: ${err?.message ?? err}`);
 }
 
+const PORT = Number(process.env.PPA_EDA_SERVER_PORT ?? 8123);
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) throw new Error("PPA_EDA_SERVER_PORT must be an integer from 1 to 65535");
+const FRONTEND_ORIGINS = process.env.PPA_EDA_FRONTEND_ORIGINS?.trim()
+  ? process.env.PPA_EDA_FRONTEND_ORIGINS.split(",").map((value) => new URL(value.trim()).origin)
+  : null;
+
 // Any localhost dev-server port is fine — this is a local-only tool.
 const ALLOWED_ORIGIN_RE = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 function corsHeaders(req) {
   const origin = req.headers.origin;
-  if (origin && ALLOWED_ORIGIN_RE.test(origin)) {
+  if (origin && (FRONTEND_ORIGINS ? FRONTEND_ORIGINS.includes(origin) : ALLOWED_ORIGIN_RE.test(origin))) {
     return {
       "Access-Control-Allow-Origin": origin,
+      "Vary": "Origin",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
   }
-  return {};
+  return { Vary: "Origin" };
 }
 
 // Reads the real reference-db/ case store (written by
@@ -744,6 +752,23 @@ const server = createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
     res.writeHead(204, headers);
     res.end();
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/health") {
+    res.writeHead(200, { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" });
+    res.end(JSON.stringify({ status: "ok", service: "ppa-eda-api", api_version: 1 }));
+    return;
+  }
+  if (req.method === "GET" && req.url === "/examples") {
+    try {
+      const examples = await designExamples(path.join(pipelineDir, "designs"));
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ examples }));
+    } catch (error) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
     return;
   }
 

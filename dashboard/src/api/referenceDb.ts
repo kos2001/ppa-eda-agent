@@ -1,4 +1,5 @@
-export const REFERENCE_DB_URL = "http://127.0.0.1:8123/reference-db";
+import { API_BASE_URL as LOCAL_SERVER_URL } from "./config";
+export const REFERENCE_DB_URL = `${LOCAL_SERVER_URL}/reference-db`;
 
 export interface TimingCorner {
   corner: string;
@@ -450,7 +451,7 @@ export function fetchReferenceDb(): Promise<ReferenceDb> {
   const since = lastDb?.key;
   const url = since ? `${REFERENCE_DB_URL}?since=${encodeURIComponent(since)}` : REFERENCE_DB_URL;
   inFlight = (async () => {
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
@@ -464,7 +465,7 @@ export function fetchReferenceDb(): Promise<ReferenceDb> {
   return inFlight;
 }
 
-const LOCAL_SERVER_URL = "http://127.0.0.1:8123";
+
 
 // One candidate's layout and netlist, when the reader opens them.
 export async function fetchCandidateDetail(

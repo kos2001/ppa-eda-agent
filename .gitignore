@@ -4,6 +4,8 @@ dashboard/dist/
 # Real credentials (PPA_EDA_GATEWAY_KEY etc. — see server/index.mjs and
 # .env.example). Never commit the real file, only .env.example.
 .env
+.env.local
+.env.*.local
 
 # Real EDA artifacts — large binary tool output and downloaded PDK, not
 # source. Regenerate via pipeline/run_stage.py / pipeline/orchestrator.py

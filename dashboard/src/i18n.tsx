@@ -50,8 +50,8 @@ const dict = {
   },
   pipeline_loading: { en: "Loading reference-db…", ko: "reference-db 불러오는 중…" },
   pipeline_error_hint: {
-    en: "is the server (node server/index.mjs) running on 127.0.0.1:8123?",
-    ko: "서버(node server/index.mjs)가 127.0.0.1:8123에서 실행 중인가요?",
+    en: "Check the configured API endpoint; start the backend with npm --prefix server start.",
+    ko: "설정된 API 주소를 확인하고 npm --prefix server start로 백엔드를 실행해 주세요.",
   },
   pipeline_empty: {
     en: "No cases yet — run pipeline/orchestrator.py on a design to populate reference-db/.",

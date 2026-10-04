@@ -164,6 +164,10 @@
   background: var(--surface-raised);
   border-bottom: 1px solid var(--border);
 }
+@media (max-width: 700px) {
+  .eda-console__bar { height: auto; min-height: 24px; flex-wrap: wrap; padding: 6px 8px; gap: 6px; }
+  .eda-console__bar .eda-console__tools { width: 100%; flex-wrap: wrap; margin-left: 0; }
+}
 .eda-console--collapsed .eda-console__bar { border-bottom: 0; }
 
 .eda-console__toggle {
