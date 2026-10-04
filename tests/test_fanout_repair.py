@@ -11,9 +11,17 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 import orchestrator
 import run_stage
 from flows.fanout_buffer import spatial_groups
+from flows.fanout_repair import repair_rounds
 
 
 class PhysicalFanoutTests(unittest.TestCase):
+    def test_repair_rounds_are_bounded_and_explicit(self):
+        self.assertEqual(repair_rounds([]), 1)
+        self.assertEqual(repair_rounds(["FANOUT_REPAIR_ROUNDS=2"]), 2)
+        for value in ("0", "4", "invalid"):
+            with self.assertRaises(ValueError):
+                repair_rounds([f"FANOUT_REPAIR_ROUNDS={value}"])
+
     def test_flow_sources_are_immutable_during_run_and_retained_with_hashes(self):
         with tempfile.TemporaryDirectory() as tmp:
             design = Path(tmp)

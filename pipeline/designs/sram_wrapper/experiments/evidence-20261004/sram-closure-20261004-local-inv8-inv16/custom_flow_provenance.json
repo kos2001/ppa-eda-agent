@@ -1,0 +1,17 @@
+{
+  "flow": "MacroFanoutRepair",
+  "entrypoint": [
+    "python3",
+    "/flows/fanout_repair.py",
+    "--concrete-magic"
+  ],
+  "sources_sha256": {
+    "fanout_buffer.py": "477df1eb53dfc649b7b8165a19472f129e9006ff86060f39a02f0fc752c56baf",
+    "fanout_repair.py": "95caef396712a32ac7592b7af292e3e9735d0f7c8c8417f53ba7575878bf7df1",
+    "macro_autoplace.py": "86ef371174d90f3a2f05bbaefad90902ecf1f418bc915b6851b7d7fcc57a96b6",
+    "macro_input_audit.py": "5efcc9085cc0262a36f6d36bf48157cf76a2d28ac891412ab27c53de13adc599",
+    "macro_pin_buffer.py": "9168ae392e07d6811d06ef58bc6a5244db88c8063a009c427e9a8f319735a8fe",
+    "macro_signoff.py": "ad899d4cd7bd2152c3cc5f7feb0ced09f3dd9da2032a7d8bc81c87064a6810e0",
+    "upstream_classic.py": "838c21b8dcbe559f1e65d790893981d831d14e454290eadce89c361b0aee00aa"
+  }
+}

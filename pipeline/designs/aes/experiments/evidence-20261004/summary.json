@@ -27,7 +27,9 @@
       "2 max-capacitance (DRV) violation(s)",
       "2 max-fanout (DRV) violation(s)"
     ],
-    "unverified": [],
+    "unverified": [
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
+    ],
     "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-repair"
   },
   {
@@ -41,7 +43,44 @@
       "6 routing antenna violation(s)",
       "6 max-fanout (DRV) violation(s)"
     ],
-    "unverified": [],
+    "unverified": [
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
+    ],
     "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-cap-v2"
+  },
+  {
+    "tag": "aes-closure-20261004-headroom14-r2",
+    "case": "reference-db/cases/aes__2026-10-04__055305.json",
+    "flow": "FanoutRepair",
+    "seconds": 1654.9,
+    "area_um2": 146885,
+    "passed": false,
+    "violations": [
+      "12 routing antenna violation(s)",
+      "14 max-slew (DRV) violation(s)",
+      "1 max-capacitance (DRV) violation(s)"
+    ],
+    "unverified": [
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
+    ],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-headroom14-r2"
+  },
+  {
+    "tag": "aes-closure-20261004-targeted14-r2",
+    "case": "reference-db/cases/aes__2026-10-04__063306.json",
+    "flow": "FanoutRepair",
+    "seconds": 1933.7,
+    "area_um2": 134918,
+    "passed": false,
+    "violations": [
+      "8 routing antenna violation(s)",
+      "14 max-slew (DRV) violation(s)",
+      "1 max-capacitance (DRV) violation(s)",
+      "1 max-fanout (DRV) violation(s)"
+    ],
+    "unverified": [
+      "inserted repair drivers lack complete final SPEF annotation; provisional timing/DRV values cannot establish closure"
+    ],
+    "evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-targeted14-r2"
   }
 ]

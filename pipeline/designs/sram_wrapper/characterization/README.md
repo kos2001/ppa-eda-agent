@@ -217,3 +217,36 @@ This is an execution checkpoint, not a completed characterization result.
 The 35 characterization, adapter, and model-validity unit tests passed.
 Docker image listing and an OpenLane 2.3.10 container smoke check also
 succeeded, including locating OpenSTA and OpenROAD inside the container.
+
+## 2026-10-04: separate parser and solver bottlenecks
+
+Native ngspice 46 supports KLU, but it must be selected in the actual deck.
+The adapter now preserves RELTOL=0.001, gear, TRAN and measurements while adding
+KLU when configured. A small RC comparison gives the same measured delay with
+Sparse and KLU; this is not a macro validation.
+
+A sample of the stalled full SS process showed `INPgetModBin` repeatedly scanning
+the global model list. The experimental ngspice 46 patch in `ngspice-bin-index/`
+indexes numeric bins by prefix while preserving original selection order. It is
+pinned to the official release, with release/source/patch/binary hashes and
+reproducible build instructions. Five synthetic selection cases and actual
+SKY130 two-device SS/TT/FF probes have identical 15-digit currents against the
+unmodified executable. Upstream `make check` exits 0; its log retains nonfatal
+historical-reference differences as printed.
+
+The indexed executable passes full macro loading and enters actual KLU transient
+analysis. This removes the observed lookup bottleneck; it does not establish
+that full characterization is fast or correct. The full 8192-cell SS run is
+still in its first 150ns read/write stimulus at the recorded snapshot, with no
+completed delay measurement or usable Liberty. TT/FF whole-macro characterization
+and validation are still outstanding. A partially written `.lib` is not a
+qualification result.
+
+The original loading attempts were interrupted and archived as failed. The
+running SS manifest and log snapshot, process samples, decks and sources matching
+execution hashes are retained in `../experiments/evidence-20261004/characterization-algorithm/`.
+`current_sources/` records the later checked-in sources; each `execution_sources/`
+is verified against that attempt's manifest hashes. The live full artifacts
+remain in `/private/tmp/ppa-sram-closure-20261004/characterization-ss-indexed/`.
+The immutable snapshots are explicitly incomplete, and no replacement Liberty
+has been installed in the PDK or production design.

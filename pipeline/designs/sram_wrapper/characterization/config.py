@@ -33,6 +33,7 @@ num_sim_threads = 2
 # Liberty characterization consumes .meas results; retaining every transient
 # waveform for this million-device macro is needlessly expensive.
 spice_save_waveforms = False
+spice_matrix_solver = "klu"  # explicitly selected in the deck; ngspice must include KLU
 # Resolve this path against the installed netlist before simulation: bank's
 # Xbitcell_array instantiates replica_bitcell_array, whose Xbitcell_array
 # instantiates bitcell_array containing the storage cells.

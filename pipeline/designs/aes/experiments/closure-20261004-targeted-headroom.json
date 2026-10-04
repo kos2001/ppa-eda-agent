@@ -1,0 +1,36 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-closure-20261004-targeted14-r2",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\":8,\"_09030_\":8,\"net395\":14,\"net628\":14,\"net647\":14,\"net747\":14,\"net1048\":14,\"net1303\":14}",
+        "FANOUT_REPAIR_ROUNDS": 2
+      },
+      "flow": "FanoutRepair"
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Retain two bounded passes but reserve 14-sink headroom only on six previously measured diode-sensitive nets, avoiding global buffer over-insertion",
+    "reference": "aes-closure-20261004-headroom14-r2 post-PnR STA: fanout0, slew14, cap1; prior cap-v2 data fanout6"
+  },
+  "_why": "Feedback-driven second candidate, one full-run budget. Keep final SDC fanout16 and the diagnostic period12/transition1.5 unchanged. Prior final netlist maps all six named driver instances to these net names; inspect all nine corners and signoff again."
+}

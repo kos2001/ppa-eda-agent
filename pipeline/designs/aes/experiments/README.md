@@ -55,3 +55,34 @@ An independent pre-route DB-copy check preserved every original connected
 pin (119881) through the added buffers; it is not final formal equivalence.
 One rejected CLI dictionary invocation is archived separately as invalid
 configuration evidence, outside the measured case store.
+
+## 2026-10-04: bounded coupled repair and SPEF audit
+
+Two additional candidates tested two buffer/reroute/antenna passes with physical
+fanout headroom. Global target 14 inserted many extra buffers and ended with
+antenna=12, slew=14, cap=1, fanout=0. Keeping the global target 16 and tightening
+only six measured nets to 14 ended with antenna=8, slew=14, cap=1, fanout=1.
+Both are rejected; neither is an electrical closure result.
+
+A further final-report audit found partially annotated inserted drivers caused
+by identical net/instance names. Earlier repair/cap-v2 and these two cases now
+carry explicit unverified warnings. In particular, the earlier cap-v2's zero
+slew/cap counts cannot establish extracted electrical closure.
+
+The implementation now uses distinct net/instance names, keeps instance serials
+unique across passes and bounds `FANOUT_REPAIR_ROUNDS` to 1–3. The scorer checks
+final SPEF annotation for every inserted repair driver at every reported timing
+corner; missing reports also block acceptance.
+
+The targeted candidate's supplementary STA replay changed only net names in
+Verilog and SPEF NAME_MAP. The inverse transformation reproduces the original
+files byte for byte; cell connections, geometry, RC values and SDC remain
+unchanged. All nine replay corners have complete inserted-driver annotation and
+confirm slew=14, cap=1, fanout=1, setup=0, hold=0. This STA-only replay is separate
+from the original full-flow record. The unchanged full physical run reports
+antenna=8, Magic/KLayout DRC=0, LVS=0; it is still rejected. Reports and preparation
+script are in `evidence-20261004/targeted14-spef-replay/`.
+
+All these AES numbers use diagnostic period 12ns, transition 1.5ns and generic
+25% IO delays. They do not qualify the original 10ns / 0.75ns constraints or an
+actual external interface. New buffering did not improve all required gates.

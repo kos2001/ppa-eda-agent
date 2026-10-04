@@ -50,7 +50,12 @@ def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
     for name, target in net_limits.items():
         if not block.findNet(name) or isinstance(target, bool) or not isinstance(target, int) or target < 2:
             raise ValueError(f"invalid or missing targeted net: {name}={target}")
-    serial = 0
+    # A bounded later pass shares the same DB. Preserve existing buffers and
+    # choose the next deterministic name instead of colliding with pass one.
+    names = [item.getName() for item in block.getInsts()] + [item.getName() for item in block.getNets()]
+    serial = max((int(m.group(1)) for name in names
+                  if (m := re.fullmatch(r"fanout_repair_(\d+)", name))), default=0)
+    initial_serial = serial
     records, skipped = [], []
 
     def position(term):
@@ -89,10 +94,13 @@ def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
             for group in spatial_groups(level, net_limit, position):
                 serial += 1
                 prefix = f"fanout_repair_{serial}"
-                if block.findInst(prefix) or block.findNet(prefix):
+                net_name = f"fanout_repair_net_{serial}"
+                if block.findInst(prefix) or block.findNet(net_name):
                     raise ValueError(f"fanout repair name collision: {prefix}")
                 inst = odb.dbInst.create(block, masters[name], prefix)
-                subnet = odb.dbNet.create(block, prefix)
+                # OpenSTA resolves SPEF internal nodes ambiguously when a net
+                # and an instance share a name. Keep distinct namespaces.
+                subnet = odb.dbNet.create(block, net_name)
                 subnet.setSigType(net.getSigType())
                 points = [position(t) for t in group]
                 inst.setLocation(sum(p[0] for p in points) // len(points),
@@ -104,12 +112,12 @@ def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
                 upstream = inst.findITerm(input_pin)
                 upstream.connect(net)
                 next_level.append(upstream)
-                record["buffers"].append({"instance": prefix, "net": prefix,
+                record["buffers"].append({"instance": prefix, "net": net_name,
                                           "sink_count": len(group)})
             level = next_level
         record["remaining_driver_sinks"] = len(level)
         records.append(record)
-    return {"limit": limit, "inserted_buffers": serial,
+    return {"limit": limit, "inserted_buffers": serial - initial_serial,
             "repaired_nets": records, "skipped_nets": skipped,
             "scope": "signal input pin counts; weighted Liberty fanout and timing require final STA"}
 

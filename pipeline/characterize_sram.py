@@ -211,6 +211,11 @@ def main() -> None:
     OPTS.process_corners = [process]
     OPTS.supply_voltages = [voltage]
     OPTS.temperatures = [temperature]
+    solver = getattr(OPTS, "spice_matrix_solver", "sparse")
+    simulator_version = subprocess.run([OPTS.spice_exe, "-v"], capture_output=True, text=True, check=True)
+    simulator_version = simulator_version.stdout + simulator_version.stderr
+    if solver == "klu" and "Compiled with KLU" not in simulator_version:
+        raise ValueError("KLU requested but the installed ngspice executable lacks KLU")
     if args.output_dir:
         OPTS.output_path = str(args.output_dir) + "/"
     from openram.characterizer import fake_sram, lib
@@ -244,6 +249,14 @@ def main() -> None:
         "storage_path_validation": storage_paths,
         "config_sha256": hashlib.sha256(cfg.read_bytes()).hexdigest(),
         "analytical_delay": False, "slew_scales": OPTS.slew_scales,
+        "matrix_solver_requested": solver,
+        "simulator_executable": OPTS.spice_exe,
+        "simulator_sha256": hashlib.sha256(Path(OPTS.spice_exe).read_bytes()).hexdigest(),
+        "simulator_version": simulator_version.strip(),
+        "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "startup_directory": os.environ.get("SPICE_SCRIPTS"),
+        "startup_sha256": (hashlib.sha256((Path(os.environ["SPICE_SCRIPTS"]) / "spinit").read_bytes()).hexdigest()
+                           if os.environ.get("SPICE_SCRIPTS") else None),
         "stimulus_slew_definition": "10-90%; full linear ramp = slew / 0.8",
         "setup_hold_clock_axis": "related_input_slew",
         "adapter_sha256": hashlib.sha256(Path(openram_adapter.__file__).read_bytes()).hexdigest(),
