@@ -232,6 +232,26 @@ the SRAM Liberty model validity check still prevents a verified pass. See
 [the SRAM execution record](pipeline/designs/sram_wrapper/characterization/README.md)
 for measurements, setup and remaining acceptance checks.
 
+The 2026-10-04 physical SRAM candidate reports zero slew/cap/fanout, antenna,
+setup/hold and signoff DRC/LVS violations, but its old TT-only model still blocks
+qualification. `pipeline/macro_model_audit.py` now checks the effective run's
+corner mapping and each timing table's actual input axes. The dashboard shows
+those mappings separately from physical signoff: six of nine PVT mappings
+disagree with the model, and 1,944 repeated table/edge checks extrapolate.
+Full input-edge coverage does not qualify output-load ranges or measured PVT.
+The indexed full-netlist SS characterization has now returned its first
+27 port0 measurements; port1 and the remaining characterization are running.
+That first point is retained as measured evidence and does not qualify a Liberty.
+
+AES's measured same-function driver upsizing removed the targeted candidate's
+14 slew and one capacitance violation. Its full nine-corner extracted result
+still has four antenna and five fanout violations. One bounded third repair
+pass with headroom on five measured nets reduces these to two antenna and two
+fanout violations, at 135,161 um². Both are rejected diagnostic 12ns/1.5ns
+candidates, with original constraints and interface qualification
+still outstanding. The opt-in driver edits retain independent Liberty-function
+and full original-pin connectivity evidence.
+
 `score()` gates on 23 signoff checks by OpenLane's metric key names,
 and now records each as a row (`signoff_checks`) that the dashboard
 draws as a strip — clean, violated, or never run. Two things use that

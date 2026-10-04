@@ -5,6 +5,25 @@ export type Lang = "en" | "ko";
 const LANG_STORAGE_KEY = "ppa-eda-agent-dashboard:lang";
 
 const dict = {
+  macro_model_title: { en: "Macro timing model coverage", ko: "매크로 타이밍 모델 검증 범위" },
+  macro_model_qualified: { en: "Model qualified", ko: "모델 검증 완료" },
+  macro_model_unqualified: { en: "Model unqualified", ko: "모델 미검증" },
+  macro_pvt_mismatch: { en: "PVT mappings differ", ko: "PVT 매핑 불일치" },
+  macro_unknown: { en: "unknown", ko: "확인 불가" },
+  macro_complete: { en: "Complete", ko: "완전" },
+  macro_incomplete: { en: "Incomplete", ko: "불완전" },
+  macro_input_coverage: { en: "Input edge records", ko: "입력 에지 기록" },
+  macro_axis_outside: { en: "Table-axis checks outside range", ko: "표의 축 범위를 벗어난 검사" },
+  macro_unknown_checks: { en: "Unknown input-axis checks", ko: "확인 불가 입력축 검사" },
+  macro_model_mapping: { en: "Inspect corner-by-corner model mapping", ko: "코너별 모델 매핑 보기" },
+  macro_scroll_hint: { en: "Scroll sideways to compare the library's PVT labels.", ko: "표를 좌우로 스크롤하면 라이브러리의 PVT 표기를 비교할 수 있습니다." },
+  macro_corner: { en: "Corner / macro", ko: "코너 / 매크로" },
+  macro_expected: { en: "Requested PVT", ko: "요청한 PVT" },
+  macro_declared: { en: "Library declares", ko: "라이브러리의 PVT 표기" },
+  macro_pvt_result: { en: "PVT metadata", ko: "PVT 표기 비교" },
+  macro_pvt_matches: { en: "Matches", ko: "일치" },
+  macro_pvt_differs: { en: "Differs", ko: "불일치" },
+  macro_model_scope: { en: "Counts repeat across tables and edges; they are not physical violation counts. Matching PVT labels do not prove measured model qualification. Output loads and measured functional/PVT provenance remain unqualified.", ko: "검사 수는 표와 에지에 걸쳐 반복 집계되며 물리 위반 수와 다릅니다. PVT 표기 일치만으로 측정된 모델임을 증명하지 않습니다. 출력 부하 범위와 측정에 기반한 기능·PVT 모델 검증은 아직 완료되지 않았습니다." },
   eyebrow: { en: "DTCO AI Agent", ko: "DTCO AI 에이전트" },
   title: { en: "DTCO Agent Console", ko: "DTCO 에이전트 콘솔" },
   subtitle: {

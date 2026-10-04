@@ -22,6 +22,7 @@ import { askReview, cachedReview, translateStream, translateViaServer } from "..
 import { useAgent } from "../agentContext";
 import SignoffStrip from "./SignoffStrip";
 import ClosureLedger, { ViolationChips } from "./ClosureLedger";
+import MacroModelCoverage from "./MacroModelCoverage";
 import { useLang, type DictKey } from "../i18n";
 import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
@@ -1384,6 +1385,10 @@ function CaseCard({
 
         <ProcessStages pipelineCase={pipelineCase} />
         <AgentRolesLegend />
+
+        {candidates.map(c => c.verdict?.model_validity?.macro_arc_audit && (
+          <MacroModelCoverage key={c.tag} tag={c.tag} audit={c.verdict.model_validity.macro_arc_audit} />
+        ))}
 
         {pipelineCase.topology && <TopologySummary topology={pipelineCase.topology} />}
 

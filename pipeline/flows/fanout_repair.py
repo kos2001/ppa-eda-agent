@@ -27,7 +27,19 @@ def macro_buffer_requested(overrides):
     return bool(pins)
 
 
-def flow_class(concrete_magic=False, rounds=1, macro_buffers=False):
+def driver_sizing_requested(overrides):
+    cells = {}
+    for override in overrides:
+        key, _, value = override.partition("=")
+        if key == "FANOUT_REPAIR_DRIVER_CELLS":
+            cells = json.loads(value)
+    if not isinstance(cells, dict) or any(not isinstance(k, str) or not isinstance(v, str)
+                                          for k, v in cells.items()):
+        raise ValueError("FANOUT_REPAIR_DRIVER_CELLS must map instance names to cell names")
+    return bool(cells)
+
+
+def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizing=False):
     if not 1 <= rounds <= 3:
         raise ValueError("fanout repair is bounded to 1 through 3 rounds")
     from openlane.config import Variable
@@ -80,6 +92,21 @@ def flow_class(concrete_magic=False, rounds=1, macro_buffers=False):
                 "--report", str(Path(self.step_dir) / "macro_pin_buffers.json"),
             ]
 
+    class DriverSizes(OdbpyStep):
+        id = "Odb.DriverSizes"
+        name = "Up-size measured combinational drivers"
+        config_vars = [Variable("FANOUT_REPAIR_DRIVER_CELLS", str,
+                                "JSON instance-to-master mapping for known same-function upsizes.")]
+
+        def get_script_path(self):
+            return str(Path(__file__).with_name("driver_size.py"))
+
+        def get_command(self):
+            return super().get_command() + [
+                "--cells", self.config["FANOUT_REPAIR_DRIVER_CELLS"],
+                "--report", str(Path(self.step_dir) / "driver_sizes.json"),
+            ]
+
     class ProtectMacroPinBuffers(MacroPinBuffers):
         id = "Odb.ProtectMacroPinBuffers"
         name = "Preserve dedicated macro buffer strength"
@@ -99,6 +126,8 @@ def flow_class(concrete_magic=False, rounds=1, macro_buffers=False):
             # Resizer repair_design excludes clock nets in the pinned build.
             # Split both kinds explicitly, then legalize and reroute before
             # checking antenna again and proceeding to the normal final STA.
+            if driver_sizing:
+                steps.append(DriverSizes)
             if macro_buffers:
                 steps.append(MacroPinBuffers)
             for _ in range(rounds):
@@ -131,7 +160,8 @@ def main():
     macro_buffers = macro_buffer_requested(args.override_config)
     if macro_buffers and not args.concrete_magic:
         ap.error("macro input buffering requires --concrete-magic")
-    flow = flow_class(args.concrete_magic, repair_rounds(args.override_config), macro_buffers)(
+    flow = flow_class(args.concrete_magic, repair_rounds(args.override_config), macro_buffers,
+                      driver_sizing_requested(args.override_config))(
         args.config, pdk_root=args.pdk_root, pdk=args.pdk, scl=args.scl,
         config_override_strings=args.override_config)
     flow.start(tag=args.run_tag, overwrite=args.overwrite, to=args.to)

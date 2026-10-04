@@ -30,8 +30,8 @@ check_lvsdrc = False  # characterize existing netlist; physical checks run in Op
 trim_netlist = False
 keep_temp = True
 num_sim_threads = 2
-# Liberty characterization consumes .meas results; retaining every transient
-# waveform for this million-device macro is needlessly expensive.
+# Strip legacy POST/PROBE controls; ngspice 46 batch mode already saves
+# .meas vectors automatically. This flag is not a demonstrated speedup.
 spice_save_waveforms = False
 spice_matrix_solver = "klu"  # explicitly selected in the deck; ngspice must include KLU
 # Resolve this path against the installed netlist before simulation: bank's

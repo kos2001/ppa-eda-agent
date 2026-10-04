@@ -100,6 +100,9 @@ export interface CandidateVerdict {
   // are different facts. Optional: cases written before this was
   // recorded have none.
   unverified?: string[];
+  model_validity?: {
+    macro_arc_audit?: MacroArcAudit | null;
+  } | null;
   area_um2: number | null;
   utilization: number | null;
   worst_setup_wns: number;
@@ -117,6 +120,27 @@ export interface CandidateVerdict {
   core_area_um2?: number | null;
   wirelength_um?: number | null;
   via_count?: number | null;
+}
+
+export interface MacroPvt {
+  process: string | null;
+  voltage_V: number | null;
+  temperature_C: number | null;
+}
+
+export interface MacroArcAudit {
+  model_qualified: boolean;
+  input_coverage_complete: boolean;
+  input_axis_extrapolation_count: number;
+  unknown_input_check_count: number;
+  corner_models: {
+    macro: string;
+    corner: string;
+    expected_pvt: MacroPvt | null;
+    declared_pvt?: MacroPvt;
+    pvt_matches_declared?: boolean;
+    error?: string;
+  }[];
 }
 
 export interface LayoutCell {
