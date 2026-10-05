@@ -1,0 +1,90 @@
+PPA_SRAM_INDEXED_STARTUP
+
+Note: Compatibility modes selected: hs a
+
+Warning: m=xx on .subckt line will override multiplier m hierarchy!
+
+
+Circuit: * delay stimulus for period of 10.0n load=27.56ff slew=0.56ns
+
+option SCALE: Scale is set to 1e-06 for instance and model parameters
+Doing analysis at TEMP = 100.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+
+No. of Data Rows : 15271
+
+  Measurements for Transient Analysis
+
+delay_lh0           =  4.83158e-09 targ=  1.40182e-07 trig=  1.35350e-07
+delay_hl0           =  1.41998e-09 targ=  5.67700e-08 trig=  5.53500e-08
+slew_lh0            =  2.19123e-09 targ=  1.40686e-07 trig=  1.38495e-07
+slew_hl0            =  3.28464e-09 targ=  5.83609e-08 trig=  5.50762e-08
+read1_power0        =  1.51354e-03 from=  1.30000e-07 to=  1.40000e-07
+read0_power0        =  1.56442e-03 from=  5.00000e-08 to=  6.00010e-08
+disabled_read1_power0=  7.69350e-04 from=  1.10000e-07 to=  1.20001e-07
+disabled_read0_power0=  7.82470e-04 from=  6.00000e-08 to=  7.00010e-08
+v_bl_read_zero0     =  -3.78470e-02
+v_br_read_zero0     =  1.33853e+00
+v_bl_read_one0      =  1.53702e+00
+v_br_read_one0      =  -3.79829e-02
+v_delay_lh0         =  1.59999e+00
+v_delay_hl0         =  5.82506e-05
+delay_sen0          =  4.93488e-09 targ=  6.02849e-08 trig=  5.53500e-08
+v_q_a11111111_b31_read_zero0=  1.42204e-07
+v_q_a11111111_b31_read_one0=  1.59999e+00
+v_qbar_a11111111_b31_read_zero0=  1.59999e+00
+v_qbar_a11111111_b31_read_one0=  2.78398e-07
+write1_power0       =  1.47454e-03 from=  8.00000e-08 to=  9.00010e-08
+write0_power0       =  1.92422e-03 from=  2.00000e-08 to=  3.00010e-08
+disabled_write1_power0=  1.12800e-03 from=  9.00000e-08 to=  1.00001e-07
+disabled_write0_power0=  7.94481e-04 from=  3.00000e-08 to=  4.00010e-08
+v_q_a11111111_b31_write_zero0=  1.93440e-07
+v_q_a11111111_b31_write_one0=  1.59999e+00
+v_qbar_a11111111_b31_write_zero0=  1.59999e+00
+v_qbar_a11111111_b31_write_one0=  3.39150e-07
+
+Total elapsed time (seconds) = 5325.727 
+Total DRAM available = 16384.000 MB.
+DRAM currently available =  145.328 MB.
+Maximum ngspice program size = 1539.953 MB.
+Current ngspice program size = 1094.172 MB.
+135 page faults, 3796 vol + 11296020 invol = 11299816 context switches.
+
+Number of lines in the deck = 3268306
+Netlist loading time = 50.7708
+Subckt and Param expansion time = 64.515
+Netlist parsing time = 24.6538
+
+Nominal temperature = 27
+Operating temperature = 100
+Total iterations = 37189
+Transient iterations = 37189
+Circuit Equations = 42435
+Circuit original non-zeroes = 418418
+Circuit fill-in non-zeroes = 229824
+Circuit total non-zeroes = 648242
+Transient timepoints = 15274
+Accepted timepoints = 15272
+Rejected timepoints = 2
+Total analysis time (seconds) = 5210.28
+Matrix load time = 3374.82
+Matrix synchronize time = 0
+Matrix reorder time = 0.112667
+Matrix factor time = 1012.71
+Matrix solve time = 36.6127
+Transient analysis time = 5208.11
+Transient load time = 3374.71
+Transient sync time = 0
+Transient factor time = 1012.71
+Transient solve time = 36.6127
+Transient trunc time = 446.584
+Transient iterations for the last time point = 0
+AC analysis time = 0
+AC load time = 0
+AC sync time = 0
+AC factor time = 0
+AC solve time = 0
+

@@ -47,7 +47,7 @@ class FlowSelectionTests(unittest.TestCase):
     def test_macro_flow_preserves_overrides_and_step_selection(self):
         cmd = self.command({"flow": "MacroSignoff"})
         self.assertIn("/flows/macro_signoff.py", cmd)
-        self.assertIn(str(ROOT / "pipeline/flows") + ":/flows:ro", cmd)
+        self.assertTrue(any(arg.endswith(":/flows:ro") for arg in cmd))
         for flag, value in (("--override-config", "CLOCK_PERIOD=25"),
                             ("--to", "Magic.DRC"), ("--pdk", "sky130A"),
                             ("--scl", "sky130_fd_sc_hd")):
@@ -57,4 +57,4 @@ class FlowSelectionTests(unittest.TestCase):
         cmd = self.command({"flow": "UpstreamClassic"})
         self.assertIn("/flows/upstream_classic.py", cmd)
         self.assertIn(run_stage.IMAGE, cmd)
-        self.assertIn(str(ROOT / "pipeline/flows") + ":/flows:ro", cmd)
+        self.assertTrue(any(arg.endswith(":/flows:ro") for arg in cmd))

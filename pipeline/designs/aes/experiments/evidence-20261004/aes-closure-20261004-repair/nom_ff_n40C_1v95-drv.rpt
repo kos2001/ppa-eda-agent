@@ -1,0 +1,21 @@
+# Extracted verbatim from /private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-repair/58-openroad-stapostpnr/nom_ff_n40C_1v95/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= nom_ff_n40C_1v95 Corner ===================================
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+fanout1048/X                             16     17        (VIOLATED)
+fanout747/X                              16     17        (VIOLATED)
+
+max capacitance
+
+Pin                                        Limit         Cap       Slack
+------------------------------------------------------------------------
+fanout1321/X                            0.200000    0.260184   -0.060184 (VIOLATED)
+
+
+
+===========================================================================

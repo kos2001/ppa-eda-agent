@@ -32,6 +32,20 @@ area budget).
 
 ## Decision
 
+First decide whether the evidence is a valid experiment. An ignored option,
+normalized-tag collision, missing required output, or tool/runtime failure is
+not a negative design result and must not become training or precedent data.
+For tool failures, use this correction loop:
+
+1. Identify the first failing tool and stage from the actual log.
+2. Preserve the exact error code/text and the candidate's toolchain, PDK, SCL,
+   and overrides.
+3. Check the pinned local contract and then official documentation for that
+   version; never invent an API or configuration name from memory.
+4. Form one minimal repair hypothesis, have `placement-strategist` encode it,
+   and require `--validate-only` before another expensive run.
+5. Accept or reject the hypothesis from the new observed metrics or error.
+
 1. **A candidate passed and meets targets** → nothing to do; the
    orchestrator already declared the winner. Only act if asked to
    explain the result (cite real numbers, e.g. "cand-util35: 0 DRC/LVS
@@ -59,6 +73,10 @@ handle, add a short human-readable `diagnosis` field to the relevant
 time a similar design comes through — and so the next engineer looking at
 `propose_repairs()` has a real, observed candidate for what to teach it
 next.
+
+Record evidence limitations as well. Never describe a missing metric as zero,
+and compare PPA only across compatible design, PDK, SCL, and toolchain records
+unless the difference itself is the declared experiment axis.
 
 ## Scope boundary
 

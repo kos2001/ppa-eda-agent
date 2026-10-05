@@ -9,5 +9,11 @@
       "overrides": {}
     }
   ],
+  "candidate_budget": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "signoff-clean automatic macro placement",
+    "reference": "reference-db cases for sram_wrapper_autoplace"
+  },
   "max_iterations": 1
 }

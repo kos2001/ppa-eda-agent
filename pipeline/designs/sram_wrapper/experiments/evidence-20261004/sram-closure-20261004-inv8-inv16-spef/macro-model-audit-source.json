@@ -1,0 +1,9 @@
+{
+  "sources_sha256": {
+    "pipeline/macro_model_audit.py": "ea690a76e2bdfe941142cf45637cbae1c25aa91492012e6a9886ec811ad980c5",
+    "pipeline/model_validity.py": "5cf6d214788dc412e5495df340e9e8a12d55969ce35b59a4eff70edc09399a83",
+    "pipeline/macro_slew_audit.py": "03da5ce0ba10753b12b7b972c66caba7d8c70b8a47a052e14a1768037ee76bb5"
+  },
+  "full_audit_sha256": "470b6bf23b7f301c96165fffeb2d3098f52b0f4a4caf832594995a68c64e8ae3",
+  "scope": "declared PVT, timing-table structure and input axes; output loads and measured functional/PVT provenance remain unqualified"
+}

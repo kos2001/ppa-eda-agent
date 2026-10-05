@@ -1,4 +1,5 @@
-export const REFERENCE_DB_URL = "http://127.0.0.1:8123/reference-db";
+import { API_BASE_URL as LOCAL_SERVER_URL } from "./config";
+export const REFERENCE_DB_URL = `${LOCAL_SERVER_URL}/reference-db`;
 
 export interface TimingCorner {
   corner: string;
@@ -100,6 +101,9 @@ export interface CandidateVerdict {
   // are different facts. Optional: cases written before this was
   // recorded have none.
   unverified?: string[];
+  model_validity?: {
+    macro_arc_audit?: MacroArcAudit | null;
+  } | null;
   area_um2: number | null;
   utilization: number | null;
   worst_setup_wns: number;
@@ -117,6 +121,27 @@ export interface CandidateVerdict {
   core_area_um2?: number | null;
   wirelength_um?: number | null;
   via_count?: number | null;
+}
+
+export interface MacroPvt {
+  process: string | null;
+  voltage_V: number | null;
+  temperature_C: number | null;
+}
+
+export interface MacroArcAudit {
+  model_qualified: boolean;
+  input_coverage_complete: boolean;
+  input_axis_extrapolation_count: number;
+  unknown_input_check_count: number;
+  corner_models: {
+    macro: string;
+    corner: string;
+    expected_pvt: MacroPvt | null;
+    declared_pvt?: MacroPvt;
+    pvt_matches_declared?: boolean;
+    error?: string;
+  }[];
 }
 
 export interface LayoutCell {
@@ -277,6 +302,13 @@ export interface NetlistGraph {
 }
 
 export interface CandidateResult {
+  evaluation_provenance?: { complete: boolean; compatibility_key?: string; reason?: string };
+  step_coverage?: { declared: number; executed: number; missing_signoff: string[] };
+  not_evaluated?: boolean;
+  budget_exhausted?: string;
+  evaluation_fidelity?: "screen" | "full_flow" | "not_evaluated";
+  stage_costs?: Record<string, number>;
+  screen_evaluation?: { fidelity: string; seconds: number; status: string };
   tag: string;
   overrides: Record<string, unknown>;
   // The technology this candidate ran on. Recorded beside `overrides`
@@ -311,8 +343,8 @@ export interface CandidateResult {
     refused?: string;
   }> | { error: string };
   produced_by_feedback?: boolean;
-  // Set on a candidate proposed by pipeline/pnr_repair.py: the tool code
-  // it repairs and the number the repair was derived from.
+  // Set on an auto-repaired candidate: the tool code it repairs and the
+  // measured/configured value the repair was derived from.
   repair?: { code: string; why: string };
   // Set on a candidate tried by pipeline/pnr_polish.py after a pass: which
   // move it applied. Its iteration carries `polish: true`.
@@ -320,6 +352,32 @@ export interface CandidateResult {
   // Wall-clock of this candidate's flow, written by collect.py's
   // run_one(). Optional: orchestrator.py's own runs do not record it.
   seconds?: number | null;
+}
+
+export interface ArtifactInventory {
+  run_available: boolean;
+  reason?: string;
+  limited?: boolean;
+  steps: { id: string; files: number; snapshot_recorded: boolean }[];
+  files: { id: string; step: string; bytes: number }[];
+}
+
+export interface ArtifactText {
+  id: string;
+  content: string;
+  truncated: boolean;
+  bytes: number;
+  limit_bytes: number;
+  modified_at: string;
+}
+
+export async function fetchArtifacts(file: string, tag: string, id?: string): Promise<ArtifactInventory | ArtifactText> {
+  const params = new URLSearchParams({ file, tag });
+  if (id !== undefined) params.set("id", id);
+  const response = await fetch(`${LOCAL_SERVER_URL}/reference-db/artifacts?${params}`, { signal: AbortSignal.timeout(30_000) });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body.error ?? `HTTP ${response.status}`);
+  return body;
 }
 
 export interface IterationResult {
@@ -358,6 +416,12 @@ export interface SynthesisExploration {
 }
 
 export interface PipelineCase {
+  evaluation_budget?: {
+    started_evaluations: number;
+    elapsed_seconds: number;
+    limits: { max_evaluations?: number; max_wall_seconds?: number };
+    not_evaluated: { tag: string; reason: string }[];
+  } | null;
   design: string;
   date: string;
   // The case file's own name under reference-db/cases/, sent by the
@@ -426,7 +490,7 @@ export function fetchReferenceDb(): Promise<ReferenceDb> {
   const since = lastDb?.key;
   const url = since ? `${REFERENCE_DB_URL}?since=${encodeURIComponent(since)}` : REFERENCE_DB_URL;
   inFlight = (async () => {
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
@@ -440,7 +504,7 @@ export function fetchReferenceDb(): Promise<ReferenceDb> {
   return inFlight;
 }
 
-const LOCAL_SERVER_URL = "http://127.0.0.1:8123";
+
 
 // One candidate's layout and netlist, when the reader opens them.
 export async function fetchCandidateDetail(

@@ -251,7 +251,14 @@ def convert(cell: str, out_dir: Path | None = None, timeout: int = 300) -> dict:
         for name in wanted:
             shutil.copy(produced[name], out_dir / name)
 
-    return {"ok": True, "cell": cell, "devices": expected,
+    # The importer supplies authentic symbols/connectivity, but its placement
+    # is one long column. Improve presentation only after native equivalence.
+    import schematic_layout
+    try:
+        layout = schematic_layout.redraft(out_dir / f"{cell}.sch")
+    except (ValueError, OSError) as exc:
+        layout = {"ok": False, "changed": False, "error": str(exc)}
+    return {"ok": True, "cell": cell, "devices": expected, "layout": layout,
             "schematic": str((out_dir / f"{cell}.sch").relative_to(REPO_ROOT)),
             "symbol": str((out_dir / f"{cell}.sym").relative_to(REPO_ROOT)),
             "source": str(CDL.relative_to(REPO_ROOT))}

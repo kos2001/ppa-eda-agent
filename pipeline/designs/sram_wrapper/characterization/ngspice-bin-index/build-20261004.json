@@ -1,0 +1,35 @@
+{
+  "scope": "experimental simulator; not the OpenLane toolchain or qualified macro model",
+  "upstream_revision": "ebdaf58ec76a06ffaac7e0f138360dd1cf5ee4b6",
+  "release_url": "https://downloads.sourceforge.net/project/ngspice/ng-spice-rework/old-releases/46/ngspice-46.tar.gz",
+  "release_sha256": "a0d1699af1940b06649276dcd6ff5a566c8c0cad01b2f7b5e99dedbb4d64c19b",
+  "original_source_sha256": {
+    "src/frontend/runcoms.c": "77d0141ff497182e3eff7c03937ce4b10aaa5801c169f6407a36092a2557e0ff",
+    "src/frontend/runcoms2.c": "f3ef8b7ef7625f7efb6dd87e93fed1e6f7295bc72488762692fd9a401a4e0687",
+    "src/frontend/spiceif.c": "c5de8e8c0a545b5bb098dbd05a540e93deb4f2743a7175c8711d144cbf219acd",
+    "src/include/ngspice/ftedefs.h": "afe2aa883d587ee8d2e55089eefe760daf8eb7147c1ca35e2a625060250f0b51",
+    "src/include/ngspice/inpdefs.h": "712872bf5844caa18bba42472562ca1d8e97085d452903e4960bb1cadd77bd29",
+    "src/spicelib/parser/inpgmod.c": "8d200fa475406e3eb9f9a88a5ff2112c0a27b441aedea1a3e543017685f97a30",
+    "src/spicelib/parser/inpkmods.c": "30eb94395f16641efdea00c387152a2cf9d5f7e0393c3fc1f480e982d1f79ae6",
+    "src/spicelib/parser/inpmkmod.c": "41095fff30d9fd6c9be78c46a3e4803db5562d53945b8ac915d857ca3cdb34d3"
+  },
+  "patch_sha256": "1edebd83b170d588bfb55f7301a90ba7fb28bc867cf8c44f88e79efa4108aafc",
+  "binary_sha256": "63c0702563b902e35c50b7b3b4499b4f7e23c7ad1a1f0331fabe31f5735420b9",
+  "configure_flags": [
+    "--without-x",
+    "--disable-xspice",
+    "--enable-klu",
+    "--disable-openmp",
+    "--with-readline=/opt/homebrew/opt/readline"
+  ],
+  "CFLAGS": "-O2 -I/opt/homebrew/opt/readline/include",
+  "LDFLAGS": "-L/opt/homebrew/opt/readline/lib",
+  "platform": "Darwin arm64",
+  "matrix_solver": "KLU selected in the actual deck",
+  "limits": "Synthetic model-bin equivalence does not establish whole-macro correctness.",
+  "upstream_make_check": {
+    "exit_code": 0,
+    "log": "upstream-check-20261004.log",
+    "note": "Device QA includes nonfatal printed differences against historical references; make check succeeds. Original-vs-indexed checks are separate."
+  }
+}

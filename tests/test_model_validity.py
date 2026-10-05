@@ -141,6 +141,18 @@ class CeilingLookupTests(unittest.TestCase):
 
 
 class CheckTests(unittest.TestCase):
+    def test_nonviolating_control_pin_is_audited_beyond_the_model_range(self):
+        design = _design()
+        run = _run("max slew\n\nmax fanout\n")
+        (run / "resolved.json").write_text(json.dumps({"STA_CORNERS": ["max_ss_100C_1v60"]}))
+        report = run / "54-openroad-stapostpnr/max_ss_100C_1v60/macro_inputs.csv"
+        report.write_text("pin,direction,max_rise_ns,max_fall_ns,min_rise_ns,min_fall_ns\n"
+                          "u_sram/web0,input,0.481151,0.2,0.1,0.1\n")
+        result = check(design, run)
+        self.assertEqual(result["extrapolated_pins"][0]["pin"], "u_sram/web0")
+        self.assertEqual(result["worst_times_past_ceiling"], 12.0)
+        self.assertFalse(result["model_validity_verified"])
+
     def test_flags_pins_past_the_ceiling(self):
         got = check(_design(), _run())
         pins = [p["pin"] for p in got["extrapolated_pins"]]

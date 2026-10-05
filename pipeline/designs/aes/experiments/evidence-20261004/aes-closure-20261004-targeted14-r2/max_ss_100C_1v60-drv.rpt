@@ -1,0 +1,39 @@
+# Extracted verbatim from /private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-targeted14-r2/62-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= max_ss_100C_1v60 Corner ===================================
+
+max slew
+
+Pin                                        Limit        Slew       Slack
+------------------------------------------------------------------------
+_20258_/Y                               1.492668    1.531240   -0.038572 (VIOLATED)
+ANTENNA_157/DIODE                       1.500000    1.531397   -0.031397 (VIOLATED)
+ANTENNA_156/DIODE                       1.500000    1.531396   -0.031396 (VIOLATED)
+ANTENNA_155/DIODE                       1.500000    1.531396   -0.031396 (VIOLATED)
+ANTENNA_153/DIODE                       1.500000    1.531396   -0.031396 (VIOLATED)
+ANTENNA_154/DIODE                       1.500000    1.531396   -0.031396 (VIOLATED)
+ANTENNA_151/DIODE                       1.500000    1.531396   -0.031396 (VIOLATED)
+ANTENNA_152/DIODE                       1.500000    1.531396   -0.031396 (VIOLATED)
+ANTENNA_150/DIODE                       1.500000    1.531395   -0.031395 (VIOLATED)
+ANTENNA_149/DIODE                       1.500000    1.531395   -0.031395 (VIOLATED)
+ANTENNA_148/DIODE                       1.500000    1.531395   -0.031395 (VIOLATED)
+ANTENNA_147/DIODE                       1.500000    1.531395   -0.031395 (VIOLATED)
+ANTENNA_146/DIODE                       1.500000    1.531388   -0.031388 (VIOLATED)
+_22643_/D                               1.500000    1.531386   -0.031386 (VIOLATED)
+
+max fanout
+
+Pin                                   Limit Fanout  Slack
+---------------------------------------------------------
+fanout901/X                              16     17        (VIOLATED)
+
+max capacitance
+
+Pin                                        Limit         Cap       Slack
+------------------------------------------------------------------------
+_20258_/Y                               0.079661    0.082692   -0.003031 (VIOLATED)
+
+
+
+===========================================================================

@@ -1,0 +1,192 @@
+diff --git a/src/frontend/runcoms.c b/src/frontend/runcoms.c
+index 9d98747..08b8bf0 100644
+--- a/src/frontend/runcoms.c
++++ b/src/frontend/runcoms.c
+@@ -35,6 +35,7 @@ Modified: 2000 AlansFixes
+ static int dosim(char *what, wordlist *wl);
+ extern struct INPmodel *modtab;
+ extern NGHASHPTR modtabhash;
++extern NGHASHPTR binmodtabhash;
+ extern struct dbcomm *dbs;
+ extern void NIresetwarnmsg(void);
+ extern wordlist* sourceinfo;
+@@ -113,6 +114,7 @@ com_scirc(wordlist *wl)
+     /* get the current input file names */
+     sourceinfo = ft_curckt->ci_sourceinfo;
+     modtabhash = ft_curckt->ci_modtabhash;
++    binmodtabhash = ft_curckt->ci_binmodtabhash;
+     /* get the database for save, iplot, stop */
+     dbs = ft_curckt->ci_dbs;
+     /* set the numparam dicos structure for use with measure */
+diff --git a/src/frontend/runcoms2.c b/src/frontend/runcoms2.c
+index 1e98f00..44d338f 100644
+--- a/src/frontend/runcoms2.c
++++ b/src/frontend/runcoms2.c
+@@ -35,6 +35,7 @@ Author: 1985 Wayne A. Christopher, U. C. Berkeley CAD Group
+ extern void line_free_x(struct card *deck, bool recurse);
+ extern INPmodel *modtab;
+ extern NGHASHPTR modtabhash;
++extern NGHASHPTR binmodtabhash;
+ extern int DCtran_step_quit(CKTcircuit* ckt);
+ 
+ #ifdef SHARED_MODULE
+@@ -285,6 +286,7 @@ com_remcirc(wordlist *wl)
+     if (ft_curckt) {
+         modtab = ft_curckt->ci_modtab;
+         modtabhash = ft_curckt->ci_modtabhash;
++        binmodtabhash = ft_curckt->ci_binmodtabhash;
+         dbs = ft_curckt->ci_dbs;
+         nupa_set_dicoslist(ft_curckt->ci_dicos);
+     }
+diff --git a/src/frontend/spiceif.c b/src/frontend/spiceif.c
+index 9697d72..6fa25b8 100644
+--- a/src/frontend/spiceif.c
++++ b/src/frontend/spiceif.c
+@@ -78,6 +78,7 @@ CDHW*/
+ 
+ extern INPmodel *modtab;
+ extern NGHASHPTR modtabhash;
++extern NGHASHPTR binmodtabhash;
+ extern bool ft_batchmode;
+ 
+ static struct variable *parmtovar(IFvalue *pv, IFparm *opt,
+@@ -165,6 +166,7 @@ if_inpdeck(struct card *deck, INPtables **tab)
+ 
+     modtab = NULL;
+     modtabhash = NULL;
++    binmodtabhash = NULL;
+     /* Parsing the circuit 7.
+        This is the next major step:
+        Parse the .model lines.
+@@ -175,6 +177,7 @@ if_inpdeck(struct card *deck, INPtables **tab)
+     /* store the new model tables in the current circuit */
+     ft_curckt->ci_modtab = modtab;
+     ft_curckt->ci_modtabhash = modtabhash;
++    ft_curckt->ci_binmodtabhash = binmodtabhash;
+ 
+     /* Parsing the circuit 8.
+        This is the next major step:
+diff --git a/src/include/ngspice/ftedefs.h b/src/include/ngspice/ftedefs.h
+index a8900bb..91ea385 100644
+--- a/src/include/ngspice/ftedefs.h
++++ b/src/include/ngspice/ftedefs.h
+@@ -36,6 +36,7 @@ struct circ {
+     INPtables  *ci_symtab;    /* The INP symbol table. */
+     INPmodel   *ci_modtab;    /* The INP model table. */
+     NGHASHPTR  ci_modtabhash; /* The INP model hash table. */
++    NGHASHPTR  ci_binmodtabhash; /* Per-circuit numeric-bin prefix index. */
+     struct dbcomm *ci_dbs;    /* The database storing save, iplot, stop data */
+     struct card *ci_deck;     /* The input deck. */
+     struct card *ci_origdeck; /* The input deck, before subckt expansion. */
+diff --git a/src/include/ngspice/inpdefs.h b/src/include/ngspice/inpdefs.h
+index d61bb54..9e5b3f6 100644
+--- a/src/include/ngspice/inpdefs.h
++++ b/src/include/ngspice/inpdefs.h
+@@ -94,6 +94,7 @@ struct INPmodel {
+     IFuid INPmodName; /* uid of model */
+     int INPmodType; /* type index of device type */
+     INPmodel *INPnextModel; /* link to next model */
++    INPmodel *INPnextBin; /* same-prefix numeric bins, original order */
+     struct card *INPmodLine; /* pointer to line describing model */
+     GENmodel *INPmodfast; /* high speed pointer to model for access */
+ };
+diff --git a/src/spicelib/parser/inpgmod.c b/src/spicelib/parser/inpgmod.c
+index ac3293b..6e8f3b3 100644
+--- a/src/spicelib/parser/inpgmod.c
++++ b/src/spicelib/parser/inpgmod.c
+@@ -40,6 +40,7 @@ static int INPfindParm(char *name, IFparm *table, int numParms);
+ 
+ extern INPmodel *modtab;
+ extern NGHASHPTR modtabhash;
++extern NGHASHPTR binmodtabhash;
+ 
+ 
+ static IFparm *
+@@ -301,7 +302,8 @@ INPgetModBin(CKTcircuit *ckt, char *name, INPmodel **model, INPtables *tab, char
+     l = parse_values[0] * scale;
+     w = parse_values[1] / parse_values[2] * scale;
+ 
+-    for (modtmp = modtab; modtmp; modtmp = modtmp->INPnextModel) {
++    for (modtmp = binmodtabhash ? nghash_find(binmodtabhash, name) : NULL;
++         modtmp; modtmp = modtmp->INPnextBin) {
+ 
+         if (model_name_match(name, modtmp->INPmodName) < 2)
+             continue;
+diff --git a/src/spicelib/parser/inpkmods.c b/src/spicelib/parser/inpkmods.c
+index 1c0f75b..647c4f0 100644
+--- a/src/spicelib/parser/inpkmods.c
++++ b/src/spicelib/parser/inpkmods.c
+@@ -13,6 +13,7 @@ Author: 1985 Thomas L. Quarles, 2023 Holger Vogt
+ 
+ extern INPmodel* modtab;
+ extern NGHASHPTR modtabhash;
++extern NGHASHPTR binmodtabhash;
+ 
+ void INPkillMods(void)
+ {
+@@ -34,4 +35,9 @@ void INPkillMods(void)
+         modtabhash = NULL;
+     }
+     ft_curckt->ci_modtabhash = NULL;
++    if (binmodtabhash) {
++        nghash_free(binmodtabhash, NULL, NULL);
++        binmodtabhash = NULL;
++    }
++    ft_curckt->ci_binmodtabhash = NULL;
+ }
+diff --git a/src/spicelib/parser/inpmkmod.c b/src/spicelib/parser/inpmkmod.c
+index 3ff8ed9..1e908c1 100644
+--- a/src/spicelib/parser/inpmkmod.c
++++ b/src/spicelib/parser/inpmkmod.c
+@@ -8,6 +8,7 @@ Author: 1985 Thomas L. Quarles
+ #include "ngspice/inpdefs.h"
+ #include "ngspice/iferrmsg.h"
+ #include "ngspice/hash.h"
++#include "ngspice/stringutil.h"
+ #include "inpxx.h"
+ 
+ /*  global input model table.  */
+@@ -15,6 +16,7 @@ INPmodel *modtab = NULL;
+ /* Global input model hash table.
+    The modelname is the key, the return value is the pointer to the model. */
+ NGHASHPTR modtabhash = NULL;
++NGHASHPTR binmodtabhash = NULL;
+ 
+ /*--------------------------------------------------------------
+  * This fcn takes the model name and looks to see if it is already
+@@ -33,6 +35,8 @@ int INPmakeMod(char *token, int type, struct card *line)
+    if (!modtabhash) {
+        modtabhash = nghash_init(NGHASH_MIN_SIZE);
+        nghash_unique(modtabhash, TRUE);
++       binmodtabhash = nghash_init(NGHASH_MIN_SIZE);
++       nghash_unique(binmodtabhash, TRUE);
+    }
+    /* If the model is already there, just return. */
+    else if (nghash_find(modtabhash, token))
+@@ -56,9 +60,26 @@ int INPmakeMod(char *token, int type, struct card *line)
+    newm->INPnextModel = modtab;              /* pointer to second model */
+    newm->INPmodLine = line;                  /* model line */
+    newm->INPmodfast = NULL;
++   newm->INPnextBin = NULL;
+ 
+    nghash_insert(modtabhash, token, newm);
+ 
++   /* Index only the exact suffix accepted by model_name_match: .digits.
++      Prepending each bin preserves its order in the original global list. */
++   char *prefix = copy(token);
++   char *dot = strrchr(prefix, '.');
++   if (dot && dot[1]) {
++       char *end = dot + 1;
++       while (*end && isdigit_c(*end))
++           end++;
++       if (!*end) {
++           *dot = '\0';
++           newm->INPnextBin = nghash_find(binmodtabhash, prefix);
++           nghash_delete(binmodtabhash, prefix);
++           nghash_insert(binmodtabhash, prefix, newm);
++       }
++   }
++   FREE(prefix);
+    modtab = newm;
+ 
+    return (OK);

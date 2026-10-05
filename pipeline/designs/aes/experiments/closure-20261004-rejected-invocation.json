@@ -1,0 +1,236 @@
+{
+  "design": "aes",
+  "date": "2026-10-04",
+  "process_stages": [
+    {
+      "id": "extraction",
+      "name": "Circuit & Layout Extraction"
+    },
+    {
+      "id": "topology",
+      "name": "Topology Understanding"
+    },
+    {
+      "id": "placement_strategy",
+      "name": "Placement Strategy / Candidate Generation"
+    },
+    {
+      "id": "physical_constraint",
+      "name": "Physical Constraint Evaluation"
+    },
+    {
+      "id": "routing_generation",
+      "name": "Routing Generation Evaluation"
+    },
+    {
+      "id": "routing_candidate",
+      "name": "Routing Candidate Generation"
+    },
+    {
+      "id": "verification_ppa",
+      "name": "Verification & PPA Evaluation"
+    },
+    {
+      "id": "feedback",
+      "name": "AI Feedback / Repair / Optimization"
+    }
+  ],
+  "topology": {
+    "module_count": 6,
+    "has_macros": false,
+    "clock_domain_count": 1,
+    "port_count": 7,
+    "sequential_element_estimate": 562,
+    "power_domain_count": 1,
+    "notes": "Derived by topology_derive.py from aes's config.json, its Verilog sources and the Yosys netlist of run iter4-delay0-clk12 (11616 cells, 562 sequential by cell name). Not hand-written; no judgement of datapath/control character is made."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "results": [
+        {
+          "tag": "aes-closure-20261004-cap",
+          "overrides": {
+            "SYNTH_STRATEGY": "DELAY 0",
+            "CLOCK_PERIOD": 12,
+            "MAX_TRANSITION_CONSTRAINT": 1.5,
+            "IO_DELAY_CONSTRAINT": 25,
+            "MAX_FANOUT_CONSTRAINT": 16,
+            "FANOUT_REPAIR_LIMIT": 16,
+            "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+            "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+            "GRT_ANTENNA_ITERS": 10,
+            "GRT_ANTENNA_MARGIN": 50,
+            "FANOUT_REPAIR_NET_LIMITS": {
+              "net1321": 8,
+              "_09030_": 8
+            }
+          },
+          "scl": "sky130_fd_sc_hd",
+          "pdk": "sky130A",
+          "error": "OpenLane run 'aes-closure-20261004-cap' exited 1 \u2014 see runs/aes-closure-20261004-cap/ for logs. Tail of output:\nTraceback (most recent call last):\n  File \"/flows/fanout_repair.py\", line 77, in <module>\n    main()\n  File \"/flows/fanout_repair.py\", line 70, in main\n    flow = flow_class(args.concrete_magic)(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/nix/store/0cgica8q52vjb9a7vbwaccncbajs33gx-python3-3.11.9-env/lib/python3.11/site-packages/openlane/flows/sequential.py\", line 152, in __init__\n    super().__init__(*args, **kwargs)\n  File \"/nix/store/0cgica8q52vjb9a7vbwaccncbajs33gx-python3-3.11.9-env/lib/python3.11/site-packages/openlane/flows/flow.py\", line 363, in __init__\n    config, design_dir = Config.load(\n                         ^^^^^^^^^^^^\n  File \"/nix/store/0cgica8q52vjb9a7vbwaccncbajs33gx-python3-3.11.9-env/lib/python3.11/site-packages/openlane/config/config.py\", line 581, in load\n    config_obj = Self.__load_dict(\n                 ^^^^^^^^^^^^^^^^^\n  File \"/nix/store/0cgica8q52vjb9a7vbwaccncbajs33gx-python3-3.11.9-env/lib/python3.11/site-packages/openlane/config/config.py\", line 711, in __load_dict\n    raise InvalidConfig(\nopenlane.config.config.InvalidConfig: The following errors were encountered: \n\t* invalid literal for int() with base 10: '8,'\n",
+          "seconds": 4.4,
+          "flow": "FanoutRepair",
+          "prediction": {
+            "area_um2": {
+              "predicted": 133841,
+              "measured": null
+            },
+            "power_w": {
+              "predicted": 0.09484808892011642,
+              "measured": null
+            }
+          },
+          "stage": "physical_constraint",
+          "produced_by_feedback": false
+        }
+      ]
+    }
+  ],
+  "winner_tag": null,
+  "outcome": "no candidate met targets after all iterations",
+  "stop_reason": "max_iterations_reached",
+  "expected_outcome": null,
+  "toolchain": {
+    "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+    "openlane_upstream": "github.com/chipfoundry/openlane2",
+    "profile": "stable",
+    "expected_openroad_revision": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+    "host": {
+      "arch": "arm64",
+      "system": "Darwin",
+      "cpu_count": 10,
+      "docker_platform": "native"
+    }
+  },
+  "constraints": {
+    "design": {
+      "design_name": "aes_cipher_top",
+      "settings": [
+        {
+          "key": "CLOCK_PORT",
+          "label": "clock port",
+          "value": "clk"
+        },
+        {
+          "key": "CLOCK_PERIOD",
+          "label": "clock period (ns)",
+          "value": 10
+        },
+        {
+          "key": "FP_CORE_UTIL",
+          "label": "target core utilization (%)",
+          "value": 35
+        }
+      ],
+      "fixed_macros": [],
+      "power_connections": [],
+      "targets": {}
+    },
+    "pdk": {
+      "source": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+      "manufacturing_grid_um": 0.005,
+      "database_units_per_um": 1000.0,
+      "sites": [
+        {
+          "name": "unithd",
+          "width_um": 0.46,
+          "height_um": 2.72,
+          "class": "CORE"
+        },
+        {
+          "name": "unithddbl",
+          "width_um": 0.46,
+          "height_um": 5.44,
+          "class": "CORE"
+        }
+      ],
+      "routing_layers": [
+        {
+          "name": "li1",
+          "direction": "vertical",
+          "pitch_um": null,
+          "min_width_um": 0.17,
+          "min_spacing_um": 0.17,
+          "min_area_um2": 0.0561,
+          "thickness_um": 0.1,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 12.8
+        },
+        {
+          "name": "met1",
+          "direction": "horizontal",
+          "pitch_um": 0.34,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.083,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met2",
+          "direction": "vertical",
+          "pitch_um": 0.46,
+          "min_width_um": 0.14,
+          "min_spacing_um": 0.14,
+          "min_area_um2": 0.0676,
+          "thickness_um": 0.35,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.125
+        },
+        {
+          "name": "met3",
+          "direction": "horizontal",
+          "pitch_um": 0.68,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met4",
+          "direction": "vertical",
+          "pitch_um": 0.92,
+          "min_width_um": 0.3,
+          "min_spacing_um": 0.3,
+          "min_area_um2": 0.24,
+          "thickness_um": 0.8,
+          "max_density_pct": 70.0,
+          "resistance_ohm_per_sq": 0.047
+        },
+        {
+          "name": "met5",
+          "direction": "horizontal",
+          "pitch_um": 3.4,
+          "min_width_um": 1.6,
+          "min_spacing_um": 1.6,
+          "min_area_um2": 4.0,
+          "thickness_um": 1.2,
+          "max_density_pct": null,
+          "resistance_ohm_per_sq": 0.0285
+        }
+      ]
+    }
+  },
+  "synthesis_exploration": null,
+  "search_plan": {
+    "mode": "explicit",
+    "objective": "Add targeted load splitting to the two extracted capacitance violators, keeping all other repair settings and SDC constraints fixed",
+    "reference": "aes-closure-20261004-repair; baseline post-PnR checks name fanout1321/X (0.283483 pF / 0.2) and _17745_/Y (0.134 pF / 0.132761)",
+    "seed": null,
+    "candidate_budget": 1,
+    "planned_candidates_max": 1,
+    "candidate_sources": {
+      "explicit": 1,
+      "sweep": 0,
+      "synthesis_exploration": 0
+    },
+    "max_iterations": 1
+  },
+  "layout_image": null,
+  "layout_image_tag": "aes-closure-20261004-cap",
+  "diagnosis": "Invalid configuration invocation, not AES design evidence: OpenLane CLI flattened a typed dictionary override and failed before any physical step. Replaced by a JSON-string parameter and new cap-v2 tag. No metrics were produced."
+}

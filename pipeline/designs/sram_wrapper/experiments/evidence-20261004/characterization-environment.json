@@ -1,0 +1,21 @@
+{
+  "status": "prepared_inputs_only",
+  "openram_root": "/private/tmp/ppa-sram-openram-20261004",
+  "openram_revision": "b2b069ce119d1488cbe6883b2240bceb5c7ce29a",
+  "cell_source": "https://github.com/VLSIDA/sky130_fd_bd_sram",
+  "cell_revision": "fc63b12883b4bf458ee8c756ba64c37063e1ffb9",
+  "venv": "/private/tmp/ppa-sram-venv-20261004",
+  "python": "Python 3.14.7",
+  "packages": [
+    "cloudpickle==3.1.2",
+    "joblib==1.6.0",
+    "narwhals==2.26.0",
+    "numpy==2.5.3",
+    "scikit-learn==1.9.1",
+    "scipy==1.18.1",
+    "threadpoolctl==3.7.0"
+  ],
+  "ngspice": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******",
+  "measurements_generated": false,
+  "prepared_spice_file": "/private/tmp/ppa-sram-closure-20261004/characterization-preflight/sky130_sram_1kbyte_1rw1r_32x256_8.ascending.spice"
+}

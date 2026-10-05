@@ -5,11 +5,32 @@ export type Lang = "en" | "ko";
 const LANG_STORAGE_KEY = "ppa-eda-agent-dashboard:lang";
 
 const dict = {
+  evaluation_not_run: { en: "Budget prevented execution; no measured verdict", ko: "예산으로 미실행 · 측정된 검증 결과 없음" },
+  evaluation_budget_label: { en: "Evaluation budget", ko: "평가 예산" },
+  macro_model_title: { en: "Macro timing model coverage", ko: "매크로 타이밍 모델 검증 범위" },
+  macro_model_qualified: { en: "Model qualified", ko: "모델 검증 완료" },
+  macro_model_unqualified: { en: "Model unqualified", ko: "모델 미검증" },
+  macro_pvt_mismatch: { en: "PVT mappings differ", ko: "PVT 매핑 불일치" },
+  macro_unknown: { en: "unknown", ko: "확인 불가" },
+  macro_complete: { en: "Complete", ko: "완전" },
+  macro_incomplete: { en: "Incomplete", ko: "불완전" },
+  macro_input_coverage: { en: "Input edge records", ko: "입력 에지 기록" },
+  macro_axis_outside: { en: "Table-axis checks outside range", ko: "표의 축 범위를 벗어난 검사" },
+  macro_unknown_checks: { en: "Unknown input-axis checks", ko: "확인 불가 입력축 검사" },
+  macro_model_mapping: { en: "Inspect corner-by-corner model mapping", ko: "코너별 모델 매핑 보기" },
+  macro_scroll_hint: { en: "Scroll sideways to compare the library's PVT labels.", ko: "표를 좌우로 스크롤하면 라이브러리의 PVT 표기를 비교할 수 있습니다." },
+  macro_corner: { en: "Corner / macro", ko: "코너 / 매크로" },
+  macro_expected: { en: "Requested PVT", ko: "요청한 PVT" },
+  macro_declared: { en: "Library declares", ko: "라이브러리의 PVT 표기" },
+  macro_pvt_result: { en: "PVT metadata", ko: "PVT 표기 비교" },
+  macro_pvt_matches: { en: "Matches", ko: "일치" },
+  macro_pvt_differs: { en: "Differs", ko: "불일치" },
+  macro_model_scope: { en: "Counts repeat across tables and edges; they are not physical violation counts. Matching PVT labels do not prove measured model qualification. Output loads and measured functional/PVT provenance remain unqualified.", ko: "검사 수는 표와 에지에 걸쳐 반복 집계되며 물리 위반 수와 다릅니다. PVT 표기 일치만으로 측정된 모델임을 증명하지 않습니다. 출력 부하 범위와 측정에 기반한 기능·PVT 모델 검증은 아직 완료되지 않았습니다." },
   eyebrow: { en: "DTCO AI Agent", ko: "DTCO AI 에이전트" },
   title: { en: "DTCO Agent Console", ko: "DTCO 에이전트 콘솔" },
   subtitle: {
-    en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or fall back to reading pasted reports and a live OpenSTA simulation.",
-    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 붙여넣은 리포트나 실시간 OpenSTA 시뮬레이션을 확인할 수도 있습니다.",
+    en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or ask the diagnosis agent to inspect an existing EDA report.",
+    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 진단 에이전트에 기존 EDA 리포트 분석을 요청할 수 있습니다.",
   },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
   // Named for the thing it shows rather than for the flow half it
@@ -17,8 +38,8 @@ const dict = {
   // what someone is looking for when they want to see one.
   tab_schematic: { en: "Schematic", ko: "회로도" },
   // Names what these tabs *are for* rather than what they contain. They
-  // are a separate capability from the pipeline above (paste an existing
-  // EDA report, or run a one-off OpenSTA sim), and a bare "reports"
+  // are a separate capability from the pipeline above (ask the diagnosis
+  // agent to inspect an existing EDA report), and a bare "reports"
   // label left newcomers reading them as more pipeline output.
 
   pipeline_panel_title: {
@@ -31,8 +52,8 @@ const dict = {
   },
   pipeline_loading: { en: "Loading reference-db…", ko: "reference-db 불러오는 중…" },
   pipeline_error_hint: {
-    en: "is the server (node server/index.mjs) running on 127.0.0.1:8123?",
-    ko: "서버(node server/index.mjs)가 127.0.0.1:8123에서 실행 중인가요?",
+    en: "Check the configured API endpoint; start the backend with npm --prefix server start.",
+    ko: "설정된 API 주소를 확인하고 npm --prefix server start로 백엔드를 실행해 주세요.",
   },
   pipeline_empty: {
     en: "No cases yet — run pipeline/orchestrator.py on a design to populate reference-db/.",
@@ -523,6 +544,9 @@ const dict = {
     ko: "자동복구가 계속 새 후보를 제안하던 중 반복 한도에 걸렸습니다. 판단이 아니라 횟수만 더 주면 됩니다. 권장: {n}회.",
   },
   ac_btn_budget: { en: "re-run with {n} iterations", ko: "{n}회로 재실행" },
+  ac_state_evaluation_budget: { en: "EVALUATION BUDGET EXHAUSTED", ko: "평가 예산 소진" },
+  ac_ask_evaluation_budget: { en: "Inspect the recorded limits and deferred candidates. Update evaluation_budget in the run spec and validate before rerunning.", ko: "기록된 한도와 미실행 후보를 확인하세요. 실행 계획의 evaluation_budget을 조정하고 검증한 후 재실행하세요." },
+  ac_btn_evaluation_budget: { en: "inspect evaluation budget ↓", ko: "평가 예산 확인 ↓" },
 
   ac_state_run: { en: "NEVER RUN", ko: "미실행" },
   ac_ask_run: {
@@ -612,8 +636,8 @@ const dict = {
   },
   pipeline_agent_legend_title: { en: "which agent does what — 8 subagents", ko: "어떤 에이전트가 무엇을 하는지 — 8개 서브에이전트" },
   pipeline_agent_legend_diagnosis_note: {
-    en: "Separate from the 8-stage pipeline — the report-paste / live-simulation diagnosis agent behind the sidebar's own tab.",
-    ko: "8단계 파이프라인과는 별개 — 사이드바의 진단 탭에서 리포트 붙여넣기/실시간 시뮬레이션 진단을 담당하는 에이전트입니다.",
+    en: "Separate from the 8-stage pipeline — the on-demand EDA report diagnosis agent in the sidebar's own tab.",
+    ko: "8단계 파이프라인과는 별개 — 사이드바의 진단 탭에서 요청 시 EDA 리포트를 분석하는 에이전트입니다.",
   },
   pipeline_translate_long_wait_hint: {
     en: "long diagnosis text can take a few minutes — this gateway model delivers the full translation at once, not token-by-token, so nothing appears until it's done",
@@ -686,8 +710,20 @@ const dict = {
     ko: "PPA 트레이드오프를 명시한 해결책 제안",
   },
   agent_idle: {
-    en: "Run a simulation in the Simulate tab, then click \"Diagnose this result\" to see this agent work live, right here.",
-    ko: "Simulate 탭에서 시뮬레이션을 돌린 뒤 \"Diagnose this result\"를 누르면 이 에이전트가 실시간으로 작동하는 걸 여기서 볼 수 있습니다.",
+    en: "Paste an EDA report above to start a grounded diagnosis.",
+    ko: "위에 EDA 리포트를 붙여 넣어 근거 기반 진단을 시작하세요.",
+  },
+  diagnosis_input_title: { en: "Report to diagnose", ko: "진단할 리포트" },
+  diagnosis_input_placeholder: {
+    en: "Paste OpenSTA, OpenROAD, Yosys, PrimeTime, or other EDA report text…",
+    ko: "OpenSTA, OpenROAD, Yosys, PrimeTime 등 EDA 리포트 텍스트를 붙여 넣으세요…",
+  },
+  diagnosis_input_characters: { en: "characters", ko: "자" },
+  diagnosis_run: { en: "Diagnose report", ko: "리포트 진단" },
+  diagnosis_running: { en: "Diagnosing…", ko: "진단 중…" },
+  diagnosis_key_required: {
+    en: "Configure a gateway key above before starting the diagnosis.",
+    ko: "진단을 시작하기 전에 위에서 게이트웨이 키를 설정하세요.",
   },
   agent_streaming_live: { en: "● streaming live", ko: "● 실시간 스트리밍 중" },
   agent_tokens: { en: "chunks", ko: "청크" },

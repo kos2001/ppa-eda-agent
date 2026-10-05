@@ -240,7 +240,7 @@ class AttemptHistoryTests(unittest.TestCase):
 class RealRequestTests(unittest.TestCase):
     """Against the real store, through the CLI the server calls."""
 
-    def test_the_aes_request_carries_the_verdict_from_its_earlier_case(self):
+    def test_the_aes_request_uses_the_current_or_carried_diagnosis(self):
         cases = ROOT / "reference-db" / "cases"
         earlier = cases / "aes__2026-08-30.json"
         later = cases / "aes__2026-08-30__134751.json"
@@ -259,6 +259,12 @@ class RealRequestTests(unittest.TestCase):
         # The line that was false: a design whose previous run was
         # reviewed is not being seen for the first time.
         self.assertNotIn("(none recorded yet)", body)
+        active = re.search(r"Case file: reference-db/cases/(aes__[^\s]+\.json)", body)
+        self.assertIsNotNone(active)
+        current = json.loads((cases / active.group(1)).read_text(encoding="utf-8"))
+        if current.get("diagnosis"):
+            self.assertIn(current["diagnosis"], body)
+            return
         # Which earlier case it carries from is the newest reviewed one,
         # and the store keeps growing (three aes cases from 2026-09-10
         # each carry a diagnosis now), so the test asks for the fact —

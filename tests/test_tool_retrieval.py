@@ -469,14 +469,19 @@ class DataLineageTests(unittest.TestCase):
         self.assertGreaterEqual(stored["recorded_runs"], stored["distinct_samples"])
         self.assertEqual(
             stored["collapsed_by_dedup"],
-            stored["recorded_runs"] - stored["distinct_samples"])
+            stored["recorded_runs"] - stored["excluded_unsupported_flows"] - stored["distinct_samples"])
 
     def test_a_design_that_never_completes_is_still_listed(self):
-        # sram_wrapper produces no completed rows. Dropping it would
-        # make the page claim a cleaner corpus than exists.
-        names = {d["design"] for d in self.mod.report()["collected"]["designs"]}
-        rows = self.mod.report()["collected"]["designs"]
-        self.assertTrue(any(d["completed"] == 0 for d in rows) or "sram_wrapper" not in names)
+        # The real SRAM corpus now has completed runs. Use a stable failed
+        # design fixture to verify that failed-only designs are retained.
+        report = self.mod.collected([
+            {"design": "failed-only", "overrides": {}, "area_um2": None},
+            {"design": "completed", "overrides": {}, "area_um2": 1.0},
+        ])
+        rows = {row["design"]: row for row in report["designs"]}
+        self.assertEqual(rows["failed-only"]["completed"], 0)
+        self.assertEqual(rows["failed-only"]["rows"], 1)
+        self.assertEqual(rows["completed"]["completed"], 1)
 
     def test_empty_features_are_visible(self):
         # A feature nobody gave data to is a finding, not a rounding

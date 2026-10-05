@@ -47,6 +47,10 @@ completed, `final/def` and `final/metrics.json`.
    the actual error for which nets/regions were unroutable rather than
    reporting a generic "routing failed."
 
+For every number, name the routed step/report that produced it. Missing DRC,
+wirelength, via, or congestion output is unknown evidence, not a clean result.
+Keep TritonRoute self-checks separate from later Magic signoff metrics.
+
 ## Scope boundary
 
 Reads routing-stage artifacts only. Final PPA/DRC/LVS signoff verdicts

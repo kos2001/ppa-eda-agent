@@ -5,6 +5,12 @@
     "max_ir_drop_pct": 5.0
   },
   "candidates": [],
+  "candidate_budget": 10,
+  "search": {
+    "mode": "sweep",
+    "objective": "smallest signoff-clean die area",
+    "reference": "reference-db cases for counter4_tinydie"
+  },
   "max_iterations": 1,
   "sweeps": [
     {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./DataLineage.css";
+import { API_BASE_URL } from "../api/config";
 
 // What the console could not previously say.
 //
@@ -44,6 +45,7 @@ type Report = {
     recorded_runs: number;
     distinct_samples: number;
     collapsed_by_dedup: number;
+    excluded_unsupported_flows?: number;
     dedup_key: string[];
     layouts: number;
   };
@@ -60,7 +62,7 @@ type Report = {
   learned: { targets: TargetRow[]; threshold: number };
 };
 
-const SERVER = "http://localhost:8123";
+const SERVER = API_BASE_URL;
 
 function shortLib(name: string): string {
   return name.replace(/^sky130_fd_sc_/, "sky130 ").replace(/^gf180mcu_fd_sc_/, "gf180 ");
@@ -183,6 +185,7 @@ export default function DataLineage() {
           <div className="dl__flow-arrow">
             −{stored.collapsed_by_dedup}
             <small>duplicates</small>
+            {!!stored.excluded_unsupported_flows && <small>−{stored.excluded_unsupported_flows} unsupported flows</small>}
           </div>
           <div className="dl__flow-box dl__flow-box--out">
             <strong>{stored.distinct_samples}</strong>
@@ -195,6 +198,9 @@ export default function DataLineage() {
           re-run records the same configuration again, and counting those as
           independent samples would inflate any accuracy figure.
         </p>
+        {!!stored.excluded_unsupported_flows && (
+          <p className="dl__note">Physical buffer repair runs remain in the case store. The current surrogate cannot represent their buffer trees, so it excludes them from training.</p>
+        )}
       </Stage>
 
       <Stage

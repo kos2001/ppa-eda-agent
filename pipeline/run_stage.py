@@ -17,12 +17,15 @@ Requires:
       `volare enable --pdk sky130 --pdk-root <repo>/pdk <version>`)
 """
 import argparse
+import hashlib
 import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
@@ -95,16 +98,28 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
 
     cfg = json.loads((design_dir / "config.json").read_text())
     selected_flow = flow or (cfg.get("meta") or {}).get("flow", "Classic")
-    if flow is not None and flow not in {"Classic", "MacroSignoff", "UpstreamClassic"}:
+    if flow is not None and flow not in {"Classic", "MacroSignoff", "UpstreamClassic", "FanoutRepair", "MacroFanoutRepair"}:
         raise ValueError(f"Unsupported flow override: {flow}")
     custom_script = {
         "MacroSignoff": "macro_signoff.py",
         "UpstreamClassic": "upstream_classic.py",
+        "FanoutRepair": "fanout_repair.py",
+        "MacroFanoutRepair": "fanout_repair.py",
     }.get(selected_flow)
-    extra_mounts = (["-v", f"{REPO_ROOT / 'pipeline' / 'flows'}:/flows:ro"]
+    # A running experiment must not pick up edits made for the next one.
+    snapshot = None
+    flow_source = REPO_ROOT / "pipeline" / "flows"
+    if custom_script:
+        snapshot = tempfile.TemporaryDirectory(prefix="ppa-flow-sources-")
+        flow_source = Path(snapshot.name)
+        for source in (REPO_ROOT / "pipeline" / "flows").glob("*.py"):
+            shutil.copy2(source, flow_source / source.name)
+    extra_mounts = (["-v", f"{flow_source}:/flows:ro"]
                     if custom_script else [])
     entrypoint = (["python3", f"/flows/{custom_script}"]
                   if custom_script else ["openlane"])
+    if selected_flow == "MacroFanoutRepair":
+        entrypoint += ["--concrete-magic"]
     cmd = [
         "docker", "run", "--rm", *platform_args(),
         "-v", f"{PDK_ROOT}:/pdk",
@@ -167,6 +182,16 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     output = "".join(captured)
 
     claim_run_dir(design_dir, tag)
+    if snapshot:
+        run_dir = design_dir / "runs" / tag
+        if run_dir.is_dir():
+            retained = run_dir / "flow_sources"
+            shutil.copytree(flow_source, retained, dirs_exist_ok=True)
+            provenance = {"flow": selected_flow, "entrypoint": entrypoint,
+                          "sources_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                                             for p in sorted(retained.glob("*.py"))}}
+            (run_dir / "custom_flow_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
+        snapshot.cleanup()
     reject_ignored_overrides(overrides, output, tag)
     if returncode != 0:
         raise RuntimeError(
@@ -241,7 +266,7 @@ def main():
                      help="stop at this OpenLane step id (default: full flow)")
     ap.add_argument("--override", action="append", default=[],
                      help="KEY=VALUE config override, repeatable")
-    ap.add_argument("--flow", choices=["Classic", "MacroSignoff", "UpstreamClassic"],
+    ap.add_argument("--flow", choices=["Classic", "MacroSignoff", "UpstreamClassic", "FanoutRepair", "MacroFanoutRepair"],
                     help="evaluate a flow without changing the design config")
     args = ap.parse_args()
 

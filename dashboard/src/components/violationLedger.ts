@@ -17,7 +17,7 @@
 // as absent, because a check that was not gated on the day a case was
 // scored is not a check that passed.
 import type { CandidateResult, PipelineCase } from "../api/referenceDb";
-import { recordedAt } from "./caseGrouping";
+import { recordedAt, candidateCount } from "./caseGrouping";
 
 // The kinds, in the order score() reads its checks, each matched by the
 // label text score() emits. Kept as a substring match on the label so
@@ -110,6 +110,7 @@ function candidates(c: PipelineCase): CandidateResult[] {
 export function representative(c: PipelineCase): { cand: CandidateResult; counts: Record<string, number> } | null {
   let best: { cand: CandidateResult; counts: Record<string, number>; total: number } | null = null;
   for (const cand of candidates(c)) {
+    if (cand.not_evaluated) continue;
     const v = cand.verdict;
     if (!v) continue;
     const { counts } = countViolations(v.violations);
@@ -137,7 +138,7 @@ export function ledger(cases: PipelineCase[]): LedgerRun[] {
       passed: v.passed,
       counts: rep.counts,
       unverifiedKinds,
-      candidates: candidates(c).length,
+      candidates: candidateCount(c),
     });
   }
   return runs.sort((a, b) => a.at.localeCompare(b.at));

@@ -1,0 +1,12 @@
+{
+  "source": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pipeline/designs/sram_wrapper",
+  "work_dir": "/private/tmp/ppa-sram-closure-20261004/sram_wrapper",
+  "inputs_sha256": {
+    "config.json": "ddaeaee93485a89ce97d6c83e4fa1b8cfa6a40f47ceb80db4e1307330c9bb90d",
+    "topology.json": "06346f8df99c20562ba211f90d2411a64a52081dbb11058334b4f4766a1ebeb5",
+    "pnr/pnr_exclude.cells": "fe885114dbc5a69d31ef55fa73013edd5cbe8f8c5b92d878a1456c465b26ebf1",
+    "lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.relaxed.lib": "efc91b317e28357988cc132b0ceb99b06c3a5a474ba14c77333cab08c51cc88c",
+    "src/sram_wrapper.v": "13bf03f7f0b4b2e4c2096fe766a6cbd3d38352bc5574996cddc1db395f1122f0",
+    "src/sky130_sram_1kbyte_1rw1r_32x256_8.blackbox.v": "fbdfbaf8a9eeffda73527c947efb74ce80896daa0e79854ea58e0938fd04df6b"
+  }
+}

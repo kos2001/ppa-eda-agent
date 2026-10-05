@@ -1,0 +1,29 @@
+# Extracted verbatim from /private/tmp/ppa-sram-closure-20261004/sram_wrapper/runs/sram-closure-20261004-fanout/60-openroad-stapostpnr/min_ss_100C_1v60/checks.rpt
+report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= min_ss_100C_1v60 Corner ===================================
+
+max slew
+
+Pin                                        Limit        Slew       Slack
+------------------------------------------------------------------------
+u_sram/addr0[0]                         0.050000    0.120585   -0.070585 (VIOLATED)
+u_sram/addr1[1]                         0.050000    0.106326   -0.056326 (VIOLATED)
+u_sram/addr1[2]                         0.050000    0.100930   -0.050930 (VIOLATED)
+u_sram/addr1[3]                         0.050000    0.097423   -0.047423 (VIOLATED)
+u_sram/addr1[6]                         0.050000    0.084619   -0.034619 (VIOLATED)
+u_sram/addr0[3]                         0.050000    0.084242   -0.034242 (VIOLATED)
+u_sram/addr1[7]                         0.050000    0.083300   -0.033300 (VIOLATED)
+u_sram/addr0[5]                         0.050000    0.082297   -0.032297 (VIOLATED)
+u_sram/addr0[2]                         0.050000    0.081011   -0.031011 (VIOLATED)
+u_sram/addr1[4]                         0.050000    0.080429   -0.030429 (VIOLATED)
+u_sram/addr0[4]                         0.050000    0.080038   -0.030038 (VIOLATED)
+u_sram/addr0[1]                         0.050000    0.079326   -0.029326 (VIOLATED)
+u_sram/addr0[7]                         0.050000    0.077946   -0.027946 (VIOLATED)
+u_sram/addr0[6]                         0.050000    0.077660   -0.027660 (VIOLATED)
+u_sram/addr1[5]                         0.050000    0.077523   -0.027523 (VIOLATED)
+u_sram/addr1[0]                         0.050000    0.066742   -0.016742 (VIOLATED)
+
+
+
+===========================================================================
