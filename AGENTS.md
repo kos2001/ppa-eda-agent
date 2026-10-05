@@ -113,6 +113,13 @@ does not predict PPA. See `docs/evaluation-harness-20261004.md` for the counting
 contract. Equivalence to generated RTL does not validate that RTL against a spec;
 keep independent golden verification and physical/model gates distinct.
 
+When a review is worth dispatching more than once, check the independent
+answers against each other with `pipeline/review_verify.py` before applying one.
+Its resolver settles disagreements, its challenger tries to break shared
+positions, and its adjudicator records unsettled questions instead of choosing
+one by omission. Applying a single answer with `request_review.py apply`
+remains valid. See `docs/review-verification-20261005.md`.
+
 Use real tool feedback for correction: locate the first failing stage and its
 exact error, check the current local contract, make the smallest justified
 change, validate the plan again, then rerun. A run with an ignored option,

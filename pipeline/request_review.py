@@ -299,6 +299,12 @@ def cmd_request(args: argparse.Namespace) -> None:
         "",
         f"   python3 request_review.py apply --design {args.design} "
         "--agent <name> --response-file <path>",
+        "",
+        "   Or dispatch the same reviewer two or more times independently and",
+        "   verify the answers against each other before applying one:",
+        "",
+        f"   python3 review_verify.py init --design {args.design} "
+        "--rollout <agent>=<path> --rollout <agent>=<path>",
     ]
 
     out_dir = REFDB / "reviews"
@@ -340,21 +346,36 @@ def cmd_apply(args: argparse.Namespace) -> None:
     response_text = Path(args.response_file).read_text(encoding="utf-8").strip()
     if not response_text:
         raise SystemExit("response file is empty — nothing to apply")
+    record_review(case_file, case, args.agent, response_text)
 
+
+def record_review(case_file: Path, case: dict, agent: str, response_text: str,
+                  verification: dict | None = None) -> dict:
+    """Append a review to the case's diagnosis and human_in_the_loop log.
+
+    The only writer of those two fields: `apply` hands it one subagent's
+    response, review_verify.py hands it an adjudicated diagnosis together
+    with the verification record that produced it. Returns the grounding
+    result it recorded.
+    """
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    how = ("verified across independent reviews, see verification record"
+           if verification else
+           "dispatched via human-in-the-loop review, not self-assessed")
     entry = (
-        f"\n\n[{timestamp}] {args.agent} subagent verdict "
-        f"(dispatched via human-in-the-loop review, not self-assessed):\n"
+        f"\n\n[{timestamp}] {agent} subagent verdict ({how}):\n"
         f"{response_text}"
     )
     case["diagnosis"] = case.get("diagnosis", "") + entry
 
     reviews = case.setdefault("human_in_the_loop", [])
     reviews.append({
-        "agent": args.agent,
+        "agent": agent,
         "reviewed_at": timestamp,
         "summary": response_text[:280] + ("…" if len(response_text) > 280 else ""),
     })
+    if verification:
+        reviews[-1]["verification"] = verification
 
     # The reviewer node, run where a verdict actually enters the case.
     #
@@ -377,7 +398,11 @@ def cmd_apply(args: argparse.Namespace) -> None:
     reviews[-1]["grounding"] = grounding
 
     write_case_json(case_file, case)
-    print(f"applied {args.agent}'s response to {case_file.relative_to(REPO_ROOT)} "
+    try:
+        shown = case_file.relative_to(REPO_ROOT)
+    except ValueError:
+        shown = case_file
+    print(f"applied {agent}'s response to {shown} "
           f"(diagnosis field, human_in_the_loop[{len(reviews) - 1}])")
     if grounding.get("checked"):
         bad = (grounding.get("ungrounded_error_codes", [])
@@ -388,6 +413,7 @@ def cmd_apply(args: argparse.Namespace) -> None:
         else:
             print("  grounding check: every cited error code and candidate "
                   "tag appears in this case's recorded data")
+    return grounding
 
 
 def main() -> None:
