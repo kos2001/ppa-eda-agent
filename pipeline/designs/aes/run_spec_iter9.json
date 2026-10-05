@@ -1,0 +1,47 @@
+{
+  "design_name": "aes",
+  "expected_outcome": null,
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "notes": "Iteration 9. Iteration 8's best (iter8-io25-fanout16) left 15 antenna, 2 max-cap and 4 max-fanout violations with setup, hold and slew at 0. No aes candidate has ever set the antenna-repair knobs (GRT_ANTENNA_MARGIN default 10, GRT_ANTENNA_ITERS default 3) or the resizer's cap margin (DESIGN_REPAIR_MAX_CAP_PCT default 20); sram_wrapper took 3 -> 2 -> 0 antenna violations with 50 and 10. Heuristic diode insertion is not used: iteration 7 measured it taking max-fanout to 1,158 and area from 133,578 to 185,204 um2. The third candidate keeps the default fanout limit, so its count is what the resizer actually repairs rather than what a looser limit hides.",
+  "candidates": [
+    {
+      "tag": "iter9-antenna",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "GRT_ANTENNA_MARGIN": 50,
+        "GRT_ANTENNA_ITERS": 10
+      }
+    },
+    {
+      "tag": "iter9-antenna-cap40",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "GRT_ANTENNA_MARGIN": 50,
+        "GRT_ANTENNA_ITERS": 10,
+        "DESIGN_REPAIR_MAX_CAP_PCT": 40
+      }
+    },
+    {
+      "tag": "iter9-antenna-defaultfanout",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "GRT_ANTENNA_MARGIN": 50,
+        "GRT_ANTENNA_ITERS": 10
+      }
+    }
+  ],
+  "max_iterations": 1
+}

@@ -40,8 +40,11 @@ import live_parse as lp
 
 HERE = Path(__file__).resolve().parent
 TOTAL_STEPS = 78  # Classic declares 78; a normal run writes 74 directories
-# Seconds of silence after which a run with an error.log is called failed.
-FAIL_IDLE_S = 20.0
+# Seconds of silence after which a run with an error.log is called failed,
+# used only when the host cannot say whether the flow's process is alive.
+# The first value (20) called healthy runs failed twice: a KLayout DRC step on
+# a machine at load average 36 goes quiet for longer than that.
+FAIL_IDLE_S = 120.0
 _STEP = re.compile(r"^(\d+)-(.+)$")
 _TAIL_BYTES = 400_000
 
@@ -112,6 +115,33 @@ def final_metrics(run_dir: Path) -> dict | None:
             "drc": m.get("route__drc_errors"), "hold_buffers": m.get("design__instance__count__hold_buffer")}
 
 
+def process_alive(run_dir: Path) -> bool | None:
+    """Whether a flow process for this run exists on this host.
+
+    The only direct evidence of "still running": run_stage launches
+    `docker run ... -v <design>:/design ... --run-tag <tag>`, so that command
+    line names the design directory and the tag. True/False when pgrep can
+    answer, None when it cannot (Windows, or no pgrep) - then the caller falls
+    back to how long the run has been quiet.
+    """
+    import re
+    import shutil
+    import subprocess
+    if not shutil.which("pgrep"):
+        return None
+    design, tag = run_dir.parent.parent.name, run_dir.name
+    pattern = f"{re.escape(design)}:/design.*--run-tag {re.escape(tag)}( |$)"
+    try:
+        out = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    # pgrep also matches the shell running this very command if the pattern
+    # appears in its own argv; the pattern here is built, not literal, so it
+    # does not, but guard anyway by requiring a pid other than our own.
+    pids = [p for p in out.stdout.split() if p.isdigit() and int(p) != __import__("os").getpid()]
+    return bool(pids)
+
+
 def run_snapshot(run_dir: Path, now: float, stale_after: float = 180.0) -> dict:
     """What can be known about one run from its directory alone."""
     steps = step_dirs(run_dir)
@@ -155,13 +185,24 @@ def run_snapshot(run_dir: Path, now: float, stale_after: float = 180.0) -> dict:
         snap["status"], snap["finished"] = "done", metrics
         end = newest_mtime([run_dir / "final" / "metrics.json"])
         snap["elapsed"] = max(0.0, end - started)
-    elif err_bytes and snap["idle"] >= FAIL_IDLE_S:
+    elif err_bytes and _gone_quiet(run_dir, snap["idle"]):
         snap["status"], snap["elapsed"] = "failed", max(0.0, newest_mtime([err]) - started)
     else:
         snap["status"] = "running" if snap["idle"] < stale_after else "stalled"
         snap["elapsed"] = max(0.0, now - started)
     snap["started"] = started
     return snap
+
+
+def _gone_quiet(run_dir: Path, idle: float) -> bool:
+    """An unfinished run with an error log: dead, or merely slow?
+
+    If the host can say, believe it - a live process is never failed, a
+    missing one always is. If it cannot, a long silence is the best proxy."""
+    alive = process_alive(run_dir)
+    if alive is not None:
+        return not alive
+    return idle >= FAIL_IDLE_S
 
 
 def latest_placement_map(run_dir: Path, cols: int, rows: int) -> dict | None:

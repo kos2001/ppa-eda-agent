@@ -196,6 +196,11 @@ measured that layer and changed it where a real run backed the change:
 - `pipeline/pnr_study.py` moves each OpenLane placement/routing/CTS/resizer
   knob alone against a noise floor. Most were inert on these designs; the
   hold slack margin and input-port buffering were not.
+- [`docs/aes-why-it-fails-20261002.md`](docs/aes-why-it-fails-20261002.md) says
+  why `aes` has never passed (six failure classes found one at a time, and the
+  antenna/fanout coupling the ninth iteration exposed). [`sram_floorplan_grid.py`](pipeline/sram_floorplan_grid.py)
+  measures how the SRAM macro's orientation, relative to its own pin groups,
+  moves wire length and slew (the shipped orientation is the best of four by 1.8x to 5x).
 - `pipeline/live_view.py -f` watches a run in the terminal: global-placement
   convergence, detailed-routing violations per iteration, a cell-density map,
   and the orchestrator's repair/polish decisions as they happen.
