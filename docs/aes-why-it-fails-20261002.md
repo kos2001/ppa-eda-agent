@@ -70,12 +70,17 @@ Updated 2026-10-05 (see `pipeline/designs/aes/experiments/README.md`):
   plus one antenna diode. It costs area and exposes a marginal slew/cap net.
 - **Antenna against fanout as one problem** is settled for fanout: they are
   coupled through the diode. Antenna itself is not closed in any run.
+- **Two targeted fixes on top of the headroom** (`_20258_` up-sized, `net1321`
+  split) give the first candidate with every gate except antenna at 0, at
+  +8.2% area; it still has 6 antenna violations and is at the diagnostic
+  constraints.
 
 ## What has not been tried
 
+- Varying `GRT_ANTENNA_ITERS`. About 40% of the diodes sit on 36 to 39 nets with
+  11 to 12 diodes each, which matches 10 iterations plus one; the iteration count
+  was never varied.
 - Resizer margins for fanout without moving the limit.
-- Antenna repair or diode placement after detailed routing: the last repair runs
-  at global-route level and detailed routing re-draws the wires.
 - Splitting the high-fanout round-key and control nets in the RTL.
 
 ## Reproduce
