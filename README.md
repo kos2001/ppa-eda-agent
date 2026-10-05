@@ -18,6 +18,12 @@ diving into the components below.
 ## What's here
 
 ```
+AGENTS.md                           Repository-wide evidence, experiment,
+                                     and validation rules for coding agents
+.codex/skills/ppa-eda-flow/         Project skill for bounded, reproducible
+                                     OpenLane experiment work
+.claude/skills/ppa-eda-flow/        Byte-identical copy for Claude Code
+                                     (tests/test_skill_mirror.py)
 .claude/agents/ppa-eda-analyst.md   Claude Code subagent: diagnoses PPA
                                      issues from pasted/given report text
 references/                         Report format knowledge the agent is
@@ -83,6 +89,18 @@ Requires Docker and a local sky130 PDK (fetched once via `volare`, see
 the spec doc). Standard-cell-only, digital designs for now — no SRAM
 bitcell layout yet (see the spec's "Known limitations").
 
+Validate a plan before starting Docker or any EDA tool:
+
+```sh
+python3 pipeline/orchestrator.py --design pipeline/designs/counter4 \
+  --run-spec pipeline/designs/counter4/run_spec.json --validate-only
+```
+
+This checks sweep structure, normalized tag collisions, duplicate
+override/PDK/SCL configurations, positive iteration counts, and the optional
+`candidate_budget`. It prints the maximum initial candidate count and its
+sources. A completed case records the same `search_plan` beside its metrics.
+
 ```sh
 cd pipeline
 python3 orchestrator.py --design designs/counter4 \
@@ -104,10 +122,13 @@ via a `sweeps` entry — `{"param": "FP_CORE_UTIL", "values": [25, 35,
 45, 55, 65], "tag_prefix": "sweep-util"}` expands to one candidate per
 value (`orchestrator.py`'s `expand_sweeps()` — a small, dependency-free
 idea borrowed from the OpenROAD Project's own
-[AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/tools/AutoTuner),
+[AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/blob/master/docs/user/InstructionsForAutoTuner.md),
 without pulling in its full Ray/hyperopt search machinery, which this
 pipeline's scale doesn't need yet — see the design spec's "Borrowed
-from prior art" section). Every candidate runs through a real OpenLane
+from prior art" section). New searches should also declare
+`candidate_budget` plus `search.mode`, `search.objective`,
+`search.reference`, and `search.seed` when randomized. Every candidate runs
+through a real OpenLane
 flow, concurrently when `--max-parallel` is greater than 1 (keep the
 default of 1 on memory-limited machines), scored against the spec's
 targets using OpenLane's own real `metrics.json`
@@ -183,10 +204,13 @@ measured that layer and changed it where a real run backed the change:
 - `pipeline/live_view.py -f` watches a run in the terminal: global-placement
   convergence, detailed-routing violations per iteration, a cell-density map,
   and the orchestrator's repair/polish decisions as they happen.
-- In the dashboard, an opened case shows a parallel-coordinates chart of the
-  objectives a winner is chosen on (cell area, power, core area, setup slack:
-  top is best, Pareto-front candidates solid, the winner thick). Candidates
-  say which repair rule or polish move created them. The console at the
+- In the dashboard, an opened case shows a horizontal area comparison with
+  iteration, signoff state, winner, and delta from the best passing area. Its
+  parallel-coordinates chart shows the objectives a winner is chosen on (cell
+  area, power, core area, setup slack), with selectable candidates and an
+  axis-by-axis readout; top is best, Pareto-front candidates are solid, and the
+  winner is thick. Candidates say which repair rule or polish move created
+  them. The console at the
   bottom resizes (drag its top edge, the +/- buttons, or the arrow keys),
   maximises, collapses, and remembers its size.
 
@@ -214,6 +238,26 @@ progress through `pipeline/characterize_sram.py`; the old timing model and
 the SRAM Liberty model validity check still prevents a verified pass. See
 [the SRAM execution record](pipeline/designs/sram_wrapper/characterization/README.md)
 for measurements, setup and remaining acceptance checks.
+
+The 2026-10-04 physical SRAM candidate reports zero slew/cap/fanout, antenna,
+setup/hold and signoff DRC/LVS violations, but its old TT-only model still blocks
+qualification. `pipeline/macro_model_audit.py` now checks the effective run's
+corner mapping and each timing table's actual input axes. The dashboard shows
+those mappings separately from physical signoff: six of nine PVT mappings
+disagree with the model, and 1,944 repeated table/edge checks extrapolate.
+Full input-edge coverage does not qualify output-load ranges or measured PVT.
+The indexed full-netlist SS characterization has now returned its first
+27 port0 measurements; port1 and the remaining characterization are running.
+That first point is retained as measured evidence and does not qualify a Liberty.
+
+AES's measured same-function driver upsizing removed the targeted candidate's
+14 slew and one capacitance violation. Its full nine-corner extracted result
+still has four antenna and five fanout violations. One bounded third repair
+pass with headroom on five measured nets reduces these to two antenna and two
+fanout violations, at 135,161 um². Both are rejected diagnostic 12ns/1.5ns
+candidates, with original constraints and interface qualification
+still outstanding. The opt-in driver edits retain independent Liberty-function
+and full original-pin connectivity evidence.
 
 `score()` gates on 23 signoff checks by OpenLane's metric key names,
 and now records each as a row (`signoff_checks`) that the dashboard
@@ -752,7 +796,7 @@ adds those four pieces around the existing tabs:
   holds 71-75% of the window at every size, against 45-74% before, with
   no horizontal overflow anywhere.
 
-Behind that shell: the Layout Pipeline (the default view), schematics,
+Behind that shell: Overview · Examples (the default view), Layout Pipeline, schematics,
 progress, system health, data lineage, the manual, an ask page and the
 Diagnosis page. The report-paste tabs (Area, Timing, Power, Trade-offs)
 and the live OpenSTA Simulate tab were removed on 2026-10-02: they read
@@ -760,11 +804,38 @@ pasted material rather than operating the agent, which is what `soul.md`
 says this dashboard is for. Nothing else imported them, and `git log`
 holds them if they are wanted back.
 
+The frontend (`dashboard/`) and backend (`server/`) are independent packages.
+Start each in its own terminal from the repository root:
+
 ```sh
-cd dashboard
-npm install
-npm run dev
+npm --prefix server start
 ```
+
+```sh
+npm --prefix dashboard ci
+npm --prefix dashboard run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Open http://127.0.0.1:5173. Configure the public API URL through
+`dashboard/.env.local` (`VITE_API_BASE_URL`); the API port and private gateway
+credentials are backend settings in the root `.env`. See
+[frontend setup](dashboard/README.md), [backend setup](server/README.md), and
+[architecture and example references](docs/frontend-backend-and-examples-20261004.md).
+The overview reads actual case metrics and GDS renders, discovers all design
+configurations, and opens a selected design's newest pipeline case.
+
+The [evaluation harness](docs/evaluation-harness-20261004.md) adds shared
+evaluation/time admissions, stage cost records and a persistent Pareto archive
+partitioned by source, constraints and technology provenance. Overview displays
+timing coverage and qualified comparison groups; missing metrics and
+budget-deferred candidates remain explicit. Optional measured-cost scheduling
+uses compatible observations without predicting PPA.
+
+The [reference-inspired visualization workspace](docs/eda-visualization-patterns-20261004.md)
+adds candidate metric comparisons, a clickable verification matrix and native
+source reports. The recorded DEF viewer supports zoom/pan, layer visibility,
+instance/net search and a geometric cell-footprint map.
+
 
 ### Diagnosis page (live agent, via hermes-gateway)
 
@@ -798,7 +869,7 @@ description of one to build yourself.
    (or set it in `server/index.mjs`'s own environment so the dashboard
    never has to handle it — see `.env.example`) — stored only in this
    browser's `localStorage` if pasted.
-6. The pasted key (or the server-side one) is also what the Layout
-   Pipeline tab's translate and review steps use. The page's own
-   "diagnose a simulation result" trigger was the Simulate tab, which has
-   been removed, so today this page is where the key is entered.
+6. Paste an OpenSTA, OpenROAD, Yosys, PrimeTime, or other EDA report and
+   click **Diagnose report**. The answer streams on the same page. The
+   pasted key (or the server-side one) is also what the Layout Pipeline
+   tab's translate and review steps use.

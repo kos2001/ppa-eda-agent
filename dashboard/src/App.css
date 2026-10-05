@@ -395,3 +395,8 @@
      page like everything else. */
   .eda-console { height: auto; max-height: 40vh; }
 }
+@media (max-width: 700px) {
+  .app--eda .app__brand { display: none; }
+  .app--eda .app__nav { flex: 0 0 auto; }
+  .app--eda .app__nav-item { white-space: nowrap; }
+}

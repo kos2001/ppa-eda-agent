@@ -20,3 +20,28 @@
   font-family: -apple-system, "Segoe UI", "Malgun Gothic", var(--mono);
   max-width: 72ch;
 }
+
+.diagnosis-page__count,
+.diagnosis-page__input-hint {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+.diagnosis-page__count {
+  margin-right: auto;
+}
+
+.diagnosis-page__input-hint {
+  margin: 0.55rem 0 0;
+}
+
+.report-input__actions .diagnosis-page__run {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.report-input__actions .diagnosis-page__run:disabled {
+  cursor: default;
+  opacity: 0.45;
+}

@@ -17,6 +17,12 @@
     }
   ],
   "candidates": [],
+  "candidate_budget": 8,
+  "search": {
+    "mode": "hybrid",
+    "objective": "signoff-clean Pareto knee across area, power, core area, and setup slack",
+    "reference": "reference-db cases for counter4"
+  },
   "max_iterations": 1,
   "explore_synthesis": {
     "count": 3,

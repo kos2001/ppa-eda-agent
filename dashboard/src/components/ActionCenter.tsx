@@ -16,7 +16,7 @@ import "./ActionCenter.css";
 // live strip could say "1 case waiting" but not what to do or where.
 //
 // The intervention points are not invented for the UI; they are exactly
-// orchestrate()'s three STOP_REASONS plus "never run", and each maps to
+// orchestrate()'s STOP_REASONS plus "never run", and each maps to
 // one concrete action:
 //
 //   never run                  -> run the agent
@@ -32,7 +32,7 @@ import "./ActionCenter.css";
 // Designs are ordered by how much they need attention, so the top of the
 // list is always the next thing to do.
 
-export type ActionKind = "review" | "budget" | "run" | "done";
+export type ActionKind = "review" | "budget" | "evaluation_budget" | "run" | "done";
 
 export interface DesignAction {
   design: string;
@@ -42,11 +42,12 @@ export interface DesignAction {
   reviewed: boolean;
 }
 
-const ORDER: Record<ActionKind, number> = { review: 0, budget: 1, run: 2, done: 3 };
+const ORDER: Record<ActionKind, number> = { review: 0, budget: 1, evaluation_budget: 1, run: 2, done: 3 };
 
 const COPY: Record<ActionKind, { state: DictKey; ask: DictKey }> = {
   review: { state: "ac_state_review", ask: "ac_ask_review" },
   budget: { state: "ac_state_budget", ask: "ac_ask_budget" },
+  evaluation_budget: { state: "ac_state_evaluation_budget", ask: "ac_ask_evaluation_budget" },
   run: { state: "ac_state_run", ask: "ac_ask_run" },
   done: { state: "ac_state_done", ask: "ac_ask_done" },
 };
@@ -74,6 +75,7 @@ export function deriveActions(
     if (!latest) kind = "run";
     else if (latest.winner_tag) kind = "done";
     else if (latest.stop_reason === "max_iterations_reached") kind = "budget";
+    else if (latest.stop_reason === "evaluation_budget_exhausted") kind = "evaluation_budget";
     else kind = "review";
 
     return {
@@ -138,6 +140,9 @@ function ActionRow({
           <button onClick={() => onRun(action.design, nextBudget)}>
             {t("ac_btn_budget").replace("{n}", String(nextBudget))}
           </button>
+        )}
+        {action.kind === "evaluation_budget" && (
+          <button onClick={() => onOpenCase(action.design)}>{t("ac_btn_evaluation_budget")}</button>
         )}
         {action.kind === "run" && (
           <button onClick={() => onRun(action.design)}>{t("ac_btn_run")}</button>

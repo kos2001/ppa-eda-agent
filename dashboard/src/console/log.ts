@@ -12,6 +12,8 @@
 // status and measured duration. Everything else in here is a plain
 // `log()` call made by code at the moment it really does something.
 
+import { isApiRequest } from "../api/config";
+
 export type LogLevel = "info" | "warn" | "error" | "cmd";
 
 export type LogEntry = {
@@ -83,7 +85,7 @@ export function toText(): string {
 // through fetch too, and a transcript that logged them would bury the
 // backend traffic it exists to show.
 function isBackendCall(url: string): boolean {
-  return url.includes("127.0.0.1:8123") || url.includes("localhost:8123");
+  return isApiRequest(url, window.location.href);
 }
 
 function shortPath(url: string): string {

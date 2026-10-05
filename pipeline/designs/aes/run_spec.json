@@ -3,5 +3,11 @@
   "targets": { "max_core_utilization": 0.75 },
   "sweeps": [{ "param": "CLOCK_PERIOD", "values": [8, 12, 20], "tag_prefix": "sweep-clk" }],
   "candidates": [],
+  "candidate_budget": 3,
+  "search": {
+    "mode": "sweep",
+    "objective": "signoff-clean Pareto knee across area, power, core area, and setup slack",
+    "reference": "reference-db cases for aes"
+  },
   "max_iterations": 1
 }

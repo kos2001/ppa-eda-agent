@@ -179,7 +179,11 @@ def main() -> None:
                     help="one signoff PVT per run (default: tt)")
     ap.add_argument("--output-dir", type=Path,
                     help="new result directory; refuses to overwrite an existing run")
+    ap.add_argument("--prepare-only", action="store_true",
+                    help="validate and archive the actual inputs without running SPICE or generating Liberty")
     args = ap.parse_args()
+    if args.prepare_only and args.output_dir is None:
+        ap.error("--prepare-only requires a new --output-dir")
     if args.corner != "tt" and args.output_dir is None:
         ap.error("--corner ss/ff requires a new --output-dir")
     if args.output_dir:
@@ -207,6 +211,11 @@ def main() -> None:
     OPTS.process_corners = [process]
     OPTS.supply_voltages = [voltage]
     OPTS.temperatures = [temperature]
+    solver = getattr(OPTS, "spice_matrix_solver", "sparse")
+    simulator_version = subprocess.run([OPTS.spice_exe, "-v"], capture_output=True, text=True, check=True)
+    simulator_version = simulator_version.stdout + simulator_version.stderr
+    if solver == "klu" and "Compiled with KLU" not in simulator_version:
+        raise ValueError("KLU requested but the installed ngspice executable lacks KLU")
     if args.output_dir:
         OPTS.output_path = str(args.output_dir) + "/"
     from openram.characterizer import fake_sram, lib
@@ -240,6 +249,14 @@ def main() -> None:
         "storage_path_validation": storage_paths,
         "config_sha256": hashlib.sha256(cfg.read_bytes()).hexdigest(),
         "analytical_delay": False, "slew_scales": OPTS.slew_scales,
+        "matrix_solver_requested": solver,
+        "simulator_executable": OPTS.spice_exe,
+        "simulator_sha256": hashlib.sha256(Path(OPTS.spice_exe).read_bytes()).hexdigest(),
+        "simulator_version": simulator_version.strip(),
+        "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "startup_directory": os.environ.get("SPICE_SCRIPTS"),
+        "startup_sha256": (hashlib.sha256((Path(os.environ["SPICE_SCRIPTS"]) / "spinit").read_bytes()).hexdigest()
+                           if os.environ.get("SPICE_SCRIPTS") else None),
         "stimulus_slew_definition": "10-90%; full linear ramp = slew / 0.8",
         "setup_hold_clock_axis": "related_input_slew",
         "adapter_sha256": hashlib.sha256(Path(openram_adapter.__file__).read_bytes()).hexdigest(),
@@ -248,6 +265,14 @@ def main() -> None:
         "corner_scope": f"{process} {voltage}V {temperature}C only; does not qualify other PVT corners",
     }
     record = out / "manifest.json"
+    if args.prepare_only:
+        manifest.update(status="prepared_inputs_only",
+                        finished_at=datetime.now(timezone.utc).isoformat(),
+                        measurements_generated=False)
+        record.write_text(json.dumps(manifest, indent=2) + "\n")
+        print(f"Prepared and validated inputs only; no SPICE or Liberty generated: {record}")
+        end_openram()
+        return
     record.write_text(json.dumps(manifest, indent=2) + "\n")
     from openram.characterizer.stimuli import stimuli
     stimuli.run_sim = archive_simulations(stimuli.run_sim, Path(OPTS.openram_temp), out)

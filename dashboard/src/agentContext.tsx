@@ -75,6 +75,10 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   const [hasUnseenResult, setHasUnseenResult] = useState(false);
   const timerRef = useRef<number | null>(null);
 
+  useEffect(() => () => {
+    if (timerRef.current !== null) clearInterval(timerRef.current);
+  }, []);
+
   const saveKey = useCallback((k: string) => {
     setStoredKey(k);
     setKey(k);
@@ -90,7 +94,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const runDiagnosis = useCallback((reportText: string) => {
-    if (!serverConfigured && !key) return;
+    if (diagnosing || (!serverConfigured && !key)) return;
 
     // Ask for notification permission at the moment the user triggers a
     // run (a real user gesture) — not on page load, which browsers ignore
@@ -149,7 +153,7 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     } else if (key) {
       diagnoseStream(key, reportText, callbacks, lang);
     }
-  }, [serverConfigured, key, lang]);
+  }, [serverConfigured, key, lang, diagnosing]);
 
   const value = useMemo<AgentState>(() => ({
     key,

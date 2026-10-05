@@ -49,10 +49,11 @@ Integration mismatches were verified in generated stimulus and fixed:
   the source hash are in `storage_paths_20260913.json`.
 - The functional checker derives its `Q`/`Q_bar` probes from that same
   validated `cell_format`.
-- The adapter disables ngspice `POST=1 PROBE` waveform storage by default.
-  Liberty generation uses `.meas` results, and retaining all transient
-  waveforms for this macro can consume excessive memory. Set
-  `spice_save_waveforms = True` when waveform dumps are needed for debugging.
+- The adapter strips legacy `POST=1 PROBE` controls by default. This alone
+  does not determine waveform retention: ngspice 46 batch mode already extracts
+  vectors from `.meas` cards. An explicit `.save` comparison below showed no
+  RSS reduction. Set `spice_save_waveforms = True` to preserve those upstream
+  controls; explicit simulator output settings are still needed for debugging.
 
 The standalone `fake_sram` also lacks width/height; the runner reads them
 from the installed macro LEF for Liberty area reporting.
@@ -217,3 +218,78 @@ This is an execution checkpoint, not a completed characterization result.
 The 35 characterization, adapter, and model-validity unit tests passed.
 Docker image listing and an OpenLane 2.3.10 container smoke check also
 succeeded, including locating OpenSTA and OpenROAD inside the container.
+
+## 2026-10-04: separate parser and solver bottlenecks
+
+Native ngspice 46 supports KLU, but it must be selected in the actual deck.
+The adapter now preserves RELTOL=0.001, gear, TRAN and measurements while adding
+KLU when configured. A small RC comparison gives the same measured delay with
+Sparse and KLU; this is not a macro validation.
+
+A sample of the stalled full SS process showed `INPgetModBin` repeatedly scanning
+the global model list. The experimental ngspice 46 patch in `ngspice-bin-index/`
+indexes numeric bins by prefix while preserving original selection order. It is
+pinned to the official release, with release/source/patch/binary hashes and
+reproducible build instructions. Five synthetic selection cases and actual
+SKY130 two-device SS/TT/FF probes have identical 15-digit currents against the
+unmodified executable. Upstream `make check` exits 0; its log retains nonfatal
+historical-reference differences as printed.
+
+The indexed executable passes full macro loading and enters actual KLU transient
+analysis. This removes the observed lookup bottleneck; it does not establish
+that full characterization is fast or correct. The full 8192-cell SS run is
+still in its first 150ns read/write stimulus at the recorded snapshot, with no
+completed delay measurement or usable Liberty. TT/FF whole-macro characterization
+and validation are still outstanding. A partially written `.lib` is not a
+qualification result.
+
+The original loading attempts were interrupted and archived as failed. The
+running SS manifest and log snapshot, process samples, decks and sources matching
+execution hashes are retained in `../experiments/evidence-20261004/characterization-algorithm/`.
+`current_sources/` records the later checked-in sources; each `execution_sources/`
+is verified against that attempt's manifest hashes. The live full artifacts
+remain in `/private/tmp/ppa-sram-closure-20261004/characterization-ss-indexed/`.
+The immutable snapshots are explicitly incomplete, and no replacement Liberty
+has been installed in the PDK or production design.
+
+## 2026-10-04: audit actual model mapping and retention assumptions
+
+The final `sram-closure-20261004-inv8-inv16-spef` result has zero reported
+slew/cap/fanout, antenna, setup/hold and signoff DRC/LVS violations. It remains
+unqualified. `pipeline/macro_model_audit.py` now reads the effective run's
+`resolved.json`, expands bus pins, converts time units, validates timing-table
+dimensions and compares each input against the actual related/constrained axis.
+The shipped TT 1.8V/25C model is selected by wildcard at all nine corners;
+six SS/FF mappings disagree with the declared model PVT. Input-edge coverage
+is complete, with 1,944 per-table/edge checks outside the input axes and zero
+unknown input checks. These repeated checks are not 1,944 physical violations.
+The full audit and source hash are retained alongside that run's evidence.
+Output-load axes and measured functional/PVT model qualification remain open.
+
+`ngspice-vector-selection/compare.py` checks one nonlinear RC circuit with
+2,000 unobserved loads, delay, slew, hierarchical storage voltage, differential
+voltage and power. Adding only `.save` cards produces identical measurements
+at 15-digit output precision. Default and selected runs both use 10,010,624
+bytes peak RSS: no measured memory benefit. The pinned ngspice 46 contract is
+`src/frontend/dotcards.c:ft_savedotargs` calling `measure_extract_variables`,
+with `par()` vectors generated in `inpcom.c`. No selection parser or new save
+policy was added to the characterization runner.
+
+A fresh sample of the owned full SS process after about an hour still shows
+BSIM device loading and matrix work during transient analysis. At that sample
+and the 07:36 UTC checkpoint, the first measurement had not returned.
+
+The first full-netlist SS feasibility stimulus subsequently returned at
+07:37:28 UTC, after 5,325.7 seconds (about 89 minutes). All 27 requested
+measurements returned finite values. At SS 1.6V/100C, period10ns, input
+10–90% slew0.56ns and output load27.56fF, port0 has rising/falling delay
+4.83158/1.41998ns and output slew2.19123/3.28464ns. Those output slews are
+distinct from the 0.56ns input axis and cannot be used as input grid points.
+The next stimulus reads port1 and changes the actual sources/probes; it is
+not an identical duplicate that could reuse the first measurements.
+
+Completed first-probe logs, decks, source hashes and a measurement summary
+are in `../experiments/evidence-20261004/characterization-algorithm/completed-ss-port0-20261004/`.
+This is one SS point at selected address/bit, not a completed table or whole
+functional/PVT qualification. Remaining points, port1, setup/hold and TT/FF
+still need measurements and validation. No partial Liberty is installed.

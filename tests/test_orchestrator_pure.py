@@ -24,6 +24,7 @@ nothing about the tools this pipeline actually shells out to.
 """
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -101,6 +102,81 @@ class TestExpandSweeps(unittest.TestCase):
     def test_no_sweeps_key_is_not_an_error(self):
         """run_spec.json may list candidates by hand only."""
         self.assertEqual(orchestrator.expand_sweeps({}), [])
+
+    def test_values_must_be_a_nonempty_list(self):
+        """A string would otherwise launch one full flow per character."""
+        with self.assertRaisesRegex(ValueError, "non-empty list"):
+            orchestrator.expand_sweeps({
+                "sweeps": [{"param": "SYNTH_STRATEGY", "values": "AREA 0"}]
+            })
+
+
+class TestRunPlanValidation(unittest.TestCase):
+    """Guards the cheap preflight before any EDA tool is launched."""
+
+    def test_tags_that_normalize_to_same_directory_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "run directory"):
+            orchestrator.validate_candidates([
+                {"tag": "trial a", "overrides": {"CLOCK_PERIOD": 5}},
+                {"tag": "trial_a", "overrides": {"CLOCK_PERIOD": 8}},
+            ])
+
+    def test_duplicate_experiments_under_different_tags_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "same overrides"):
+            orchestrator.validate_candidates([
+                {"tag": "one", "overrides": {"FP_CORE_UTIL": 35}},
+                {"tag": "two", "overrides": {"FP_CORE_UTIL": 35}},
+            ])
+
+    def test_standard_cell_library_is_a_real_candidate_axis(self):
+        got = orchestrator.validate_candidates([
+            {"tag": "hd", "overrides": {}, "scl": "sky130_fd_sc_hd"},
+            {"tag": "hs", "overrides": {}, "scl": "sky130_fd_sc_hs"},
+        ])
+        self.assertEqual([c["tag"] for c in got], ["hd", "hs"])
+
+    def test_budget_accounts_for_sweeps_and_synthesis_exploration(self):
+        spec = {
+            "sweeps": [{"param": "CLOCK_PERIOD", "values": [5, 10]}],
+            "explore_synthesis": {"count": 3},
+            "candidate_budget": 4,
+        }
+        with self.assertRaisesRegex(ValueError, "up to 5 candidates"):
+            orchestrator.validate_run_plan(spec, 1)
+
+    def test_plan_summary_records_sources_and_declared_search(self):
+        spec = {
+            "candidates": [{"tag": "base", "overrides": {}}],
+            "sweeps": [{"param": "CLOCK_PERIOD", "values": [5, 10]}],
+            "candidate_budget": 3,
+            "search": {"mode": "hybrid", "objective": "pareto-knee",
+                       "seed": 17, "reference": "baseline case"},
+        }
+        plan = orchestrator.validate_run_plan(spec, 2)
+        self.assertEqual(plan["planned_candidates_max"], 3)
+        self.assertEqual(plan["candidate_sources"], {
+            "explicit": 1, "sweep": 2, "synthesis_exploration": 0})
+        self.assertEqual(plan["seed"], 17)
+        self.assertEqual(plan["max_iterations"], 2)
+
+    def test_max_iterations_must_be_positive(self):
+        with self.assertRaisesRegex(ValueError, "positive integer"):
+            orchestrator.validate_run_plan(
+                {"candidates": [{"tag": "base", "overrides": {}}]}, 0)
+
+    def test_validate_only_cli_does_not_need_a_real_design(self):
+        spec = {"candidates": [{"tag": "base", "overrides": {}}],
+                "candidate_budget": 1}
+        with tempfile.TemporaryDirectory() as td:
+            spec_path = Path(td) / "run_spec.json"
+            spec_path.write_text(json.dumps(spec), encoding="utf-8")
+            proc = subprocess.run([
+                sys.executable, str(Path(orchestrator.__file__)),
+                "--design", str(Path(td) / "absent-design"),
+                "--run-spec", str(spec_path), "--validate-only",
+            ], capture_output=True, text=True, check=False)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(json.loads(proc.stdout)["planned_candidates_max"], 1)
 
 
 class TestClassifyStage(unittest.TestCase):
@@ -551,6 +627,7 @@ class TestStopReasonsAreTotal(unittest.TestCase):
         outcomes = set()
         for reason in orchestrator.STOP_REASONS:
             mapped = {
+                "evaluation_budget_exhausted": "evaluation budget exhausted before a verified winner",
                 "winner_found": "passed",
                 "max_iterations_reached":
                     "no candidate met targets after all iterations",

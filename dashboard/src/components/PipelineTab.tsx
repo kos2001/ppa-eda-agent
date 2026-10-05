@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchCandidateDetail,
   fetchReferenceDb,
@@ -22,6 +22,7 @@ import { askReview, cachedReview, translateStream, translateViaServer } from "..
 import { useAgent } from "../agentContext";
 import SignoffStrip from "./SignoffStrip";
 import ClosureLedger, { ViolationChips } from "./ClosureLedger";
+import MacroModelCoverage from "./MacroModelCoverage";
 import { useLang, type DictKey } from "../i18n";
 import ActionCenter from "./ActionCenter";
 import HowItWorks from "./HowItWorks";
@@ -29,15 +30,10 @@ import LayoutView from "./LayoutView";
 import MarkdownDoc from "./Markdown";
 import SlackChart from "./SlackChart";
 import StageArtifacts from "./StageArtifacts";
+import CandidateAreaChart from "./CandidateAreaChart";
+import ObjectivesChart from "./ObjectivesChart";
 import "./Tabs.css";
 import "./PipelineTab.css";
-
-// Lazy: recharts' internal chunk is the largest in the app (~88KB
-// gzipped) — deferring it keeps it off the critical path for
-// PipelineTab's initial render (Pipeline is the default tab every
-// session loads). See CandidateAreaChart.tsx.
-const CandidateAreaChart = lazy(() => import("./CandidateAreaChart"));
-import ObjectivesChart from "./ObjectivesChart";
 
 const DATA_CATEGORY_ORDER: (keyof CandidateDataPointers)[] = [
   "circuit",
@@ -158,7 +154,7 @@ function formatCachedAt(iso: string): string {
 
 // Agent legend — every subagent that touches this pipeline, in pipeline
 // order, plus ppa-eda-analyst (not one of the 8 stages; it's the
-// separate report-paste/live-simulation diagnosis agent behind the
+// separate on-demand EDA report diagnosis agent behind the
 // sidebar's "ppa-eda-analyst" tab). Deduplicates routing-candidate-
 // evaluator (owns 2 stages) automatically via the Map below.
 function AgentRolesLegend() {
@@ -253,6 +249,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   const [openStage, setOpenStage] = useState<ProcessStageId | null>(null);
   const stages = pipelineCase.process_stages ?? FALLBACK_PROCESS_STAGES;
   const candidates = pipelineCase.iterations.flatMap((it) => it.results);
+  const measuredCandidates = candidates.filter(c => !c.not_evaluated || c.screen_evaluation);
   const stageCounts: Partial<Record<ProcessStageId, number>> = {};
   for (const c of candidates) {
     if (c.stage) stageCounts[c.stage] = (stageCounts[c.stage] ?? 0) + 1;
@@ -275,7 +272,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   // "6/9 reached Verification" understated that six candidates went all
   // the way through. The pipeline looked broken while working.
   const gateFlow = new Map<ProcessStageId, { entered: number; lost: number }>();
-  let alive = candidates.length;
+  let alive = measuredCandidates.length;
   for (const gate of GATE_ORDER) {
     const lost = gate === "verification_ppa" ? 0 : (stageCounts[gate] ?? 0);
     gateFlow.set(gate, { entered: alive, lost });
@@ -285,7 +282,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
   function countFor(id: ProcessStageId): { count: number; total: number; note: string } {
     switch (id) {
       case "extraction":
-        return { count: candidates.length, total: candidates.length, note: "circuit/layout data per candidate" };
+        return { count: measuredCandidates.length, total: candidates.length, note: "evaluated candidates; inspect recorded artifacts" };
       case "topology":
         return pipelineCase.topology
           ? { count: 1, total: 1, note: `${pipelineCase.topology.has_macros ? "macro-heavy" : "std-cell only"}, ${pipelineCase.topology.sequential_element_estimate} flops` }
@@ -299,7 +296,7 @@ function ProcessStages({ pipelineCase }: { pipelineCase: PipelineCase }) {
         if (!flow) return { count: 0, total: candidates.length, note: "" };
         const survived = flow.entered - flow.lost;
         const note = id === "verification_ppa"
-          ? `${survived} of ${candidates.length} completed signoff`
+          ? `${survived} of ${measuredCandidates.length} completed signoff`
           : flow.lost > 0
             ? `${flow.lost} of ${flow.entered} stopped here`
             // "all 1 passed" reads badly; say what actually happened.
@@ -597,13 +594,63 @@ function QualityLine({ verdict }: { verdict: CandidateVerdict }) {
   );
 }
 
+type FailureRecovery = {
+  kind: "recovered" | "available";
+  label: string;
+  detail: string;
+};
+
+function dieAreaDimensions(value: unknown): string | null {
+  if (!Array.isArray(value) || value.length !== 4 ||
+      !value.every((coordinate) => typeof coordinate === "number")) return null;
+  const [x0, y0, x1, y1] = value as number[];
+  return `${x1 - x0} × ${y1 - y0} µm`;
+}
+
+// A failed row is only one step in a bounded repair chain. Older case files
+// predate per-candidate repair metadata, but their tags and overrides still
+// preserve the chain, so connect the original failure to the measured result
+// instead of leaving a large red log that looks terminal.
+function failureRecovery(
+  candidate: CandidateResult,
+  allCandidates: CandidateResult[]
+): FailureRecovery | null {
+  const error = candidate.error ?? "";
+  if (!error.includes("STA-0572") || !error.includes("core_area")) return null;
+
+  const descendants = allCandidates.filter(
+    (other) => other.tag.startsWith(`${candidate.tag}-iter`)
+  );
+  const passed = descendants.find((other) => other.verdict?.passed);
+  if (passed) {
+    const dimensions = dieAreaDimensions(passed.overrides.DIE_AREA);
+    return {
+      kind: "recovered",
+      label: "RECOVERED BY AUTO-REPAIR",
+      detail: `DIE_AREA grew${dimensions ? ` to ${dimensions}` : ""}; ${passed.tag} passed the full flow.`,
+    };
+  }
+
+  const proposed = descendants[0];
+  const dimensions = dieAreaDimensions(proposed?.overrides.DIE_AREA);
+  return {
+    kind: "available",
+    label: proposed ? "AUTO-REPAIR PROPOSED" : "REPAIR AVAILABLE",
+    detail: proposed
+      ? `The next iteration enlarges DIE_AREA${dimensions ? ` to ${dimensions}` : ""}.`
+      : "Increase DIE_AREA. Absolute floorplan margins leave no positive core at the current size.",
+  };
+}
+
 function CandidateRow({
   candidate,
+  allCandidates,
   caseFile,
   expanded,
   onToggle,
 }: {
   candidate: CandidateResult;
+  allCandidates: CandidateResult[];
   caseFile: string | null | undefined;
   expanded: boolean;
   onToggle: () => void;
@@ -648,15 +695,33 @@ function CandidateRow({
     </span>
   );
 
+  if (candidate.not_evaluated) {
+    return <tr><td>{candidate.tag}</td><td><span className="pill">NOT EVALUATED</span></td>
+      <td colSpan={3}>{candidate.budget_exhausted} · {t("evaluation_not_run")}
+        {candidate.screen_evaluation && <span> · screen {candidate.screen_evaluation.status} · {candidate.screen_evaluation.seconds.toFixed(2)} s</span>}
+      </td></tr>;
+  }
   if (candidate.error) {
+    const recovery = failureRecovery(candidate, allCandidates);
     return (
       <tr>
         <td>{candidate.tag}</td>
         <td>
           <span className="pill pill--critical">FAIL TO RUN</span>
         </td>
-        <td colSpan={2} className="pipeline__error-cell">
-          {candidate.error}
+        <td colSpan={3} className="pipeline__error-cell">
+          {recovery ? (
+            <>
+              <div className={`pipeline__recovery pipeline__recovery--${recovery.kind}`}>
+                <strong>{recovery.label}</strong>
+                <span>{recovery.detail}</span>
+              </div>
+              <details className="pipeline__raw-error">
+                <summary>original OpenLane error</summary>
+                <pre>{candidate.error}</pre>
+              </details>
+            </>
+          ) : candidate.error}
         </td>
         <td>
           {stageBadge}
@@ -1131,11 +1196,13 @@ function DesignGroupSection({
   defaultOpen,
   onApplied,
   focusDesign,
+  focusCase,
 }: {
   group: DesignGroup;
   defaultOpen: boolean;
   onApplied: () => void;
   focusDesign: string | null;
+  focusCase: string | null;
 }) {
   const { t } = useLang();
   const [open, setOpen] = useState(defaultOpen);
@@ -1177,7 +1244,8 @@ function DesignGroupSection({
               pipelineCase={c}
               defaultOpen={false}
               onApplied={onApplied}
-              focusDesign={focusDesign}
+              focusDesign={!focusCase && index === 0 ? focusDesign : null}
+              focusCase={focusCase}
             />
           ))}
         </div>
@@ -1211,11 +1279,13 @@ function CaseCard({
   defaultOpen,
   onApplied,
   focusDesign,
+  focusCase,
 }: {
   pipelineCase: PipelineCase;
   defaultOpen: boolean;
   onApplied: () => void;
   focusDesign: string | null;
+  focusCase: string | null;
 }) {
   const { t } = useLang();
   // Collapsed by default for all but the newest case. Measured problem
@@ -1231,15 +1301,17 @@ function CaseCard({
   // pointing at work without taking you to it is the scattering this
   // whole redesign is meant to remove.
   useEffect(() => {
-    if (focusDesign && focusDesign === pipelineCase.design) {
+    if ((focusDesign && focusDesign === pipelineCase.design) || (focusCase && focusCase === pipelineCase.file)) {
       setOpen(true);
       cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [focusDesign, pipelineCase.design]);
+  }, [focusDesign, focusCase, pipelineCase.design, pipelineCase.file]);
   const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
   const candidates = pipelineCase.iterations.flatMap((iteration) => iteration.results);
   const passed = candidates.filter((candidate) => candidate.verdict?.passed).length;
-  const failed = candidates.length - passed;
+  const deferred = candidates.filter(candidate => candidate.not_evaluated).length;
+  const screenedOnly = candidates.filter(candidate => candidate.not_evaluated && candidate.screen_evaluation).length;
+  const failed = candidates.length - deferred - passed;
   // Candidates blocked only because a signoff step never ran. They are
   // inside `failed`, but calling them "violated guardrails" is wrong —
   // nothing rejected them, nothing checked them. Counted so the note can
@@ -1251,9 +1323,17 @@ function CaseCard({
       candidate.verdict.violations.length === 0 &&
       (candidate.verdict.unverified?.length ?? 0) > 0
   ).length;
-  const chartData = candidates
-    .filter((candidate) => candidate.verdict?.area_um2 != null)
-    .map((candidate) => ({ name: candidate.tag, area: candidate.verdict?.area_um2 ?? 0, passed: Boolean(candidate.verdict?.passed) }));
+  const chartData = pipelineCase.iterations.flatMap((iteration) =>
+    iteration.results
+      .filter((candidate) => candidate.verdict?.area_um2 != null)
+      .map((candidate) => ({
+        name: candidate.tag,
+        area: candidate.verdict?.area_um2 ?? 0,
+        passed: Boolean(candidate.verdict?.passed),
+        winner: candidate.tag === pipelineCase.winner_tag,
+        iteration: iteration.iteration,
+      }))
+  );
 
   function toggle(tag: string) {
     setExpandedTags((prev) => {
@@ -1278,7 +1358,7 @@ function CaseCard({
             {pipelineCase.winner_tag ? "CLOSED" : "OPEN"}
           </span>
           <span className="pipeline__case-toggle-meta">
-            {candidates.length} {t("pipeline_case_candidates")} · {passed} PASS · {failed} FAIL
+            {candidates.length - deferred + screenedOnly} {t("pipeline_case_candidates")} · {passed} PASS · {failed} FAIL{deferred > 0 ? ` · ${deferred} NOT EVALUATED${screenedOnly ? ` (${screenedOnly} screen only)` : ""}` : ""}
           </span>
         </button>
       </div>
@@ -1287,6 +1367,11 @@ function CaseCard({
 
   return (
     <div className="panel" ref={cardRef}>
+      {pipelineCase.evaluation_budget && <p className="pipeline__note">
+        {t("evaluation_budget_label")} · {pipelineCase.evaluation_budget.started_evaluations} / {pipelineCase.evaluation_budget.limits.max_evaluations ?? "∞"}
+        {" · "}{pipelineCase.evaluation_budget.elapsed_seconds.toFixed(1)} s
+        {" · "}{pipelineCase.evaluation_budget.not_evaluated.length} NOT EVALUATED
+      </p>}
       <span className="panel__title">
         <button className="pipeline__case-collapse" onClick={() => setOpen(false)}>
           ▾
@@ -1306,7 +1391,7 @@ function CaseCard({
               </span>
             )}
           </div>
-          <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length} candidates</span></div>
+          <div className="metric-card"><span className="metric-card__label">search depth</span><strong className="metric-card__value">{pipelineCase.iterations.length}</strong><span className="metric-card__note">iterations · {candidates.length - deferred + screenedOnly} measured candidates{deferred > 0 ? ` · ${deferred} NOT EVALUATED` : ""}</span></div>
           <div className="metric-card metric-card--good"><span className="metric-card__label">passed</span><strong className="metric-card__value">{passed}</strong><span className="metric-card__note">verified candidates</span></div>
           <div className={`metric-card ${failed > 0 ? "metric-card--critical" : ""}`}><span className="metric-card__label">{unverified ? "not passed" : "rejected"}</span><strong className="metric-card__value">{failed}</strong><span className="metric-card__note">{unverified ? `${failed - unverified} rejected · ${unverified} never checked` : "failed or violated guardrails"}</span></div>
         </div>
@@ -1320,16 +1405,24 @@ function CaseCard({
         <ProcessStages pipelineCase={pipelineCase} />
         <AgentRolesLegend />
 
+        {candidates.map(c => c.verdict?.model_validity?.macro_arc_audit && (
+          <MacroModelCoverage key={c.tag} tag={c.tag} audit={c.verdict.model_validity.macro_arc_audit} />
+        ))}
+
         {pipelineCase.topology && <TopologySummary topology={pipelineCase.topology} />}
 
         <CaseLayoutImage pipelineCase={pipelineCase} />
 
         {chartData.length > 0 && (
           <div className="pipeline__chart">
-            <div className="tab__meta-label">candidate area comparison · lower is better</div>
-            <Suspense fallback={<div style={{ height: 220 }} />}>
-              <CandidateAreaChart data={chartData} />
-            </Suspense>
+            <div className="pipeline__chart-head">
+              <div>
+                <div className="tab__meta-label">candidate area comparison</div>
+                <strong>What size did each attempt achieve?</strong>
+              </div>
+              <span>Measured cell area · lower is better only after signoff passes</span>
+            </div>
+            <CandidateAreaChart data={chartData} />
           </div>
         )}
 
@@ -1375,6 +1468,7 @@ function CaseCard({
                   <CandidateRow
                     key={c.tag}
                     candidate={c}
+                    allCandidates={candidates}
                     caseFile={pipelineCase.file}
                     expanded={expandedTags.has(c.tag)}
                     onToggle={() => toggle(c.tag)}
@@ -1414,7 +1508,7 @@ function CaseCard({
 // real pipeline/orchestrator.py candidate-generation-and-auto-repair
 // loop spawns server-side against real OpenLane, and the panel polls
 // its live status until a new reference-db case shows up below.
-export default function PipelineTab() {
+export default function PipelineTab({ initialDesign = null, initialCase = null }: { initialDesign?: string | null; initialCase?: string | null }) {
   const { t } = useLang();
   const [cases, setCases] = useState<PipelineCase[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -1437,7 +1531,8 @@ export default function PipelineTab() {
   }, []);
 
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [focusDesign, setFocusDesign] = useState<string | null>(null);
+  const [focusDesign, setFocusDesign] = useState<string | null>(initialDesign);
+  const [focusCase, setFocusCase] = useState<string | null>(initialCase);
 
   useEffect(() => {
     let cancelled = false;
@@ -1490,6 +1585,7 @@ export default function PipelineTab() {
             // Re-set even if unchanged, so clicking the same design twice
             // scrolls back to it instead of doing nothing.
             setFocusDesign(null);
+            setFocusCase(null);
             window.setTimeout(() => setFocusDesign(d), 0);
           }}
           onRunStarted={loadCases}
@@ -1540,6 +1636,7 @@ export default function PipelineTab() {
           defaultOpen={index === 0}
           onApplied={loadCases}
           focusDesign={focusDesign}
+          focusCase={focusCase}
         />
       ))}
     </div>

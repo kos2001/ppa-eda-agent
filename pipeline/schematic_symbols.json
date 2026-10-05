@@ -1,0 +1,231 @@
+{
+  "version": "xschem 3.4.4",
+  "description": "Pin interface facts for built-in symbols when no local xschem library is installed. Symbol drawings are not copied. PDK and project symbols are read directly.",
+  "symbols": {
+    "devices/ipin.sym": {
+      "type": "ipin",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "out",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/ipin.sym",
+      "sha256": "9e77afac0a91598f1e372f1f4e2ef4732be12220940aca9ddeb4f699eb1a88cc",
+      "defaults": {
+        "name": "p1",
+        "lab": "xxx"
+      }
+    },
+    "devices/opin.sym": {
+      "type": "opin",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "in",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/opin.sym",
+      "sha256": "4ea23d3f559ad26c3c8b4255483ed3789b157a04c539749b14277dfc267a24c5",
+      "defaults": {
+        "name": "p1",
+        "lab": "xxx"
+      }
+    },
+    "devices/iopin.sym": {
+      "type": "iopin",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/iopin.sym",
+      "sha256": "462c6dde4057a63c3105336cf5b0c6b905ac8a959a61fc0735259f5a5fae0ab5",
+      "defaults": {
+        "name": "p1",
+        "lab": "xxx"
+      }
+    },
+    "devices/lab_pin.sym": {
+      "type": "label",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "in",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/lab_pin.sym",
+      "sha256": "cee341b41b4fa5cfbbd4bba8645d4b54b23147ca1400a5c082a8a93742744a78",
+      "defaults": {
+        "name": "p1",
+        "sig_type": "std_logic",
+        "lab": "xxx"
+      }
+    },
+    "devices/lab_wire.sym": {
+      "type": "label",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "in",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/lab_wire.sym",
+      "sha256": "acd8114bb93907e0e9132ab7f69a6f94d6fc10a1da88c11c9975144885ce210c",
+      "defaults": {
+        "name": "p1",
+        "sig_type": "std_logic",
+        "lab": "xxx"
+      }
+    },
+    "devices/gnd.sym": {
+      "type": "label",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/gnd.sym",
+      "sha256": "3bd6a0818e3c53d271541813784d29fcd7c9e4d0ec9124df7678fd391e8f03f5",
+      "defaults": {
+        "name": "l1",
+        "lab": "GND"
+      }
+    },
+    "devices/vsource.sym": {
+      "type": "vsource",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "inout",
+          "x": 0.0,
+          "y": -30.0
+        },
+        {
+          "name": "m",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 30.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/vsource.sym",
+      "sha256": "157991f788870354c3675771fa3321a2a9e8969535c873352917d5ee4c951936",
+      "defaults": {
+        "name": "V1",
+        "value": "3",
+        "savecurrent": "false"
+      }
+    },
+    "devices/capa.sym": {
+      "type": "capacitor",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "inout",
+          "x": 0.0,
+          "y": -30.0
+        },
+        {
+          "name": "m",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 30.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/capa.sym",
+      "sha256": "47c0e324f10940ccc8a03d70bb924f22f29639268e728fe6d353f255e7578fb8",
+      "defaults": {
+        "name": "C1",
+        "m": "1",
+        "value": "1p",
+        "footprint": "1206",
+        "device": "\\"
+      }
+    },
+    "devices/code.sym": {
+      "type": "",
+      "pins": [],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/code.sym",
+      "sha256": "7b6e2ebf18ceafed70d4cd7c9835286bea97b35b381db936b7c0c77a0805fef1"
+    },
+    "devices/res.sym": {
+      "type": "resistor",
+      "pins": [
+        {
+          "name": "P",
+          "direction": "inout",
+          "x": 0.0,
+          "y": -30.0
+        },
+        {
+          "name": "M",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 30.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/res.sym",
+      "sha256": "212a3c296804ccbc7907253693f1db7fd1c9427945a23b3c44166e0456ee29c8",
+      "defaults": {
+        "name": "R1",
+        "value": "1k",
+        "footprint": "1206",
+        "device": "resistor",
+        "m": "1"
+      }
+    },
+    "devices/isource.sym": {
+      "type": "isource",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "inout",
+          "x": 0.0,
+          "y": -30.0
+        },
+        {
+          "name": "m",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 30.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/isource.sym",
+      "sha256": "91a9f3685583d76257443a1370b6e33a1bbb3e07d1493eb0c9d09f848f51da21",
+      "defaults": {
+        "name": "I0",
+        "value": "1m"
+      }
+    },
+    "devices/noconn.sym": {
+      "type": "noconn",
+      "pins": [
+        {
+          "name": "p",
+          "direction": "inout",
+          "x": 0.0,
+          "y": 0.0
+        }
+      ],
+      "source": "https://raw.githubusercontent.com/StefanSchippers/xschem/3.4.4/xschem_library/devices/noconn.sym",
+      "sha256": "3db654ea705fd51b11d507d5aaacbe05890258360ba6bc256bfbe97f7884beba",
+      "defaults": {
+        "name": "l1"
+      }
+    }
+  }
+}

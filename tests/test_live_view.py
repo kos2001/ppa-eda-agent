@@ -317,6 +317,33 @@ class TestRender(unittest.TestCase):
 
 
 class TestEvents(unittest.TestCase):
+    def test_reverse_scan_handles_long_utf8_lines_and_no_final_newline(self):
+        with tempfile.TemporaryDirectory() as t:
+            path = live_events.events_path(t)
+            events = [{"type": "run_start"}, {"type": "repair", "reason": "한글" * 40000}]
+            path.write_text("\n".join(json.dumps(e, ensure_ascii=False) for e in events), encoding="utf-8")
+            self.assertEqual(live_events.read(t), events)
+
+    def test_old_history_is_not_read_after_latest_start(self):
+        from unittest.mock import patch
+        import builtins
+        with tempfile.TemporaryDirectory() as t:
+            path = live_events.events_path(t)
+            path.write_bytes(b'{"type":"old"}\n' * 100000)
+            live_events.emit(t, "run_start")
+            live_events.emit(t, "stop")
+            with builtins.open(path, "rb") as file:
+                with patch("builtins.open", return_value=file), patch.object(file, "read", wraps=file.read) as reads:
+                    got = live_events.read(t)
+                    self.assertEqual([e["type"] for e in got], ["run_start", "stop"])
+                    self.assertEqual(reads.call_count, 1)
+                    self.assertEqual(reads.call_args.args, (64 * 1024,))
+
+    def test_no_start_and_invalid_utf8_are_handled(self):
+        with tempfile.TemporaryDirectory() as t:
+            live_events.events_path(t).write_bytes(b'{"type":"first"}\n\xff\n[]\n{"type":"last"}\n')
+            self.assertEqual([e["type"] for e in live_events.read(t)], ["first", "last"])
+
     def test_events_round_trip_and_only_the_latest_run_is_returned(self):
         with tempfile.TemporaryDirectory() as t:
             live_events.emit(t, "run_start", n=1)

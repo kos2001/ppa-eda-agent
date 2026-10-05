@@ -22,7 +22,11 @@ def concrete_cell_script(script):
 
 def flow_class():
     from openlane.flows import Flow
-    from openlane.steps import Magic
+    from openlane.steps import Magic, OpenROAD
+    try:
+        from .macro_input_audit import sta_step
+    except ImportError:  # Direct /flows/macro_signoff.py container entrypoint.
+        from macro_input_audit import sta_step
 
     class ConcreteCellDRC(Magic.DRC):
         # Preserve the step id so Classic's flow controls and reports apply.
@@ -50,9 +54,11 @@ def flow_class():
             return views, metrics
 
     classic = Flow.factory.get("Classic")
+    audited_sta = sta_step(OpenROAD.STAPostPNR)
 
     class MacroSignoff(classic):
-        Steps = [ConcreteCellDRC if step.id == "Magic.DRC" else step
+        Steps = [ConcreteCellDRC if step.id == "Magic.DRC" else
+                 audited_sta if step.id == "OpenROAD.STAPostPNR" else step
                  for step in classic.Steps]
 
     return MacroSignoff

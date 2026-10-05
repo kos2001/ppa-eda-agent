@@ -1,0 +1,4 @@
+# Preserve upstream patch context and simulator-produced evidence byte for byte.
+pipeline/designs/sram_wrapper/characterization/ngspice-bin-index/*.patch -whitespace
+pipeline/designs/sram_wrapper/characterization/ngspice-vector-selection/evidence/*.log -whitespace
+pipeline/designs/sram_wrapper/experiments/evidence-20261004/characterization-algorithm/** -whitespace

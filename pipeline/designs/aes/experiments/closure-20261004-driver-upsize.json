@@ -1,0 +1,37 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-closure-20261004-driver-upsize",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\":8,\"_09030_\":8,\"net395\":14,\"net628\":14,\"net647\":14,\"net747\":14,\"net1048\":14,\"net1303\":14,\"net901\":14}",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"fanout901\":\"sky130_fd_sc_hd__buf_8\",\"_20258_\":\"sky130_fd_sc_hd__o2bb2ai_4\"}"
+      },
+      "flow": "FanoutRepair"
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Jointly up-size the two final measured driver families and reserve physical headroom on the newly measured net901; retain constraints and audit final extracted STA",
+    "reference": "targeted14-r2 naming-corrected STA: fanout901/X fanout17, _20258_/Y capacitance0.082692pF limit0.079661pF, slew1.531394ns; 14 slew,1 cap,1 fanout and8 antenna violations"
+  },
+  "_why": "One full-flow corrective budget. The same-function buf4->buf8 and o2bb2ai2->o2bb2ai4 swaps are independently checked against actual SS Liberty functions and original OpenDB pin connectivity. Net and instance names remain distinct."
+}

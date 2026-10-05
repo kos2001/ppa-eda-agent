@@ -535,14 +535,18 @@ def _tool_orchestrate(args: dict) -> dict:
     run_spec_path = design_dir / "run_spec.json"
     run_spec = json.loads(run_spec_path.read_text(encoding="utf-8"))
     design_name = run_spec.get("design_name", args["design"])
-    max_iterations = args.get("max_iterations") or run_spec.get("max_iterations", 3)
+    max_iterations = (args["max_iterations"] if args.get("max_iterations") is not None
+                      else run_spec.get("max_iterations", 3))
     max_parallel = max(1, args.get("max_parallel", 1))
+    search_plan = orchestrator.validate_run_plan(run_spec, max_iterations)
 
-    all_iterations, winner, stop_reason, _exploration = orchestrator.orchestrate(
+    all_iterations, winner, stop_reason, exploration = orchestrator.orchestrate(
         design_dir, run_spec, max_iterations, max_parallel
     )
 
-    case_file = orchestrator.write_case(design_name, design_dir, all_iterations, winner, stop_reason)
+    case_file = orchestrator.write_case(
+        design_name, design_dir, all_iterations, winner, stop_reason,
+        exploration=exploration, search_plan=search_plan)
     return {
         "winner_tag": winner["tag"] if winner else None,
         "iterations_run": len(all_iterations),

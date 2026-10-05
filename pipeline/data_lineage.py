@@ -83,19 +83,22 @@ def stored(rows: list[dict] | None = None) -> dict:
     cases_dir = REFDB / "cases"
     files = sorted(cases_dir.glob("*.json")) if cases_dir.is_dir() else []
     raw = 0
+    excluded = 0
     for path in files:
         try:
             case = case_store.load_light(path)
         except (OSError, json.JSONDecodeError):
             continue
-        raw += sum(len(it.get("results", []))
-                   for it in case.get("iterations", []))
+        results = [result for it in case.get("iterations", []) for result in it.get("results", [])]
+        raw += len(results)
+        excluded += sum(result.get("flow") in {"FanoutRepair", "MacroFanoutRepair"} for result in results)
     deduped = len(surrogate.load_dataset() if rows is None else rows)
     return {
         "case_files": len(files),
         "recorded_runs": raw,
         "distinct_samples": deduped,
-        "collapsed_by_dedup": raw - deduped,
+        "collapsed_by_dedup": raw - excluded - deduped,
+        "excluded_unsupported_flows": excluded,
         "dedup_key": ["design", "overrides", "scl", "pdk"],
         "layouts": len(list((REFDB / "layouts").glob("*.png")))
         if (REFDB / "layouts").is_dir() else 0,
