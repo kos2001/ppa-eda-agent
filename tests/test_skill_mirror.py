@@ -17,8 +17,13 @@ MIRROR = ROOT / ".claude" / "skills" / "ppa-eda-flow"
 
 
 def files(root: Path) -> dict[str, bytes]:
+    # Hidden files and bytecode are local litter (Finder's .DS_Store,
+    # __pycache__), never skill content; counting them fails the test on
+    # a machine where nothing tracked differs.
     return {p.relative_to(root).as_posix(): p.read_bytes()
-            for p in sorted(root.rglob("*")) if p.is_file()}
+            for p in sorted(root.rglob("*")) if p.is_file()
+            and not any(part.startswith(".") or part == "__pycache__"
+                        for part in p.relative_to(root).parts)}
 
 
 class SkillMirrorTests(unittest.TestCase):
