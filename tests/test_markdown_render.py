@@ -316,8 +316,15 @@ class ParserTests(unittest.TestCase):
         # The point of the change. The whole document is ~140 lines; if
         # one section still held most of them, the rail would only have
         # moved the scrolling rather than removed it.
-        biggest = max(s["lines"] for s in self.got["sections"])
-        self.assertLess(biggest, self.got["total"] * 0.8,
+        #
+        # Lines against lines. `total` is the number of parsed blocks, and
+        # a section's `lines` counts every rendered line (a 20-line code
+        # fence is 20, see test_a_line_count_counts_lines_not_blocks), so
+        # comparing the two failed as soon as the largest request carried
+        # a long precedent block: 43 lines "not less than" 50 blocks x 0.8,
+        # in a document of 100 lines.
+        lines = [s["lines"] for s in self.got["sections"]]
+        self.assertLess(max(lines), sum(lines) * 0.8,
                         "one section still holds most of the document")
 
     def test_sections_advertise_what_is_inside_them(self):
