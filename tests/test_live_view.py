@@ -194,11 +194,41 @@ class TestSnapshot(unittest.TestCase):
             self.assertEqual(s["finished"]["setup_ws"], 1.8)  # worst corner
 
     def test_an_error_log_on_a_run_that_went_quiet_means_failed(self):
+        """Host cannot say whether the process is alive: a long silence decides."""
         with tempfile.TemporaryDirectory() as t:
             run = make_run(Path(t), [("openroad-cts", CTS, "")], error="[RSZ-0060] Max buffer count reached.\n")
-            s = live_view.run_snapshot(run, time.time() + live_view.FAIL_IDLE_S + 5)
+            saved = live_view.process_alive
+            live_view.process_alive = lambda r: None
+            try:
+                s = live_view.run_snapshot(run, time.time() + live_view.FAIL_IDLE_S + 5)
+            finally:
+                live_view.process_alive = saved
             self.assertEqual(s["status"], "failed")
             self.assertIn("RSZ-0060", s["error"])
+
+    def test_a_live_process_is_never_called_failed_however_quiet(self):
+        """A KLayout DRC step under load average 36 went quiet for longer than
+        the old 20 s threshold and a healthy run was painted failed - twice."""
+        with tempfile.TemporaryDirectory() as t:
+            run = make_run(Path(t), [("klayout-drc", "", "")], error='Error while reading cell "x"\n')
+            saved = live_view.process_alive
+            live_view.process_alive = lambda r: True
+            try:
+                s = live_view.run_snapshot(run, time.time() + 3000)
+            finally:
+                live_view.process_alive = saved
+            self.assertNotEqual(s["status"], "failed")
+
+    def test_a_dead_process_with_an_error_log_is_failed_at_once(self):
+        with tempfile.TemporaryDirectory() as t:
+            run = make_run(Path(t), [("openroad-cts", CTS, "")], error="[RSZ-0060] Max buffer count reached.\n")
+            saved = live_view.process_alive
+            live_view.process_alive = lambda r: False
+            try:
+                s = live_view.run_snapshot(run, time.time())  # no idle at all
+            finally:
+                live_view.process_alive = saved
+            self.assertEqual(s["status"], "failed")
 
     def test_an_error_log_on_a_run_still_moving_is_not_failure(self):
         """A successful sram_wrapper run leaves 5 KB of KLayout read errors in
@@ -207,9 +237,20 @@ class TestSnapshot(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             run = make_run(Path(t), [("openroad-cts", CTS, "")],
                            error='Error while reading cell "x": Unknown layer/datatype\n')
-            s = live_view.run_snapshot(run, time.time())
+            saved = live_view.process_alive
+            live_view.process_alive = lambda r: None
+            try:
+                s = live_view.run_snapshot(run, time.time())
+            finally:
+                live_view.process_alive = saved
             self.assertEqual(s["status"], "running")
             self.assertGreater(s["tool_errors"], 0)
+
+    def test_process_alive_is_none_or_a_bool_for_a_directory_nothing_runs(self):
+        with tempfile.TemporaryDirectory() as t:
+            run = Path(t) / "runs" / "nothing-here"
+            run.mkdir(parents=True)
+            self.assertIn(live_view.process_alive(run), (None, False))
 
     def test_a_finished_run_with_an_error_log_is_done(self):
         with tempfile.TemporaryDirectory() as t:

@@ -1,0 +1,250 @@
+[
+ {
+  "name": "shipped",
+  "die": [
+   0,
+   0,
+   700,
+   700
+  ],
+  "loc": [
+   110,
+   150
+  ],
+  "orient": "N",
+  "seconds": 462.7,
+  "crashed": false,
+  "error": null,
+  "max_slew": 16,
+  "max_fanout": 18,
+  "max_cap": 0,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "wirelength": 20688,
+  "vias": 2250,
+  "setup_ws": 9.264176354935646,
+  "hold_ws": 0.1238403858957707,
+  "core_area": 466389,
+  "violations": [
+   "16 max-slew (DRV) violation(s)",
+   "18 max-fanout (DRV) violation(s)"
+  ]
+ },
+ {
+  "name": "big-my",
+  "die": [
+   0,
+   0,
+   700,
+   700
+  ],
+  "loc": [
+   110,
+   150
+  ],
+  "orient": "MY",
+  "seconds": 417.5,
+  "crashed": false,
+  "error": null,
+  "max_slew": 21,
+  "max_fanout": 18,
+  "max_cap": 31,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "wirelength": 36489,
+  "vias": 2740,
+  "setup_ws": 9.162430185010901,
+  "hold_ws": 0.1585986942222549,
+  "core_area": 466389,
+  "violations": [
+   "21 max-slew (DRV) violation(s)",
+   "31 max-capacitance (DRV) violation(s)",
+   "18 max-fanout (DRV) violation(s)"
+  ]
+ },
+ {
+  "name": "big-mx",
+  "die": [
+   0,
+   0,
+   700,
+   700
+  ],
+  "loc": [
+   110,
+   150
+  ],
+  "orient": "MX",
+  "seconds": 463.3,
+  "crashed": false,
+  "error": null,
+  "max_slew": 28,
+  "max_fanout": 18,
+  "max_cap": 61,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "wirelength": 83219,
+  "vias": 3233,
+  "setup_ws": 7.965247353811102,
+  "hold_ws": 0.17472024321878532,
+  "core_area": 466389,
+  "violations": [
+   "1 routing antenna violation(s)",
+   "28 max-slew (DRV) violation(s)",
+   "61 max-capacitance (DRV) violation(s)",
+   "18 max-fanout (DRV) violation(s)"
+  ]
+ },
+ {
+  "name": "big-s",
+  "die": [
+   0,
+   0,
+   700,
+   700
+  ],
+  "loc": [
+   110,
+   150
+  ],
+  "orient": "S",
+  "seconds": 278.1,
+  "crashed": false,
+  "error": null,
+  "max_slew": 254,
+  "max_fanout": 19,
+  "max_cap": 37,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "wirelength": 106302,
+  "vias": 3872,
+  "setup_ws": 8.223770341923165,
+  "hold_ws": 0.22346225502511935,
+  "core_area": 466389,
+  "violations": [
+   "254 max-slew (DRV) violation(s)",
+   "37 max-capacitance (DRV) violation(s)",
+   "19 max-fanout (DRV) violation(s)"
+  ]
+ },
+ {
+  "name": "compact-n",
+  "die": [
+   0,
+   0,
+   540,
+   458
+  ],
+  "loc": [
+   30.0,
+   30.0
+  ],
+  "orient": "N",
+  "seconds": 172.7,
+  "crashed": true,
+  "error": "es/openlane/flows/sequential.py\", line 354, in run\n    raise FlowError(\nopenlane.flows.flow.FlowError: One or more deferred errors were encountered:\n5692 Magic DRC errors found.\n753 LVS errors found.\n",
+  "max_slew": null,
+  "max_fanout": null,
+  "max_cap": null,
+  "drc_magic": null,
+  "drc_klayout": null,
+  "lvs": null,
+  "wirelength": null,
+  "vias": null,
+  "setup_ws": null,
+  "hold_ws": null,
+  "core_area": null,
+  "violations": []
+ },
+ {
+  "name": "compact-my",
+  "die": [
+   0,
+   0,
+   540,
+   458
+  ],
+  "loc": [
+   30.0,
+   30.0
+  ],
+  "orient": "MY",
+  "seconds": 35.7,
+  "crashed": true,
+  "error": "se FlowError(str(e)) from None\nopenlane.flows.flow.FlowError: OpenROAD.GlobalRouting failed with the following errors:\n[GRT-0118] Routing congestion too high. Check the congestion heatmap in the GUI.\n",
+  "max_slew": null,
+  "max_fanout": null,
+  "max_cap": null,
+  "drc_magic": null,
+  "drc_klayout": null,
+  "lvs": null,
+  "wirelength": null,
+  "vias": null,
+  "setup_ws": null,
+  "hold_ws": null,
+  "core_area": null,
+  "violations": []
+ },
+ {
+  "name": "compact-mx",
+  "die": [
+   0,
+   0,
+   540,
+   458
+  ],
+  "loc": [
+   30.0,
+   30.0
+  ],
+  "orient": "MX",
+  "seconds": 168.4,
+  "crashed": true,
+  "error": "es/openlane/flows/sequential.py\", line 354, in run\n    raise FlowError(\nopenlane.flows.flow.FlowError: One or more deferred errors were encountered:\n5954 Magic DRC errors found.\n776 LVS errors found.\n",
+  "max_slew": null,
+  "max_fanout": null,
+  "max_cap": null,
+  "drc_magic": null,
+  "drc_klayout": null,
+  "lvs": null,
+  "wirelength": null,
+  "vias": null,
+  "setup_ws": null,
+  "hold_ws": null,
+  "core_area": null,
+  "violations": []
+ },
+ {
+  "name": "compact-s",
+  "die": [
+   0,
+   0,
+   540,
+   458
+  ],
+  "loc": [
+   30.0,
+   30.0
+  ],
+  "orient": "S",
+  "seconds": 29.9,
+  "crashed": true,
+  "error": "se FlowError(str(e)) from None\nopenlane.flows.flow.FlowError: OpenROAD.GlobalRouting failed with the following errors:\n[GRT-0118] Routing congestion too high. Check the congestion heatmap in the GUI.\n",
+  "max_slew": null,
+  "max_fanout": null,
+  "max_cap": null,
+  "drc_magic": null,
+  "drc_klayout": null,
+  "lvs": null,
+  "wirelength": null,
+  "vias": null,
+  "setup_ws": null,
+  "hold_ws": null,
+  "core_area": null,
+  "violations": []
+ }
+]
