@@ -254,8 +254,14 @@ class TestVerifyDiagnosisGrounding(unittest.TestCase):
         self.assertEqual(report["cited_candidate_tags"], [])
 
     KNOWN = {"aes": {"aes-closure-20261004-baseline", "c-hd-clock_period6"},
-             "gcd": {"c-gf180mcu_7t-clock_period12"},
-             "x": {"data-die-0-0-40-40", "hs-area0"}}
+             "gcd": {"c-gf180mcu_7t-clock_period12", "sky130-hd", "gf180-7t"},
+             "x": {"data-die-0-0-40-40", "hs-area0"},
+             "y": {"2026-10-05-retry", "c-2", "I-2"}}
+
+    def _aes(self, prose):
+        case = _case(design="aes", diagnosis=prose, iterations=[{"iteration": 1,
+                     "results": [{"tag": "aes-closure-20261004-baseline", "error": ""}]}])
+        return verify_diagnosis.verify_case(case, self.KNOWN)
 
     def test_a_real_tag_outside_cand_and_sweep_is_checked(self):
         """Most recorded tags are not `cand-`/`sweep-`. Before, a
@@ -307,6 +313,43 @@ class TestVerifyDiagnosisGrounding(unittest.TestCase):
                      "hs-library experiment.", iterations=[])
         report = verify_diagnosis.verify_case(case, self.KNOWN)
         self.assertEqual(report["cited_candidate_tags"], [])
+
+    def test_another_designs_date_shaped_tag_does_not_make_dates_tags(self):
+        """Review of #59: prefixes came from every design, so one case
+        elsewhere tagged `2026-10-05-retry` turned the dates in 19
+        committed diagnoses into ungrounded tags. Only this design's
+        prefixes are used, and none may start with a digit."""
+        report = self._aes("Rerun on 2026-10-04 and again 2026-08-30T13.")
+        self.assertEqual(report["cited_candidate_tags"], [])
+
+    def test_technology_names_are_prose(self):
+        """Review of #59: `gf180-only`, `sky130-hd`, `c-2` were flagged.
+        A digit must follow the prefix, one-letter prefixes are not
+        prefixes, and another design's two-part tag reads as a name."""
+        report = self._aes("Unlike the sky130-based flow, gf180-only cells; "
+                           "the sky130-hd and gf180-7t libraries; a c-2 element, I-2.")
+        self.assertEqual(report["ungrounded_candidate_tags"], [])
+
+    def test_a_tag_with_a_korean_particle_is_checked(self):
+        """`\\w` matches Hangul, so `...-r9는` was never a token."""
+        report = self._aes("aes-closure-20261004-r9는 타이밍을 만족했다.")
+        self.assertEqual(report["ungrounded_candidate_tags"], ["aes-closure-20261004-r9"])
+
+    def test_a_tag_inside_a_run_path_is_checked(self):
+        report = self._aes("See runs/aes-closure-20261004-r9/final/metrics.json.")
+        self.assertEqual(report["ungrounded_candidate_tags"], ["aes-closure-20261004-r9"])
+
+    def test_a_file_named_after_a_real_tag_cites_that_tag(self):
+        report = self._aes("aes-closure-20261004-baseline.log shows the hold fix.")
+        self.assertEqual(report["cited_candidate_tags"], ["aes-closure-20261004-baseline"])
+        self.assertEqual(report["ungrounded_candidate_tags"], [])
+
+    def test_an_unreadable_index_yields_no_tags_not_an_exception(self):
+        """An index caught mid-write must not stop a review being applied."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            (pathlib.Path(tmp) / "index.json").write_text('{"aes": [')
+            self.assertEqual(verify_diagnosis.recorded_tags(tmp), {})
 
     def test_review_summaries_are_checked_too(self):
         """Subagent review text is agent-written prose exactly like the
