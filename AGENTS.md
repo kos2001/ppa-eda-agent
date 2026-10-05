@@ -14,6 +14,10 @@ evidence, not as a prompt to fill gaps with plausible values.
   checking design, PDK, standard-cell library, and toolchain provenance.
 - `.codex/skills/ppa-eda-flow/SKILL.md` is the workflow for planning, running,
   and reviewing experiments. The specialist prompts live in `.claude/agents/`.
+  Claude Code reads the identical copy in `.claude/skills/ppa-eda-flow/`. Edit
+  the `.codex` source, then replace the copy with
+  `rm -rf .claude/skills/ppa-eda-flow && cp -R .codex/skills/ppa-eda-flow
+  .claude/skills/`; `tests/test_skill_mirror.py` fails when the two differ.
 
 ## Evidence rules
 
