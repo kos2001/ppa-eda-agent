@@ -31,8 +31,12 @@ and review-adjudicator subagents (.claude/agents/). The gates here are
 content-blind on purpose — a regex that judged physics would be worse
 than none (see verify_diagnosis's own docstring):
 
-  - inputs unchanged: the request, the case snapshot and every answer
-    hash as they did at init, so a session cannot edit what it judges;
+  - inputs unchanged: the request, the case snapshot, the run inventory
+    and every answer hash as they did at init. The hashes live in
+    manifest.json, inside the workspace the sessions can write, so the
+    manifest's own digest is printed at init and `apply` requires it
+    back (`--manifest-sha256`): rewriting an answer and its hash
+    together is caught there, not trusted;
   - records well-formed: no verdict without a named check, no broken
     consensus without the contradiction quoted, no work item without
     evidence, every open question carries two readings;
@@ -40,7 +44,11 @@ than none (see verify_diagnosis's own docstring):
     so "unknown" survives into the case instead of being decided by
     omission;
   - same evidence: the case's recorded iterations still match the
-    snapshot the sessions read, and it is still the design's latest case.
+    snapshot the sessions read, it is still the design's latest case and
+    still has no winner;
+  - once: a workspace enters a case one time. The case itself records
+    the manifest digest it applied, so a retried or repeated `apply`
+    is refused rather than appended twice.
 
 Usage:
     python3 review_verify.py init --design aes \\
@@ -48,8 +56,8 @@ Usage:
         --rollout feedback-optimizer=/tmp/r2.md
     # dispatch review-resolver and review-challenger (concurrently, each
     # on the printed workspace), then review-adjudicator.
-    python3 review_verify.py check --workspace <dir>
-    python3 review_verify.py apply --workspace <dir>
+    python3 review_verify.py check --workspace <dir> --manifest-sha256 <digest>
+    python3 review_verify.py apply --workspace <dir> --manifest-sha256 <digest>
 """
 from __future__ import annotations
 
@@ -67,6 +75,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PROMPTS = Path(__file__).resolve().parent / "review_prompts"
 PROMPT_FILES = ("CHARTER.md", "RESOLVE.md", "CHALLENGE.md", "ADJUDICATE.md")
 MIN_ROLLOUTS = 2
+
+
+def read_text(path: Path) -> str:
+    """UTF-8, with or without a BOM (PowerShell 5 writes one). Anything
+    else raises UnicodeDecodeError for the caller to report."""
+    return path.read_text(encoding="utf-8-sig")
 
 
 def sha256_bytes(data: bytes) -> str:
@@ -190,7 +204,10 @@ def init_workspace(design: str, rollouts: list[tuple[str, Path]], root: Path,
     answers = []
     seen = {}
     for agent, path in rollouts:
-        text = path.read_text(encoding="utf-8").strip()
+        try:
+            text = read_text(path).strip()
+        except UnicodeDecodeError as e:
+            raise SystemExit(f"answer {path} is not UTF-8: {e}")
         if not text:
             raise SystemExit(f"answer {path} is empty")
         digest = sha256_bytes(text.encode("utf-8"))
@@ -204,9 +221,21 @@ def init_workspace(design: str, rollouts: list[tuple[str, Path]], root: Path,
 
     workspace = root / case_file.stem
     if workspace.exists():
-        raise SystemExit(f"{workspace} already exists; apply or remove it "
-                         f"before verifying this case again")
+        raise SystemExit(f"{workspace} already exists; remove it before "
+                         f"verifying this case again")
 
+    try:
+        _materialize(workspace, design, case_file, case, request, answers)
+    except BaseException:
+        # A half-built workspace would make every retry fail "already
+        # exists" with nothing to apply.
+        shutil.rmtree(workspace, ignore_errors=True)
+        raise
+    return workspace
+
+
+def _materialize(workspace: Path, design: str, case_file: Path, case: dict,
+                 request: Path, answers: list) -> None:
     (workspace / "spec").mkdir(parents=True)
     (workspace / "workspace").mkdir()
     (workspace / "out").mkdir()
@@ -238,6 +267,7 @@ def init_workspace(design: str, rollouts: list[tuple[str, Path]], root: Path,
         "case_iterations_sha256": sha256_bytes(_json_bytes(case.get("iterations", []))),
         "request_sha256": sha256_file(workspace / "spec" / "request.md"),
         "snapshot_sha256": sha256_file(workspace / "workspace" / "case.json"),
+        "runs_sha256": sha256_file(workspace / "workspace" / "runs.json"),
         "runs_total": len(runs),
         "runs_present": sum(1 for r in runs if r["exists"]),
         "runs_archived": sum(1 for r in runs if r["archived"]),
@@ -247,7 +277,10 @@ def init_workspace(design: str, rollouts: list[tuple[str, Path]], root: Path,
     (workspace / "manifest.json").write_text(
         json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
     (workspace / "MISSION.md").write_text(mission_text(manifest), encoding="utf-8")
-    return workspace
+
+
+def manifest_digest(workspace: Path) -> str:
+    return sha256_file(workspace / "manifest.json")
 
 
 def _text(entry: dict, key: str) -> bool:
@@ -259,7 +292,10 @@ def _load(path: Path, problems: list[str]):
         problems.append(f"{path.name} is missing")
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return json.loads(read_text(path))
+    except UnicodeDecodeError as e:
+        problems.append(f"{path.name} is not UTF-8: {e}")
+        return None
     except json.JSONDecodeError as e:
         problems.append(f"{path.name} is not valid JSON: {e}")
         return None
@@ -285,7 +321,8 @@ def check_elim(ledger, problems: list[str]) -> None:
         for key in ("question", "checked", "found", "verdict"):
             if not _text(row, key):
                 problems.append(f"{where}: '{key}' is empty")
-        if (_text(row, "checked") and row["checked"].strip().lower() == "nothing"
+        if (_text(row, "checked")
+                and row["checked"].strip().lower().startswith("nothing")
                 and not unsettled(row)):
             problems.append(f"{where}: a verdict with nothing checked "
                             f"must be 'cannot tell'")
@@ -317,7 +354,8 @@ def check_finish(finish, names: set[str], problems: list[str]) -> list[dict]:
     if not isinstance(finish, dict):
         problems.append("finish.json: not an object")
         return []
-    if finish.get("base") not in names | {"none"}:
+    base = finish.get("base")
+    if not isinstance(base, str) or base not in names | {"none"}:
         problems.append(f"finish.json: base '{finish.get('base')}' is not a "
                         f"candidate ({', '.join(sorted(names))}) or 'none'")
     work = finish.get("work")
@@ -346,15 +384,24 @@ def check_finish(finish, names: set[str], problems: list[str]) -> list[dict]:
     return [o for o in open_items if isinstance(o, dict) and _text(o, "item")]
 
 
-def check_workspace(workspace: Path) -> list[str]:
-    """Every reason the workspace is not ready to apply; empty when it is."""
+def check_workspace(workspace: Path, manifest_sha256: str | None = None) -> list[str]:
+    """Every reason the workspace is not ready to apply; empty when it is.
+
+    Without `manifest_sha256` the input hashes are compared with a
+    manifest the sessions could have rewritten; `apply` always passes it."""
     problems: list[str] = []
     manifest = _load(workspace / "manifest.json", problems)
     if manifest is None:
         return problems
+    if manifest_sha256 is not None and manifest_digest(workspace) != manifest_sha256:
+        problems.append("manifest.json differs from the digest printed at init; "
+                        "the recorded input hashes cannot be trusted")
+    if (workspace / "applied.json").exists():
+        problems.append("this workspace was already applied (applied.json)")
 
     inputs = [(workspace / "spec" / "request.md", manifest.get("request_sha256")),
-              (workspace / "workspace" / "case.json", manifest.get("snapshot_sha256"))]
+              (workspace / "workspace" / "case.json", manifest.get("snapshot_sha256")),
+              (workspace / "workspace" / "runs.json", manifest.get("runs_sha256"))]
     inputs += [(workspace / "rollouts" / r["name"] / "response.md", r["sha256"])
                for r in manifest.get("rollouts", [])]
     for path, expected in inputs:
@@ -378,7 +425,11 @@ def check_workspace(workspace: Path) -> list[str]:
         open_items = check_finish(finish, names, problems)
 
     diagnosis = workspace / "out" / "diagnosis.md"
-    text = diagnosis.read_text(encoding="utf-8") if diagnosis.is_file() else ""
+    try:
+        text = read_text(diagnosis) if diagnosis.is_file() else ""
+    except UnicodeDecodeError as e:
+        problems.append(f"out/diagnosis.md is not UTF-8: {e}")
+        return problems
     if not text.strip():
         problems.append("out/diagnosis.md is missing or empty")
     else:
@@ -390,15 +441,16 @@ def check_workspace(workspace: Path) -> list[str]:
 
 
 def verification_record(workspace: Path, manifest: dict) -> dict:
-    elim = json.loads((workspace / "ledger_elim.json").read_text(encoding="utf-8"))
-    fals = json.loads((workspace / "ledger_fals.json").read_text(encoding="utf-8"))
-    finish = json.loads((workspace / "finish.json").read_text(encoding="utf-8"))
+    elim = json.loads(read_text(workspace / "ledger_elim.json"))
+    fals = json.loads(read_text(workspace / "ledger_fals.json"))
+    finish = json.loads(read_text(workspace / "finish.json"))
     disagreements = elim["disagreements"]
     challenges = fals["challenges"]
     files = ("ledger_elim.json", "ledger_fals.json", "finish.json", "out/diagnosis.md")
     return {
         "method": "veriharness",
         "workspace": _shown(workspace),
+        "manifest_sha256": manifest_digest(workspace),
         "rollouts": manifest["rollouts"],
         "base": finish["base"],
         "work_items": len(finish["work"]),
@@ -412,11 +464,11 @@ def verification_record(workspace: Path, manifest: dict) -> dict:
     }
 
 
-def apply_workspace(workspace: Path, refdb: Path) -> dict:
-    problems = check_workspace(workspace)
+def apply_workspace(workspace: Path, refdb: Path, manifest_sha256: str) -> dict:
+    problems = check_workspace(workspace, manifest_sha256)
     if problems:
         raise SystemExit("not applied:\n  " + "\n  ".join(problems))
-    manifest = json.loads((workspace / "manifest.json").read_text(encoding="utf-8"))
+    manifest = json.loads(read_text(workspace / "manifest.json"))
 
     case_file = latest_case_file(manifest["design"], refdb)
     if case_file.name != manifest["case_file"]:
@@ -424,6 +476,13 @@ def apply_workspace(workspace: Path, refdb: Path) -> dict:
                          f"{manifest['case_file']}; this verification judged a "
                          f"run that is no longer the one under review")
     case = json.loads(case_file.read_text(encoding="utf-8"))
+    if case.get("winner_tag"):
+        raise SystemExit(f"{case_file.name} has a winner now "
+                         f"({case['winner_tag']}); nothing to review")
+    if any((r.get("verification") or {}).get("manifest_sha256") == manifest_sha256
+           for r in case.get("human_in_the_loop", [])):
+        raise SystemExit(f"{case_file.name} already holds this verification; "
+                         f"applying it again would record it twice")
     current = sha256_bytes(_json_bytes(case_store.load_light(
         case_file, cache_dir=None).get("iterations", [])))
     if current != manifest["case_iterations_sha256"]:
@@ -431,25 +490,34 @@ def apply_workspace(workspace: Path, refdb: Path) -> dict:
                          f"init; the sessions judged different evidence")
 
     agents = sorted({r["agent"] for r in manifest["rollouts"]})
-    text = (workspace / "out" / "diagnosis.md").read_text(encoding="utf-8").strip()
+    text = read_text(workspace / "out" / "diagnosis.md").strip()
     record = verification_record(workspace, manifest)
     grounding = request_review.record_review(
         case_file, case, "verified:" + "+".join(agents), text, verification=record)
+    (workspace / "applied.json").write_text(json.dumps({
+        "case_file": case_file.name,
+        "manifest_sha256": manifest_sha256,
+        "applied_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }, indent=1) + "\n", encoding="utf-8")
     return {"case_file": case_file.name, "verification": record,
             "grounding": grounding}
 
 
 def cmd_init(args: argparse.Namespace) -> None:
     rollouts = [parse_rollout(s) for s in args.rollout]
-    workspace = init_workspace(args.design, rollouts, args.root, args.refdb)
+    root = args.root if args.root is not None else args.refdb / "reviews" / "verify"
+    workspace = init_workspace(args.design, rollouts, root, args.refdb)
     print(f"verification workspace: {_shown(workspace)}")
+    print(f"manifest sha256: {manifest_digest(workspace)}  "
+          f"(keep it; check/apply take it as --manifest-sha256)")
     print("next: dispatch review-resolver and review-challenger on it "
           "(concurrently, neither sees the other), then review-adjudicator; "
-          f"then `python3 review_verify.py check --workspace {_shown(workspace)}`")
+          f"then `python3 review_verify.py check --workspace {_shown(workspace)} "
+          f"--manifest-sha256 <digest>` and `apply` with the same arguments")
 
 
 def cmd_check(args: argparse.Namespace) -> None:
-    problems = check_workspace(args.workspace)
+    problems = check_workspace(args.workspace, args.manifest_sha256)
     if problems:
         print("not ready:\n  " + "\n  ".join(problems))
         raise SystemExit(1)
@@ -458,7 +526,7 @@ def cmd_check(args: argparse.Namespace) -> None:
 
 
 def cmd_apply(args: argparse.Namespace) -> None:
-    result = apply_workspace(args.workspace, args.refdb)
+    result = apply_workspace(args.workspace, args.refdb, args.manifest_sha256)
     record = result["verification"]
     print(f"  base {record['base']}, {record['work_items']} work item(s), "
           f"{len(record['open'])} open question(s), "
@@ -468,25 +536,34 @@ def cmd_apply(args: argparse.Namespace) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--refdb", type=Path, default=request_review.REFDB,
-                    help=argparse.SUPPRESS)
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--refdb", type=Path, default=request_review.REFDB,
+                        help=argparse.SUPPRESS)
     sub = ap.add_subparsers(dest="command", required=True)
 
-    init = sub.add_parser("init", help="materialize a verification workspace")
+    init = sub.add_parser("init", parents=[common],
+                          help="materialize a verification workspace")
     init.add_argument("--design", required=True)
     init.add_argument("--rollout", action="append", default=[], required=True,
                       help="<agent>=<path to one independent answer>; repeat")
-    init.add_argument("--root", type=Path,
-                      default=request_review.REFDB / "reviews" / "verify",
-                      help="parent directory of the workspace")
+    init.add_argument("--root", type=Path, default=None,
+                      help="parent directory of the workspace "
+                           "(default: <reference-db>/reviews/verify)")
     init.set_defaults(func=cmd_init)
 
-    check = sub.add_parser("check", help="report why a workspace cannot be applied")
+    check = sub.add_parser("check", parents=[common],
+                           help="report why a workspace cannot be applied")
     check.add_argument("--workspace", required=True, type=Path)
+    check.add_argument("--manifest-sha256",
+                       help="the digest init printed; without it the input "
+                            "hashes are only compared with the workspace's manifest")
     check.set_defaults(func=cmd_check)
 
-    apply = sub.add_parser("apply", help="record the adjudicated diagnosis in the case")
+    apply = sub.add_parser("apply", parents=[common],
+                           help="record the adjudicated diagnosis in the case")
     apply.add_argument("--workspace", required=True, type=Path)
+    apply.add_argument("--manifest-sha256", required=True,
+                       help="the digest init printed")
     apply.set_defaults(func=cmd_apply)
 
     args = ap.parse_args()

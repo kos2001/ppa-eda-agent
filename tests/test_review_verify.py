@@ -164,6 +164,17 @@ class InitTests(Fixture):
         self.assertEqual(review_verify.run_inventory(_case(), repo_root=repo)[0]
                          ["archived"], [])
 
+    def test_a_failed_init_leaves_no_half_built_workspace(self):
+        original = review_verify.PROMPT_FILES
+        review_verify.PROMPT_FILES = original + ("MISSING.md",)
+        try:
+            with self.assertRaises(OSError):
+                self.init()
+        finally:
+            review_verify.PROMPT_FILES = original
+        self.assertFalse((self.root / "demo__2026-10-05__101010").exists())
+        self.init()  # and a retry works
+
     def test_an_existing_workspace_is_not_overwritten(self):
         self.init()
         with self.assertRaises(SystemExit) as raised:
@@ -232,6 +243,42 @@ class CheckTests(Fixture):
         problems = review_verify.check_workspace(ws)
         self.assertTrue(any("r09" in p for p in problems), problems)
 
+    def test_a_base_that_is_not_a_string_is_reported_not_raised(self):
+        ws = self.init()
+        self.complete(ws, finish={"base": ["r01"], "work": [], "open": [], "notes": ""})
+        problems = review_verify.check_workspace(ws)
+        self.assertTrue(any("base" in p for p in problems), problems)
+
+    def test_a_bom_is_accepted_and_other_encodings_are_reported(self):
+        # PowerShell 5 writes UTF-8 with a BOM; a Korean-locale tool may
+        # write cp949. The first is valid, the second a reported problem.
+        ws = self.init()
+        self.complete(ws)
+        finish = ws / "finish.json"
+        finish.write_bytes(b"\xef\xbb\xbf" + finish.read_bytes())
+        self.assertEqual(review_verify.check_workspace(ws), [])
+        (ws / "ledger_elim.json").write_bytes(
+            json.dumps({"disagreements": [{"question": "무엇", "checked": "c",
+                        "found": "f", "verdict": "r01"}]},
+                       ensure_ascii=False).encode("cp949"))
+        problems = review_verify.check_workspace(ws)
+        self.assertTrue(any("not UTF-8" in p for p in problems), problems)
+
+    def test_an_edited_run_inventory_is_refused(self):
+        ws = self.init()
+        self.complete(ws)
+        (ws / "workspace" / "runs.json").write_text("[]")
+        problems = review_verify.check_workspace(ws)
+        self.assertTrue(any("runs.json changed" in p for p in problems), problems)
+
+    def test_nothing_checked_in_other_words_still_needs_cannot_tell(self):
+        ws = self.init()
+        self.complete(ws, elim={"disagreements": [{
+            "question": "q", "checked": "nothing recorded", "found": "f",
+            "verdict": "r01"}]})
+        problems = review_verify.check_workspace(ws)
+        self.assertTrue(any("cannot tell" in p for p in problems), problems)
+
     def test_work_needs_evidence(self):
         ws = self.init()
         self.complete(ws, finish={"base": "none", "notes": "", "open": [],
@@ -256,9 +303,10 @@ class CheckTests(Fixture):
 
 
 class ApplyTests(Fixture):
-    def apply(self, ws):
+    def apply(self, ws, digest=None):
+        digest = digest or review_verify.manifest_digest(ws)
         with redirect_stdout(StringIO()):
-            return review_verify.apply_workspace(ws, self.refdb)
+            return review_verify.apply_workspace(ws, self.refdb, digest)
 
     def test_the_adjudicated_diagnosis_lands_with_its_record(self):
         ws = self.init()
@@ -306,6 +354,49 @@ class ApplyTests(Fixture):
         with self.assertRaises(SystemExit) as raised:
             self.apply(ws)
         self.assertIn("changed after init", str(raised.exception))
+
+    def test_applying_twice_records_once(self):
+        # Review of #58: nothing marked a workspace applied, so a retry
+        # appended the same verified diagnosis a second time.
+        ws = self.init()
+        self.complete(ws)
+        digest = review_verify.manifest_digest(ws)
+        self.apply(ws, digest)
+        with self.assertRaises(SystemExit):
+            self.apply(ws, digest)
+        (ws / "applied.json").unlink()  # the case itself still knows
+        with self.assertRaises(SystemExit) as raised:
+            self.apply(ws, digest)
+        self.assertIn("already holds this verification", str(raised.exception))
+        case = json.loads((self.refdb / "cases" / CASE).read_text())
+        self.assertEqual(len(case["human_in_the_loop"]), 1)
+
+    def test_rewriting_an_answer_and_its_manifest_hash_is_caught(self):
+        # Review of #58: the expected hashes lived in the writable
+        # workspace, so editing both passed. The digest printed at init
+        # is the anchor apply requires.
+        ws = self.init()
+        self.complete(ws)
+        digest = review_verify.manifest_digest(ws)
+        answer = ws / "rollouts" / "r02" / "response.md"
+        answer.write_text("rewritten\n", encoding="utf-8")
+        manifest = json.loads((ws / "manifest.json").read_text())
+        manifest["rollouts"][1]["sha256"] = review_verify.sha256_file(answer)
+        (ws / "manifest.json").write_text(json.dumps(manifest))
+        self.assertEqual(review_verify.check_workspace(ws), [])  # unanchored
+        with self.assertRaises(SystemExit) as raised:
+            self.apply(ws, digest)
+        self.assertIn("digest printed at init", str(raised.exception))
+
+    def test_a_winner_recorded_after_init_stops_apply(self):
+        ws = self.init()
+        self.complete(ws)
+        case = json.loads((self.refdb / "cases" / CASE).read_text())
+        case["winner_tag"] = "demo-base"
+        self.write_case(CASE, case)
+        with self.assertRaises(SystemExit) as raised:
+            self.apply(ws)
+        self.assertIn("winner", str(raised.exception))
 
     def test_a_single_review_still_applies_without_a_record(self):
         # The original path is unchanged: one answer, no verification.
