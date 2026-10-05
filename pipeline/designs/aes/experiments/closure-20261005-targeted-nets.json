@@ -1,0 +1,84 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261005-hu-h15-upsize20258",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}"
+      },
+      "_why": "One axis from h15: up-size _20258_ o2bb2ai_2 to o2bb2ai_4. Its output net carried 12 antenna diodes in both c0 and h15 and failed slew (1.518 vs 1.5 ns) and capacitance (0.0819 vs 0.0797 pF) in h15. The _4 master's Liberty max_capacitance is 0.1492 pF with an identical Boolean function and pins (checked against the pinned ss Liberty, sha256 9b24f0db...). _20258_ is a synthesis-assigned name, identical in c0 and h15."
+    },
+    {
+      "tag": "aes-coupling-20261005-hl-h15-net1321lim8",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}"
+      },
+      "_why": "One axis from h15: physical sink limit 8 on net1321, the output of the buf_12 fanout1321 that violated capacitance in c0 (0.278 pF) and h15 (0.271 pF) against 0.2. fanout1321 drives net1321 from net129 in both runs; the name is created before the custom flow's first edit."
+    },
+    {
+      "tag": "aes-coupling-20261005-hul-h15-both",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}"
+      },
+      "_why": "Both h15 additions. h15's only non-antenna failures were the _20258_ net (14 slew, 1 cap) and fanout1321 (1 cap); if the two fixes do not interact, antenna is the only failure left. The hypothesis is that closure, not an interaction of the two edits; hU and hL are there to attribute a failure."
+    }
+  ],
+  "candidate_budget": 3,
+  "evaluation_budget": {
+    "max_evaluations": 3,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Remove h15's two non-antenna failures (the _20258_ slew/cap net and the fanout1321 cap net) without new ones, leaving antenna as the only failure; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261005-h15-util35-lim15 (4 antenna, 0 fanout, 14 slew, 2 cap, area 145841)"
+  },
+  "_why": "Follow-up to closure-20261005-coupling.json. Each candidate is h15 plus the named edits, nothing else; diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so none qualifies the original target."
+}
