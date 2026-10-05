@@ -147,19 +147,24 @@ diodes (outputs in `violator_sinks.json` per run, netlists archived gzipped).
   | u45 | 62 | 11 | 6 | 0 | 4 |
   | u55 | 75 | 15 | 10 | 5 | 5 |
   | orig | 82 | 19 | 6 | 7 | 11 |
+  | hu | 71 | 7 | 7 | 6 | 7 |
+  | hl | 71 | 7 | 8 | 5 | 5 |
+  | hul | 71 | 7 | 5 | 7 | 6 |
 
-  The last repair runs at global-route level and detailed routing follows it
-  (steps 49, 51 and 53). Three runs show 0 to 2 after it and 4 to 5 after
-  detailed routing. That the router re-draws the wires is a hypothesis; only the
-  step order and the counts were checked.
+  (`hu`, `hl` and `hul` are the follow-up below.) The last repair runs at
+  global-route level and detailed routing follows it. The final report exceeds
+  that last estimate by 2 to 4 in four runs (`c0`, `h15`, `u45`, `orig`) and is
+  within 1 of it in the other four. So the estimate does not reliably carry over
+  to detailed routing, and why it does in some runs and not in others was not
+  established.
 
 ### Reading
 
 - **Utilization shortens wire monotonically and does not reduce antenna
   monotonically.** Wire is -5.5% at 45 and -9.3% at 55, area -2.6% and -3.5%.
   Antenna after global route is 71, 62, 75 and final 5, 4, 5. A 4 against a 5 is
-  one pin from one run each; nothing here distinguishes it from run-to-run
-  variation, which was not measured. `u45` pays 1.1 ns of setup slack and gains
+  one pin from one run each; the flow repeats on identical inputs, but the
+  follow-up shows how a small input change moves which marginal net fails. `u45` pays 1.1 ns of setup slack and gains
   two capacitance violations.
 - **The recipe is nowhere near the original constraints.** At 10 ns and the PDK
   defaults it fails setup, hold, slew and antenna together. The earlier estimate
@@ -177,14 +182,60 @@ netlists and hashes are in `evidence-20261005/` (`sources.json` per run). The
 flow-code variant that repairs fanout after the last antenna repair was not
 built: `h15` tests the same diode explanation with an override only.
 
+## 2026-10-05 follow-up: closing h15's two non-antenna failures
+
+`h15` failed on exactly two nets besides antenna: `_20258_` (slew and capacitance)
+and `fanout1321` (capacitance). Three candidates add to `h15` only what targets
+them (`closure-20261005-targeted-nets.json`): `hu` up-sizes `_20258_`
+(`o2bb2ai_2` to `o2bb2ai_4`), `hl` gives `net1321` a physical limit of 8, `hul`
+does both. The swap was checked against the pinned `ss_100C_1v60` Liberty
+(sha256 `9b24f0db...`): identical pins and Boolean function
+`(!B1&!B2)|(A1_N&A2_N)`, and `Y` max capacitance 0.0797 pF (`_2`) to 0.1492 pF
+(`_4`). In each run the edit was applied: `_20258_` is `o2bb2ai_4` in `hu` and
+`hul` only, and `net1321` (13 sinks) is split in `hl` and `hul` only.
+
+| Run | Antenna | Fanout | Slew | Cap | Worst setup (ns) | Area, um² | Wire, um |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| h15 | 4 | 0 | 14 | 2 | 0.761 | 145841 | 756618 |
+| hu | 6 | 0 | 0 | 1 | 0.866 | 145794 | 757035 |
+| hl | 5 | 1 | 15 | 2 | 0.754 | 145771 | 757190 |
+| hul | 6 | 0 | 0 | 0 | 0.647 | 145844 | 758374 |
+
+Every run completed with Magic DRC, KLayout DRC, LVS, setup and hold at 0.
+**`hul` is the first aes candidate with every gate except antenna at 0**
+(fanout, slew, capacitance, setup, hold, DRC, LVS) and still not a PASS: 6
+antenna violations, area 145844 um² (+8.2% against `c0`), and still at the
+diagnostic constraints.
+
+- **`hu` does what it was for.** `_20258_`'s 14 slew pins and its capacitance
+  violation go; the one capacitance violation left is `fanout1321`
+  (0.277 pF, `buf_12`).
+- **`hl` alone is worse than `h15`.** Splitting `net1321` removes that capacitance
+  violation, but `_20194_` (`o31ai_4`, 13 sinks of which 12 diodes) joins
+  `_20258_` in slew and capacitance, and `_17277_/Y` (`nand4_4`, 15 real loads plus
+  2 diodes) reaches 17 against a limit of 16: headroom of one sink does not
+  absorb two diodes. `_20194_` is not among the violators in the other seven runs.
+- **So `hul`'s zero is a margin result.** Both `_20258_` and `_20194_` sit at the
+  capacitance edge. The flow reproduced a historical candidate exactly
+  (2026-10-04), so a rerun of identical inputs should repeat; what the `hl`/`hul`
+  pair shows is that one edit elsewhere decides which marginal net fails.
+- **The diode count is bimodal, and the cluster is large.** In `c0`, 223 of 357
+  diode-bearing nets have one diode and 26 have 11 or 12; the 36 nets with 8 or
+  more hold 381 of 936 diodes (41%). `hul` is alike (39 nets, 37%). `orig` has no
+  such cluster (at most 9). 11 to 12 is `GRT_ANTENNA_ITERS` (10) plus one, which
+  suggests an iteration adds a diode to a net whose pin stays violated. That is a
+  hypothesis; the iteration count was not varied. `_20258_` and `_20194_` are two
+  of these nets, so they are examples of a population, not one-off cases.
+
 ### Next candidates
 
-- `h15` plus the two measured nets: upsize `_20258_` (same-function
-  `o2bb2ai_2` to `o2bb2ai_4`, to be checked against the Liberty functions as
-  before) and give `fanout1321` a physical limit of 8. The first is a
-  synthesis-assigned name, stable across `c0` and `h15`; the second is a
-  placement-assigned name that was the same in both but must be re-read from the
-  run it is applied to. This targets the two non-antenna failures that remain.
-- Antenna remains: 4 to 5 pins at P/R 1.04 to 2.4 after detailed routing, a
-  different set in each run. It needs its own experiment, for example antenna
-  repair or diode placement after detailed routing, which is flow work.
+- **Lower `GRT_ANTENNA_ITERS` on the `hul` recipe** (for example 5 and 3), one
+  axis. If the 11 to 12 cluster is one diode per iteration it should shrink to
+  about the iteration count plus one, which should relieve slew, capacitance and
+  fanout on those nets; the cost to watch is the final antenna count.
+- **Antenna itself**: 4 to 6 pins at P/R 1.0 to 2.4 after detailed routing, a
+  different set in each run (`text_in_r[26]` recurs). Diode count and iterations
+  are the lever the data points to; flow work such as repair after detailed
+  routing is not supported by the step counts above.
+- A qualification attempt needs the original 10 ns, 0.75 ns and fanout 10; `orig`
+  shows the recipe is far from it, and nothing here changes that.

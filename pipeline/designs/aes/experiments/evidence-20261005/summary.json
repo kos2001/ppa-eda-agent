@@ -298,5 +298,188 @@
     "_14789_/B2"
    ]
   ]
+ },
+ "hu-h15-upsize20258": {
+  "tag": "hu-h15-upsize20258",
+  "antenna": 6,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 0,
+  "cap": 1,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.866,
+  "worst_hold": 0.042,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145794,
+  "core_util": 0.402,
+  "wire_um": 757035,
+  "die": 383188,
+  "power": 0.1024692952632904,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.31",
+    "_00266_",
+    "_22240_/D"
+   ],
+   [
+    "1.28",
+    "_03113_",
+    "_11635_/B"
+   ],
+   [
+    "1.26",
+    "_04744_",
+    "_13618_/A2"
+   ],
+   [
+    "1.10",
+    "fanout_repair_net_1440",
+    "_11799_/A0"
+   ],
+   [
+    "1.10",
+    "fanout_repair_net_1440",
+    "_11801_/A1"
+   ],
+   [
+    "1.06",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.04",
+    "u0.w[2\\][7\\]",
+    "_21938_/A"
+   ]
+  ]
+ },
+ "hl-h15-net1321lim8": {
+  "tag": "hl-h15-net1321lim8",
+  "antenna": 5,
+  "antenna_after_route": 71,
+  "fanout": 1,
+  "slew": 15,
+  "cap": 2,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.754,
+  "worst_hold": 0.047,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145771,
+  "core_util": 0.402,
+  "wire_um": 757190,
+  "die": 383188,
+  "power": 0.10240538418292999,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.43",
+    "_00258_",
+    "_22288_/D"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.21",
+    "_03644_",
+    "_12437_/A1_N"
+   ],
+   [
+    "1.15",
+    "net24",
+    "_11889_/A2"
+   ],
+   [
+    "1.02",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ },
+ "hul-h15-both": {
+  "tag": "hul-h15-both",
+  "antenna": 6,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.647,
+  "worst_hold": 0.057,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145844,
+  "core_util": 0.403,
+  "wire_um": 758374,
+  "die": 383188,
+  "power": 0.10250859707593918,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.96",
+    "u0.w[1\\][21\\]",
+    "fanout_repair_1442/A"
+   ],
+   [
+    "1.39",
+    "_04779_",
+    "fanout1025/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.28",
+    "_03113_",
+    "_11635_/B"
+   ],
+   [
+    "1.03",
+    "net5",
+    "_11872_/A2"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
  }
 }
