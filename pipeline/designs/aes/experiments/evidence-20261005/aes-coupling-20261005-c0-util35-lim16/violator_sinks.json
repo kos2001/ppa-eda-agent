@@ -1,0 +1,52 @@
+[
+ {
+  "kind": "fanout",
+  "driver": "_13471_/Y",
+  "cell": "o2111ai_4",
+  "net": "_04820_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 1
+ },
+ {
+  "kind": "fanout",
+  "driver": "fanout395/X",
+  "cell": "clkbuf_8",
+  "net": "net395",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 1
+ },
+ {
+  "kind": "fanout",
+  "driver": "fanout966/X",
+  "cell": "buf_4",
+  "net": "net966",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 1
+ },
+ {
+  "kind": "fanout",
+  "driver": "fanout969/X",
+  "cell": "buf_4",
+  "net": "net969",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 1
+ },
+ {
+  "kind": "capacitance",
+  "driver": "fanout1321/X",
+  "cell": "buf_12",
+  "net": "net1321",
+  "limit": "0.200000",
+  "value": "0.278262",
+  "sinks": 15,
+  "diode_sinks": 3
+ }
+]
