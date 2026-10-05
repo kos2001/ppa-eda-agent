@@ -1,0 +1,302 @@
+{
+ "c0-util35-lim16": {
+  "tag": "c0-util35-lim16",
+  "antenna": 5,
+  "antenna_after_route": 71,
+  "fanout": 4,
+  "slew": 0,
+  "cap": 1,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 1.65,
+  "worst_hold": 0.066,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 134796,
+  "core_util": 0.372,
+  "wire_um": 694329,
+  "die": 383188,
+  "power": 0.0931800827383995,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 16,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "2.40",
+    "_00089_",
+    "_22591_/D"
+   ],
+   [
+    "2.13",
+    "net29",
+    "_11894_/A2"
+   ],
+   [
+    "1.61",
+    "_03644_",
+    "_12437_/A1_N"
+   ],
+   [
+    "1.37",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.11",
+    "_01042_",
+    "fanout704/A"
+   ]
+  ]
+ },
+ "h15-util35-lim15": {
+  "tag": "h15-util35-lim15",
+  "antenna": 4,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 14,
+  "cap": 2,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.761,
+  "worst_hold": 0.044,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145841,
+  "core_util": 0.403,
+  "wire_um": 756618,
+  "die": 383188,
+  "power": 0.10246139019727707,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.40",
+    "_00276_",
+    "_22322_/D"
+   ],
+   [
+    "1.32",
+    "net205",
+    "_21998_/A1"
+   ],
+   [
+    "1.15",
+    "_00258_",
+    "_22288_/D"
+   ],
+   [
+    "1.04",
+    "_06514_",
+    "_15197_/C1"
+   ]
+  ]
+ },
+ "u45-util45-lim16": {
+  "tag": "u45-util45-lim16",
+  "antenna": 4,
+  "antenna_after_route": 62,
+  "fanout": 1,
+  "slew": 0,
+  "cap": 3,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.526,
+  "worst_hold": 0.108,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 131315,
+  "core_util": 0.466,
+  "wire_um": 656023,
+  "die": 300149,
+  "power": 0.09087494015693665,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 45,
+   "FANOUT_REPAIR_LIMIT": 16,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "2.18",
+    "net40",
+    "_11296_/A1"
+   ],
+   [
+    "1.70",
+    "fanout_repair_net_39",
+    "fanout1321/A"
+   ],
+   [
+    "1.35",
+    "net98",
+    "_11750_/A1"
+   ],
+   [
+    "1.26",
+    "_02858_",
+    "_11361_/B1"
+   ]
+  ]
+ },
+ "u55-util55-lim16": {
+  "tag": "u55-util55-lim16",
+  "antenna": 5,
+  "antenna_after_route": 75,
+  "fanout": 1,
+  "slew": 12,
+  "cap": 2,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 1.747,
+  "worst_hold": 0.117,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 130136,
+  "core_util": 0.566,
+  "wire_um": 629778,
+  "die": 247124,
+  "power": 0.09060177952051163,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 55,
+   "FANOUT_REPAIR_LIMIT": 16,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "2.37",
+    "_00095_",
+    "_22597_/D"
+   ],
+   [
+    "1.58",
+    "u0.w[2\\][11\\]",
+    "_21902_/A"
+   ],
+   [
+    "1.49",
+    "_00157_",
+    "_22665_/D"
+   ],
+   [
+    "1.37",
+    "_00190_",
+    "_22364_/D"
+   ],
+   [
+    "1.06",
+    "_02193_",
+    "_21461_/A1"
+   ]
+  ]
+ },
+ "orig-10ns-075-fo10": {
+  "tag": "orig-10ns-075-fo10",
+  "antenna": 10,
+  "antenna_after_route": 82,
+  "fanout": 2,
+  "slew": 657,
+  "cap": 1,
+  "setup_vio": 118,
+  "hold_vio": 127,
+  "worst_setup": -1.467,
+  "worst_hold": -0.462,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 137363,
+  "core_util": 0.379,
+  "wire_um": 735077,
+  "die": 383188,
+  "power": 0.11522292345762253,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 10,
+   "CLOCK_PERIOD": 10,
+   "MAX_FANOUT_CONSTRAINT": 10,
+   "MAX_TRANSITION_CONSTRAINT": 0.75,
+   "IO_DELAY_CONSTRAINT": 20
+  },
+  "ant_pins": [
+   [
+    "2.37",
+    "_00089_",
+    "_22591_/D"
+   ],
+   [
+    "2.34",
+    "_03604_",
+    "_12332_/B"
+   ],
+   [
+    "1.46",
+    "net128",
+    "_11404_/A1"
+   ],
+   [
+    "1.45",
+    "_01125_",
+    "fanout1954/A"
+   ],
+   [
+    "1.20",
+    "_00089_",
+    "_22591_/D"
+   ],
+   [
+    "1.19",
+    "_02048_",
+    "fanout960/A"
+   ],
+   [
+    "1.10",
+    "text_in_r[59\\]",
+    "_22006_/A0"
+   ],
+   [
+    "1.09",
+    "_01619_",
+    "fanout449/A"
+   ],
+   [
+    "1.08",
+    "net2482",
+    "fanout2477/A"
+   ],
+   [
+    "1.08",
+    "_00125_",
+    "_22633_/D"
+   ],
+   [
+    "1.03",
+    "_05857_",
+    "_14789_/B2"
+   ]
+  ]
+ }
+}

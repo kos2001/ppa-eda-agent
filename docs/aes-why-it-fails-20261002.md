@@ -59,16 +59,23 @@ both candidates that raise it to 16 have setup at 0, both that do not have setup
 violations (8 in iteration 8, 6 here), so the limit changes what the resizer does
 as well as what is counted.
 
+## What has been tried since
+
+Updated 2026-10-05 (see `pipeline/designs/aes/experiments/README.md`):
+
+- **Utilization** 45 and 55 shorten wire (-5.5%, -9.3%) and do not reduce
+  antenna monotonically (final 4 and 5 against 5 at util 35).
+- **Diode headroom** (`FANOUT_REPAIR_LIMIT` 15 under an SDC limit of 16) removes
+  the fanout violators. The final netlists show each was the limit in real loads
+  plus one antenna diode. It costs area and exposes a marginal slew/cap net.
+- **Antenna against fanout as one problem** is settled for fanout: they are
+  coupled through the diode. Antenna itself is not closed in any run.
+
 ## What has not been tried
 
-- **Utilization.** Every aes candidate ran at `FP_CORE_UTIL` 35. Antenna violations
-  scale with wire length, and a denser floorplan shortens wires. `spm` passes up to
-  65 and `gcd` to 50 (`counter4` stops at 35, at its PDN limit); aes is untested.
-- **Resizer margins for fanout.** Nothing has asked the resizer to repair fanout
-  harder without moving the limit.
-- **Antenna against fanout as one problem.** Diode count and fanout need to be
-  looked at together, for instance by which nets carry the 16 fanout violations
-  after antenna repair, before choosing another knob.
+- Resizer margins for fanout without moving the limit.
+- Antenna repair or diode placement after detailed routing: the last repair runs
+  at global-route level and detailed routing re-draws the wires.
 - Splitting the high-fanout round-key and control nets in the RTL.
 
 ## Reproduce
