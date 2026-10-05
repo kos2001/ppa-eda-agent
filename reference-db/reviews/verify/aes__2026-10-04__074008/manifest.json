@@ -1,0 +1,25 @@
+{
+ "method": "veriharness",
+ "design": "aes",
+ "case_file": "aes__2026-10-04__074008.json",
+ "case_iterations_sha256": "1b202a048b8472395981d9370e66db7508c1fa7cf92bc6b5c86360784615e114",
+ "request_sha256": "651c02dede60593be4dfc6cdeb3e1142096ea1f3d10520eb56dbc99ffb6e69ae",
+ "snapshot_sha256": "c80844abb14e905a898a8aa2a8b6db531ffdcf2925534fbdcfe37e3f7766b782",
+ "runs_sha256": "c31c88db0e2c8f119fcb9444fd0c3945cafb888d0ddfcecb34dc6e6a0c6e3e2d",
+ "runs_total": 1,
+ "runs_present": 0,
+ "runs_archived": 1,
+ "rollouts": [
+  {
+   "name": "r01",
+   "agent": "feedback-optimizer",
+   "sha256": "649750ddc216a6903f77bdd63a02332d337399855d416dceade452b70cfcb796"
+  },
+  {
+   "name": "r02",
+   "agent": "feedback-optimizer",
+   "sha256": "854e3ec4deb01da813702d5925a9375c1d524d561bc371cfcf2a56154e85635c"
+  }
+ ],
+ "created_at": "2026-10-05T08:44:06Z"
+}
