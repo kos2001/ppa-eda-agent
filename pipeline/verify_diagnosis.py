@@ -26,9 +26,11 @@ It cannot tell you a diagnosis is *correct*. Reasoning about a real
 physical root cause is exactly the judgment `request_review.py` escalates
 to a human/subagent, and a regex claiming to settle it would be worse
 than no check at all. What it checks is far weaker and actually
-decidable: every EDA error code and every candidate tag the prose cites
-must appear in the case's own recorded data. That catches invented
-references and stale copy-paste from another design — not wrong physics.
+decidable: every EDA error code the prose cites must appear in the
+case's own recorded errors, and every candidate tag it cites must have
+been run by this design (by this case, or reported separately as from
+another of its cases). That catches invented references and stale
+copy-paste from another design — not wrong physics.
 
 Usage:
     python3 verify_diagnosis.py                 # all designs
@@ -57,6 +59,10 @@ ERROR_CODE_RE = re.compile(r"\b[A-Z]{2,4}-\d{4}\b")
 # "candidate", which is a false positive this checker hit on its first
 # real run against sram_wrapper's diagnosis.
 TAG_RE = re.compile(r"\b(?:cand|sweep)-[A-Za-z0-9_.]+(?:-[A-Za-z0-9_.]+)*\b")
+
+# A hyphenated token as tags are written: letters, digits, `_` and `.`
+# between hyphens, not glued to a path or a longer word.
+TOKEN_RE = re.compile(r"(?<![\w./-])[A-Za-z0-9_.]+(?:-[A-Za-z0-9_.]+)+(?![\w-])")
 
 
 def case_files() -> dict:
@@ -87,22 +93,87 @@ def recorded_evidence(case: dict) -> tuple[str, set]:
     return "\n".join(errors), tags
 
 
-def verify_case(case: dict) -> dict:
+_RECORDED_CACHE: dict = {}
+
+
+def recorded_tags(refdb: Path | str | None = None) -> dict[str, set[str]]:
+    """Every candidate tag reference-db has recorded, by design.
+
+    TAG_RE alone recognises only `cand-` and `sweep-`, and most real tags
+    look nothing like that: `c-hd-clock_period6`, `gf180-...`,
+    `aes-closure-20261004-driver-r3-headroom12`. Over every committed
+    case, a diagnosis citing one of those was never checked at all, while
+    the report still said `checked: true`. The store already knows which
+    tags are real, so it supplies both the tags to look for and the
+    prefixes a new one would carry. Cached on the index and case files'
+    mtimes, so a long-running server sees a new case.
+    """
+    root = Path(refdb) if refdb is not None else REFDB
+    index_file = root / "index.json"
+    if not index_file.exists():
+        return {}
+    index = json.loads(index_file.read_text(encoding="utf-8"))
+    paths = [root / "cases" / name for names in index.values() for name in names]
+    key = (str(root), tuple(sorted(
+        (p.name, p.stat().st_mtime_ns) for p in paths if p.exists())))
+    if _RECORDED_CACHE.get("key") == key:
+        return _RECORDED_CACHE["tags"]
+    tags: dict[str, set[str]] = {}
+    for design, names in index.items():
+        for name in names:
+            try:
+                case = case_store.load_light(root / "cases" / name)
+            except (OSError, json.JSONDecodeError):
+                continue
+            tags.setdefault(design, set()).update(recorded_evidence(case)[1])
+    _RECORDED_CACHE.update(key=key, tags=tags)
+    return tags
+
+
+def cited_tags(prose: str, known: dict[str, set[str]]) -> set[str]:
+    """Tags the prose cites: the `cand-`/`sweep-` shape, any hyphenated
+    tag the store has recorded, and a token that starts with a recorded
+    prefix and carries a digit (how an invented or mistyped tag looks,
+    e.g. `aes-closure-20261004-foo`). The digit is what keeps English
+    out: "data-bus" and "hs-library" begin with real prefixes (`data-die-
+    ...`, `hs-area0`) and were the two false positives when every
+    committed diagnosis was replayed without it."""
+    found = set(TAG_RE.findall(prose))
+    every = {t for tags in known.values() for t in tags if "-" in t}
+    prefixes = {t.split("-", 1)[0] for t in every}
+    for token in TOKEN_RE.findall(prose):
+        token = token.rstrip(".")
+        if token in every:
+            found.add(token)
+        elif (token.split("-", 1)[0] in prefixes and "-" in token
+              and any(ch.isdigit() for ch in token)):
+            found.add(token)
+    return found
+
+
+def verify_case(case: dict, known: dict[str, set[str]] | None = None) -> dict:
     prose = diagnosis_text(case)
     if not prose.strip():
         return {"checked": False, "reason": "no diagnosis or review text"}
 
+    known = recorded_tags() if known is None else known
     error_text, real_tags = recorded_evidence(case)
     recorded_codes = set(ERROR_CODE_RE.findall(error_text))
     cited_codes = set(ERROR_CODE_RE.findall(prose))
-    cited_tags = set(TAG_RE.findall(prose))
+    cited = cited_tags(prose, known)
+    # Not in this case, but run by another case of the same design: a
+    # verdict carried forward, or a proposal that was later executed.
+    # Neither invented nor another design's, so shown and not flagged.
+    same_design = known.get(case.get("design"), set())
+    elsewhere = (cited - real_tags) & same_design
 
     return {
         "checked": True,
         "cited_error_codes": sorted(cited_codes),
         "ungrounded_error_codes": sorted(cited_codes - recorded_codes),
-        "cited_candidate_tags": sorted(cited_tags),
-        "ungrounded_candidate_tags": sorted(cited_tags - real_tags),
+        "cited_candidate_tags": sorted(cited),
+        "ungrounded_candidate_tags": sorted(cited - real_tags - same_design),
+        "candidate_tags_from_other_cases": sorted(elsewhere),
     }
 
 
@@ -137,6 +208,9 @@ def main() -> int:
                 print(f"  !! cited but never recorded in this case's real errors: {bad_codes}")
             if report["cited_candidate_tags"]:
                 print(f"  candidate tags cited: {report['cited_candidate_tags']}")
+            if report["candidate_tags_from_other_cases"]:
+                print(f"  tags run by another case of this design: "
+                      f"{report['candidate_tags_from_other_cases']}")
             if bad_tags:
                 problems += len(bad_tags)
                 print(f"  !! cited tags that don't exist in this case: {bad_tags}")
