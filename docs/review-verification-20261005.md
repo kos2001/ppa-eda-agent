@@ -36,9 +36,16 @@ python3 pipeline/review_verify.py init --design aes \
   --rollout feedback-optimizer=/tmp/r1.md --rollout feedback-optimizer=/tmp/r2.md
 # Run review-resolver and review-challenger concurrently on the workspace.
 # Run review-adjudicator after both finish.
-python3 pipeline/review_verify.py check --workspace reference-db/reviews/verify/<case>
-python3 pipeline/review_verify.py apply --workspace reference-db/reviews/verify/<case>
+# init prints "manifest sha256: <digest>". Keep it outside the workspace.
+python3 pipeline/review_verify.py check --workspace reference-db/reviews/verify/<case> \
+  --manifest-sha256 <digest>
+python3 pipeline/review_verify.py apply --workspace reference-db/reviews/verify/<case> \
+  --manifest-sha256 <digest>
 ```
+
+The input hashes are stored in `manifest.json`, inside the workspace that the
+sessions can write to. The manifest's own digest is the out-of-band anchor
+for those hashes, so `apply` requires it.
 
 `apply` writes the delivered diagnosis through `request_review.record_review`,
 which also writes single answers. It attaches a `verification` record to the
@@ -59,10 +66,16 @@ as `apply` runs on the delivered text.
 - the base is neither a candidate nor `none`;
 - a work item has no evidence;
 - an open question has fewer than two readings or is missing from the diagnosis;
-- the case is no longer the design's latest, or its recorded results changed.
+- the case is no longer the design's latest, its recorded results changed, or
+  it now has a winner;
+- `manifest.json` differs from the digest printed at init;
+- the workspace was already applied (`applied.json`), or the case already
+  holds this manifest digest (a retried `apply` is refused, not appended twice);
+- a record is not UTF-8 (a UTF-8 BOM is accepted).
 
 `init` refuses a single answer, identical answers, a case that already has a
-winner, a case without a recorded request, and an existing workspace.
+winner, a case without a recorded request, and an existing workspace. A failed
+`init` removes its half-built workspace.
 
 ## Limits
 
