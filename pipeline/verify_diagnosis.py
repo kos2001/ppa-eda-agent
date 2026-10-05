@@ -150,15 +150,20 @@ def tag_prefixes(tags: set[str]) -> set[str]:
             if len(t.split("-", 1)[0]) > 1 and t[0].isalpha()}
 
 
-def cited_tags(prose: str, known: dict[str, set[str]], design: str | None) -> set[str]:
+# Tag prefixes that are also technology names (see cited_tags).
+TECHNOLOGY_PREFIXES = {"sky130", "gf180", "tech"}
+
+
+def cited_tags(prose: str, known: dict[str, set[str]], design: str | None,
+               own_tags: set[str] = frozenset()) -> set[str]:
     """Tags the prose cites:
 
     - the `cand-`/`sweep-` shape (TAG_RE);
-    - any hyphenated tag this design recorded, and any tag of three or
-      more parts another design recorded (an exact match, so copy-paste
-      such as `c-gf180mcu_7t-clock_period12` in aes is still caught). A
-      two-part tag such as `sky130-hd` or `gf180-7t` is also how people
-      name a technology, so another design's one is read as prose;
+    - any hyphenated tag the store recorded (an exact match, so copy-
+      paste such as `c-gf180mcu_7t-clock_period12` or `hs-util40` in aes
+      is still caught), except another design's two-part tag on a
+      technology prefix: `sky130-hd`, `gf180-7t` and `tech-hs` are also
+      how people name a technology, and read as prose there;
     - a token starting with one of THIS design's prefixes with a digit
       after it (`aes-closure-20261004-r9`): how an invented tag looks.
       Other designs' prefixes are not used, so one new case elsewhere
@@ -168,9 +173,11 @@ def cited_tags(prose: str, known: dict[str, set[str]], design: str | None) -> se
     A file named after a tag (`<tag>.log`) cites the tag.
     """
     found = set(TAG_RE.findall(prose))
-    mine = known.get(design, set()) if design else set()
-    every = ({t for tags in known.values() for t in tags if t.count("-") >= 2}
-             | {t for t in mine if "-" in t})
+    # The case's own tags count even before the index lists its design.
+    mine = (known.get(design, set()) if design else set()) | set(own_tags)
+    every = {t for tags in known.values() for t in tags if "-" in t
+             if not (t.count("-") == 1 and t.split("-")[0] in TECHNOLOGY_PREFIXES)}
+    every |= {t for t in mine if "-" in t}
     own = tag_prefixes(mine)
     for token in TOKEN_RE.findall(prose):
         token = token.rstrip(".")
@@ -195,7 +202,7 @@ def verify_case(case: dict, known: dict[str, set[str]] | None = None) -> dict:
     error_text, real_tags = recorded_evidence(case)
     recorded_codes = set(ERROR_CODE_RE.findall(error_text))
     cited_codes = set(ERROR_CODE_RE.findall(prose))
-    cited = cited_tags(prose, known, case.get("design"))
+    cited = cited_tags(prose, known, case.get("design"), real_tags)
     # Not in this case, but run by another case of the same design: a
     # verdict carried forward, or a proposal that was later executed.
     # Neither invented nor another design's, so shown and not flagged.
@@ -209,6 +216,9 @@ def verify_case(case: dict, known: dict[str, set[str]] | None = None) -> dict:
         "cited_candidate_tags": sorted(cited),
         "ungrounded_candidate_tags": sorted(cited - real_tags - same_design),
         "candidate_tags_from_other_cases": sorted(elsewhere),
+        # False when the store's tags could not be read: only cand-/sweep-
+        # and this case's own tags were recognised.
+        "store_tags_available": bool(known),
     }
 
 

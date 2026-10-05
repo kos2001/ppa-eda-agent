@@ -253,10 +253,11 @@ class TestVerifyDiagnosisGrounding(unittest.TestCase):
         self.assertEqual(report["ungrounded_candidate_tags"], [])
         self.assertEqual(report["cited_candidate_tags"], [])
 
-    KNOWN = {"aes": {"aes-closure-20261004-baseline", "c-hd-clock_period6"},
+    KNOWN = {"aes": {"aes-closure-20261004-baseline", "c-hd-clock_period6",
+                     "I-klayoutgds"},
              "gcd": {"c-gf180mcu_7t-clock_period12", "sky130-hd", "gf180-7t"},
-             "x": {"data-die-0-0-40-40", "hs-area0"},
-             "y": {"2026-10-05-retry", "c-2", "I-2"}}
+             "x": {"data-die-0-0-40-40", "hs-area0", "hs-util40"},
+             "y": {"2026-10-05-retry"}}
 
     def _aes(self, prose):
         case = _case(design="aes", diagnosis=prose, iterations=[{"iteration": 1,
@@ -343,6 +344,24 @@ class TestVerifyDiagnosisGrounding(unittest.TestCase):
         report = self._aes("aes-closure-20261004-baseline.log shows the hold fix.")
         self.assertEqual(report["cited_candidate_tags"], ["aes-closure-20261004-baseline"])
         self.assertEqual(report["ungrounded_candidate_tags"], [])
+
+    def test_another_designs_two_part_run_tag_is_still_copy_paste(self):
+        """Re-review of #59: excusing every two-part tag let `hs-util40`
+        from another design through. Only technology prefixes are."""
+        report = self._aes("Copied from x: hs-util40 met timing.")
+        self.assertEqual(report["ungrounded_candidate_tags"], ["hs-util40"])
+
+    def test_a_design_not_yet_indexed_uses_its_own_tags(self):
+        case = _case(design="newd", diagnosis="newd-closure-r9 fixed it.",
+                     iterations=[{"iteration": 1, "results": [
+                         {"tag": "newd-closure-r1", "error": ""}]}])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["ungrounded_candidate_tags"], ["newd-closure-r9"])
+
+    def test_reduced_coverage_is_visible(self):
+        case = _case(design="aes", diagnosis="text", iterations=[])
+        self.assertFalse(verify_diagnosis.verify_case(case, {})["store_tags_available"])
+        self.assertTrue(verify_diagnosis.verify_case(case, self.KNOWN)["store_tags_available"])
 
     def test_an_unreadable_index_yields_no_tags_not_an_exception(self):
         """An index caught mid-write must not stop a review being applied."""
