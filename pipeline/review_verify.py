@@ -393,7 +393,8 @@ def check_workspace(workspace: Path, manifest_sha256: str | None = None) -> list
     manifest = _load(workspace / "manifest.json", problems)
     if manifest is None:
         return problems
-    if manifest_sha256 is not None and manifest_digest(workspace) != manifest_sha256:
+    if (manifest_sha256 is not None
+            and manifest_digest(workspace) != manifest_sha256.strip().lower()):
         problems.append("manifest.json differs from the digest printed at init; "
                         "the recorded input hashes cannot be trusted")
     if (workspace / "applied.json").exists():
@@ -402,8 +403,14 @@ def check_workspace(workspace: Path, manifest_sha256: str | None = None) -> list
     inputs = [(workspace / "spec" / "request.md", manifest.get("request_sha256")),
               (workspace / "workspace" / "case.json", manifest.get("snapshot_sha256")),
               (workspace / "workspace" / "runs.json", manifest.get("runs_sha256"))]
+    rollouts = manifest.get("rollouts")
+    if not (isinstance(rollouts, list) and rollouts and all(
+            isinstance(r, dict) and isinstance(r.get("name"), str)
+            and isinstance(r.get("sha256"), str) for r in rollouts)):
+        problems.append("manifest.json: 'rollouts' is malformed")
+        return problems
     inputs += [(workspace / "rollouts" / r["name"] / "response.md", r["sha256"])
-               for r in manifest.get("rollouts", [])]
+               for r in rollouts]
     for path, expected in inputs:
         rel = path.relative_to(workspace).as_posix()
         if not path.is_file():
@@ -479,6 +486,7 @@ def apply_workspace(workspace: Path, refdb: Path, manifest_sha256: str) -> dict:
     if case.get("winner_tag"):
         raise SystemExit(f"{case_file.name} has a winner now "
                          f"({case['winner_tag']}); nothing to review")
+    manifest_sha256 = manifest_sha256.strip().lower()
     if any((r.get("verification") or {}).get("manifest_sha256") == manifest_sha256
            for r in case.get("human_in_the_loop", [])):
         raise SystemExit(f"{case_file.name} already holds this verification; "

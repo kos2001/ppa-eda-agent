@@ -388,6 +388,22 @@ class ApplyTests(Fixture):
             self.apply(ws, digest)
         self.assertIn("digest printed at init", str(raised.exception))
 
+    def test_a_digest_pasted_in_uppercase_is_the_same_digest(self):
+        ws = self.init()
+        self.complete(ws)
+        self.apply(ws, review_verify.manifest_digest(ws).upper())
+        case = json.loads((self.refdb / "cases" / CASE).read_text())
+        self.assertEqual(len(case["human_in_the_loop"]), 1)
+
+    def test_a_malformed_manifest_is_reported_not_raised(self):
+        ws = self.init()
+        self.complete(ws)
+        manifest = json.loads((ws / "manifest.json").read_text())
+        del manifest["rollouts"][0]["sha256"]
+        (ws / "manifest.json").write_text(json.dumps(manifest))
+        problems = review_verify.check_workspace(ws)
+        self.assertTrue(any("malformed" in p for p in problems), problems)
+
     def test_a_winner_recorded_after_init_stops_apply(self):
         ws = self.init()
         self.complete(ws)
