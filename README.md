@@ -22,6 +22,8 @@ AGENTS.md                           Repository-wide evidence, experiment,
                                      and validation rules for coding agents
 .codex/skills/ppa-eda-flow/         Project skill for bounded, reproducible
                                      OpenLane experiment work
+.claude/skills/ppa-eda-flow/        Byte-identical copy for Claude Code
+                                     (tests/test_skill_mirror.py)
 .claude/agents/ppa-eda-analyst.md   Claude Code subagent: diagnoses PPA
                                      issues from pasted/given report text
 references/                         Report format knowledge the agent is
