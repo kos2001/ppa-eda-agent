@@ -60,9 +60,12 @@ ERROR_CODE_RE = re.compile(r"\b[A-Z]{2,4}-\d{4}\b")
 # real run against sram_wrapper's diagnosis.
 TAG_RE = re.compile(r"\b(?:cand|sweep)-[A-Za-z0-9_.]+(?:-[A-Za-z0-9_.]+)*\b")
 
-# A hyphenated token as tags are written: letters, digits, `_` and `.`
-# between hyphens, not glued to a path or a longer word.
-TOKEN_RE = re.compile(r"(?<![\w./-])[A-Za-z0-9_.]+(?:-[A-Za-z0-9_.]+)+(?![\w-])")
+# A hyphenated token as tags are written. The boundaries are ASCII on
+# purpose: `\w` matches Hangul, so `aes-...-r9는` (a tag with a Korean
+# particle attached, common in this store's prose) was never a token.
+# A preceding `/` is allowed so `runs/<tag>/final` cites its tag.
+TOKEN_RE = re.compile(
+    r"(?<![A-Za-z0-9_.-])[A-Za-z0-9_.]+(?:-[A-Za-z0-9_.]+)+(?![A-Za-z0-9_-])")
 
 
 def case_files() -> dict:
@@ -104,18 +107,27 @@ def recorded_tags(refdb: Path | str | None = None) -> dict[str, set[str]]:
     `aes-closure-20261004-driver-r3-headroom12`. Over every committed
     case, a diagnosis citing one of those was never checked at all, while
     the report still said `checked: true`. The store already knows which
-    tags are real, so it supplies both the tags to look for and the
-    prefixes a new one would carry. Cached on the index and case files'
-    mtimes, so a long-running server sees a new case.
+    tags are real. Cached on the index's bytes and each case file's mtime
+    and size, so a long-running server sees a new or rewritten case.
+    Unreadable state (an index caught mid-write) yields no tags rather
+    than an exception: grounding is recorded beside a review, and must
+    not stop one from being applied.
     """
     root = Path(refdb) if refdb is not None else REFDB
-    index_file = root / "index.json"
-    if not index_file.exists():
+    try:
+        raw = (root / "index.json").read_bytes()
+        index = json.loads(raw.decode("utf-8"))
+    except (OSError, ValueError):
         return {}
-    index = json.loads(index_file.read_text(encoding="utf-8"))
-    paths = [root / "cases" / name for names in index.values() for name in names]
-    key = (str(root), tuple(sorted(
-        (p.name, p.stat().st_mtime_ns) for p in paths if p.exists())))
+    stamps = []
+    for names in index.values():
+        for name in names:
+            try:
+                st = (root / "cases" / name).stat()
+            except OSError:
+                continue
+            stamps.append((name, st.st_mtime_ns, st.st_size))
+    key = (str(root), raw, tuple(sorted(stamps)))
     if _RECORDED_CACHE.get("key") == key:
         return _RECORDED_CACHE["tags"]
     tags: dict[str, set[str]] = {}
@@ -130,24 +142,47 @@ def recorded_tags(refdb: Path | str | None = None) -> dict[str, set[str]]:
     return tags
 
 
-def cited_tags(prose: str, known: dict[str, set[str]]) -> set[str]:
-    """Tags the prose cites: the `cand-`/`sweep-` shape, any hyphenated
-    tag the store has recorded, and a token that starts with a recorded
-    prefix and carries a digit (how an invented or mistyped tag looks,
-    e.g. `aes-closure-20261004-foo`). The digit is what keeps English
-    out: "data-bus" and "hs-library" begin with real prefixes (`data-die-
-    ...`, `hs-area0`) and were the two false positives when every
-    committed diagnosis was replayed without it."""
+def tag_prefixes(tags: set[str]) -> set[str]:
+    """The prefixes a new tag of this design would carry. A prefix that
+    starts with a digit (a date: `2026-10-05-retry` is a legal tag) or
+    is one letter (`c`, `G`) would make dates and `c-2` read as tags."""
+    return {t.split("-", 1)[0] for t in tags if "-" in t
+            if len(t.split("-", 1)[0]) > 1 and t[0].isalpha()}
+
+
+def cited_tags(prose: str, known: dict[str, set[str]], design: str | None) -> set[str]:
+    """Tags the prose cites:
+
+    - the `cand-`/`sweep-` shape (TAG_RE);
+    - any hyphenated tag this design recorded, and any tag of three or
+      more parts another design recorded (an exact match, so copy-paste
+      such as `c-gf180mcu_7t-clock_period12` in aes is still caught). A
+      two-part tag such as `sky130-hd` or `gf180-7t` is also how people
+      name a technology, so another design's one is read as prose;
+    - a token starting with one of THIS design's prefixes with a digit
+      after it (`aes-closure-20261004-r9`): how an invented tag looks.
+      Other designs' prefixes are not used, so one new case elsewhere
+      cannot turn this design's prose into citations, and the digit must
+      follow the prefix, so `gf180-only` and `sky130-hd` stay prose.
+
+    A file named after a tag (`<tag>.log`) cites the tag.
+    """
     found = set(TAG_RE.findall(prose))
-    every = {t for tags in known.values() for t in tags if "-" in t}
-    prefixes = {t.split("-", 1)[0] for t in every}
+    mine = known.get(design, set()) if design else set()
+    every = ({t for tags in known.values() for t in tags if t.count("-") >= 2}
+             | {t for t in mine if "-" in t})
+    own = tag_prefixes(mine)
     for token in TOKEN_RE.findall(prose):
         token = token.rstrip(".")
+        stem = re.sub(r"\.[A-Za-z]{1,5}$", "", token)
         if token in every:
             found.add(token)
-        elif (token.split("-", 1)[0] in prefixes and "-" in token
-              and any(ch.isdigit() for ch in token)):
-            found.add(token)
+        elif stem in every:
+            found.add(stem)
+        else:
+            prefix, _, rest = stem.partition("-")
+            if prefix in own and any(ch.isdigit() for ch in rest):
+                found.add(stem)
     return found
 
 
@@ -160,7 +195,7 @@ def verify_case(case: dict, known: dict[str, set[str]] | None = None) -> dict:
     error_text, real_tags = recorded_evidence(case)
     recorded_codes = set(ERROR_CODE_RE.findall(error_text))
     cited_codes = set(ERROR_CODE_RE.findall(prose))
-    cited = cited_tags(prose, known)
+    cited = cited_tags(prose, known, case.get("design"))
     # Not in this case, but run by another case of the same design: a
     # verdict carried forward, or a proposal that was later executed.
     # Neither invented nor another design's, so shown and not flagged.
