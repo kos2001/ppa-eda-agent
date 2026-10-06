@@ -1,0 +1,64 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 6000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Test whether the 11-12 diode cluster is set by GRT_ANTENNA_ITERS, and what lowering it does to the final antenna count; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261005-hul-h15-both (6 antenna, 0 fanout/slew/cap, area 145844 um2, 39 nets with 8+ diodes holding 37% of 1116)"
+  },
+  "candidates": [
+    {
+      "tag": "aes-antenna-iters5-hul",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 5,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}"
+      },
+      "_why": "One axis from aes-coupling-20261005-hul-h15-both: GRT_ANTENNA_ITERS 10 -> 5. In the archived final netlists of c0 and hul, 35 of the 36 nets with 8+ antenna diodes (39 nets, 37-41% of all diodes, 11-12 each) have exactly one real sink (mux2 A1/A0, dfxtp D, and2 B), and no net with 8+ diodes has more than 3 sinks, so the count is not one diode per sink pin. 11-12 equals ITERS (10) plus one. Prediction if one diode is added per round on a pin that stays violated: the cluster moves to about 5+1 diodes and slew, capacitance and fanout failures on those nets shrink. Prediction against it: the cluster stays at 11-12 or the final antenna count rises well above hul's 6. Counter-evidence already in the archive: aes-coupling-20261005-orig-10ns-075-fo10 ran with the same GRT_ANTENNA_ITERS 10 and MARGIN 50 and has no 11-12 cluster (at most 9 diodes, 11 nets with 8+), so ITERS is at most necessary, not sufficient; a cluster that does not move with ITERS here would remove it as a lever."
+    },
+    {
+      "tag": "aes-antenna-iters3-hul",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 3,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}"
+      },
+      "_why": "One axis from aes-coupling-20261005-hul-h15-both: GRT_ANTENNA_ITERS 10 -> 3. In the archived final netlists of c0 and hul, 35 of the 36 nets with 8+ antenna diodes (39 nets, 37-41% of all diodes, 11-12 each) have exactly one real sink (mux2 A1/A0, dfxtp D, and2 B), and no net with 8+ diodes has more than 3 sinks, so the count is not one diode per sink pin. 11-12 equals ITERS (10) plus one. Prediction if one diode is added per round on a pin that stays violated: the cluster moves to about 3+1 diodes and slew, capacitance and fanout failures on those nets shrink. Prediction against it: the cluster stays at 11-12 or the final antenna count rises well above hul's 6. Counter-evidence already in the archive: aes-coupling-20261005-orig-10ns-075-fo10 ran with the same GRT_ANTENNA_ITERS 10 and MARGIN 50 and has no 11-12 cluster (at most 9 diodes, 11 nets with 8+), so ITERS is at most necessary, not sufficient; a cluster that does not move with ITERS here would remove it as a lever."
+    }
+  ],
+  "_why": "Next candidate named in pipeline/designs/aes/experiments/README.md. Single run each, no replicates; a difference smaller than the net-to-net variation recorded between c0, h15 and hul is not a result."
+}
