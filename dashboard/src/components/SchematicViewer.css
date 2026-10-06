@@ -78,7 +78,7 @@
 .schview__sheet { position: absolute; inset: 0; }
 .schview__drawing { max-width: none; display: block; }
 .schview__drawing text.schview__label { cursor: pointer; }
-.schview__drawing text.schview__selected { fill: #ffe76d; stroke: #6a531a; stroke-width: .7; paint-order: stroke; font-weight: bold; }
+.schview__drawing text.schview__selected { fill: #ffe76d; stroke: none; font-weight: bold; }
 .schview__drawing text.schview__connected { fill: #ffe76d; text-decoration: underline; }
 .schview__frame:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .schview__status { position: absolute; inset: 40% 0 auto; text-align: center; color: var(--text-dim); font: 11px var(--mono); }
@@ -93,7 +93,7 @@
 .schview--paper .schview__drawing text[fill="#00ccee"] { fill: #006987; }
 .schview--paper .schview__drawing text[fill="#aaaa00"] { fill: #8b581b; }
 .schview--paper .schview__drawing text[fill="#ff0000"] { fill: #9b4449; }
-.schview--paper .schview__drawing text.schview__selected { fill: #004bc6; stroke: #d4e6ff; stroke-width: 2.5; paint-order: stroke; }
+.schview--paper .schview__drawing text.schview__selected { fill: #004bc6; stroke: none; }
 .schview--paper .schview__drawing text.schview__connected { fill: #004bc6; }
 .schview__bar { padding: 6px; flex-wrap: wrap; }
 .schview__bar button:disabled { opacity: .4; cursor: default; }
