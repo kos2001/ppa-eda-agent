@@ -28,12 +28,16 @@ import json
 import os
 import re
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "tests" / "progress_timeline_check.mjs"
 CASES = ROOT / "reference-db" / "cases"
+
+sys.path.insert(0, str(ROOT / "pipeline"))
+import case_store  # noqa: E402
 
 STAMP = re.compile(r"__(\d{4}-\d{2}-\d{2})(?:__(\d{6}))?\.json$")
 
@@ -73,7 +77,7 @@ def _rows() -> list[dict]:
     for path in sorted(CASES.glob("*.json")):
         stamp = STAMP.search(path.name)
         at = f"{stamp.group(1)}T{stamp.group(2) or '000000'}"
-        case = json.loads(path.read_text(encoding="utf-8"))
+        case = case_store.load_light(path)
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
                 out.append({
