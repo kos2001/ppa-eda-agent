@@ -31,9 +31,10 @@ CASES = ROOT / "reference-db" / "cases"
 
 COUNTED = re.compile(r"^(\d+)\s+(.*)$")
 
-# Read from orchestrator.py so the dashboard's kind matchers are checked
-# against the labels score() actually writes, not a copy of them.
-_orch = (ROOT / "pipeline" / "orchestrator.py").read_text(encoding="utf-8")
+# Read from verdict_scoring.py (split out of orchestrator.py) so the
+# dashboard's kind matchers are checked against the labels score() actually
+# writes, not a copy of them.
+_orch = (ROOT / "pipeline" / "verdict_scoring.py").read_text(encoding="utf-8")
 SIGNOFF_LABELS = re.findall(r'\("[a-z_]+__[a-z_:]+",\s*"([^"]+)"\)', _orch)
 
 

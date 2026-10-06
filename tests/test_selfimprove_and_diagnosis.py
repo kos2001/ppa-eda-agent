@@ -17,6 +17,7 @@ PIPELINE = os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "pipeline")
 sys.path.insert(0, PIPELINE)
 
+import case_store  # noqa: E402
 import self_improve  # noqa: E402
 import verify_diagnosis  # noqa: E402
 
@@ -402,7 +403,7 @@ class TestRealCommittedCasesAreGrounded(unittest.TestCase):
                 path = verify_diagnosis.REFDB / "cases" / name
                 if not path.exists():
                     continue
-                report = verify_diagnosis.verify_case(json.loads(path.read_text(encoding="utf-8")))
+                report = verify_diagnosis.verify_case(case_store.load_light(path))
                 if not report["checked"]:
                     continue
                 self.assertEqual(report["ungrounded_error_codes"], [],
