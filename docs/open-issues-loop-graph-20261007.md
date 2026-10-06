@@ -31,20 +31,20 @@ Next graph step, still on archived data: add the placement/route geometry of
 those 35 nets (wire length per layer from the DEF) to see whether the cluster
 is the nets whose route goes through a layer the diode does not protect.
 
-## Loop approach (needs Docker, not run)
+## Loop approach (run 2026-10-07)
 
-`pipeline/designs/aes/run_spec_iter10.json` is the one-axis loop step: the
-`hul` recipe at `GRT_ANTENNA_ITERS` 5 and 3. It validates with
-`--validate-only`. Decision rule written before running:
+`pipeline/designs/aes/run_spec_iter10.json` ran the `hul` recipe at
+`GRT_ANTENNA_ITERS` 5 and 3. Decision rule written before running: if the
+cluster stays at 11-12, drop ITERS as a lever.
 
-- cluster moves with ITERS -> ITERS is a lever; compare final antenna count and
-  area against `hul`;
-- cluster stays at 11-12 -> drop ITERS as a lever and take the graph step above.
+Result: the option reached the repair steps (5 and 3), and both final netlists
+are byte-identical to the ITERS 10 run (same sha256, 6 antenna, 1116 diodes,
+145844 um2). The rule applies: ITERS is dropped as a lever, and "ITERS plus one"
+is withdrawn. Evidence: `experiments/evidence-20261007/summary.json`.
 
-Loop guard worth adding to the orchestrator only if the experiment shows
-diodes repeating without reducing violations: stop a repair round when a
-net's diode count grows while its pin's P/R does not fall. The per-pass
-`antenna_summary.rpt` files already carry the data for that check.
+Next loop step, one axis, not yet run: `GRT_ANTENNA_MARGIN` (50 in every
+coupling run) on the `hul` recipe, then the geometry graph step above for the
+35 single-sink nets.
 
 ## Performance and structure changes in this branch
 
