@@ -246,12 +246,35 @@ first antenna check as a net -> sink graph (output in `diode_clusters.txt`).
   12 ns, fanout 10 against 16, the recipe) is not isolated by these runs.
 - **What is not established:** why a barely violating single-sink pin accumulates
   11 to 12 diodes, and whether the diodes shorten the repair or only repeat it.
-  `run_spec_iter10.json` (ITERS 5 and 3 on the `hul` recipe) is the one-axis
-  test; it has not been run (no Docker daemon in the session that wrote it).
+  `run_spec_iter10.json` (ITERS 5 and 3 on the `hul` recipe) was the one-axis
+  test; its result is below.
+
+### GRT_ANTENNA_ITERS 5 and 3 on the `hul` recipe (2026-10-07)
+
+Two full OpenLane 2.3.10 runs, 1255 s each, case `aes__2026-10-07`. The option
+was applied: `resolved.json` and all three `repairantennas` step configs carry
+5 and 3 respectively (`evidence-20261007/summary.json`).
+
+- **No effect.** Both runs end with the same 6 antenna violations, 1116 diode
+  cells, 39 nets with 8 or more diodes (20 at 11, 7 at 12) and the same area
+  (145844 um2) as `hul` at ITERS 10. The final netlists of ITERS 5, 3 and the
+  archived ITERS 10 run have the same sha256. Single run each, but identical
+  bytes leave no difference for replicates to resolve.
+- **So the 11 to 12 cluster is not ITERS plus one.** ITERS 3 gives the same
+  11 to 12. The earlier reading is withdrawn; `orig` already pointed that way.
+  The repair apparently finishes within three iterations on this design, so a
+  larger limit is never reached; that is an inference from the identical
+  netlists, not a reading of the OpenROAD log.
+- **Still open:** what sets the 11 to 12 diodes on a single-sink net and the 6
+  residual pins. Not tested here: `GRT_ANTENNA_MARGIN` (held at 50 in every
+  coupling run; 10 was never combined with this recipe), diode cell choice, and
+  the RTL-level splitting of the nets. The result is still diagnostic
+  constraints, +8.2% area and not a PASS.
+
 
 ### Next candidates
 
-- **Lower `GRT_ANTENNA_ITERS` on the `hul` recipe** (for example 5 and 3), one
+- **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
   axis. If the 11 to 12 cluster is one diode per iteration it should shrink to
   about the iteration count plus one, which should relieve slew, capacitance and
   fanout on those nets; the cost to watch is the final antenna count.

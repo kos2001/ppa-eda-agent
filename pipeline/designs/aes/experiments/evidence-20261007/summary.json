@@ -1,0 +1,32 @@
+{
+  "note": "Final netlists and antenna-repair step configs of the two ITERS runs, with the archived hul run (ITERS 10) for comparison.",
+  "runs": {
+    "aes-antenna-iters5-hul": {
+      "resolved_GRT_ANTENNA_ITERS": 5,
+      "repair_step_GRT_ANTENNA_ITERS": {
+        "41-openroad-repairantennas": 5,
+        "46-openroad-repairantennas-1": 5,
+        "50-openroad-repairantennas-2": 5
+      },
+      "final_netlist_sha256": "4185cf7986cdf5414b385d7a52b8e13bc862fcff0e08bea030af00c21068b2a9",
+      "route__antenna_violation__count": 6,
+      "antenna_cell_instances": 1116,
+      "core_area_um2": 362235,
+      "seconds": 1255
+    },
+    "aes-antenna-iters3-hul": {
+      "resolved_GRT_ANTENNA_ITERS": 3,
+      "repair_step_GRT_ANTENNA_ITERS": {
+        "41-openroad-repairantennas": 3,
+        "46-openroad-repairantennas-1": 3,
+        "50-openroad-repairantennas-2": 3
+      },
+      "final_netlist_sha256": "4185cf7986cdf5414b385d7a52b8e13bc862fcff0e08bea030af00c21068b2a9",
+      "route__antenna_violation__count": 6,
+      "antenna_cell_instances": 1116,
+      "core_area_um2": 362235,
+      "seconds": 1255
+    }
+  },
+  "archived_hul_iters10_final_netlist_sha256": "4185cf7986cdf5414b385d7a52b8e13bc862fcff0e08bea030af00c21068b2a9"
+}
