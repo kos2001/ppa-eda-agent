@@ -77,9 +77,10 @@ Updated 2026-10-05 (see `pipeline/designs/aes/experiments/README.md`):
 
 ## What has not been tried
 
-- Varying `GRT_ANTENNA_ITERS`. About 40% of the diodes sit on 36 to 39 nets with
-  11 to 12 diodes each, which matches 10 iterations plus one; the iteration count
-  was never varied.
+- `GRT_ANTENNA_MARGIN` on the closing recipe. `GRT_ANTENNA_ITERS` was varied on
+  2026-10-07 (5 and 3 against 10) and produced a byte-identical netlist, so it is
+  not the lever; about 40% of the diodes still sit on 36 to 39 single-sink nets
+  with 11 to 12 each, and why is not established.
 - Resizer margins for fanout without moving the limit.
 - Splitting the high-fanout round-key and control nets in the RTL.
 
