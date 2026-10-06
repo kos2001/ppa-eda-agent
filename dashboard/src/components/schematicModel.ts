@@ -24,18 +24,30 @@ export function safeSchematicSvg(text: string): SVGSVGElement {
   const doc = new DOMParser().parseFromString(text, "image/svg+xml");
   if (doc.querySelector("parsererror") || doc.documentElement.localName !== "svg") throw new Error("Invalid schematic SVG");
   const tags = new Set(["svg", "g", "path", "rect", "circle", "ellipse", "line", "polyline", "polygon", "text", "tspan", "style", "title"]);
-  const attrs = new Set(["xmlns", "width", "height", "viewBox", "version", "class", "x", "y", "x1", "x2", "y1", "y2", "cx", "cy", "r", "rx", "ry", "d", "points", "transform", "fill", "stroke", "stroke-width", "fill-opacity", "stroke-opacity", "stroke-linecap", "stroke-linejoin", "font-size", "font-family", "font-weight", "text-anchor", "xml:space"]);
+  const attrs = new Set(["xmlns", "width", "height", "viewBox", "version", "class", "x", "y", "x1", "x2", "y1", "y2", "cx", "cy", "r", "rx", "ry", "d", "points", "transform", "fill", "stroke", "stroke-width", "fill-opacity", "stroke-opacity", "stroke-linecap", "stroke-linejoin", "font-size", "font-family", "font-weight", "text-anchor", "xml:space", "style"]);
   for (const node of [doc.documentElement, ...doc.documentElement.querySelectorAll("*")]) {
     if (!tags.has(node.localName) || node.namespaceURI !== "http://www.w3.org/2000/svg") { node.remove(); continue; }
     if (node.localName === "style") {
       const css = node.textContent ?? "";
-      if (/@|url\s*\(|[<>\\]/i.test(css) || css.replace(/\.l\d+\s*\{[^{}]*\}/g, "").trim()) node.remove();
+      const remainder = css.replace(/\.l\d+\s*\{[^{}]*\}/g, "")
+        .replace(/\btext\s*\{\s*font-family\s*:\s*[-\w\s,'"]+;?\s*\}/g, "");
+      if (/@|url\s*\(|[<>\\]/i.test(css) || remainder.trim()) node.remove();
+    }
+    // xschem uses an inline fill:none to keep arcs and inversion bubbles
+    // hollow, overriding its layer's fill color. Preserve only this inert
+    // declaration; removing it turns native gate symbols into filled blobs.
+    if (node.hasAttribute("style")) {
+      if (/^\s*fill\s*:\s*none\s*;?\s*$/i.test(node.getAttribute("style")!)) node.setAttribute("style", "fill:none");
+      else node.removeAttribute("style");
     }
     for (const attr of [...node.attributes]) {
       if (!attrs.has(attr.name) || /url\s*\(|javascript:|data:/i.test(attr.value)) node.removeAttribute(attr.name);
     }
     if (node.hasAttribute("class") && !/^l\d+(\s+l\d+)*$/.test(node.getAttribute("class")!)) node.removeAttribute("class");
   }
-  doc.querySelectorAll("style").forEach(node => { node.textContent = node.textContent!.replace(/\.l(\d+)/g, ".schview__drawing .l$1"); });
+  doc.querySelectorAll("style").forEach(node => {
+    node.textContent = node.textContent!.replace(/\.l(\d+)/g, ".schview__drawing .l$1")
+      .replace(/\btext\s*\{/g, ".schview__drawing text {");
+  });
   return doc.documentElement as unknown as SVGSVGElement;
 }
