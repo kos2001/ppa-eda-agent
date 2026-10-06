@@ -227,6 +227,28 @@ diagnostic constraints.
   hypothesis; the iteration count was not varied. `_20258_` and `_20194_` are two
   of these nets, so they are examples of a population, not one-off cases.
 
+### Static analysis of the diode cluster (no new run)
+
+`evidence-20261005/diode_clusters.py` reads the archived final netlists and the
+first antenna check as a net -> sink graph (output in `diode_clusters.txt`).
+
+- **The cluster is single-sink nets.** In `c0` 35 of the 36 nets with 8 or more
+  diodes drive exactly one real pin (`mux2` A1, `dfxtp` D, `and2` B); in `hul`
+  37 of 39. None has more than 3 sinks. So the count is not one diode per sink
+  pin, and the pin is not one of many on a shared net.
+- **It does not follow the violation size.** Pearson r between a pin's P/R in the
+  first check and its net's final diode count is 0.17 (71 pins); 7 pins that
+  started below P/R 2 ended with 8 or more diodes, and the one pin at P/R 6 got 11.
+- **`orig` weakens the iteration hypothesis.** `orig` used the same
+  `GRT_ANTENNA_ITERS` 10 and `GRT_ANTENNA_MARGIN` 50 and shows no 11 to 12
+  cluster (at most 9; 11 nets with 8 or more). So 10 iterations are at most a
+  necessary condition. What `orig` does not share with `c0`/`hul` (clock 10 against
+  12 ns, fanout 10 against 16, the recipe) is not isolated by these runs.
+- **What is not established:** why a barely violating single-sink pin accumulates
+  11 to 12 diodes, and whether the diodes shorten the repair or only repeat it.
+  `run_spec_iter10.json` (ITERS 5 and 3 on the `hul` recipe) is the one-axis
+  test; it has not been run (no Docker daemon in the session that wrote it).
+
 ### Next candidates
 
 - **Lower `GRT_ANTENNA_ITERS` on the `hul` recipe** (for example 5 and 3), one
