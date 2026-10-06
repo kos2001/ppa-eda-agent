@@ -102,7 +102,7 @@ def complete_context(design_dir, run_dir, candidate, inputs, toolchain, verify_f
             raise ValueError("macro physical views unavailable")
         context = {"design": resolved.get("DESIGN_NAME"), "inputs": inputs,
                    "evaluator_sha256": {name: hashlib.sha256((Path(__file__).parent / name).read_bytes()).hexdigest()
-                                        for name in ("orchestrator.py", "verdict_scoring.py", "candidate_plan.py", "winner_selection.py", "power_activity.py", "equiv_check.py", "evaluation_provenance.py")},
+                                        for name in ("orchestrator.py", "verdict_scoring.py", "candidate_plan.py", "winner_selection.py", "repair_proposals.py", "power_activity.py", "equiv_check.py", "evaluation_provenance.py")},
                    "sdc_sha256": sdc_hashes, "liberty_sha256": sorted(lib_hashes),
                    "macro_views_sha256": sorted(hashlib.sha256(host_path(raw).read_bytes()).hexdigest() for raw in macro_views),
                    "pdk": resolved.get("PDK"), "scl": resolved.get("STD_CELL_LIBRARY"),
