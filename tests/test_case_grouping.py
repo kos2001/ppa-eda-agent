@@ -28,12 +28,16 @@ derivation against the real store.
 import json
 import os
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "tests" / "case_grouping_check.mjs"
 CASES = ROOT / "reference-db" / "cases"
+
+sys.path.insert(0, str(ROOT / "pipeline"))
+import case_store  # noqa: E402
 
 
 def _harness() -> dict:
@@ -63,7 +67,7 @@ def _harness() -> dict:
 
 
 def _case(name: str) -> dict:
-    return json.loads((CASES / name).read_text(encoding="utf-8"))
+    return case_store.load_light(CASES / name)
 
 
 class RecordedAtTests(unittest.TestCase):

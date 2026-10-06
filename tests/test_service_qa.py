@@ -36,6 +36,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "pipeline"))
 
+import case_store  # noqa: E402
 import service_qa  # noqa: E402
 
 
@@ -248,11 +249,11 @@ class StoreFactTests(unittest.TestCase):
         rows = sum(
             len(it.get("results", []))
             for path in cases
-            for it in json.loads(path.read_text(encoding="utf-8")).get("iterations", []))
+            for it in case_store.load_light(path).get("iterations", []))
         self.assertEqual(self.facts["candidate_runs"], rows)
 
     def test_every_design_is_summarised(self):
-        designs = {json.loads(p.read_text(encoding="utf-8"))["design"]
+        designs = {case_store.load_light(p)["design"]
                    for p in (ROOT / "reference-db" / "cases").glob("*.json")}
         self.assertEqual({d["design"] for d in self.facts["designs"]}, designs)
 

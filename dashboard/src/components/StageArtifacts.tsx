@@ -6,7 +6,7 @@ import OperatingPointView from "./OperatingPoint";
 import SchematicView from "./SchematicView";
 import SignoffStrip from "./SignoffStrip";
 import { ViolationChips } from "./ClosureLedger";
-import { verdictPill } from "./PipelineTab";
+import { verdictPill } from "./pipelineModel";
 import "./StageArtifacts.css";
 
 // What each pipeline stage actually produced.
