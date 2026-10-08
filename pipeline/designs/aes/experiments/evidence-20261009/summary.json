@@ -1,42 +1,185 @@
 {
-  "note": "GRT_ANTENNA_MARGIN on the hul recipe (ITERS 10), measured from the final netlists and metrics.json of each run, with hul (MARGIN 50, archived) for comparison. Single run each.",
-  "runs": {
-    "hul (MARGIN 50, archived)": {
-      "antenna_violations": 6,
-      "diodes": 1116,
-      "nets_8plus_diodes": 39,
-      "nets_11_12_diodes": 27,
-      "max_slew": 0,
-      "max_cap": 0,
-      "max_fanout": 0,
-      "instance_area_um2": 145844
-    },
-    "aes-antenna-margin25-hul": {
-      "resolved_margin_in_4_configs": 25,
-      "antenna_violations": 10,
-      "diodes": 415,
-      "nets_8plus_diodes": 6,
-      "nets_11_12_diodes": 3,
-      "max_slew": 0,
-      "max_cap": 0,
-      "max_fanout": 0,
-      "instance_area_um2": 144044,
-      "final_netlist_sha256_12": "cafabff82b3b",
-      "seconds": 922
-    },
-    "aes-antenna-margin10-hul": {
-      "resolved_margin_in_4_configs": 10,
-      "antenna_violations": 11,
-      "diodes": 236,
-      "nets_8plus_diodes": 1,
-      "nets_11_12_diodes": 1,
-      "max_slew": 2,
-      "max_cap": 1,
-      "max_fanout": 0,
-      "instance_area_um2": 143596,
-      "final_netlist_sha256_12": "7601ca80ce17",
-      "seconds": 2752
-    }
+ "20261009-i3-hul-iters3": {
+  "tag": "20261009-i3-hul-iters3",
+  "antenna": 6,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.647,
+  "worst_hold": 0.057,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145844,
+  "core_util": 0.403,
+  "wire_um": 758374,
+  "die": 383188,
+  "power": 0.10250859707593918,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
   },
-  "caveat": "seconds of the margin10 run (2752) is wall time from the case file and was the first run after Docker was started; do not use it as a cost estimate."
+  "ant_pins": [
+   [
+    "1.96",
+    "u0.w[1\\][21\\]",
+    "fanout_repair_1442/A"
+   ],
+   [
+    "1.39",
+    "_04779_",
+    "fanout1025/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.28",
+    "_03113_",
+    "_11635_/B"
+   ],
+   [
+    "1.03",
+    "net5",
+    "_11872_/A2"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ },
+ "20261009-i5-hul-iters5": {
+  "tag": "20261009-i5-hul-iters5",
+  "antenna": 6,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.647,
+  "worst_hold": 0.057,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145844,
+  "core_util": 0.403,
+  "wire_um": 758374,
+  "die": 383188,
+  "power": 0.10250859707593918,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.96",
+    "u0.w[1\\][21\\]",
+    "fanout_repair_1442/A"
+   ],
+   [
+    "1.39",
+    "_04779_",
+    "fanout1025/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.28",
+    "_03113_",
+    "_11635_/B"
+   ],
+   [
+    "1.03",
+    "net5",
+    "_11872_/A2"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ },
+ "20261009-rep-hul-iters10": {
+  "tag": "20261009-rep-hul-iters10",
+  "antenna": 6,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.647,
+  "worst_hold": 0.057,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145844,
+  "core_util": 0.403,
+  "wire_um": 758374,
+  "die": 383188,
+  "power": 0.10250859707593918,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.96",
+    "u0.w[1\\][21\\]",
+    "fanout_repair_1442/A"
+   ],
+   [
+    "1.39",
+    "_04779_",
+    "fanout1025/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.28",
+    "_03113_",
+    "_11635_/B"
+   ],
+   [
+    "1.03",
+    "net5",
+    "_11872_/A2"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ }
 }
