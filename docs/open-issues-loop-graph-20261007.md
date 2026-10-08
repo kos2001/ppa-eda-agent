@@ -53,3 +53,13 @@ coupling run) on the `hul` recipe, then the geometry graph step above for the
   `best_k` about 7x faster, results byte-identical on the committed store;
 - `PipelineTab.tsx` split into panels and a pure model module (1644 -> 227
   lines) with row/case memoization.
+
+## Update 2026-10-09: GRT_ANTENNA_MARGIN
+
+`run_spec_iter11.json` ran the `hul` recipe at `GRT_ANTENNA_MARGIN` 25 and 10
+(was 50). Diodes 1116 -> 415 -> 236, nets with 8+ diodes 39 -> 6 -> 1, area
+-1.2% / -1.5%, but antenna violations 6 -> 10 -> 11, and margin 10 brings back
+2 slew and 1 capacitance violation. Neither is a PASS. MARGIN, unlike ITERS, is a
+lever on the cluster; it trades diode count against residual antenna pins.
+Evidence: `experiments/evidence-20261009/margin_summary.json`. Next, one axis: a margin
+between 25 and 50, and the geometry step above for the remaining residual pins.

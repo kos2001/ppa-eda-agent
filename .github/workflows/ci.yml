@@ -1,0 +1,35 @@
+name: ci
+
+# Fast checks only (AGENTS.md "Checks"): no Docker, no PDK, no EDA tools.
+# Physical results are integration work and are never produced here.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Install dashboard dependencies
+        run: npm ci
+        working-directory: dashboard
+      - name: Python tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Dashboard build
+        run: npm run build
+        working-directory: dashboard

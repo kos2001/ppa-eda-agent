@@ -1,0 +1,64 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 6000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Test whether GRT_ANTENNA_MARGIN sets the 11-12 diode cluster and the residual antenna count; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261005-hul-h15-both (6 antenna, 0 fanout/slew/cap, area 145844 um2, 39 nets with 8+ diodes holding 37% of 1116)"
+  },
+  "candidates": [
+    {
+      "tag": "aes-antenna-margin10-hul",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}"
+      },
+      "_why": "One axis from aes-coupling-20261005-hul-h15-both: GRT_ANTENNA_MARGIN 50 -> 10 (ITERS back at 10; ITERS was ruled out on 2026-10-07). Prediction written before running: if the 11-12 diode cluster and the 6 residual antenna pins are set by the margin, the diode count and cluster shrink with a lower margin and the antenna count may rise; if the cluster stays at 11-12 and the netlist is byte-identical to hul, MARGIN is dropped as a lever, as ITERS was."
+    },
+    {
+      "tag": "aes-antenna-margin25-hul",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 25,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}"
+      },
+      "_why": "One axis from aes-coupling-20261005-hul-h15-both: GRT_ANTENNA_MARGIN 50 -> 25 (ITERS back at 10; ITERS was ruled out on 2026-10-07). Prediction written before running: if the 11-12 diode cluster and the 6 residual antenna pins are set by the margin, the diode count and cluster shrink with a lower margin and the antenna count may rise; if the cluster stays at 11-12 and the netlist is byte-identical to hul, MARGIN is dropped as a lever, as ITERS was."
+    }
+  ],
+  "_why": "Next candidate named in experiments/README.md after the ITERS result. Single run each; byte-identical netlists to hul would be a no-effect result."
+}
