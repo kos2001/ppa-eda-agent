@@ -1,0 +1,86 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261009-i5-hul-iters5",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_ITERS": 5
+      },
+      "_why": "One axis from hul (aes-coupling-20261005-hul-h15-both): GRT_ANTENNA_ITERS 10 to 5. If the 11 to 12 diode cluster is one diode per iteration on nets whose pin stays violated, the cluster should fall to about 6 diodes per net and the 36 to 39 nets holding 37 to 41% of all diodes should hold fewer. Falsified if the cluster stays at 11 to 12. Watch the final antenna count (6 in hul), which fewer iterations may raise."
+    },
+    {
+      "tag": "aes-coupling-20261009-i3-hul-iters3",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_ITERS": 3
+      },
+      "_why": "Second point on the ITERS axis (3 is the OpenLane default). Predicts a cluster of about 4 diodes per net if the one-per-iteration reading holds, and shows whether the effect is monotonic."
+    },
+    {
+      "tag": "aes-coupling-20261009-rep-hul-iters10",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_ITERS": 10
+      },
+      "_why": "Replicate of hul, unchanged. The flow reproduced a historical candidate exactly on 2026-10-04; this checks that on the current inputs, so the i5 and i3 differences can be read as caused by ITERS and not by run-to-run noise. Expected: identical metrics to hul."
+    }
+  ],
+  "candidate_budget": 3,
+  "evaluation_budget": {
+    "max_evaluations": 3,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Test whether GRT_ANTENNA_ITERS sets the size of the 11 to 12 diode cluster and what lower iteration counts cost in final antenna violations, keeping the non-antenna gates at 0; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261005-hul-h15-both (6 antenna, 0 fanout, 0 slew, 0 cap, ITERS 10)"
+  },
+  "_why": "Follow-up to closure-20261005-targeted-nets.json. Each candidate is hul with only GRT_ANTENNA_ITERS changed (rep: unchanged); diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so none qualifies the original target."
+}
