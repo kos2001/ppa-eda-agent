@@ -378,9 +378,13 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. Neither is a PASS.
   2 slew and 2 cap violations; 100 is out of range and disables the repair.
 - **MARGIN between 50 and 75** (60, 65), then, if the new failures stay at 0, the
   weak driver `_19764_` (`a211oi_1`) as a measured driver size-up like `_20258_`.
-- **A range check for `GRT_ANTENNA_MARGIN` in `--validate-only`** (integer, at least
-  0 and below 100). The tool only warns at run time, after the 25 minutes the
-  run takes, and the flow reports a repair-free run as an ordinary FAIL.
+- **(Done: `candidate_plan.TOOL_RANGES`.)** A range check for `GRT_ANTENNA_MARGIN`
+  (integer, at least 0 and below 100) in `--validate-only` and at run start. The
+  tool only warned at run time, after the 25 minutes the run takes, and the flow
+  reported a repair-free run as an ordinary FAIL. The table holds one variable;
+  add another only with the same kind of evidence. As a consequence
+  `closure-20261009-antenna-margin-high.json`, the record of the run that exposed
+  the gap, no longer passes `--validate-only` (its 100 candidate is rejected).
 - **Antenna itself**: 4 to 6 pins at P/R 1.0 to 2.4 after detailed routing, a
   different set in each run (`text_in_r[26]` recurs). Diode count and iterations
   are the lever the data points to; flow work such as repair after detailed
