@@ -12,6 +12,7 @@ the browser (dashboard/src/components/runCost.ts).
 Two implementations of one number is a way to disagree by a rounding
 rule, so this pins them to each other over the real store.
 """
+import functools
 import json
 import os
 import subprocess
@@ -27,6 +28,7 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 import collect  # noqa: E402
 
 
+@functools.lru_cache(maxsize=None)
 def _harness() -> dict:
     try:
         out = subprocess.run(
