@@ -164,6 +164,60 @@ class TestRunPlanValidation(unittest.TestCase):
             orchestrator.validate_run_plan(
                 {"candidates": [{"tag": "base", "overrides": {}}]}, 0)
 
+    def test_antenna_margin_of_100_is_rejected_before_any_tool_starts(self):
+        # aes, 2026-10-09: GRT_ANTENNA_MARGIN 100 was accepted by OpenLane (a
+        # plain int) and by --validate-only. OpenROAD only warned (GRT-0215),
+        # scaled the allowed ratio to 0, found 0 violations in every repair
+        # step and inserted no diode. ~25 minutes later it was stored as an
+        # ordinary FAIL with 64 antenna violations.
+        with self.assertRaisesRegex(
+                ValueError, r"GRT_ANTENNA_MARGIN.*outside \[0, 100\).*GRT-0215"):
+            orchestrator.validate_candidates(
+                [{"tag": "m100", "overrides": {"GRT_ANTENNA_MARGIN": 100}}])
+
+    def test_antenna_margin_inside_the_accepted_range_passes(self):
+        # The recorded 10, 25, 50, 75 runs must keep validating, and the
+        # CLI's string form of an integer is accepted like the int.
+        for value in (0, 10, 25, 50, 75, 99, "75"):
+            got = orchestrator.validate_candidates(
+                [{"tag": "m", "overrides": {"GRT_ANTENNA_MARGIN": value}}])
+            self.assertEqual(got[0]["overrides"]["GRT_ANTENNA_MARGIN"], value)
+
+    def test_antenna_margin_that_is_negative_or_not_an_integer_is_rejected(self):
+        for value in (-1, 150, True, 50.5, "abc", None):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "GRT_ANTENNA_MARGIN"):
+                    orchestrator.validate_candidates(
+                        [{"tag": "m", "overrides": {"GRT_ANTENNA_MARGIN": value}}])
+
+    def test_range_check_reaches_sweeps_and_synthesis_exploration(self):
+        # Sweeps expand into candidates, and synthesis exploration carries its
+        # own overrides; neither may be a way around the check.
+        with self.assertRaisesRegex(ValueError, "GRT_ANTENNA_MARGIN"):
+            orchestrator.validate_run_plan(
+                {"sweeps": [{"param": "GRT_ANTENNA_MARGIN", "values": [50, 100]}],
+                 "candidate_budget": 2}, 1)
+        with self.assertRaisesRegex(ValueError, "explore_synthesis"):
+            orchestrator.validate_run_plan(
+                {"explore_synthesis": {"count": 1,
+                                       "overrides": {"GRT_ANTENNA_MARGIN": 100}}}, 1)
+
+    def test_other_overrides_are_not_range_checked(self):
+        got = orchestrator.validate_candidates(
+            [{"tag": "t", "overrides": {"CLOCK_PERIOD": 1000, "GRT_ANTENNA_ITERS": 10}}])
+        self.assertEqual(len(got), 1)
+
+    def test_recorded_aes_margin_specs_validate_as_they_should(self):
+        # The 75/100 spec is a record of the run that exposed the gap; it now
+        # fails at its 100 candidate. The 10/25 spec used only accepted values.
+        root = Path(orchestrator.__file__).resolve().parent / "designs" / "aes"
+        high = json.loads((root / "experiments" /
+                           "closure-20261009-antenna-margin-high.json").read_text())
+        with self.assertRaisesRegex(ValueError, r"candidates\[1\].*margin|candidates\[1\]\.overrides\.GRT_ANTENNA_MARGIN=100"):
+            orchestrator.validate_run_plan(high, 1)
+        low = json.loads((root / "run_spec_iter11.json").read_text())
+        orchestrator.validate_run_plan(low, 1)
+
     def test_validate_only_cli_does_not_need_a_real_design(self):
         spec = {"candidates": [{"tag": "base", "overrides": {}}],
                 "candidate_budget": 1}

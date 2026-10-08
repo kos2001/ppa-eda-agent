@@ -127,6 +127,47 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
     return expanded
 
 
+# Override values the tool bounds although OpenLane declares them as a plain
+# int, so neither OpenLane nor --validate-only would say so. (low, high) is
+# half-open: low <= value < high.
+#
+# GRT_ANTENNA_MARGIN: OpenROAD's repair_antennas takes a ratio margin in
+# [0, 100). At 100 it only warns (GRT-0215), multiplies the allowed antenna
+# ratio by 1 - 100/100 = 0, and the checker reads a ratio of 0 as "no rule":
+# every repair step finds 0 violations and inserts no diode. The 2026-10-09
+# aes run at 100 cost about 25 minutes and was recorded as an ordinary FAIL
+# with 64 antenna violations. Evidence: pipeline/designs/aes/experiments/
+# evidence-20261009-margin-high/openroad_source_excerpts.txt.
+TOOL_RANGES = {
+    "GRT_ANTENNA_MARGIN": (
+        0, 100,
+        "OpenROAD repair_antennas accepts a ratio margin in [0, 100); at 100 "
+        "it warns (GRT-0215), the allowed ratio becomes 0 and nothing is "
+        "repaired"),
+}
+
+
+def check_override_ranges(overrides: dict, where: str) -> None:
+    """Rejects an override whose value the tool does not accept, before any
+    EDA tool starts. Values may be ints or integer strings, as for the CLI."""
+    for key, (low, high, why) in TOOL_RANGES.items():
+        if key not in overrides:
+            continue
+        raw = overrides[key]
+        value = raw
+        if isinstance(raw, str):
+            try:
+                value = int(raw.strip())
+            except ValueError:
+                value = None
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(
+                f"{where}.overrides.{key}={raw!r} must be an integer: {why}")
+        if not low <= value < high:
+            raise ValueError(
+                f"{where}.overrides.{key}={raw!r} is outside [{low}, {high}): {why}")
+
+
 def validate_candidates(candidates: list[dict],
                         candidate_budget: int | None = None) -> list[dict]:
     """Rejects plans that would waste or corrupt real flow runs."""
@@ -155,6 +196,7 @@ def validate_candidates(candidates: list[dict],
         overrides = candidate.get("overrides", {})
         if not isinstance(overrides, dict):
             raise ValueError(f"{where}.overrides must be an object")
+        check_override_ranges(overrides, where)
         if candidate.get("flow") not in (None, "Classic", "MacroSignoff", "UpstreamClassic", "FanoutRepair", "MacroFanoutRepair"):
             raise ValueError(f"{where}.flow is unsupported: {candidate['flow']!r}")
 
@@ -210,6 +252,7 @@ def validate_run_plan(run_spec: dict, max_iterations: int) -> dict:
             raise ValueError("explore_synthesis.count must be a positive integer")
         if not isinstance(explore.get("overrides", {}), dict):
             raise ValueError("explore_synthesis.overrides must be an object")
+        check_override_ranges(explore.get("overrides", {}), "explore_synthesis")
 
     planned = len(explicit) + len(swept) + explore_count
     if planned == 0:
