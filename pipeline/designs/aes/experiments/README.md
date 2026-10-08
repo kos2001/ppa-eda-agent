@@ -263,14 +263,34 @@ was applied: `resolved.json` and all three `repairantennas` step configs carry
 - **So the 11 to 12 cluster is not ITERS plus one.** ITERS 3 gives the same
   11 to 12. The earlier reading is withdrawn; `orig` already pointed that way.
   The repair apparently finishes within three iterations on this design, so a
-  larger limit is never reached; that is an inference from the identical
-  netlists, not a reading of the OpenROAD log.
+  larger limit is never reached; that was an inference from the identical
+  netlists when written, and the OpenROAD log reading below confirms it.
 - **Still open:** what sets the 11 to 12 diodes on a single-sink net and the 6
   residual pins. Not tested here: `GRT_ANTENNA_MARGIN` (held at 50 in every
   coupling run; 10 was never combined with this recipe), diode cell choice, and
   the RTL-level splitting of the nets. The result is still diagnostic
   constraints, +8.2% area and not a PASS.
 
+
+### OpenROAD log reading and an independent repeat of the ITERS runs (2026-10-09)
+
+Case `aes__2026-10-09`: the same three-run question (`hul` recipe at ITERS 5, 3
+and an unchanged 10) run again as `closure-20261009-antenna-iters.json`, started
+before the 2026-10-07 entry above was noticed. It adds two things; the
+outcome is the same. Compact evidence is in `evidence-20261009/`.
+
+- **The ITERS 10 run reproduces the archived `hul` bit for bit**: the same
+  metrics, antenna pins and final-netlist sha256. ITERS 5 and 3 have that same
+  netlist sha256 too. The flow repeated on identical inputs in this instance.
+- **The log gives the reason.** In `diodeinsertion.log` of the three repair
+  steps, `repair_antennas` executes 3 or 4 iterations and the violations found
+  per iteration fall 215, 42, 1, 0 (step 1), 126, 38, 4, 0 (step 2) and 43, 24, 0
+  (step 3). The fourth iteration only confirms 0, so any cap of 3 or more gives
+  the same result. The knob was applied: the step configs carry 3, 5 and 10, and
+  the ITERS 3 logs stop at iteration 3. The iteration cap is therefore not
+  what sets the 11 to 12 diodes. `GRT_ANTENNA_MARGIN` is the other value passed
+  to the same command (`repair_antennas -iterations ... -ratio_margin ...`) and
+  was not varied here.
 
 ### Next candidates
 
