@@ -25,6 +25,7 @@ it is the set of override keys whose values actually differ within the
 case — so it is derived rather than recorded, and these tests pin the
 derivation against the real store.
 """
+import functools
 import json
 import os
 import subprocess
@@ -40,6 +41,7 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 import case_store  # noqa: E402
 
 
+@functools.lru_cache(maxsize=None)
 def _harness() -> dict:
     try:
         out = subprocess.run(
