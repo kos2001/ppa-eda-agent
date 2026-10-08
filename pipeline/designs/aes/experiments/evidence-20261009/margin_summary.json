@@ -1,0 +1,42 @@
+{
+  "note": "GRT_ANTENNA_MARGIN on the hul recipe (ITERS 10), measured from the final netlists and metrics.json of each run, with hul (MARGIN 50, archived) for comparison. Single run each.",
+  "runs": {
+    "hul (MARGIN 50, archived)": {
+      "antenna_violations": 6,
+      "diodes": 1116,
+      "nets_8plus_diodes": 39,
+      "nets_11_12_diodes": 27,
+      "max_slew": 0,
+      "max_cap": 0,
+      "max_fanout": 0,
+      "instance_area_um2": 145844
+    },
+    "aes-antenna-margin25-hul": {
+      "resolved_margin_in_4_configs": 25,
+      "antenna_violations": 10,
+      "diodes": 415,
+      "nets_8plus_diodes": 6,
+      "nets_11_12_diodes": 3,
+      "max_slew": 0,
+      "max_cap": 0,
+      "max_fanout": 0,
+      "instance_area_um2": 144044,
+      "final_netlist_sha256_12": "cafabff82b3b",
+      "seconds": 922
+    },
+    "aes-antenna-margin10-hul": {
+      "resolved_margin_in_4_configs": 10,
+      "antenna_violations": 11,
+      "diodes": 236,
+      "nets_8plus_diodes": 1,
+      "nets_11_12_diodes": 1,
+      "max_slew": 2,
+      "max_cap": 1,
+      "max_fanout": 0,
+      "instance_area_um2": 143596,
+      "final_netlist_sha256_12": "7601ca80ce17",
+      "seconds": 2752
+    }
+  },
+  "caveat": "seconds of the margin10 run (2752) is wall time from the case file and was the first run after Docker was started; do not use it as a cost estimate."
+}
