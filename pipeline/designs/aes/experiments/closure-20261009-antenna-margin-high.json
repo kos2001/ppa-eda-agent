@@ -1,0 +1,64 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261009-m75-hul-margin75",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75
+      },
+      "_why": "One axis from hul (MARGIN 50): GRT_ANTENNA_MARGIN 75. On the recorded points 10, 25 and 50 the residual antenna count falls as the margin rises (11, 10, 6) while diodes rise (236, 415, 1116). Predicts fewer than 6 residual antenna violations and more diodes; the cost to watch is slew and capacitance on the nets that already carry 11 to 12 diodes (_20258_, _20194_)."
+    },
+    {
+      "tag": "aes-coupling-20261009-m100-hul-margin100",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 100
+      },
+      "_why": "Second point above 50 on the same axis, to see whether the trend continues or turns. Falsified as a trend if the residual count is not below hul's 6 at either point (an optimum near 50)."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Find whether raising GRT_ANTENNA_MARGIN above 50 lowers the residual antenna count below hul's 6 and what it costs in diodes, area, slew and capacitance; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261005-hul-h15-both (MARGIN 50: 6 antenna, 1116 diodes, 145844 um2, 0 slew, 0 cap) and the MARGIN 25 and 10 runs in case aes__2026-10-09__011741"
+  },
+  "_why": "Follows the MARGIN 25 and 10 result on main, which left the range above 50 untested. Each candidate is hul with only GRT_ANTENNA_MARGIN changed; diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so neither qualifies the original target."
+}
