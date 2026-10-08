@@ -1,0 +1,68 @@
+[
+ {
+  "kind": "slew",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "1.464535",
+  "value": "1.732084",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "kind": "slew",
+  "driver": "(all violated pins)",
+  "violated_pins": 2,
+  "of_which_diode_pins": 0
+ },
+ {
+  "kind": "fanout",
+  "driver": "_11103_/Y",
+  "cell": "clkinv_4",
+  "net": "_02612_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 14
+ },
+ {
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "kind": "fanout",
+  "driver": "_22441_/Q",
+  "cell": "dfxtp_4",
+  "net": "\\u0.w[2][3]",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 15
+ },
+ {
+  "kind": "capacitance",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "0.026560",
+  "value": "0.032854",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "kind": "capacitance",
+  "driver": "clkbuf_0_clk/X",
+  "cell": "clkbuf_16",
+  "net": "clknet_0_clk",
+  "limit": "0.200000",
+  "value": "0.201626",
+  "sinks": 12,
+  "diode_sinks": 8
+ }
+]
