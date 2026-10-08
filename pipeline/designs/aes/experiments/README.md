@@ -318,6 +318,55 @@ and the repair step configs carry 25 and 10). Numbers in
 - Not tested: margins between 25 and 50 (for example 35), diode cell choice,
   RTL-level net splitting.
 
+### GRT_ANTENNA_MARGIN 75 and 100 on the `hul` recipe (2026-10-09)
+
+Two full OpenLane 2.3.10 runs above the 50 of `hul`, case
+`aes__2026-10-09__232437`, spec `closure-20261009-antenna-margin-high.json`, ITERS
+10. The option was applied (`resolved.json` and the repair step configs carry 75
+and 100). Evidence in `evidence-20261009-margin-high/`. Rows for 10, 25 and 50 are
+from the section above.
+
+| MARGIN | antenna | diodes | nets with 8+ diodes | fanout / slew / cap | area um2 |
+|---|---|---|---|---|---|
+| 10 | 11 | 236 | 1 | 0 / 2 / 1 | 143596 |
+| 25 | 10 | 415 | 6 | 0 / 0 / 0 | 144044 |
+| 50 (`hul`) | 6 | 1116 | 39 | 0 / 0 / 0 | 145844 |
+| 75 | 3 | 4134 | 166 | 3 / 2 / 2 | 154059 |
+| 100 | 64 | 0 | 0 | 0 / 0 / 0 | 143006 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. Neither is a PASS.
+
+- **MARGIN 100 is not a result for 100.** OpenROAD accepts a ratio margin in
+  [0, 100). At 100 `repair_antennas` only warns (`GRT-0215`, present in the log of
+  all three repair steps), the allowed ratio is multiplied by `1 - 100/100 = 0`,
+  and the checker runs the PAR check only for a non-zero ratio, so it reports 0
+  violations in the first iteration and inserts no diode (source excerpts at the
+  pinned revision in `openroad_source_excerpts.txt`; the PSR check's zero handling
+  was not read). The OpenLane variable is an unbounded int and `--validate-only`
+  does not catch it. Read the run as a **no-repair control**: 71 antenna
+  violations after global route, 64 after detailed routing, 0 diodes, area
+  -1.9% against `hul`. The lesson is the missing range check, not a margin.
+- **Within [0, 100) the residual antenna count keeps falling with the margin**
+  (11, 10, 6, 3) and the diode count rises faster than it falls (236, 415, 1116,
+  4134; 3.7 times `hul` at 75). At 75 the non-antenna gates break again and area
+  is +5.6% against `hul`. No point in the range clears both.
+- **The 75 failures are of two kinds.** Three fanout violators (`_11103_`
+  `clkinv_4` 18 sinks of which 14 are diodes, `_22441_/Q` `dfxtp_4` 17 of which 15,
+  `_20345_` `o2111ai_4` 18 of which 6): on low-fanout nets the diodes alone
+  approach or pass the limit of 16, which the physical limit of 15 cannot
+  absorb. And `_19764_` (`a211oi_1`, one sink, no diode) fails slew (1.732 against
+  1.4645 ns) and capacitance (0.0329 against 0.0266 pF): a weak driver, not a
+  diode effect. `clkbuf_0_clk` exceeds 0.2 pF by 0.0016 pF with 8 diodes among 12
+  sinks.
+- **The first repair step needs 7 iterations at 75** (violations found 634, 177,
+  28, 5, 3, 1, 0) against 4 at 50, so a cap below 7 would cut it short at this
+  margin although a cap of 3 suffices at 50. The 3 residual antenna pins are at
+  P/R 1.03 to 1.47.
+- Single runs, one point each at 75 and 100. Between 50 and 75 (for example
+  60 to 65) is untested and is where a point with fewer than 6 antenna
+  violations and no new failures would have to be.
+
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -325,6 +374,13 @@ and the repair step configs carry 25 and 10). Numbers in
   about the iteration count plus one, which should relieve slew, capacitance and
   fanout on those nets; the cost to watch is the final antenna count.
 - **(Done 2026-10-09, see above.)** `GRT_ANTENNA_MARGIN` on the `hul` recipe: a lever for diode count, trading against residual antenna count.
+- **(Done 2026-10-09, 75 and 100.)** MARGIN above 50: 75 gives 3 antenna but 3 fanout,
+  2 slew and 2 cap violations; 100 is out of range and disables the repair.
+- **MARGIN between 50 and 75** (60, 65), then, if the new failures stay at 0, the
+  weak driver `_19764_` (`a211oi_1`) as a measured driver size-up like `_20258_`.
+- **A range check for `GRT_ANTENNA_MARGIN` in `--validate-only`** (integer, at least
+  0 and below 100). The tool only warns at run time, after the 25 minutes the
+  run takes, and the flow reports a repair-free run as an ordinary FAIL.
 - **Antenna itself**: 4 to 6 pins at P/R 1.0 to 2.4 after detailed routing, a
   different set in each run (`text_in_r[26]` recurs). Diode count and iterations
   are the lever the data points to; flow work such as repair after detailed

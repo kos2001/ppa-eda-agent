@@ -1,0 +1,24 @@
+OpenROAD source read for the GRT_ANTENNA_MARGIN range, at the revision pinned by OpenLane 2.3.10:
+  The-OpenROAD-Project/OpenROAD @ edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6
+
+--- src/grt/src/GlobalRouter.tcl, proc repair_antennas, lines 316-324
+    set ratio_margin 0
+    if { [info exists keys(-ratio_margin)] } {
+      set ratio_margin $keys(-ratio_margin)
+      if { !($ratio_margin >= 0 && $ratio_margin < 100) } {
+        utl::warn GRT 215 "-ratio_margin must be between 0 and 100 percent."
+      }
+    }
+
+    grt::repair_antennas $diode_mterm $iterations $ratio_margin
+
+--- src/ant/src/AntennaChecker.cc, lines 540-546 (PAR check; the PSR check at lines 591-593 scales the same way and its zero handling was not read)
+  // apply ratio_margin
+  PAR_ratio *= (1.0 - ratio_margin / 100.0);
+  diff_PAR_PWL_ratio *= (1.0 - ratio_margin / 100.0);
+
+  // check PAR or diff_PAR
+  if (PAR_ratio != 0) {
+    violation = info.PAR > PAR_ratio;
+
+Reading: a margin of 100 only warns (GRT-0215) and is passed on; the allowed ratio is multiplied by (1 - margin/100), i.e. 0, and the PAR check runs only for a non-zero ratio, so nothing is reported.
