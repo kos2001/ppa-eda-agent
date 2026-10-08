@@ -24,6 +24,7 @@ So there are two curves and neither is that one.
 Both are derived from the case store at read time. Nothing is recorded
 to support this page.
 """
+import functools
 import json
 import os
 import re
@@ -51,6 +52,7 @@ DEFAULT_SCL = re.search(r'^DEFAULT_SCL = "([^"]+)"', _surrogate, re.M).group(1)
 DEFAULT_PDK = re.search(r'^DEFAULT_PDK = "([^"]+)"', _surrogate, re.M).group(1)
 
 
+@functools.lru_cache(maxsize=None)
 def _harness() -> dict:
     try:
         out = subprocess.run(
