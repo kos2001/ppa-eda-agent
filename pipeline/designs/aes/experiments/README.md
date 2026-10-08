@@ -272,12 +272,39 @@ was applied: `resolved.json` and all three `repairantennas` step configs carry
   constraints, +8.2% area and not a PASS.
 
 
+### GRT_ANTENNA_MARGIN 25 and 10 on the `hul` recipe (2026-10-09)
+
+Two full OpenLane 2.3.10 runs, case `aes__2026-10-09`, spec
+`run_spec_iter11.json`, ITERS back at 10. The option was applied (`resolved.json`
+and the repair step configs carry 25 and 10). Numbers in
+`evidence-20261009/summary.json`.
+
+| MARGIN | antenna | diodes | nets with 8+ diodes | slew / cap | area um2 |
+|---|---|---|---|---|---|
+| 50 (`hul`) | 6 | 1116 | 39 | 0 / 0 | 145844 |
+| 25 | 10 | 415 | 6 | 0 / 0 | 144044 |
+| 10 | 11 | 236 | 1 | 2 / 1 | 143596 |
+
+- **MARGIN is a lever, unlike ITERS.** The diode cluster follows it: lowering
+  the margin removes most diodes and the 11 to 12 nets, and area falls 1.2% and
+  1.5%. This supports "the cluster is margin-driven repair"; it does not show
+  the mechanism per net.
+- **The cost is the residual antenna count.** 6 at 50, 10 at 25, 11 at 10, and at
+  10 two slew and one capacitance violation return. Neither run is a PASS;
+  `hul` at 50 is still the run with the fewest violations. Single runs; whether
+  the 10 versus 11 difference means anything is not established.
+- **The seconds of the margin 10 run (2752 s) include a cold Docker start** and
+  are not a cost estimate.
+- Not tested: margins between 25 and 50 (for example 35), diode cell choice,
+  RTL-level net splitting.
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
   axis. If the 11 to 12 cluster is one diode per iteration it should shrink to
   about the iteration count plus one, which should relieve slew, capacitance and
   fanout on those nets; the cost to watch is the final antenna count.
+- **(Done 2026-10-09, see above.)** `GRT_ANTENNA_MARGIN` on the `hul` recipe: a lever for diode count, trading against residual antenna count.
 - **Antenna itself**: 4 to 6 pins at P/R 1.0 to 2.4 after detailed routing, a
   different set in each run (`text_in_r[26]` recurs). Diode count and iterations
   are the lever the data points to; flow work such as repair after detailed
