@@ -1,0 +1,104 @@
+{
+ "20261009-m65i5-hul-margin65-iters5": {
+  "tag": "20261009-m65i5-hul-margin65-iters5",
+  "antenna": 3,
+  "antenna_after_route": 71,
+  "fanout": 1,
+  "slew": 14,
+  "cap": 2,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.703,
+  "worst_hold": 0.075,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 149072,
+  "core_util": 0.412,
+  "wire_um": 763042,
+  "die": 383188,
+  "power": 0.10302595049142838,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.23",
+    "_03113_",
+    "_11635_/B"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ },
+ "20261009-m65i20-hul-margin65-iters20": {
+  "tag": "20261009-m65i20-hul-margin65-iters20",
+  "antenna": 5,
+  "antenna_after_route": 71,
+  "fanout": 4,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.714,
+  "worst_hold": 0.031,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 149082,
+  "core_util": 0.412,
+  "wire_um": 762943,
+  "die": 383188,
+  "power": 0.10306724160909653,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "2.10",
+    "net21",
+    "_11887_/A2"
+   ],
+   [
+    "1.83",
+    "net90",
+    "_11723_/A1"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.35",
+    "text_in_r[124\\]",
+    "_22071_/A0"
+   ],
+   [
+    "1.01",
+    "_10672_",
+    "_19448_/A2"
+   ]
+  ]
+ }
+}
