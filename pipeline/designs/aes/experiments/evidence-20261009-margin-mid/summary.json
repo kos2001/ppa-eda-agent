@@ -1,0 +1,129 @@
+{
+ "20261009-m60-hul-margin60": {
+  "tag": "20261009-m60-hul-margin60",
+  "antenna": 7,
+  "antenna_after_route": 71,
+  "fanout": 0,
+  "slew": 14,
+  "cap": 2,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.653,
+  "worst_hold": 0.055,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 147618,
+  "core_util": 0.408,
+  "wire_um": 760772,
+  "die": 383188,
+  "power": 0.10285655409097672,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "2.92",
+    "_03264_",
+    "_11850_/S"
+   ],
+   [
+    "1.46",
+    "_00235_",
+    "_22313_/D"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.11",
+    "_01477_",
+    "_20733_/A"
+   ],
+   [
+    "1.10",
+    "fanout_repair_net_504",
+    "_11253_/B"
+   ],
+   [
+    "1.07",
+    "net88",
+    "_11718_/A1"
+   ],
+   [
+    "1.04",
+    "_08054_",
+    "fanout_repair_67/A"
+   ]
+  ]
+ },
+ "20261009-m65-hul-margin65": {
+  "tag": "20261009-m65-hul-margin65",
+  "antenna": 6,
+  "antenna_after_route": 71,
+  "fanout": 2,
+  "slew": 8,
+  "cap": 1,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.722,
+  "worst_hold": 0.038,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 149069,
+  "core_util": 0.412,
+  "wire_um": 762461,
+  "die": 383188,
+  "power": 0.10304746776819229,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25
+  },
+  "ant_pins": [
+   [
+    "1.53",
+    "_03644_",
+    "_12437_/A1_N"
+   ],
+   [
+    "1.48",
+    "u0.w[0\\][14\\]",
+    "_21889_/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.18",
+    "_05502_",
+    "_14220_/B1"
+   ],
+   [
+    "1.00",
+    "net29",
+    "_11894_/A2"
+   ],
+   [
+    "1.00",
+    "net1304",
+    "_22022_/S"
+   ]
+  ]
+ }
+}

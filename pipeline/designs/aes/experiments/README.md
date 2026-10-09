@@ -367,6 +367,51 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. Neither is a PASS.
   violations and no new failures would have to be.
 
 
+### GRT_ANTENNA_MARGIN 60 and 65 on the `hul` recipe (2026-10-09)
+
+Two full OpenLane 2.3.10 runs between `hul`'s 50 and the 75 above, case
+`aes__2026-10-09__001338`, spec `closure-20261009-antenna-margin-mid.json`, ITERS 10.
+Both values are inside OpenROAD's accepted [0, 100). The option was applied
+(`resolved.json` and the repair step configs carry 60 and 65). Evidence in
+`evidence-20261009-margin-mid/`.
+
+| MARGIN | antenna | diodes | nets with 11-12 diodes | fanout / slew / cap | area um2 |
+|---|---|---|---|---|---|
+| 50 (`hul`) | 6 | 1116 | 27 | 0 / 0 / 0 | 145844 |
+| 60 | 7 | 1790 | 50 | 0 / 14 / 2 | 147618 |
+| 65 | 6 | 2309 | 70 | 2 / 8 / 1 | 149069 |
+| 75 | 3 | 4134 | 132 | 3 / 2 / 2 | 154059 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. Neither is a PASS, and
+neither is better than `hul`: **the hypothesis is falsified.** No point between 50 and
+75 gives fewer than 6 antenna violations with the other gates at 0; new failures
+appear as soon as the margin leaves 50.
+
+- **Across 10, 25, 50, 60, 65, 75 the residual antenna count is not monotone**
+  (11, 10, 6, 7, 6, 3) while the diode count is (236, 415, 1116, 1790, 2309, 4134).
+  Above 50 every margin brings back failures; the antenna count only drops
+  below 6 at 75, where three fanout violations come with it.
+- **The new failures are the same kind of net each time**: a weak or mid-size
+  driver loaded with many diodes. At 60 `_20763_` (`xnor2_2`, 11 diodes among 12
+  sinks) and `_20194_` (`o31ai_4`, 12 of 13) exceed slew and capacitance; `_20194_`
+  also failed in `hl`. At 65 `_11666_` (`xor2_1`, 6 of 7 sinks) exceeds slew and
+  capacitance, `_22403_/Q` (`dfxtp_2`, 13 diodes among 20 sinks, 7 real loads)
+  and `_17277_/Y` (`nand4_4`, 15 real loads plus 2 diodes, also failed in `hl`)
+  exceed fanout 16.
+- **At 65 the iteration cap binds for the first time in these runs.** Repair
+  steps 2 and 3 run all 10 iterations with one violation left from iteration 5
+  or 6 on (231, 76, 7, 3, 1, 1, 1, 1, 1, 1 and 97, 60, 5, 2, 1, 1, 1, 1, 1, 1);
+  step 1 ends at 0 after 7. At 50, 60 and 75 every step ended at 0 within 7
+  iterations. The 2026-10-07 result (ITERS does nothing) was measured at margin
+  50 and still holds there; whether ITERS matters at 65 is untested.
+- The driver size-up that cleared `_20258_` cannot be reused for these nets:
+  `driver_size.compatible_family` accepts only the `buf`, `clkbuf` and
+  `o2bb2ai` families, and the failing cells here are `xnor2`, `xor2`, `o31ai`,
+  `nand4`, `dfxtp` and (at 75) `a211oi`.
+- Single runs. The failures move between margins, so a neighbouring value could
+  land differently; nothing here measures that.
+
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -376,8 +421,17 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. Neither is a PASS.
 - **(Done 2026-10-09, see above.)** `GRT_ANTENNA_MARGIN` on the `hul` recipe: a lever for diode count, trading against residual antenna count.
 - **(Done 2026-10-09, 75 and 100.)** MARGIN above 50: 75 gives 3 antenna but 3 fanout,
   2 slew and 2 cap violations; 100 is out of range and disables the repair.
-- **MARGIN between 50 and 75** (60, 65), then, if the new failures stay at 0, the
-  weak driver `_19764_` (`a211oi_1`) as a measured driver size-up like `_20258_`.
+- **(Done 2026-10-09, 60 and 65.)** MARGIN between 50 and 75: no point has fewer than 6
+  antenna violations with the other gates at 0; 60 and 65 bring back slew,
+  capacitance and fanout on diode-loaded nets.
+- **Driver size-up beyond `buf`/`clkbuf`/`o2bb2ai`** (flow work): the nets that fail
+  across the margin runs are `xnor2`, `xor2`, `o31ai`, `nand4`, `dfxtp`, `a211oi`.
+  Each family would need the Liberty function check done for `o2bb2ai`. It
+  removes known failures only; the margin runs show new ones appear elsewhere
+  (`_20258_` at 50, then `_20194_`, `_20763_`, `_11666_`), so this is a way to
+  explore the residue, not a closure plan.
+- **ITERS at MARGIN 65**, where the cap binds, to see whether the stuck violation
+  and the diodes on `_22403_` follow the cap.
 - **(Done: `candidate_plan.TOOL_RANGES`.)** A range check for `GRT_ANTENNA_MARGIN`
   (integer, at least 0 and below 100) in `--validate-only` and at run start. The
   tool only warned at run time, after the 25 minutes the run takes, and the flow
@@ -386,8 +440,9 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. Neither is a PASS.
   `closure-20261009-antenna-margin-high.json`, the record of the run that exposed
   the gap, no longer passes `--validate-only` (its 100 candidate is rejected).
 - **Antenna itself**: 4 to 6 pins at P/R 1.0 to 2.4 after detailed routing, a
-  different set in each run (`text_in_r[26]` recurs). Diode count and iterations
-  are the lever the data points to; flow work such as repair after detailed
-  routing is not supported by the step counts above.
+  different set in each run (`text_in_r[26]` recurs). Margin sets the diode
+  count but no value from 10 to 75 clears antenna and the other gates together, and
+  the iteration cap does not bind at 50; repair after detailed routing is not
+  supported by the step counts above.
 - A qualification attempt needs the original 10 ns, 0.75 ns and fanout 10; `orig`
   shows the recipe is far from it, and nothing here changes that.
