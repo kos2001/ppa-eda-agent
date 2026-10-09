@@ -1,0 +1,48 @@
+[
+ {
+  "kind": "slew",
+  "driver": "_20763_/Y",
+  "cell": "xnor2_2",
+  "net": "_01507_",
+  "limit": "1.492525",
+  "value": "1.547809",
+  "sinks": 12,
+  "diode_sinks": 11
+ },
+ {
+  "kind": "slew",
+  "driver": "_20194_/Y",
+  "cell": "o31ai_4",
+  "net": "_00133_",
+  "limit": "1.488467",
+  "value": "1.493776",
+  "sinks": 13,
+  "diode_sinks": 12
+ },
+ {
+  "kind": "slew",
+  "driver": "(all violated pins)",
+  "violated_pins": 14,
+  "of_which_diode_pins": 11
+ },
+ {
+  "kind": "capacitance",
+  "driver": "_20763_/Y",
+  "cell": "xnor2_2",
+  "net": "_01507_",
+  "limit": "0.075999",
+  "value": "0.080200",
+  "sinks": 12,
+  "diode_sinks": 11
+ },
+ {
+  "kind": "capacitance",
+  "driver": "_20194_/Y",
+  "cell": "o31ai_4",
+  "net": "_00133_",
+  "limit": "0.086070",
+  "value": "0.088394",
+  "sinks": 13,
+  "diode_sinks": 12
+ }
+]
