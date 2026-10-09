@@ -1,0 +1,125 @@
+{
+ "41-openroad-repairantennas": {
+  "config_GRT_ANTENNA_MARGIN": 65,
+  "config_GRT_ANTENNA_ITERS": 5,
+  "iterations_executed": 5,
+  "hit_iteration_cap": true,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 379,
+    "nets_rerouted": 4465,
+    "diodes_inserted": 1411
+   },
+   {
+    "iteration": 2,
+    "violations_found": 69,
+    "nets_rerouted": 339,
+    "diodes_inserted": 125
+   },
+   {
+    "iteration": 3,
+    "violations_found": 7,
+    "nets_rerouted": 10,
+    "diodes_inserted": 7
+   },
+   {
+    "iteration": 4,
+    "violations_found": 1,
+    "nets_rerouted": 1,
+    "diodes_inserted": 1
+   },
+   {
+    "iteration": 5,
+    "violations_found": 1,
+    "nets_rerouted": 1,
+    "diodes_inserted": 1
+   }
+  ],
+  "diodes_inserted_total": 1545,
+  "single_violation_iterations": 2,
+  "iterations_with_1_violation_and_1_diode": 2
+ },
+ "46-openroad-repairantennas-1": {
+  "config_GRT_ANTENNA_MARGIN": 65,
+  "config_GRT_ANTENNA_ITERS": 5,
+  "iterations_executed": 5,
+  "hit_iteration_cap": true,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 242,
+    "nets_rerouted": 4683,
+    "diodes_inserted": 446
+   },
+   {
+    "iteration": 2,
+    "violations_found": 85,
+    "nets_rerouted": 249,
+    "diodes_inserted": 126
+   },
+   {
+    "iteration": 3,
+    "violations_found": 10,
+    "nets_rerouted": 14,
+    "diodes_inserted": 11
+   },
+   {
+    "iteration": 4,
+    "violations_found": 4,
+    "nets_rerouted": 4,
+    "diodes_inserted": 4
+   },
+   {
+    "iteration": 5,
+    "violations_found": 2,
+    "nets_rerouted": 2,
+    "diodes_inserted": 2
+   }
+  ],
+  "diodes_inserted_total": 589,
+  "single_violation_iterations": 0,
+  "iterations_with_1_violation_and_1_diode": 0
+ },
+ "50-openroad-repairantennas-2": {
+  "config_GRT_ANTENNA_MARGIN": 65,
+  "config_GRT_ANTENNA_ITERS": 5,
+  "iterations_executed": 5,
+  "hit_iteration_cap": true,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 104,
+    "nets_rerouted": 4521,
+    "diodes_inserted": 141
+   },
+   {
+    "iteration": 2,
+    "violations_found": 38,
+    "nets_rerouted": 103,
+    "diodes_inserted": 46
+   },
+   {
+    "iteration": 3,
+    "violations_found": 6,
+    "nets_rerouted": 10,
+    "diodes_inserted": 6
+   },
+   {
+    "iteration": 4,
+    "violations_found": 3,
+    "nets_rerouted": 3,
+    "diodes_inserted": 4
+   },
+   {
+    "iteration": 5,
+    "violations_found": 2,
+    "nets_rerouted": 2,
+    "diodes_inserted": 2
+   }
+  ],
+  "diodes_inserted_total": 199,
+  "single_violation_iterations": 0,
+  "iterations_with_1_violation_and_1_diode": 0
+ }
+}
