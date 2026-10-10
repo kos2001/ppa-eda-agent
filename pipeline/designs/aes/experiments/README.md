@@ -622,7 +622,7 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in all three. **None is a PASS
   fanout violators that sat on such nets. It is an insufficient fix on its own:
   the failures left sit on nets below the threshold or on a weak driver.
   Not tested: other margins, other keep values with `DIODE_TRIM_MIN_DIODES` below 10,
-  repeats of the same candidate (the spread of the antenna count is unknown).
+  repeats of the same candidate (the unchanged-repeat control is in a later section).
 
 ### Lowering the trim threshold: DIODE_TRIM_MIN_DIODES 8 and 6 (2026-10-10)
 
@@ -689,14 +689,35 @@ every run of this recipe). Magic DRC, KLayout DRC, LVS, setup and hold are 0 in 
   violator in the MIN 6 run. The diode counts in the table (before the trim) are 4154 and 4234 against 4134, so the
   upsize changed the netlist the repair steps saw; the MIN 6 result for the other nets was not stable under it.
 - **Antenna rises from 3 to 8 and 9** (P/R up to 3.11 in `_2`, 2.11 in `_4`; `hold37/A` at 3.11).
-  The only input that differs from the MIN 6 run is the `_19764_` size, and I cannot say through which
-  route that moves 5 to 6 more pins; both runs are high, which a single-run spread of the 2 to 4 seen
-  in the five trim runs would not explain, but two runs do not fix a cause.
+  The only input that differs from the MIN 6 run is the `_19764_` size, so the upsize produces
+  the 5 to 6 more pins (the repeat in the next section shows the flow is deterministic); through which
+  route is not traced.
 - **What it supports.** An isolated single-net fix does not make this recipe signoff-clean: the last non-antenna
   failure was specific to that placement and routing, and an ordinary upsize of its driver
   replaced it. The MIN 6 trim run without the upsize remains the best measured point of the trim series
-  (3 antenna, one weak driver). Not tested: other drivers, repeats of the MIN 6 run to measure how much
-  the failing set changes without any change, which is the control this section lacks.
+  (3 antenna, one weak driver). Not tested: other drivers. The control for run-to-run spread is in the next section.
+
+### Control: an unchanged repeat of the MIN 6 run (2026-10-11)
+
+The MIN 6 run (keep 2, MARGIN 75) repeated with the same overrides, PDK, SCL and design
+files, only the tag differs: spec `closure-20261011-min6-repeat.json`, case
+`aes__2026-10-11__154943`, evidence in `evidence-20261011-min6-repeat/`. It
+answers whether the series' single-run differences could be run-to-run spread.
+
+- **The repeat is identical.** The final netlist (sha256 of the uncompressed file), the
+  antenna summaries after global route and at the end, the DiodeTrim report, the violator
+  attribution and all nine corner check reports are byte-for-byte the same as in the
+  first MIN 6 run: 3 antenna (P/R 1.67, 1.47, 1.37), fanout 0, slew and capacitance on `_19764_`
+  only, area 149888 um2, worst setup 0.700 ns. 6 of the metrics differ, all
+  VGND IR-drop figures from the power-grid analysis (worst drop 0.003523 against 0.003538 V); no
+  signoff gate or count moves.
+- **So the flow is deterministic here, and the differences in this series are caused
+  by the inputs that were changed.** The 8 and 9 antenna pins of the `a211oi` runs are produced by
+  the `_19764_` upsize, not by spread, and so are the 2 to 4 of the trim series by the keep and MIN
+  values. This replaces the earlier hedges that a difference of one pin could not be told from
+  run-to-run variation. What it does not give is the mechanism: why a one-cell
+  change moves the failing set and the antenna count is not traced, and one repeat on one machine
+  does not show the result is stable across hosts or tool builds.
 
 ### Next candidates
 
@@ -724,9 +745,8 @@ every run of this recipe). Magic DRC, KLayout DRC, LVS, setup and hold are 0 in 
   MIN 6 leaves fanout 0 and only `_19764_` of the non-antenna failures; MIN 8 does not reach `_20345_`.
 - **(Done 2026-10-11, `a211oi_2` and `_4`: see the section above.)** `_19764_` upsize: its slew and
   capacitance clear, other nets fail instead and antenna rises to 8 and 9. Not a better point.
-- **A repeat of the MIN 6 run**, unchanged, is the missing control: how many of its failures and
-  antenna pins recur when nothing is changed. It decides whether the 2 to 4 antenna spread of the trim series and the
-  failing sets are reproducible at all.
+- **(Done 2026-10-11.)** A repeat of the MIN 6 run, unchanged: byte-identical outputs, so the
+  differences between runs in this series come from the inputs that changed.
 - A driver size-up beyond `buf`/`clkbuf`/`o2bb2ai` is **not** built for the recorded
   failures. Some failing cells could be sized up (`xnor2_2`, `xor2_1`, `a211oi_1` have
   `_4`), but no margin run would close by it: at MARGIN 60 the other failure `_20194_` is
