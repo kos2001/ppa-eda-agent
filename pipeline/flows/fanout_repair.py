@@ -39,7 +39,30 @@ def driver_sizing_requested(overrides):
     return bool(cells)
 
 
-def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizing=False):
+def diode_trim_requested(overrides):
+    """(keep, min_diodes) when DIODE_TRIM_KEEP asks for the step, else None.
+
+    DIODE_TRIM_KEEP: diodes kept on every net that carries DIODE_TRIM_MIN_DIODES
+    or more (default 10, the checker's cap). Off when absent or 0.
+    """
+    keep, minimum = 0, 10
+    for override in overrides:
+        key, _, value = override.partition("=")
+        if key == "DIODE_TRIM_KEEP":
+            keep = int(value)
+        elif key == "DIODE_TRIM_MIN_DIODES":
+            minimum = int(value)
+    if keep == 0:
+        return None
+    if keep < 1:
+        raise ValueError("DIODE_TRIM_KEEP must be 0 (off) or a positive integer")
+    if minimum <= keep:
+        raise ValueError("DIODE_TRIM_MIN_DIODES must be greater than DIODE_TRIM_KEEP")
+    return keep, minimum
+
+
+def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizing=False,
+               diode_trim=False):
     if not 1 <= rounds <= 3:
         raise ValueError("fanout repair is bounded to 1 through 3 rounds")
     from openlane.config import Variable
@@ -107,6 +130,27 @@ def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizin
                 "--report", str(Path(self.step_dir) / "driver_sizes.json"),
             ]
 
+    class DiodeTrim(OdbpyStep):
+        id = "Odb.DiodeTrim"
+        name = "Remove excess antenna diodes from capped nets"
+        config_vars = [
+            Variable("DIODE_TRIM_KEEP", int,
+                     "Diodes kept on every net with DIODE_TRIM_MIN_DIODES or more; the rest are removed. 0 disables the step."),
+            Variable("DIODE_TRIM_MIN_DIODES", int,
+                     "A net is trimmed when it carries at least this many diodes; 10 is the antenna checker's per-gate cap.",
+                     default=10),
+        ]
+
+        def get_script_path(self):
+            return str(Path(__file__).with_name("diode_trim.py"))
+
+        def get_command(self):
+            return super().get_command() + [
+                "--keep", str(self.config["DIODE_TRIM_KEEP"]),
+                "--min-diodes", str(self.config["DIODE_TRIM_MIN_DIODES"]),
+                "--report", str(Path(self.step_dir) / "diode_trim.json"),
+            ]
+
     class ProtectMacroPinBuffers(MacroPinBuffers):
         id = "Odb.ProtectMacroPinBuffers"
         name = "Preserve dedicated macro buffer strength"
@@ -133,6 +177,10 @@ def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizin
             for _ in range(rounds):
                 steps.extend([FanoutBuffers, OpenROAD.DetailedPlacement,
                               OpenROAD.GlobalRouting, OpenROAD.RepairAntennas])
+            if diode_trim:
+                # After the last antenna repair: its diodes are final, and
+                # detailed routing routes from the guides again.
+                steps.append(DiodeTrim)
             if macro_buffers:
                 # Fanout repair may reconnect a new buffer's input. OpenDB
                 # forbids rewiring a dont_touch instance, so protect strength
@@ -161,7 +209,8 @@ def main():
     if macro_buffers and not args.concrete_magic:
         ap.error("macro input buffering requires --concrete-magic")
     flow = flow_class(args.concrete_magic, repair_rounds(args.override_config), macro_buffers,
-                      driver_sizing_requested(args.override_config))(
+                      driver_sizing_requested(args.override_config),
+                      diode_trim_requested(args.override_config) is not None)(
         args.config, pdk_root=args.pdk_root, pdk=args.pdk, scl=args.scl,
         config_override_strings=args.override_config)
     flow.start(tag=args.run_tag, overwrite=args.overwrite, to=args.to)

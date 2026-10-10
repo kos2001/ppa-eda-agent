@@ -138,7 +138,17 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
 # aes run at 100 cost about 25 minutes and was recorded as an ordinary FAIL
 # with 64 antenna violations. Evidence: pipeline/designs/aes/experiments/
 # evidence-20261009-margin-high/openroad_source_excerpts.txt.
+# DIODE_TRIM_KEEP is this repository's own opt-in step (flows/diode_trim.py).
+# Its range is listed here so a bad value fails at --validate-only, not after the
+# flow starts; 0 is rejected because the step is only part of the flow when the
+# override is positive, so DIODE_TRIM_KEEP=0 would be reported as an ignored
+# override. Keeping 10 or more diodes could never trim the cap's 10.
 TOOL_RANGES = {
+    "DIODE_TRIM_KEEP": (
+        1, 10,
+        "keeps this many diodes on every net the DiodeTrim step trims; 0 is not "
+        "a value (leave the override out to disable the step) and 10 or more "
+        "would trim nothing at the checker's cap"),
     "GRT_ANTENNA_MARGIN": (
         0, 100,
         "OpenROAD repair_antennas accepts a ratio margin in [0, 100); at 100 "
