@@ -540,11 +540,13 @@ database (step 38) of the ITERS 5 / MARGIN 65 run, for one iteration, at margins
 mounted read-only. Per-net counts: `first_iteration_counts.json`; tables:
 `summarize_probe.py`; the step-38 database itself is not archived.
 
-**Fidelity.** At MARGIN 65 this finds 387 violations and inserts 1413 diodes; the
-real first iteration found 379 and inserted 1545. Of the 337 nets in both, 330 (97.9%)
-have the same diode count, and the nets at the cap are 72 against the real 74 (72 in
-both). The difference is mostly nets with one diode (222 against 255); the cause was
-not found. Margin 65 reproduces itself when repeated (387 and 1413).
+**Fidelity.** The real first iteration of that step (the archived
+`antenna_repair_iterations.json`) found 379 violations and inserted 1411 diodes on 382
+nets; the probe at MARGIN 65 finds 387 and inserts 1413 on 387. Of the 332 nets in both,
+328 (98.8%) have the same diode count, and the nets at the cap are the same 72 in both,
+with the same distribution (10 diodes: 7, 11: 48, 12: 14, 13 or more: 3). The
+difference is in nets with one diode (209 against 222) and in the violation count (379
+against 387); the cause was not found. MARGIN 65 reproduces itself when repeated.
 
 | margin | violations | diodes | nets at the cap (10+) | diodes on capped nets | real-rule violators needing 10+ |
 |---:|---:|---:|---:|---:|---:|
