@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def compatible_family(old: str, new: str) -> bool:
-    pattern = r"sky130_fd_sc_hd__(buf|clkbuf|o2bb2ai)_(\d+)"
+    pattern = r"sky130_fd_sc_hd__(buf|clkbuf|o2bb2ai|a211oi)_(\d+)"
     a, b = re.fullmatch(pattern, old), re.fullmatch(pattern, new)
     return bool(a and b and a[1] == b[1] and int(b[2]) > int(a[2]))
 
