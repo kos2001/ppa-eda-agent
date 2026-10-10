@@ -574,6 +574,56 @@ against 387); the cause was not found. MARGIN 65 reproduces itself when repeated
   rule needs its diodes after re-routing is not shown here.
 
 
+### Trimming the cap-hit diodes at MARGIN 75 (2026-10-10)
+
+The `Odb.DiodeTrim` step (`pipeline/flows/diode_trim.py`, PR #77) on the recorded
+MARGIN 75 recipe: after the last RepairAntennas, every net with at least
+`DIODE_TRIM_MIN_DIODES` (10) antenna diodes keeps its first `DIODE_TRIM_KEEP` and
+loses the rest, then detailed routing and the final antenna check run as usual.
+Three full OpenLane 2.3.10 runs, spec `closure-20261010-diode-trim.json`, case
+`aes__2026-10-10`, evidence in `evidence-20261010-diode-trim/` (`archive_trim.py`
+and `summarize_trim.py` rebuild it from a scratch directory). The option was applied:
+`resolved.json` and each `diode_trim.json` carry the keep value, and the report lists
+the 147 trimmed nets with their before and after counts. Rows for `hul` and 75 are from
+the sections above.
+
+| run | diodes | nets with 10+ / 8+ diodes | antenna | fanout / slew / cap | area um2 | wire um | worst setup ns |
+|---|---|---|---|---|---|---|---|
+| 50 (`hul`) | 1116 | n/a / 39 | 6 | 0 / 0 / 0 | 145844 | n/a | n/a |
+| 75 | 4134 | 147 / 166 | 3 | 3 / 2 / 2 | 154059 | 772409 | 0.652 |
+| 75, keep 4 | 3064 | 0 / 19 | 4 | 1 / 2 / 2 | 151381 | 771636 | 0.658 |
+| 75, keep 2 | 2770 | 0 / 19 | 3 | 1 / 2 / 2 | 150646 | 771423 | 0.695 |
+| 75, keep 1 | 2623 | 0 / 19 | 2 | 1 / 2 / 2 | 150278 | 770888 | 0.644 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in all three. **None is a PASS**
+(fanout, slew and capacitance remain), and none is signoff-clean against `hul`.
+
+- **The trim does what it targets and nothing else.** All 147 nets with 10 or more
+  diodes were trimmed (1070, 1364 and 1511 diodes removed at keep 4, 2 and 1 of 4134), and
+  the two fanout violators of the 75 run that sat on such nets are gone (`_11103_`,
+  14 diodes among 18 sinks, and `_22441_/Q`, 15 among 17). Fanout falls from 3 to 1. Area is
+  -1.7%, -2.2% and -2.5% against the 75 run and still +3.0% to +3.8% against `hul`.
+- **The three failures left are the same in all three runs, and the trim never saw
+  them.** `_20345_` (`o2111ai_4`, fanout 18 against 16) has 6 diodes among its 18 sinks;
+  `clkbuf_0_clk/X` (`clkbuf_16`) exceeds 0.2 pF (0.2039 to 0.2079 over the runs and
+  max corners) with 8 diodes among 12 sinks; both are below the 10-diode threshold. `_19764_`
+  (`a211oi_1`, one sink, no diode) fails slew (1.667 ns at keep 1, 1.649 at keep 4, 1.773 at keep 2
+  at max_ss against 1.4645) and capacitance; it
+  failed the same way at 75 (1.732 ns) and is a weak driver, not a diode effect. Largest
+  net after the trim: 9 diodes; 19 nets keep 8 or more, 60 keep 6 or more.
+- **Antenna does not rise as the kept diodes fall.** Final counts are 4, 3, 2 for keep 4, 2,
+  1 against 3 at 75, the reverse order of the protection kept. Each is one run, the
+  difference is one pin, and I cannot separate it from the routing change a different
+  netlist causes, so there is no claim about the direction. The 4 to 2 pins are at P/R 1.37 to 1.78;
+  `net1221` / `fanout_repair_1520/A` (1.47) is present at 75 and in all three trims, and
+  `u0.w[0][3]` / `_19791_/C` in the three trims; the trim did not remove them.
+- **What it supports.** Removing diodes from capped nets after repair did not cost
+  antenna violations in these runs (the first-iteration probe could not say) and it removed the
+  fanout violators that sat on such nets. It is an insufficient fix on its own:
+  the failures left sit on nets below the threshold or on a weak driver.
+  Not tested: other margins, other keep values with `DIODE_TRIM_MIN_DIODES` below 10,
+  repeats of the same candidate (the spread of the antenna count is unknown).
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -593,14 +643,18 @@ against 387); the cause was not found. MARGIN 65 reproduces itself when repeated
   the cap (one diode per stuck iteration), the outcome does.
 - **(Done 2026-10-10.)** The 11-diode cluster is the checker's 10-diode cap and the stuck
   violation is the margin-tightened target on nets that satisfy the real rule (section above).
-- **Trim the diodes that sit on cap-hit nets that satisfy the real rule** (flow work, opt-in,
-  like `FanoutRepair`). At margin 75, 1467 of the 2303 first-iteration diodes go to nets at
-  the cap, where the real rule needs 35; those diodes are what brings back the fanout,
-  slew and capacitance violations of the margin 75 run (up to 15 diodes among 17 sinks).
-  The open question is the cost on the final antenna count: the first-iteration probe does
-  not say whether the nets still need their protection after detailed routing, so the
-  candidate is a measured one: margin 75, then remove the capped nets' excess, then
-  re-route and re-check, compared with margins 50 and 75 as they are.
+- **(Done 2026-10-10, keep 4, 2, 1 at 75: see the section above.)** Trim the diodes that sit on
+  cap-hit nets that satisfy the real rule (`Odb.DiodeTrim`). Fanout 3 to 1, antenna 4, 3, 2,
+  slew and capacitance unchanged at 2 and 2, no PASS.
+- **Lower `DIODE_TRIM_MIN_DIODES` to reach the nets the first trim missed.** At 75 the
+  remaining diode-related failures are `_20345_` (6 diodes among 18 sinks, limit 16) and
+  `clkbuf_0_clk` (8 among 12, 0.2039 pF against 0.2). `DIODE_TRIM_MIN_DIODES` 6 with keep 2 covers both
+  (60 nets keep 6 or more). Predicts fanout 0 and the clock capacitance below 0.2 pF;
+  falsified if either remains or the antenna count rises above the 2 to 4 seen. One axis from
+  the keep 2 run.
+- **`_19764_` is separate**: a weak `a211oi_1` driving one sink, failing slew and capacitance in
+  every 75 run. `a211oi_4` exists; whether it is a same-function upsize is checked against
+  the Liberty and the OpenDB pins before the run (`FANOUT_REPAIR_DRIVER_CELLS`).
 - A driver size-up beyond `buf`/`clkbuf`/`o2bb2ai` is **not** built for the recorded
   failures. Some failing cells could be sized up (`xnor2_2`, `xor2_1`, `a211oi_1` have
   `_4`), but no margin run would close by it: at MARGIN 60 the other failure `_20194_` is

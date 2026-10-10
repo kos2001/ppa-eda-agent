@@ -1,0 +1,192 @@
+[
+ {
+  "corner": "max_ff_n40C_1v95",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "max_ff_n40C_1v95",
+  "kind": "capacitance",
+  "driver": "clkbuf_0_clk/X",
+  "cell": "clkbuf_16",
+  "net": "clknet_0_clk",
+  "limit": "0.200000",
+  "value": "0.203908",
+  "sinks": 12,
+  "diode_sinks": 8
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "slew",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "1.464535",
+  "value": "1.666924",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "slew",
+  "driver": "(all violated pins)",
+  "violated_pins": 2,
+  "of_which_diode_pins": 0
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "capacitance",
+  "driver": "clkbuf_0_clk/X",
+  "cell": "clkbuf_16",
+  "net": "clknet_0_clk",
+  "limit": "0.200000",
+  "value": "0.205368",
+  "sinks": 12,
+  "diode_sinks": 8
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "capacitance",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "0.026560",
+  "value": "0.031508",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "corner": "max_tt_025C_1v80",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "max_tt_025C_1v80",
+  "kind": "capacitance",
+  "driver": "clkbuf_0_clk/X",
+  "cell": "clkbuf_16",
+  "net": "clknet_0_clk",
+  "limit": "0.200000",
+  "value": "0.204536",
+  "sinks": 12,
+  "diode_sinks": 8
+ },
+ {
+  "corner": "min_ff_n40C_1v95",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "min_ss_100C_1v60",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "min_tt_025C_1v80",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "nom_ff_n40C_1v95",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "nom_ss_100C_1v60",
+  "kind": "slew",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "1.464535",
+  "value": "1.545258",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "corner": "nom_ss_100C_1v60",
+  "kind": "slew",
+  "driver": "(all violated pins)",
+  "violated_pins": 2,
+  "of_which_diode_pins": 0
+ },
+ {
+  "corner": "nom_ss_100C_1v60",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ },
+ {
+  "corner": "nom_ss_100C_1v60",
+  "kind": "capacitance",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "0.026560",
+  "value": "0.029002",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "corner": "nom_tt_025C_1v80",
+  "kind": "fanout",
+  "driver": "_20345_/Y",
+  "cell": "o2111ai_4",
+  "net": "_01097_",
+  "limit": "16",
+  "value": "18",
+  "sinks": 18,
+  "diode_sinks": 6
+ }
+]

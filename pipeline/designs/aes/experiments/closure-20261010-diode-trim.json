@@ -1,0 +1,89 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261010-m75-trim4-hul-margin75-trim4",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 4
+      },
+      "_why": "One axis from the recorded MARGIN 75 point: DIODE_TRIM_KEEP 4 (nets with 10 or more diodes keep 4). Predicts fewer slew, capacitance and fanout failures than the 3/2/2 recorded at MARGIN 75, at the price of more antenna violations than the 3 recorded; falsified if any trimmed point has more total failures than MARGIN 75 or hul (MARGIN 50)."
+    },
+    {
+      "tag": "aes-coupling-20261010-m75-trim2-hul-margin75-trim2",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2
+      },
+      "_why": "One axis from the recorded MARGIN 75 point: DIODE_TRIM_KEEP 2 (nets with 10 or more diodes keep 2). Predicts fewer slew, capacitance and fanout failures than the 3/2/2 recorded at MARGIN 75, at the price of more antenna violations than the 3 recorded; falsified if any trimmed point has more total failures than MARGIN 75 or hul (MARGIN 50)."
+    },
+    {
+      "tag": "aes-coupling-20261010-m75-trim1-hul-margin75-trim1",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 1
+      },
+      "_why": "One axis from the recorded MARGIN 75 point: DIODE_TRIM_KEEP 1 (nets with 10 or more diodes keep 1). Predicts fewer slew, capacitance and fanout failures than the 3/2/2 recorded at MARGIN 75, at the price of more antenna violations than the 3 recorded; falsified if any trimmed point has more total failures than MARGIN 75 or hul (MARGIN 50)."
+    }
+  ],
+  "candidate_budget": 3,
+  "evaluation_budget": {
+    "max_evaluations": 3,
+    "max_wall_seconds": 16000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Measure what trimming the 10-diode-cap piles after antenna repair costs in final antenna violations and what it recovers in fanout, slew and capacitance, against MARGIN 75 and hul; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261009-m75-hul-margin75 (3 antenna, 3 fanout, 2 slew, 2 cap) and aes-coupling-20261005-hul-h15-both (MARGIN 50: 6 antenna, 1116 diodes, 0 slew, 0 cap)"
+  },
+  "_why": "Next candidate from the 2026-10-10 probe: diodes at the 10-per-gate cap are 40 to 64% of first-iteration diodes at margins 50 to 75, while the real rule needs 1 to 4. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}
