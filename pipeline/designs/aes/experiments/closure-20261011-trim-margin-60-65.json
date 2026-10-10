@@ -1,0 +1,68 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261011-m60-trim-hul-margin60-keep2-min6",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 60,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the recorded MARGIN 60 run: DIODE_TRIM_KEEP 2 with DIODE_TRIM_MIN_DIODES 6 (the setting that left only the weak one-sink driver at 75). The recorded failures at this margin are mid-size drivers loaded with 6 to 15 diodes, which the trim reaches. Predicts those fanout, slew and capacitance failures clear and the antenna count stays at or below the recorded value; falsified if a diode-loaded net still fails or antenna rises above it. Signoff-clean against hul (6 antenna, 0 elsewhere) is the bar."
+    },
+    {
+      "tag": "aes-coupling-20261011-m65-trim-hul-margin65-keep2-min6",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 65,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the recorded MARGIN 65 run: DIODE_TRIM_KEEP 2 with DIODE_TRIM_MIN_DIODES 6 (the setting that left only the weak one-sink driver at 75). The recorded failures at this margin are mid-size drivers loaded with 6 to 15 diodes, which the trim reaches. Predicts those fanout, slew and capacitance failures clear and the antenna count stays at or below the recorded value; falsified if a diode-loaded net still fails or antenna rises above it. Signoff-clean against hul (6 antenna, 0 elsewhere) is the bar."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Find whether the diode trim (keep 2, MIN 6) turns MARGIN 60 and 65 into points with fewer than hul's 6 antenna violations and no other failures",
+    "reference": "aes-coupling-20261005-hul-h15-both (MARGIN 50: 6 antenna, 0 elsewhere) and the recorded MARGIN 60 and 65 runs (7 antenna 0/14/2; 6 antenna 2/8/1)"
+  },
+  "_why": "Applies the trim to the margins whose failures were diode-loaded mid-size drivers. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}

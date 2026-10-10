@@ -753,6 +753,40 @@ against 1.4645; 0.0315 and 0.0318 pF against 0.0266), with no other non-antenna 
   neighbourhood is smooth, and the `a211oi` runs show a one-cell change can move the failing set.
   Margins other than 75 and the original target are untested.
 
+### The trim at MARGIN 60 and 65 (2026-10-11)
+
+The MIN 6 / keep 2 trim applied to the two recorded mid margins whose failures were diode-loaded
+mid-size drivers, each one axis from its recorded run (ITERS 10, `hul` recipe): spec
+`closure-20261011-trim-margin-60-65.json`, case `aes__2026-10-11__170226`, evidence in
+`evidence-20261011-trim-margin-60-65/`. Rows for `hul` and the untrimmed runs are from the sections above.
+
+| run | trimmed nets | diodes before / after | antenna | fanout / slew / cap | area um2 | worst setup ns |
+|---|---|---|---|---|---|---|
+| 50 (`hul`) | n/a | 1116 | 6 | 0 / 0 / 0 | 145844 | n/a |
+| 60 | 0 | 1790 | 7 | 0 / 14 / 2 | 147618 | n/a |
+| 60, keep 2 / MIN 6 | 93 | 1790 / 1080 | 8 | 0 / 0 / 0 | 145841 | 0.821 |
+| 65 | 0 | 2309 | 6 | 2 / 8 / 1 | 149069 | n/a |
+| 65, keep 2 / MIN 6 | 118 | 2309 / 1363 | 4 | 1 / 0 / 1 | 146702 | 0.864 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. **Neither passes**, and neither dominates `hul`
+(which also fails on its 6 antenna pins).
+
+- **At 60 the trim clears every non-antenna failure.** The slew and capacitance failures of the untrimmed run
+  (14 and 2 corner counts, `_20763_` and `_20194_` with 11 to 12 diodes among 12 to 13 sinks)
+  are gone; the only failure left is antenna, 8 pins (P/R 1.06 to 2.92, the 2.92 on `_11850_/S`). Area is
+  -1.2% against the untrimmed 60 and equal to `hul` (145841 against 145844), with 1080 diodes against `hul`'s 1116.
+  Antenna is 8 against `hul`'s 6, so it is not better on the one gate that fails.
+- **At 65 the trim lowers antenna to 4 pins** (P/R 1.01 to 1.52), against 6 untrimmed and for `hul`. Two failures remain, both on nets
+  below the 6-diode threshold: `_17277_/Y` (`nand4_4`, 17 sinks of which 2 diodes, limit 16;
+  it failed in `hl` and the untrimmed 65 too) and `_11666_/X` (`xor2_1`, 3 sinks of which 2 diodes,
+  0.0462 against 0.0458 pF in one corner). The untrimmed run's slew failures and `_22403_`'s fanout are gone.
+- **The trim removes the diode-loaded failures at both margins**; what it does to antenna differs (+1 at 60,
+  -2 at 65), each from one run, so no direction is claimed. The flow is deterministic (repeat in an earlier
+  section), so those differences are caused by the trim input, through a route that is not traced.
+- **Not tested:** keep 1 at these margins, margins 55 and 70, ITERS other than 10, `xor2_1`
+  and `nand4_4` are outside the driver sizer's families. Neither run changes the 10 ns / 0.75 ns
+  qualification gap.
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
