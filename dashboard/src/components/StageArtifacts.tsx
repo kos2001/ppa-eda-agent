@@ -416,7 +416,7 @@ export default function StageArtifacts({
         <>
           <Verdicts candidates={candidates} />
           {/* Fmax/Vmin/rails/clocks for the candidate that got furthest —
-              the signoff facts a DTCO decision is made on, none of which
+              the signoff facts a design decision is made on, none of which
               a PASS/FAIL pill can carry. */}
           {(() => {
             const best =
