@@ -244,7 +244,7 @@ first antenna check as a net -> sink graph (output in `diode_clusters.txt`).
   cluster (at most 9; 11 nets with 8 or more). So 10 iterations are at most a
   necessary condition. What `orig` does not share with `c0`/`hul` (clock 10 against
   12 ns, fanout 10 against 16, the recipe) is not isolated by these runs.
-- **What is not established:** why a barely violating single-sink pin accumulates
+- **What is not established (answered 2026-10-10 below):** why a barely violating single-sink pin accumulates
   11 to 12 diodes, and whether the diodes shorten the repair or only repeat it.
   `run_spec_iter10.json` (ITERS 5 and 3 on the `hul` recipe) was the one-axis
   test; its result is below.
@@ -462,6 +462,63 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both new runs. Neither is a
   identified.
 
 
+### What the 11-diode cluster and the stuck violation are (analysis, 2026-10-10)
+
+No new run. It reads the archived final netlists, the per-iteration repair logs
+(`antenna_repair_iterations.json`, with the diodes each iteration inserted) and
+the OpenROAD source at the revision OpenLane 2.3.10 pins (`edf00dff...`):
+`GlobalRouter.cpp` `repairAntennas`, `RepairAntennas.cpp` `repairAntennas`,
+`AntennaChecker.cc` lines 796 to 880 and `AntennaChecker.hh` line 238.
+`evidence-20261009-margin65-iters/stuck_nets.py` names the nets that received
+the diodes of the late iterations (output beside each run).
+
+**What the source does.** For every gate that violates PAR or PSR the checker
+adds one diode's diffusion area at a time and re-checks, against the allowed
+ratio times `1 - margin/100`, until the gate passes. It stops when the count
+exceeds `max_diode_count_per_gate = 10`; the count is then 11, the violation is
+recorded with it, and `RepairAntennas::repairAntennas` inserts that many diodes
+per gate. A count of 0 would raise `GRT-0243`; it never appears in these logs.
+The loop then re-checks only the nets it re-routed.
+
+- **The 11 to 12 diode cluster is gates that hit that cap.** Nets with 11 diodes:
+  20, 39, 55, 100 at MARGIN 50, 60, 65, 75 (10 diodes: 4, 3, 8, 8; `orig` has
+  none above 9). All 11 diodes of a net arrive in one iteration: 55 of 55 nets
+  (ITERS 5 run) and 55 of 56 (ITERS 20 run); 17 of 17 and 16 of 16 for 12.
+  The set nests as the margin rises: 90 to 94% of the nets with 10 or more
+  diodes at one margin have them at the next (31, 53, 83, 147 nets). This
+  replaces the "ITERS plus one" reading: two different 10s. ITERS was 10 in those
+  runs, the cap is a constant of the checker, and ITERS 3 and 5 gave the same cluster.
+- **Why diodes stop helping.** The tech LEF gives the metal layers listed there
+  (lines 119 to 295 of `sky130_fd_sc_hd__max.tlef`) `ANTENNADIFFSIDEAREARATIO
+  PWL((0 400) (0.0125 400) (0.0225 2609) (22.5 11600))`, and `diode_2` has
+  `ANTENNADIFFAREA 0.4347`. The first diode takes the allowed side-area ratio
+  from 400 to about 2774; each further diode adds about 174 (slope 400 per um2).
+  Ten diodes give about 4339, 1.56 times one. A gate that needs more than that
+  relief at the margin-tightened ratio gets 11 diodes for little gain. Which
+  gates are such, and their partial areas, were not archived, so this is the
+  structure, not a per-gate reconstruction; why `orig` has no such gate was not
+  isolated.
+- **The stuck violation is not a violation of the real rule.** In the ITERS 20 run
+  the 19 diodes of the iterations that found 1 to 3 violations in repair step 2
+  went mostly to two nets driven by `clkbuf_8` buffers that `FanoutRepair`
+  inserted to split the clock: `fanout_repair_net_1463` (9 of its 10 diodes; five
+  `clkbuf_8` sinks) and `fanout_repair_net_1462` (8 of 11; two `clkbuf_8` and a
+  `dfxtp_4`). In the other steps of both runs the late iterations work on data
+  nets that already carry many diodes, `\u0.w[0][29]` (`dfxtp_2`, 14 diodes) and
+  `_00757_` (`o211ai_4`, 9) in both runs. (`fanout_repair_net_29` and `_30` are
+  `buf_4` data nets: the name does not mean a clock.) None of these nets is in the
+  report of `check_antennas` that follows each of the six steps (3, 7, 3 and 4, 9,
+  1 violations, all on other nets). So the loop keeps adding a diode to nets that
+  satisfy the real rule and miss its margin-tightened target.
+- **Most diodes are not on real-rule violators.** The first check lists 64 nets
+  that violate the real rule; 84 to 91% of the diodes (MARGIN 50 to 75) sit
+  elsewhere. This is an upper bound: nets can start violating after later
+  re-routes, and nets split by `FanoutRepair` get new names.
+- Not established: why a diode per iteration does not end the stuck violation, and
+  why the checker's count of 1 after the first diode does not hold after
+  legalization and re-routing.
+
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -482,10 +539,12 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both new runs. Neither is a
   explore the residue, not a closure plan.
 - **(Done 2026-10-09, 5 and 20.)** ITERS at MARGIN 65: the diode total barely follows
   the cap (one diode per stuck iteration), the outcome does.
-- **Identify the violation that stays at MARGIN 65** (step 2: one violation from
-  iteration 5 to 20, one diode per iteration). Which pin and net it is, and why a
-  diode cannot clear it, decide whether this is a layout limit or something a setting
-  can change.
+- **(Done 2026-10-10.)** The 11-diode cluster is the checker's 10-diode cap and the stuck
+  violation is the margin-tightened target on nets that satisfy the real rule (section above).
+- **Why the first diode's relief is not enough for those gates.** Archive each gate's
+  partial side and area ratios in the first check (the log does not print them) so the
+  gates that hit the cap can be told apart from those that do not; then see whether a
+  setting or the RTL (splitting those nets) changes them.
 - **(Done: `candidate_plan.TOOL_RANGES`.)** A range check for `GRT_ANTENNA_MARGIN`
   (integer, at least 0 and below 100) in `--validate-only` and at run start. The
   tool only warned at run time, after the 25 minutes the run takes, and the flow
