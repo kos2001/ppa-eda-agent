@@ -530,6 +530,48 @@ The loop then re-checks only the nets it re-routed.
   legalization and re-routing.
 
 
+### The margin sets the cap-hit nets, not the real rule: a one-iteration probe (2026-10-10)
+
+No new flow run. `evidence-20261010-margin-probe/repair_probe.tcl` runs OpenLane's
+own `antenna_repair.tcl` with the repair step's environment on the pre-repair
+database (step 38) of the ITERS 5 / MARGIN 65 run, for one iteration, at margins 0,
+10, 25, 50, 65 and 75, with `set_debug_level GRT repair_antennas 2`, which makes
+`RepairAntennas` print `antenna <net> insert <N> diodes`. The run directory was
+mounted read-only. Per-net counts: `first_iteration_counts.json`; tables:
+`summarize_probe.py`; the step-38 database itself is not archived.
+
+**Fidelity.** At MARGIN 65 this finds 387 violations and inserts 1413 diodes; the
+real first iteration found 379 and inserted 1545. Of the 337 nets in both, 330 (97.9%)
+have the same diode count, and the nets at the cap are 72 against the real 74 (72 in
+both). The difference is mostly nets with one diode (222 against 255); the cause was
+not found. Margin 65 reproduces itself when repeated (387 and 1413).
+
+| margin | violations | diodes | nets at the cap (10+) | diodes on capped nets | real-rule violators needing 10+ |
+|---:|---:|---:|---:|---:|---:|
+| 0 (real rule) | 65 | 75 | 0 | 0 | 0 |
+| 10 | 80 | 103 | 0 | 0 | 0 |
+| 25 | 111 | 201 | 1 | 11 (5.5%) | 1 |
+| 50 | 224 | 693 | 25 | 279 (40.3%) | 6 |
+| 65 | 387 | 1413 | 72 | 806 (57.0%) | 18 |
+| 75 | 642 | 2303 | 128 | 1467 (63.7%) | 30 |
+
+- **At the real rule every violating gate is fixable by 1 to 4 diodes** (58 of the 65
+  need one), nothing is at the cap, and 75 diodes are enough.
+- **The cap-hit population appears between margins 25 and 50 and only grows.** The
+  lowest probed margin at which a net reaches the cap is 25 for 1 net, 50 for 24, 65 for
+  47 and 75 for 56, and all 128 stay at the cap at every higher margin. This is the
+  nesting seen in the final netlists, now measured on one database.
+- **Most of the cap-hit diodes protect nets that do not need them.** Of the 72 nets at
+  the cap at margin 65, 18 violate the real rule, and the real rule needs 23 diodes on
+  them; they receive 806. At margin 75, 30 of 128 do, needing 35 diodes of 1467.
+- **A high margin also turns real violators into cap-hit nets**: 6, 18 and 30 of the 65
+  at margins 50, 65 and 75 (median diodes per real violator 1, 2 and 7 at 50, 65, 75).
+- This reads the first iteration only and says nothing about the final antenna
+  count after detailed routing: the extra protection at a high margin may be what
+  lowers the count (6 at margin 50, 3 at 75). Whether a gate that satisfies the real
+  rule needs its diodes after re-routing is not shown here.
+
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -549,13 +591,14 @@ The loop then re-checks only the nets it re-routed.
   the cap (one diode per stuck iteration), the outcome does.
 - **(Done 2026-10-10.)** The 11-diode cluster is the checker's 10-diode cap and the stuck
   violation is the margin-tightened target on nets that satisfy the real rule (section above).
-- **Per-gate partial areas for the cap-hit gates.** Net-level data says they are long
-  single-sink nets (about 230 um); the partial side and area ratios the checker used
-  are not printed by the repair log. Getting them needs OpenROAD's checker run on
-  the pre-repair database, which was not attempted. A shorter route for those nets
-  (placement or RTL) is the lever the data suggests: utilization 45 and 55 cut wire
-  by 5.5% and 9.3% without a monotone antenna gain, so a per-net change would have to
-  target these nets, not the whole floorplan.
+- **Trim the diodes that sit on cap-hit nets that satisfy the real rule** (flow work, opt-in,
+  like `FanoutRepair`). At margin 75, 1467 of the 2303 first-iteration diodes go to nets at
+  the cap, where the real rule needs 35; those diodes are what brings back the fanout,
+  slew and capacitance violations of the margin 75 run (up to 15 diodes among 17 sinks).
+  The open question is the cost on the final antenna count: the first-iteration probe does
+  not say whether the nets still need their protection after detailed routing, so the
+  candidate is a measured one: margin 75, then remove the capped nets' excess, then
+  re-route and re-check, compared with margins 50 and 75 as they are.
 - A driver size-up beyond `buf`/`clkbuf`/`o2bb2ai` is **not** built for the recorded
   failures. Some failing cells could be sized up (`xnor2_2`, `xor2_1`, `a211oi_1` have
   `_4`), but no margin run would close by it: at MARGIN 60 the other failure `_20194_` is
