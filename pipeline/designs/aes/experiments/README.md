@@ -719,6 +719,40 @@ answers whether the series' single-run differences could be run-to-run spread.
   change moves the failing set and the antenna count is not traced, and one repeat on one machine
   does not show the result is stable across hosts or tool builds.
 
+### The neighbours of MIN 6 / keep 2: keep 1 and MIN 4 (2026-10-11)
+
+The two untested neighbours of the MIN 6 / keep 2 run, one axis each, spec
+`closure-20261011-trim-neighbours.json`, case `aes__2026-10-11__163131`,
+evidence in `evidence-20261011-trim-neighbours/`. `resolved.json` and `diode_trim.json` carry the
+values. The MIN 6 / keep 2 run was reproduced byte-identical, so differences below are
+caused by the one input changed.
+
+| run | trimmed nets | diodes before / after trim | antenna | fanout / slew / cap | area um2 | worst setup ns |
+|---|---|---|---|---|---|---|
+| MIN 6, keep 2 | 207 | 4134 / 2467 | 3 | 0 / 2 / 1 | 149888 | 0.700 |
+| MIN 6, keep 1 | 207 | 4134 / 2260 | 3 | 0 / 2 / 1 | 149370 | 0.663 |
+| MIN 4, keep 2 | 270 | 4134 / 2320 | 7 | 0 / 2 / 1 | 149520 | 0.707 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. **Neither passes**; both fail slew
+and capacitance on `_19764_` only, as the MIN 6 / keep 2 run does (max 1.668 and 1.682 ns
+against 1.4645; 0.0315 and 0.0318 pF against 0.0266), with no other non-antenna violator.
+
+- **keep 1 at MIN 6 costs nothing measured over keep 2**: antenna 3 again (P/R 1.67, 1.47,
+  1.43; `net1221` / `fanout_repair_1520/A` at 1.47 is there again), 207 fewer diodes, area -0.3% against
+  MIN 6 / keep 2 and -3.0% against the untrimmed 75 run (149370 against 154059 um2), +2.4% against `hul`.
+  This is the smallest area of the trim series and still not a PASS.
+- **MIN 4 raises antenna to 7** (P/R up to 2.16 on `fanout_repair_net_586` / `fanout1317/A`),
+  with 63 more nets trimmed and the largest net holding 3 diodes. Nets with 4 or 5 diodes are
+  within the 1 to 4 that the real rule needs at a violating gate, so trimming them to 2 is
+  consistent with the rise; that is a reading, not tested here (no run keeps those nets at 4 and trims
+  the rest).
+- **Along the series** (MIN 10, 8, 6, 4 at keep 2: antenna 3, 4, 3, 7) the count is not monotone
+  in how much is trimmed; MIN 4 is the one point where it clearly leaves the 2 to 4 range.
+  The `_19764_` weak driver is the single non-antenna failure at every MIN of 6 or below.
+- **Limits.** One run per point; the repeat shows the flow is deterministic on this host, not that the
+  neighbourhood is smooth, and the `a211oi` runs show a one-cell change can move the failing set.
+  Margins other than 75 and the original target are untested.
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
