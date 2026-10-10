@@ -1,0 +1,68 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261011-m75-min6-a211oi2-hul-margin75-keep2-min6-a211oi2",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\", \"_19764_\": \"sky130_fd_sc_hd__a211oi_2\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the MIN 6 run: `_19764_` (a211oi_1, one sink, no diode) upsized to a211oi_2. Predicts its slew (1.69 against 1.4645 ns) and capacitance (0.0320 against 0.0266 pF) failures clear and nothing else changes except the antenna count, which re-routing can move. Falsified if slew or capacitance remains on that pin, or a new non-antenna failure appears."
+    },
+    {
+      "tag": "aes-coupling-20261011-m75-min6-a211oi4-hul-margin75-keep2-min6-a211oi4",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\", \"_19764_\": \"sky130_fd_sc_hd__a211oi_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the MIN 6 run: `_19764_` (a211oi_1, one sink, no diode) upsized to a211oi_4. Predicts its slew (1.69 against 1.4645 ns) and capacitance (0.0320 against 0.0266 pF) failures clear and nothing else changes except the antenna count, which re-routing can move. Falsified if slew or capacitance remains on that pin, or a new non-antenna failure appears."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Find whether upsizing the one-sink driver _19764_ clears the last non-antenna failure of the MIN 6 trim run; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261010-m75-min6-hul-margin75-keep2-min6 (3 antenna, 0 fanout, 2 slew, 1 cap per-corner counts, all on _19764_)"
+  },
+  "_why": "Follows the MIN 6 trim result: _19764_ is the only non-antenna failure left. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}
