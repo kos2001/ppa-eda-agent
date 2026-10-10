@@ -787,6 +787,45 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. **Neither passes**, a
   and `nand4_4` are outside the driver sizer's families. Neither run changes the 10 ns / 0.75 ns
   qualification gap.
 
+### The trim at MARGIN 70 and 55: the trimmed series (2026-10-11)
+
+The keep 2 / MIN 6 trim at the two remaining margins, one axis each from the trimmed runs
+above: spec `closure-20261011-trim-margin-55-70.json`, case `aes__2026-10-11__180705`, evidence in
+`evidence-20261011-trim-margin-55-70/`. The first attempt of this spec was discarded: the Docker
+daemon stopped during the first run (exit 125 at the RCX step) and the second never started, so
+no result of it was kept; both runs below are the rerun. With the earlier sections the series is
+complete for 55, 60, 65, 70 and 75 (all keep 2 / MIN 6, ITERS 10).
+
+| MARGIN | trimmed nets | diodes before / after | antenna | fanout / slew / cap | failing nets besides antenna | area um2 | worst setup ns |
+|---|---|---|---|---|---|---|---|
+| 50 (`hul`, no trim) | n/a | 1116 | 6 | 0 / 0 / 0 | none | 145844 | n/a |
+| 55 | 75 | 1440 / 893 | 9 | 0 / 2 / 1 | `_19764_` | 145351 | 0.885 |
+| 60 | 93 | 1790 / 1080 | 8 | 0 / 0 / 0 | none | 145841 | 0.821 |
+| 65 | 118 | 2309 / 1363 | 4 | 1 / 0 / 1 | `_17277_`, `_11666_` | 146702 | 0.864 |
+| 70 | 161 | 3065 / 1799 | 4 | 1 / 0 / 0 | `fanout1179` | 147856 | 0.786 |
+| 75 | 207 | 4134 / 2467 | 3 | 0 / 2 / 1 | `_19764_` | 149888 | 0.700 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in all. **None passes**, and no trimmed point is
+better than `hul` on every gate.
+
+- **Antenna falls with the margin in the trimmed series**: 9, 8, 4, 4, 3 at 55, 60, 65, 70, 75, each
+  from one run. The flow is deterministic, so each value reproduces, but that says nothing about
+  margins between the points. Untrimmed it was not monotone (11, 10, 6, 7, 6, 3 at margins 10, 25, 50, 60, 65, 75).
+  The count at 55 is 9 violating nets in 10 pin rows of the report (one net twice).
+- **No diode-loaded net fails in the trimmed series except where it sits below the threshold.**
+  The non-antenna failure sets are `_19764_` (55, 75; a one-sink weak driver, no diode), none (60),
+  `_17277_` and `_11666_` (65; 2 diodes each), and at 70 `fanout1179/X` (`buf_4`, 17 sinks of
+  which 4 diodes, limit 16). Every one is a net with fewer than 6 diodes, so the trim did not reach it; at 70
+  the 4 diodes plus 13 real loads is what exceeds 16, and trimming nets of 4 diodes was shown at MIN 4
+  to raise antenna to 7 at 75.
+- **Area and diodes**: 55 and 60 are at or below `hul` in area (-0.3% and equal) and in diodes
+  (893 and 1080 against 1116); area rises by 490, 861, 1154 and 2032 um2 per
+  step from 55 to 75.
+- **What it supports.** There is a point with no non-antenna failure (60, antenna 8), a point with
+  fewer antenna pins than `hul` (65, 70 at 4; 75 at 3) and none that has both. The best
+  single point of the series for antenna is 75 with one weak driver left.
+  Not tested: keep 1 below 75, margins 80 and above, ITERS other than 10, the original target.
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
