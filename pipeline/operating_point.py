@@ -9,7 +9,7 @@ in `timing__setup__ws`, which nothing in this pipeline had ever read.
 That single unread key is the difference between "meets its 10 ns
 constraint" and "this netlist's critical path is 3.15 ns, so it tops out
 around 318 MHz at the nominal corner and 255 MHz at the slow one" — the
-number a DTCO decision is actually made on.
+number a design decision is actually made on.
 
 Vmin comes from the corner names. OpenLane analyses each timing corner
 as `<delay>_<process><temp>_<voltage>`, e.g. `nom_ss_100C_1v60`, so the

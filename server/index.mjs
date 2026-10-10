@@ -316,7 +316,7 @@ async function loadReferenceDb() {
 
 // Lets the dashboard actually DRIVE the agent instead of only reading
 // what it already did — this is the difference between a report viewer
-// and a DTCO agent console: a real pipeline/orchestrator.py run
+// and a layout agent console: a real pipeline/orchestrator.py run
 // (candidate generation → OpenLane → auto-repair → reference-db case),
 // spawned on demand from the UI, not just past runs someone triggered
 // from a terminal. In-memory only (no queue/db) since this is a
