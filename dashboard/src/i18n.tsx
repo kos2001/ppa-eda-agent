@@ -26,11 +26,11 @@ const dict = {
   macro_pvt_matches: { en: "Matches", ko: "일치" },
   macro_pvt_differs: { en: "Differs", ko: "불일치" },
   macro_model_scope: { en: "Counts repeat across tables and edges; they are not physical violation counts. Matching PVT labels do not prove measured model qualification. Output loads and measured functional/PVT provenance remain unqualified.", ko: "검사 수는 표와 에지에 걸쳐 반복 집계되며 물리 위반 수와 다릅니다. PVT 표기 일치만으로 측정된 모델임을 증명하지 않습니다. 출력 부하 범위와 측정에 기반한 기능·PVT 모델 검증은 아직 완료되지 않았습니다." },
-  eyebrow: { en: "DTCO AI Agent", ko: "DTCO AI 에이전트" },
-  title: { en: "DTCO Agent Console", ko: "DTCO 에이전트 콘솔" },
+  eyebrow: { en: "Layout AI Agent", ko: "레이아웃 AI 에이전트" },
+  title: { en: "Layout Agent Console", ko: "레이아웃 에이전트 콘솔" },
   subtitle: {
-    en: "A design-technology co-optimization agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or ask the diagnosis agent to inspect an existing EDA report.",
-    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 DTCO(설계-공정 공동 최적화) 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 진단 에이전트에 기존 EDA 리포트 분석을 요청할 수 있습니다.",
+    en: "An agent that runs real OpenLane2 placement/routing candidates and repairs them itself — this page is its control surface, not a static report. Trigger a real run, watch the agent work, or ask the diagnosis agent to inspect an existing EDA report.",
+    ko: "실제 OpenLane2 배치/배선 후보를 생성하고 스스로 문제를 고쳐나가는 에이전트입니다 — 이 화면은 정적인 리포트가 아니라 그 에이전트를 직접 조작하는 콘솔입니다. 실제 실행을 트리거해 에이전트가 일하는 과정을 지켜보거나, 진단 에이전트에 기존 EDA 리포트 분석을 요청할 수 있습니다.",
   },
   tab_pipeline: { en: "Layout Pipeline", ko: "레이아웃 파이프라인" },
   // Named for the thing it shows rather than for the flow half it
@@ -71,8 +71,8 @@ const dict = {
   pipeline_translate_needs_key: { en: "needs a hermes-gateway key (see Diagnosis tab)", ko: "hermes-gateway 키가 필요합니다 (진단 탭 참고)" },
   hiw_title: { en: "how this works — read this first", ko: "이 서비스는 이렇게 동작합니다 — 먼저 읽어보세요" },
   hiw_lede: {
-    en: "A DTCO agent that closes chip layout by itself. You give it RTL and PPA targets; it proposes physical-design configurations, runs each one through the real OpenLane2 flow on the sky130 PDK, and judges the result against the targets. When a run fails in a way it recognises, it fixes the configuration and tries again — unaided. When it doesn't recognise the failure, it stops and asks a human instead of guessing.",
-    ko: "칩 레이아웃을 스스로 완성하는 DTCO 에이전트입니다. RTL과 PPA 목표를 주면, 물리 설계 설정을 제안하고, 각각을 sky130 PDK 위에서 실제 OpenLane2 플로우로 돌린 뒤, 결과를 목표와 대조해 판정합니다. 아는 유형으로 실패하면 설정을 스스로 고쳐 다시 시도하고, 모르는 실패면 추측하지 않고 멈춰서 사람에게 묻습니다.",
+    en: "An agent that closes chip layout by itself. You give it RTL and PPA targets; it proposes physical-design configurations, runs each one through the real OpenLane2 flow on the sky130 PDK, and judges the result against the targets. When a run fails in a way it recognises, it fixes the configuration and tries again — unaided. When it doesn't recognise the failure, it stops and asks a human instead of guessing.",
+    ko: "칩 레이아웃을 스스로 완성하는 에이전트입니다. RTL과 PPA 목표를 주면, 물리 설계 설정을 제안하고, 각각을 sky130 PDK 위에서 실제 OpenLane2 플로우로 돌린 뒤, 결과를 목표와 대조해 판정합니다. 아는 유형으로 실패하면 설정을 스스로 고쳐 다시 시도하고, 모르는 실패면 추측하지 않고 멈춰서 사람에게 묻습니다.",
   },
   hiw_step_input: {
     en: "RTL + PPA targets (utilization, timing, DRC/LVS clean)",
