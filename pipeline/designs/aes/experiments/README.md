@@ -514,6 +514,17 @@ The loop then re-checks only the nets it re-routed.
   that violate the real rule; 84 to 91% of the diodes (MARGIN 50 to 75) sit
   elsewhere. This is an upper bound: nets can start violating after later
   re-routes, and nets split by `FanoutRepair` get new names.
+- **The cap-hit nets are long single-sink nets.** From the final DEF of the ITERS 5 and
+  20 runs (`def_nets.py` sums the routed wire per layer; per-net tables in
+  `net_wire_diodes.csv.gz`, statistics by `net_groups.py`; the 19 MB DEFs are not
+  archived): the nets with 10 or more diodes (83 and 86) have a median routed wire
+  of about 230 um (p90 about 350 um) and a median of 1 real sink; nets with no
+  diode have a median of 13.6 um, nets with exactly one diode 131 um and 2 sinks.
+  Only 18 of the 83 (86) cap-hit nets were among the 64 nets that violated the
+  real rule in the first check. The parser's diode count equals the netlist's
+  (2333 and 2314). Wire length is of the final routing, after detailed routing;
+  the repair decided on global-route estimates, so this shows what kind of net
+  it is, not the per-gate partial areas that decided the count.
 - Not established: why a diode per iteration does not end the stuck violation, and
   why the checker's count of 1 after the first diode does not hold after
   legalization and re-routing.
@@ -531,20 +542,27 @@ The loop then re-checks only the nets it re-routed.
 - **(Done 2026-10-09, 60 and 65.)** MARGIN between 50 and 75: no point has fewer than 6
   antenna violations with the other gates at 0; 60 and 65 bring back slew,
   capacitance and fanout on diode-loaded nets.
-- **Driver size-up beyond `buf`/`clkbuf`/`o2bb2ai`** (flow work): the nets that fail
-  across the margin runs are `xnor2`, `xor2`, `o31ai`, `nand4`, `dfxtp`, `a211oi`.
-  Each family would need the Liberty function check done for `o2bb2ai`. It
-  removes known failures only; the margin runs show new ones appear elsewhere
-  (`_20258_` at 50, then `_20194_`, `_20763_`, `_11666_`), so this is a way to
-  explore the residue, not a closure plan.
+- **(Decided against, 2026-10-10.)** Driver size-up beyond `buf`/`clkbuf`/`o2bb2ai`: see
+  the last entry below; the failing `o31ai_4` and `clkbuf_16` are already the largest of
+  their families and the fanout violators are diodes filling the sink count.
 - **(Done 2026-10-09, 5 and 20.)** ITERS at MARGIN 65: the diode total barely follows
   the cap (one diode per stuck iteration), the outcome does.
 - **(Done 2026-10-10.)** The 11-diode cluster is the checker's 10-diode cap and the stuck
   violation is the margin-tightened target on nets that satisfy the real rule (section above).
-- **Why the first diode's relief is not enough for those gates.** Archive each gate's
-  partial side and area ratios in the first check (the log does not print them) so the
-  gates that hit the cap can be told apart from those that do not; then see whether a
-  setting or the RTL (splitting those nets) changes them.
+- **Per-gate partial areas for the cap-hit gates.** Net-level data says they are long
+  single-sink nets (about 230 um); the partial side and area ratios the checker used
+  are not printed by the repair log. Getting them needs OpenROAD's checker run on
+  the pre-repair database, which was not attempted. A shorter route for those nets
+  (placement or RTL) is the lever the data suggests: utilization 45 and 55 cut wire
+  by 5.5% and 9.3% without a monotone antenna gain, so a per-net change would have to
+  target these nets, not the whole floorplan.
+- A driver size-up beyond `buf`/`clkbuf`/`o2bb2ai` is **not** built for the recorded
+  failures. Some failing cells could be sized up (`xnor2_2`, `xor2_1`, `a211oi_1` have
+  `_4`), but no margin run would close by it: at MARGIN 60 the other failure `_20194_` is
+  an `o31ai_4`, the largest `o31ai`; the failing clock root `clkbuf_16` is the largest
+  `clkbuf`; and the fanout violators at 65 and 75 are diodes filling the sink count
+  (up to 15 diodes among 17 sinks), which a larger driver does not change. A
+  size-up helps one net at a time while the margin runs bring new nets.
 - **(Done: `candidate_plan.TOOL_RANGES`.)** A range check for `GRT_ANTENNA_MARGIN`
   (integer, at least 0 and below 100) in `--validate-only` and at run start. The
   tool only warned at run time, after the 25 minutes the run takes, and the flow
