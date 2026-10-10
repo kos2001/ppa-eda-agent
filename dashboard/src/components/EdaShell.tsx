@@ -239,7 +239,7 @@ export function ConsolePane({ open, onToggle }: { open: boolean; onToggle: () =>
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `dtco-console-${new Date().toISOString().replace(/[:.]/g, "-")}.log`;
+    a.download = `layout-console-${new Date().toISOString().replace(/[:.]/g, "-")}.log`;
     a.click();
     URL.revokeObjectURL(url);
     log("info", "console", `transcript saved (${entries.length} lines)`);

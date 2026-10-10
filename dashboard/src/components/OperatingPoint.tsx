@@ -4,7 +4,7 @@ import type {
 import { useLang } from "../i18n";
 import "./OperatingPoint.css";
 
-// Fmax, Vmin, supply rails and clock coverage — the signoff facts a DTCO
+// Fmax, Vmin, supply rails and clock coverage — the signoff facts a design
 // decision is actually made on.
 //
 // All of it was already measured and thrown away. The verdict reported

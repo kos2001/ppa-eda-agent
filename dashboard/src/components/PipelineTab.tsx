@@ -86,7 +86,7 @@ function DesignGroupSectionImpl({
 const DesignGroupSection = memo(DesignGroupSectionImpl);
 
 // Runs the actual agent, not just displays what it did before — the
-// concrete answer to "why is this a dashboard, not the DTCO agent
+// concrete answer to "why is this a dashboard, not the layout agent
 // itself": this panel IS the agent's control surface. Press "run", a
 // real pipeline/orchestrator.py candidate-generation-and-auto-repair
 // loop spawns server-side against real OpenLane, and the panel polls
