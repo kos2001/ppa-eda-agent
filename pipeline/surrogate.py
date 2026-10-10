@@ -2,7 +2,7 @@ r"""A surrogate model over reference-db, and an honest test of whether it works.
 
 The appeal is obvious: a full OpenLane flow costs 60-100 s per candidate,
 so a model that predicts the outcome from the config would let the agent
-rank candidates for free. That is the standard DTCO surrogate idea and it
+rank candidates for free. That is the standard surrogate-model idea and it
 is a good one — *given data*.
 
 This module exists mainly to find out whether that condition holds here,

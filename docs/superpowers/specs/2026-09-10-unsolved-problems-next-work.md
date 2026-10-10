@@ -73,7 +73,7 @@ gf180 런의 `step_coverage.missing`에 `KLayout.DRC`가 **없다** — 즉 스�
 `unverified`로 처리하고, `unverified`는 pass를 막는다 (`passed = not
 violations and not unverified`, orchestrator.py:459, :715). 게이트 로직 자체는
 옳다. 문제는 **OpenLane 2.3.10의 `KLayout.DRC`가 sky130 전용**이어서 gf180에선
-아무 숫자도 안 내놓는다는 것이고, 그 결과 `tech_compare.py`가 하는 "DTCO의
+아무 숫자도 안 내놓는다는 것이고, 그 결과 `tech_compare.py`가 하는 "설계/기술 트레이드오프의
 기술 절반"이 한 번도 signoff에 도달한 적이 없다.
 
 counter4@gf180 thin은 덤으로 `utilization 0.814 > 0.75`도 걸리는데,

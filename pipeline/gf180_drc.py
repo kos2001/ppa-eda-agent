@@ -13,7 +13,7 @@ So on gf180mcu the step runs, logs a warning, and writes no
 "never checked" and puts it in `unverified`, which blocks a pass. That
 is the right call for a metric — and it meant 170 gf180mcu runs in the
 store, 0 passing, 139 of them for this reason alone. The technology
-half of DTCO (tech_compare.py) had never reached signoff.
+half of the design/technology trade-off (tech_compare.py) had never reached signoff.
 
 The check exists; only OpenLane's binding to it is missing. The gf180mcu
 PDK ships GlobalFoundries' own KLayout rule deck at
