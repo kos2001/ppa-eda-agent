@@ -662,6 +662,42 @@ antenna count is 4 and 3, and MIN 6 still fails slew and capacitance.
   2 to 4 seen. It does not pass: a weak one-sink driver and 3 to 4 antenna pins remain. Not tested: MIN below 6,
   keep 1 with MIN 6, margins other than 75, repeats.
 
+### Upsizing the one-sink driver `_19764_` at MIN 6 (2026-10-11)
+
+The last non-antenna failure of the MIN 6 run, `_19764_` (`a211oi_1`, one sink, no diode),
+upsized to `a211oi_2` and `a211oi_4` through `FANOUT_REPAIR_DRIVER_CELLS` (the sizer now
+accepts the `a211oi` family: its three sizes have the same Liberty function string and
+pins at tt). Two full runs, spec `closure-20261011-a211oi-driver.json`, case
+`aes__2026-10-11`, evidence in `evidence-20261011-a211oi-driver/`. Each differs from the
+MIN 6 run in that one mapping; `driver_sizes.json` in each run records `_19764_`
+`a211oi_1` to `_2` / `_4` with pin connections preserved (and `_20258_` to `o2bb2ai_4` as in
+every run of this recipe). Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both.
+
+| run | antenna | fanout / slew / cap | area um2 | worst setup ns | diodes before / after trim |
+|---|---|---|---|---|---|
+| MIN 6 (`a211oi_1`) | 3 | 0 / 2 / 1 | 149888 | 0.700 | 4134 / 2467 |
+| MIN 6, `a211oi_2` | 8 | 0 / 0 / 1 | 149840 | 0.750 | 4154 / 2467 |
+| MIN 6, `a211oi_4` | 9 | 1 / 0 / 1 | 150008 | 0.504 | 4234 / 2507 |
+
+**Neither run passes, and neither is better than the MIN 6 run.**
+
+- **The targeted failure is gone.** `_19764_` no longer violates slew or capacitance in any
+  corner in either run: the sizer works on a real database.
+- **The failures moved to other nets.** Both runs fail capacitance on `fanout1284/X`
+  (`buf_8`, 0.2095 pF with 13 sinks of which 4 diodes in `_2`; 0.2033 pF with 11 sinks, 2 diodes in `_4`; limit 0.2),
+  and `_4` also fails fanout on `_12584_/Y` (`o211ai_4`, 17 sinks of which 5 diodes, limit 16). Neither net was a
+  violator in the MIN 6 run. The diode counts in the table (before the trim) are 4154 and 4234 against 4134, so the
+  upsize changed the netlist the repair steps saw; the MIN 6 result for the other nets was not stable under it.
+- **Antenna rises from 3 to 8 and 9** (P/R up to 3.11 in `_2`, 2.11 in `_4`; `hold37/A` at 3.11).
+  The only input that differs from the MIN 6 run is the `_19764_` size, and I cannot say through which
+  route that moves 5 to 6 more pins; both runs are high, which a single-run spread of the 2 to 4 seen
+  in the five trim runs would not explain, but two runs do not fix a cause.
+- **What it supports.** An isolated single-net fix does not make this recipe signoff-clean: the last non-antenna
+  failure was specific to that placement and routing, and an ordinary upsize of its driver
+  replaced it. The MIN 6 trim run without the upsize remains the best measured point of the trim series
+  (3 antenna, one weak driver). Not tested: other drivers, repeats of the MIN 6 run to measure how much
+  the failing set changes without any change, which is the control this section lacks.
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -686,12 +722,11 @@ antenna count is 4 and 3, and MIN 6 still fails slew and capacitance.
   slew and capacitance unchanged at 2 and 2, no PASS.
 - **(Done 2026-10-10, MIN 8 and 6 at keep 2: see the section above.)** Lower `DIODE_TRIM_MIN_DIODES`.
   MIN 6 leaves fanout 0 and only `_19764_` of the non-antenna failures; MIN 8 does not reach `_20345_`.
-- **`_19764_` is now the only non-antenna failure at MIN 6**: a weak `a211oi_1` driving one
-  sink, failing slew and capacitance in every 75 run. `a211oi_2` and `a211oi_4` have the same Liberty
-  function string as `_1` at tt; `driver_size.py` accepts only `buf`, `clkbuf` and `o2bb2ai`, so the candidate needs
-  that family added with a test, then a run of MIN 6 with `FANOUT_REPAIR_DRIVER_CELLS` naming `_19764_`
-  (pin interface and connectivity are checked by the step). Antenna 3 would remain, so it is not
-  expected to pass.
+- **(Done 2026-10-11, `a211oi_2` and `_4`: see the section above.)** `_19764_` upsize: its slew and
+  capacitance clear, other nets fail instead and antenna rises to 8 and 9. Not a better point.
+- **A repeat of the MIN 6 run**, unchanged, is the missing control: how many of its failures and
+  antenna pins recur when nothing is changed. It decides whether the 2 to 4 antenna spread of the trim series and the
+  failing sets are reproducible at all.
 - A driver size-up beyond `buf`/`clkbuf`/`o2bb2ai` is **not** built for the recorded
   failures. Some failing cells could be sized up (`xnor2_2`, `xor2_1`, `a211oi_1` have
   `_4`), but no margin run would close by it: at MARGIN 60 the other failure `_20194_` is
