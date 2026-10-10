@@ -13,7 +13,7 @@ placement/routing candidates come out, scored against real signoff data
 of that process — every number in `reference-db/` came from a real Docker
 run of real EDA tools against a real PDK.
 
-A DTCO (design-technology co-optimization) agent, not a report viewer.
+A physical-design agent, not a report viewer.
 The dashboard's job is to be the agent's control surface — trigger a real
 run, watch it work, see what it decided and why — not to be the product
 itself. If a screen only shows past results with no way to act on them,

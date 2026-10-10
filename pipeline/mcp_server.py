@@ -268,7 +268,7 @@ TOOLS = [
                         "technologies (real full OpenLane runs, one per variant, "
                         "so expect minutes each) and returns a real PPA delta "
                         "with the design invariants held fixed — the technology "
-                        "half of DTCO. A variant that fails to build is reported "
+                        "half of the design/technology trade-off. A variant that fails to build is reported "
                         "as a real finding, not dropped.",
         "inputSchema": {
             "type": "object",

@@ -1,6 +1,6 @@
 # ppa-eda-agent
 
-A DTCO (design-technology co-optimization) AI agent for semiconductor
+A physical-design AI agent for semiconductor
 PPA (Power, Performance, Area): it runs real RTL through real OpenLane2
 placement/routing, evaluates the result against real signoff data, and
 repairs what it can on its own. The dashboard is that agent's control
@@ -38,7 +38,7 @@ server/index.mjs                    Local server for the dashboard: serves
                                      pipeline/orchestrator.py on demand and
                                      reports its progress
 dashboard/                          React + Vite + TypeScript UI — the
-                                     DTCO agent's control surface: trigger
+                                     layout agent's control surface: trigger
                                      a real pipeline/orchestrator.py run
                                      and watch it live, browse past
                                      reference-db/ cases, open a schematic
@@ -350,7 +350,7 @@ instead of shelled-out commands:
 | `ppa_sta_report` | Reads the OpenSTA analysis a run already produced — real critical path stage by stage, plus max_slew/cap/fanout violators |
 | `ppa_equiv_check` | Proves a run's netlist is functionally equivalent to its RTL (Yosys SAT, ~1s) — the check DRC/LVS/timing leave out |
 | `ppa_odb_query` | Queries a run's real OpenROAD `.odb` for measured per-net placement facts (pin count, HPWL, max span) — answers per-net questions `metrics.json` cannot |
-| `ppa_tech_compare` | Runs the same design across standard-cell technologies and returns a real PPA delta with the design held fixed — the technology half of DTCO |
+| `ppa_tech_compare` | Runs the same design across standard-cell technologies and returns a real PPA delta with the design held fixed — the technology half of the design/technology trade-off |
 | `ppa_custom_status` | What of the open-source Virtuoso-equivalent stack (xschem/magic/klayout/ngspice/netgen) this host can really run, each mapped to the Cadence tool it stands in for |
 | `ppa_custom_eval` | Runs a script in one custom-design backend's own batch language — the counterpart of executing SKILL in Virtuoso |
 | `ppa_netlist_schematic` | Netlists a schematic with xschem — the entry point of the custom flow, and what a hand-written deck silently gets wrong |

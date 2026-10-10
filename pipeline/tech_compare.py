@@ -12,8 +12,8 @@ stayed invariant. That module re-optimizes a differential pair's device
 geometry; none of its analog machinery transfers, but the shape of the
 question does.
 
-Why this repo needed it: the dashboard calls itself a DTCO
-(design-technology co-optimization) console, but every case in
+Why this repo needed it: the dashboard calls itself a layout
+agent console, but every case in
 reference-db so far varies only *design* knobs — FP_CORE_UTIL, DIE_AREA,
 SYNTH_STRATEGY — against one fixed technology (sky130_fd_sc_hd). The
 technology half of "co-optimization" was branding, not something the
@@ -25,7 +25,7 @@ via run_stage.py and is judged by the same score() the rest of the
 pipeline uses, so a technology's numbers are exactly as trustworthy as
 any other case's. A variant that fails to build is reported as a failure
 with its real error, never dropped — "this technology does not work for
-this design yet" is a real DTCO finding, not an inconvenience to hide.
+this design yet" is a real technology-comparison finding, not an inconvenience to hide.
 
 Usage:
     python3 tech_compare.py --design designs/counter4 \\
