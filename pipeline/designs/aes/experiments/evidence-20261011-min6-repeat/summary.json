@@ -1,0 +1,60 @@
+{
+ "20261011-m75-min6-repeat-hul-margin75-keep2-min6-repeat": {
+  "tag": "20261011-m75-min6-repeat-hul-margin75-keep2-min6-repeat",
+  "final_antenna_step": "55-openroad-checkantennas-1",
+  "antenna": 3,
+  "antenna_rows": 3,
+  "fanout": 0,
+  "slew": 2,
+  "cap": 1,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.7,
+  "worst_hold": 0.068,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 149888,
+  "core_util": 0.414,
+  "wire_um": 770433,
+  "die": 383188,
+  "power": 0.10371648520231247,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25,
+   "GRT_ANTENNA_MARGIN": 75,
+   "DIODE_TRIM_KEEP": 2,
+   "DIODE_TRIM_MIN_DIODES": 6
+  },
+  "trim": {
+   "keep": 2,
+   "min_diodes": 6,
+   "nets_trimmed": 207,
+   "diodes_removed": 1667,
+   "diodes_before": 4134,
+   "diodes_after": 2467
+  },
+  "ant_pins": [
+   [
+    "1.67",
+    "u0.w[1\\][21\\]",
+    "fanout_repair_1506/A"
+   ],
+   [
+    "1.47",
+    "net1221",
+    "fanout_repair_1520/A"
+   ],
+   [
+    "1.37",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ]
+  ]
+ }
+}
