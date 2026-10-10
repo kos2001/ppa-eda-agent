@@ -403,13 +403,63 @@ appear as soon as the margin leaves 50.
   or 6 on (231, 76, 7, 3, 1, 1, 1, 1, 1, 1 and 97, 60, 5, 2, 1, 1, 1, 1, 1, 1);
   step 1 ends at 0 after 7. At 50, 60 and 75 every step ended at 0 within 7
   iterations. The 2026-10-07 result (ITERS does nothing) was measured at margin
-  50 and still holds there; whether ITERS matters at 65 is untested.
+  50 and still holds there; at 65 it matters (next section).
 - The driver size-up that cleared `_20258_` cannot be reused for these nets:
   `driver_size.compatible_family` accepts only the `buf`, `clkbuf` and
   `o2bb2ai` families, and the failing cells here are `xnor2`, `xor2`, `o31ai`,
   `nand4`, `dfxtp` and (at 75) `a211oi`.
 - Single runs. The failures move between margins, so a neighbouring value could
   land differently; nothing here measures that.
+
+
+### GRT_ANTENNA_ITERS 5 and 20 at MARGIN 65 (2026-10-09)
+
+Two full OpenLane 2.3.10 runs of the MARGIN 65 run above with only
+`GRT_ANTENNA_ITERS` changed, case `aes__2026-10-09__004442`, spec
+`closure-20261009-antenna-margin65-iters.json`. The option was applied (`resolved.json`
+and the repair step configs carry 5 and 20). Evidence in
+`evidence-20261009-margin65-iters/`; the ITERS 10 row is the run above.
+
+Hypothesis: the stuck violation adds a diode every iteration, so the diode
+count (2309) falls at ITERS 5 and rises at ITERS 20. **The mechanism holds; the
+effect is too small to move the total.**
+
+| ITERS | antenna | diodes | nets with 11-12 diodes | fanout / slew / cap | area um2 |
+|---|---|---|---|---|---|
+| 5 | 3 | 2333 | 72 | 1 / 14 / 2 | 149072 |
+| 10 | 6 | 2309 | 70 | 2 / 8 / 1 | 149069 |
+| 20 | 5 | 2314 | 72 | 4 / 0 / 0 | 149082 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both new runs. Neither is a PASS.
+
+- **A stuck iteration inserts one diode; the total barely follows the cap.** The repair log reports `Inserted N diodes` (`GRT-0015`) per
+  iteration, and the sums over the three repair steps equal the final netlist's
+  diode count exactly (2333 and 2314; every diode comes from these steps). In
+  the ITERS 20 run repair step 2 leaves one violation from iteration 5 to
+  iteration 20 and inserts one diode and reroutes one net in each of those 16
+  iterations, 16 diodes of 2314 (0.7%), and the violation stays. The totals
+  (2333, 2309, 2314; at most 14 on any net in all three) barely move. Step 3 of
+  that run needs 12 iterations (99, 44, 5, 4, 4, 3, 3, 3, 2, 2, 1, 0) and step 1
+  ends at 0 after 7.
+- **The result still depends on ITERS here.** Antenna is 3, 6, 5 and the
+  failing nets differ: at ITERS 5 `_20763_` (`xnor2_2`, 12 diodes among 13
+  sinks, also failing at 60) fails slew (14 pins) and capacitance, `fanout1284/X`
+  (`buf_8`) is 0.001 pF over, and `_15187_` (`nand4_4`, 15 real loads plus 3
+  diodes) fails fanout; at ITERS 20 slew and capacitance are clean and four
+  fanout violators remain: `_22403_/Q` (`dfxtp_2`, 7 real loads and 14 diodes),
+  `_22447_/Q` (`dfxtp_4`, 7 and 11), `_17277_/Y` (`nand4_4`, 15 and 2) and
+  `fanout1179/X` (`buf_4`, 13 and 4). At ITERS 5 all three repair steps stop at
+  the cap with 1, 2 and 2 violations left.
+- **Where the repair converges, ITERS is inert; where it does not, it changes the
+  outcome although it hardly changes the diode count.** MARGIN 50, 60 and 75 end every repair
+  step at 0 within 7 iterations, so a cap of 7 or more cannot matter there (checked
+  directly only at 50, for ITERS 3, 5, 10). MARGIN 65 does not converge, so where the loop is cut
+  decides which routes and which nets end up marginal. The antenna count at 65
+  is a property of the cap as much as of the margin, which weakens
+  any ordering of margins by single antenna counts there (60: 7, 65: 3 to 6, 75: 3).
+- `_14993_/A` (`text_in_r[26]`, P/R 1.38) is among the final antenna pins at all
+  three ITERS, as in several earlier runs. What the stuck violation is was not
+  identified.
 
 
 ### Next candidates
@@ -430,8 +480,12 @@ appear as soon as the margin leaves 50.
   removes known failures only; the margin runs show new ones appear elsewhere
   (`_20258_` at 50, then `_20194_`, `_20763_`, `_11666_`), so this is a way to
   explore the residue, not a closure plan.
-- **ITERS at MARGIN 65**, where the cap binds, to see whether the stuck violation
-  and the diodes on `_22403_` follow the cap.
+- **(Done 2026-10-09, 5 and 20.)** ITERS at MARGIN 65: the diode total barely follows
+  the cap (one diode per stuck iteration), the outcome does.
+- **Identify the violation that stays at MARGIN 65** (step 2: one violation from
+  iteration 5 to 20, one diode per iteration). Which pin and net it is, and why a
+  diode cannot clear it, decide whether this is a layout limit or something a setting
+  can change.
 - **(Done: `candidate_plan.TOOL_RANGES`.)** A range check for `GRT_ANTENNA_MARGIN`
   (integer, at least 0 and below 100) in `--validate-only` and at run start. The
   tool only warned at run time, after the 25 minutes the run takes, and the flow
