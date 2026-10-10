@@ -624,6 +624,44 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in all three. **None is a PASS
   Not tested: other margins, other keep values with `DIODE_TRIM_MIN_DIODES` below 10,
   repeats of the same candidate (the spread of the antenna count is unknown).
 
+### Lowering the trim threshold: DIODE_TRIM_MIN_DIODES 8 and 6 (2026-10-10)
+
+Two more full runs of the keep 2 trim at MARGIN 75, spec
+`closure-20261010-diode-trim-min.json`, case `aes__2026-10-10__145925`, evidence in
+`evidence-20261010-diode-trim-min/` (same scripts as the section above). Each differs from
+the keep 2 / MIN 10 run in `DIODE_TRIM_MIN_DIODES` only; `resolved.json` and
+`diode_trim.json` carry 8 and 6. Rows for 75 and keep 2 are from the sections above.
+
+| run | trimmed nets | diodes | nets with 6+ / 8+ diodes | antenna | fanout / slew / cap | area um2 | worst setup ns |
+|---|---|---|---|---|---|---|---|
+| 75 | 0 | 4134 | 207 / 166 | 3 | 3 / 2 / 2 | 154059 | 0.652 |
+| keep 2, MIN 10 | 147 | 2770 | 60 / 19 | 3 | 1 / 2 / 2 | 150646 | 0.695 |
+| keep 2, MIN 8 | 166 | 2650 | 41 / 0 | 4 | 1 / 2 / 2 | 150345 | 0.675 |
+| keep 2, MIN 6 | 207 | 2467 | 0 / 0 | 3 | 0 / 2 / 1 | 149888 | 0.700 |
+
+Magic DRC, KLayout DRC, LVS, setup and hold are 0 in both. **Neither is a PASS**: the
+antenna count is 4 and 3, and MIN 6 still fails slew and capacitance.
+
+- **MIN 6 removes every failure except one driver.** Fanout is 0 (`_20345_` went from 6
+  diodes to 2, 18 sinks to 14) and the clock capacitance is below 0.2 pF. What is left is
+  `_19764_` (`a211oi_1`, one sink, no diode): slew 1.692 ns against 1.4645 and
+  capacitance 0.0320 against 0.0266 (worst corner), the same cell and the same failure as in every 75 run
+  (1.73, 1.67, 1.65, 1.77 ns in the earlier ones). It violates in 2 corners (`nom_ss`, `max_ss`); the
+  metric counts are per corner. Area is -2.7% against 75 and +2.8% against `hul`.
+- **MIN 8 does not reach `_20345_`** (6 diodes, below 8), which keeps fanout 18 against 16 in
+  all nine corners, as predicted. It trims the clock net's diodes (8 to 2; 6 sinks left)
+  and the capacitance still exceeds 0.2 pF at max (0.2011 against 0.2039 to 0.2079 before),
+  so the diodes were part of the excess, not all of it. The same clock net is trimmed the same way in the
+  MIN 6 run and passes there, so something else in the re-routed result separates the two at a margin of 0.001 pF;
+  I cannot tell which from these runs.
+- **Antenna stays at 3 to 4** in the two runs (P/R 1.34 to 1.67; `net1221` /
+  `fanout_repair_1520/A` at 1.47 again in both). Over the five trim runs the final count
+  is 2, 3, 3, 4, 4 and 3 untrimmed; the five single runs show no relation to how many diodes were kept.
+- **What it supports.** Trimming nets with 6 or more diodes to 2 clears the diode-caused
+  failures of the MARGIN 75 recipe (fanout and clock capacitance) with antenna unchanged within the
+  2 to 4 seen. It does not pass: a weak one-sink driver and 3 to 4 antenna pins remain. Not tested: MIN below 6,
+  keep 1 with MIN 6, margins other than 75, repeats.
+
 ### Next candidates
 
 - **(Done 2026-10-07: no effect, see above.)** Lower `GRT_ANTENNA_ITERS` on the `hul` recipe (for example 5 and 3), one
@@ -646,15 +684,14 @@ Magic DRC, KLayout DRC, LVS, setup and hold are 0 in all three. **None is a PASS
 - **(Done 2026-10-10, keep 4, 2, 1 at 75: see the section above.)** Trim the diodes that sit on
   cap-hit nets that satisfy the real rule (`Odb.DiodeTrim`). Fanout 3 to 1, antenna 4, 3, 2,
   slew and capacitance unchanged at 2 and 2, no PASS.
-- **Lower `DIODE_TRIM_MIN_DIODES` to reach the nets the first trim missed.** At 75 the
-  remaining diode-related failures are `_20345_` (6 diodes among 18 sinks, limit 16) and
-  `clkbuf_0_clk` (8 among 12, 0.2039 pF against 0.2). `DIODE_TRIM_MIN_DIODES` 6 with keep 2 covers both
-  (60 nets keep 6 or more). Predicts fanout 0 and the clock capacitance below 0.2 pF;
-  falsified if either remains or the antenna count rises above the 2 to 4 seen. One axis from
-  the keep 2 run.
-- **`_19764_` is separate**: a weak `a211oi_1` driving one sink, failing slew and capacitance in
-  every 75 run. `a211oi_4` exists; whether it is a same-function upsize is checked against
-  the Liberty and the OpenDB pins before the run (`FANOUT_REPAIR_DRIVER_CELLS`).
+- **(Done 2026-10-10, MIN 8 and 6 at keep 2: see the section above.)** Lower `DIODE_TRIM_MIN_DIODES`.
+  MIN 6 leaves fanout 0 and only `_19764_` of the non-antenna failures; MIN 8 does not reach `_20345_`.
+- **`_19764_` is now the only non-antenna failure at MIN 6**: a weak `a211oi_1` driving one
+  sink, failing slew and capacitance in every 75 run. `a211oi_2` and `a211oi_4` have the same Liberty
+  function string as `_1` at tt; `driver_size.py` accepts only `buf`, `clkbuf` and `o2bb2ai`, so the candidate needs
+  that family added with a test, then a run of MIN 6 with `FANOUT_REPAIR_DRIVER_CELLS` naming `_19764_`
+  (pin interface and connectivity are checked by the step). Antenna 3 would remain, so it is not
+  expected to pass.
 - A driver size-up beyond `buf`/`clkbuf`/`o2bb2ai` is **not** built for the recorded
   failures. Some failing cells could be sized up (`xnor2_2`, `xor2_1`, `a211oi_1` have
   `_4`), but no margin run would close by it: at MARGIN 60 the other failure `_20194_` is
