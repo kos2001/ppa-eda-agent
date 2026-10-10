@@ -1,0 +1,68 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261011-m70-trim-hul-margin70-keep2-min6",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 70,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the recorded trimmed series (keep 2 / MIN 6 at margins 60, 65, 75: antenna 8, 4, 3, no diode-loaded failures): GRT_ANTENNA_MARGIN 70. Predicts no fanout, slew or capacitance failure on a net with 6 or more diodes. The antenna count is not predicted (the series is not monotone); falsified if a diode-loaded net still fails. Signoff-clean against hul (6 antenna, 0 elsewhere) is the bar."
+    },
+    {
+      "tag": "aes-coupling-20261011-m55-trim-hul-margin55-keep2-min6",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 55,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the recorded trimmed series (keep 2 / MIN 6 at margins 60, 65, 75: antenna 8, 4, 3, no diode-loaded failures): GRT_ANTENNA_MARGIN 55. Predicts no fanout, slew or capacitance failure on a net with 6 or more diodes. The antenna count is not predicted (the series is not monotone); falsified if a diode-loaded net still fails. Signoff-clean against hul (6 antenna, 0 elsewhere) is the bar."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Fill margins 70 and 55 of the trimmed series (keep 2, MIN 6) and see whether any point has fewer than hul's 6 antenna violations with no other failure",
+    "reference": "aes-coupling-20261011 trimmed runs at 60 (8 antenna, 0 elsewhere), 65 (4 antenna, fanout 1, cap 1), 75 MIN 6 (3 antenna, _19764_ only) and hul (6, 0 elsewhere)"
+  },
+  "_why": "Untested margins around the trimmed series. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}

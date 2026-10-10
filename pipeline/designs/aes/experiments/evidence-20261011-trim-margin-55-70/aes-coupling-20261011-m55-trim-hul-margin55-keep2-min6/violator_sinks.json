@@ -1,0 +1,42 @@
+[
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "slew",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "1.464535",
+  "value": "1.541912",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "slew",
+  "driver": "(all violated pins)",
+  "violated_pins": 2,
+  "of_which_diode_pins": 0
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "capacitance",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "0.026560",
+  "value": "0.028914",
+  "sinks": 1,
+  "diode_sinks": 0
+ },
+ {
+  "corner": "nom_ss_100C_1v60",
+  "kind": "capacitance",
+  "driver": "_19764_/Y",
+  "cell": "a211oi_1",
+  "net": "_11018_",
+  "limit": "0.026560",
+  "value": "0.026706",
+  "sinks": 1,
+  "diode_sinks": 0
+ }
+]
