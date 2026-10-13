@@ -29,6 +29,7 @@ from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
+HOST_CA_BUNDLE = Path("/etc/ssl/certs/ca-certificates.crt")
 
 
 _UNKNOWN_KEY = re.compile(r"[Aa]n unknown key '([^']+)' was provided")
@@ -36,6 +37,20 @@ _UNKNOWN_KEY = re.compile(r"[Aa]n unknown key '([^']+)' was provided")
 
 class IgnoredOverrideError(RuntimeError):
     """An override we passed was not a variable OpenLane recognises."""
+
+
+def host_ca_args() -> list[str]:
+    """Mount WSL/Linux's trusted CA set into the pinned Nix container.
+
+    This retains TLS verification when a corporate root is trusted by WSL but
+    absent from the immutable OpenLane image.
+    """
+    if os.name != "posix" or not HOST_CA_BUNDLE.is_file():
+        return []
+    target = "/tmp/host-ca-certificates.crt"
+    return ["-v", f"{HOST_CA_BUNDLE}:{target}:ro",
+            "-e", f"SSL_CERT_FILE={target}",
+            "-e", f"NIX_SSL_CERT_FILE={target}"]
 
 
 def reject_ignored_overrides(overrides: list[str], output: str,
@@ -107,6 +122,7 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
                   if custom_script else ["openlane"])
     cmd = [
         "docker", "run", "--rm", *platform_args(),
+        *host_ca_args(),
         "-v", f"{PDK_ROOT}:/pdk",
         "-v", f"{design_dir}:/design",
         *extra_mounts,
