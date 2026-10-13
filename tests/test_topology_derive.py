@@ -16,6 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
+import case_store  # noqa: E402
 import topology_derive as td  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -116,7 +117,7 @@ class RealDesignTests(unittest.TestCase):
         # bring the number back.
         missing = []
         for path in (ROOT / "reference-db" / "cases").glob("*.json"):
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
             if not case.get("topology"):
                 missing.append(path.name)
         self.assertEqual(missing, [])

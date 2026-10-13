@@ -485,8 +485,8 @@ wrapping the same command; the script itself doesn't care which.
 Until this point the dashboard's Layout Pipeline tab was strictly
 read-only: it rendered whatever `reference-db/` already contained, and
 every actual `orchestrator.py` invocation happened from a terminal. That
-made the dashboard read as a *report viewer* for a DTCO
-(design-technology co-optimization) agent rather than the agent's own
+made the dashboard read as a *report viewer* for a layout
+agent rather than the agent's own
 interface — a real gap, not just a framing complaint, since it meant the
 one artifact most people would actually open couldn't drive the thing it
 was displaying.
@@ -512,7 +512,7 @@ Closed by adding a real trigger path:
   tail log, then refreshing the reference-db view when the run
   completes so the new case appears without a manual reload.
 - Branding (`i18n.tsx`, `index.html`) updated from "PPA Readout /
-  Synopsys report reader" to "DTCO Agent Console / DTCO AI Agent" —
+  Synopsys report reader" to "Layout Agent Console / Layout AI Agent" —
   the old copy was accurate for the report-paste tabs but didn't
   describe what the Pipeline tab (the primary tab) actually is anymore.
 
@@ -965,7 +965,7 @@ Expand/collapse, both locales, and the flow's layout geometry (four
 steps in one row, arrows between and none trailing) were each verified
 live rather than inferred from the diff.
 
-## The technology half of DTCO (from analog-layout-optimizer)
+## The technology half of the design/technology trade-off (from analog-layout-optimizer)
 
 `pareto.py`'s ranking was taken from
 github.com/kos2001/analog-layout-optimizer earlier. Revisiting that repo,
@@ -976,8 +976,8 @@ process changes, the schematic is fixed while the physical
 implementation must be rebuilt, and what you want out of it is a
 before/after pair plus an explicit record of what stayed invariant.
 
-That named a real gap here. The dashboard calls itself a DTCO
-(design-technology co-optimization) console, but every case in
+That named a real gap here. The dashboard calls itself a layout
+agent console, but every case in
 reference-db varies only *design* knobs — `FP_CORE_UTIL`, `DIE_AREA`,
 `SYNTH_STRATEGY` — against one fixed technology. The technology half of
 "co-optimization" was branding, not something the pipeline had ever
@@ -1009,7 +1009,7 @@ failure mode is invisible in metrics:
 - `delta_vs_baseline()` refuses to compute a delta against such a run.
   A silently meaningless comparison is worse than a failed one.
 
-With `--scl` actually in effect the result is a genuine DTCO finding
+With `--scl` actually in effect the result is a genuine technology-comparison finding
 rather than a fake tie: `sky130_fd_sc_hd` passes at 290.278 µm² (netlist
 confirmed hd), while `sky130_fd_sc_hs` **fails signoff with 21 Magic DRC
 errors** — verified to have really synthesized `sky130_fd_sc_hs` cells
@@ -1083,7 +1083,7 @@ passes or everything crashes early.
 ## "Dashboard" was the wrong frame — carrying stage 8 inside the console
 
 Observation from the user: the word *dashboard* itself was constraining
-what this could be, given the goal is an end-to-end DTCO process run by
+what this could be, given the goal is an end-to-end design process run by
 agents. That turned out to be diagnosable rather than merely semantic.
 The name was the symptom; the constraint was real and located precisely:
 

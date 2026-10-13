@@ -22,6 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "pipeline"))
 
+import case_store  # noqa: E402
 import operating_point  # noqa: E402
 import orchestrator  # noqa: E402
 import repair_operating_points  # noqa: E402
@@ -109,7 +110,7 @@ class CommittedStoreTests(unittest.TestCase):
     def test_no_recorded_operating_point_disagrees_with_its_override(self):
         bad = []
         for path in sorted(repair_operating_points.CASES.glob("*.json")):
-            case = json.loads(path.read_text(encoding="utf-8"))
+            case = case_store.load_light(path)
             for iteration in case.get("iterations", []):
                 for result in iteration.get("results", []):
                     if repair_operating_points.mismatched(result) is not None:

@@ -25,9 +25,11 @@ it is the set of override keys whose values actually differ within the
 case — so it is derived rather than recorded, and these tests pin the
 derivation against the real store.
 """
+import functools
 import json
 import os
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -35,7 +37,11 @@ ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "tests" / "case_grouping_check.mjs"
 CASES = ROOT / "reference-db" / "cases"
 
+sys.path.insert(0, str(ROOT / "pipeline"))
+import case_store  # noqa: E402
 
+
+@functools.lru_cache(maxsize=None)
 def _harness() -> dict:
     try:
         out = subprocess.run(
@@ -63,7 +69,7 @@ def _harness() -> dict:
 
 
 def _case(name: str) -> dict:
-    return json.loads((CASES / name).read_text(encoding="utf-8"))
+    return case_store.load_light(CASES / name)
 
 
 class RecordedAtTests(unittest.TestCase):

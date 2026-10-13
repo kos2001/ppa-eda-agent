@@ -1,6 +1,6 @@
 # ppa-eda-agent
 
-A DTCO (design-technology co-optimization) AI agent for semiconductor
+A physical-design AI agent for semiconductor
 PPA (Power, Performance, Area): it runs real RTL through real OpenLane2
 placement/routing, evaluates the result against real signoff data, and
 repairs what it can on its own. The dashboard is that agent's control
@@ -14,6 +14,83 @@ letters, completely different domain (chip design vs. Linux packaging).
 See [`soul.md`](soul.md) for the commitments behind this project — real
 runs over mocked ones, documented dead-ends over hidden ones — before
 diving into the components below.
+
+## Quick start
+
+Node 22.12+ and Python 3 are the only requirements for the dashboard and the
+tests. From the repository root, in two terminals:
+
+```sh
+npm --prefix server start                                   # backend API on http://127.0.0.1:8123 (no npm dependencies)
+```
+
+```sh
+npm --prefix dashboard ci
+npm --prefix dashboard run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Open http://127.0.0.1:5173. The Overview and Layout Pipeline tabs read the
+committed [`reference-db/`](reference-db/) case store, so the dashboard shows
+real measured history without any EDA tool installed. Running a *new*
+placement/routing candidate needs Docker, OpenLane 2 and the sky130 PDK — see
+[Autonomous layout pipeline](#autonomous-layout-pipeline); a plan can be
+validated without them:
+
+```sh
+python3 pipeline/orchestrator.py --design pipeline/designs/counter4 \
+  --run-spec pipeline/designs/counter4/run_spec.json --validate-only
+python3 -m unittest discover -s tests -v                    # pure decision-logic tests, no EDA tools
+```
+
+More: [Dashboard](#dashboard) (ports, `.env`, the Diagnosis page) and
+[Tests](#tests).
+
+## Screens
+
+<table>
+<tr>
+<td><img src="docs/img/overview.png" alt="Overview: designs, recorded cases, candidate runs and the verification breakdown" width="100%"></td>
+<td><img src="docs/img/pipeline.png" alt="Layout Pipeline: per-design status with what the agent needs from a human" width="100%"></td>
+</tr>
+<tr>
+<td><b>Overview · Examples</b> — 9 designs, 99 recorded cases, 526 candidate runs; the verification bar keeps "checks incomplete" and "flow failed" visible instead of folding them into a pass rate.</td>
+<td><b>Layout Pipeline</b> — the agent's control surface: which designs stopped for a human judgement, which only need more iterations, and which it closed itself.</td>
+</tr>
+<tr>
+<td><img src="docs/img/progress.png" alt="Progress: measured configurations over time and best result per technology" width="100%"></td>
+<td></td>
+</tr>
+<tr>
+<td><b>Progress</b> — best result per design and technology, with an explicit note on why the "obvious" area-over-time chart is not drawn.</td>
+<td></td>
+</tr>
+</table>
+
+All three screens are rendered from the committed <code>reference-db/</code>
+case store (measured history from earlier OpenLane runs); no OpenLane run was
+performed to capture them.
+
+## Contents
+
+- [Quick start](#quick-start)
+- [Screens](#screens)
+- [What's here](#whats-here)
+- [Autonomous layout pipeline](#autonomous-layout-pipeline)
+  - [Placement and routing decisions](#placement-and-routing-decisions)
+  - [Retiring stored results](#retiring-stored-results)
+  - [A second metrics source, and a dataset export](#a-second-metrics-source-and-a-dataset-export)
+  - [Human-in-the-loop review + self-improvement loop](#human-in-the-loop-review--self-improvement-loop)
+- [Tests](#tests)
+- [MCP server](#mcp-server)
+- [The custom/analog half (Virtuoso's counterpart)](#the-customanalog-half-virtuosos-counterpart)
+  - [The layout pipeline's designs, as schematics](#the-layout-pipelines-designs-as-schematics)
+  - [Opening a standard cell](#opening-a-standard-cell)
+  - [A standard cell's layout, signed off and stored](#a-standard-cells-layout-signed-off-and-stored)
+  - [The custom half's self-improvement loop](#the-custom-halfs-self-improvement-loop)
+  - [On virtuoso-bridge-lite](#on-virtuoso-bridge-lite)
+  - [Not done](#not-done)
+- [Dashboard](#dashboard)
+  - [Diagnosis page (live agent, via hermes-gateway)](#diagnosis-page-live-agent-via-hermes-gateway)
 
 ## What's here
 
@@ -38,7 +115,7 @@ server/index.mjs                    Local server for the dashboard: serves
                                      pipeline/orchestrator.py on demand and
                                      reports its progress
 dashboard/                          React + Vite + TypeScript UI — the
-                                     DTCO agent's control surface: trigger
+                                     layout agent's control surface: trigger
                                      a real pipeline/orchestrator.py run
                                      and watch it live, browse past
                                      reference-db/ cases, open a schematic
@@ -350,7 +427,7 @@ instead of shelled-out commands:
 | `ppa_sta_report` | Reads the OpenSTA analysis a run already produced — real critical path stage by stage, plus max_slew/cap/fanout violators |
 | `ppa_equiv_check` | Proves a run's netlist is functionally equivalent to its RTL (Yosys SAT, ~1s) — the check DRC/LVS/timing leave out |
 | `ppa_odb_query` | Queries a run's real OpenROAD `.odb` for measured per-net placement facts (pin count, HPWL, max span) — answers per-net questions `metrics.json` cannot |
-| `ppa_tech_compare` | Runs the same design across standard-cell technologies and returns a real PPA delta with the design held fixed — the technology half of DTCO |
+| `ppa_tech_compare` | Runs the same design across standard-cell technologies and returns a real PPA delta with the design held fixed — the technology half of the design/technology trade-off |
 | `ppa_custom_status` | What of the open-source Virtuoso-equivalent stack (xschem/magic/klayout/ngspice/netgen) this host can really run, each mapped to the Cadence tool it stands in for |
 | `ppa_custom_eval` | Runs a script in one custom-design backend's own batch language — the counterpart of executing SKILL in Virtuoso |
 | `ppa_netlist_schematic` | Netlists a schematic with xschem — the entry point of the custom flow, and what a hand-written deck silently gets wrong |
@@ -873,3 +950,7 @@ description of one to build yourself.
    click **Diagnose report**. The answer streams on the same page. The
    pasted key (or the server-side one) is also what the Layout Pipeline
    tab's translate and review steps use.
+
+## License
+
+[MIT](LICENSE).
