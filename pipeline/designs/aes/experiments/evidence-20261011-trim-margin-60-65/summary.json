@@ -1,0 +1,148 @@
+{
+ "20261011-m60-trim-hul-margin60-keep2-min6": {
+  "tag": "20261011-m60-trim-hul-margin60-keep2-min6",
+  "final_antenna_step": "55-openroad-checkantennas-1",
+  "antenna": 8,
+  "antenna_rows": 8,
+  "fanout": 0,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.821,
+  "worst_hold": 0.054,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145841,
+  "core_util": 0.403,
+  "wire_um": 760262,
+  "die": 383188,
+  "power": 0.10262009501457214,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25,
+   "GRT_ANTENNA_MARGIN": 60,
+   "DIODE_TRIM_KEEP": 2,
+   "DIODE_TRIM_MIN_DIODES": 6
+  },
+  "trim": {
+   "keep": 2,
+   "min_diodes": 6,
+   "nets_trimmed": 93,
+   "diodes_removed": 710,
+   "diodes_before": 1790,
+   "diodes_after": 1080
+  },
+  "ant_pins": [
+   [
+    "2.92",
+    "_03264_",
+    "_11850_/S"
+   ],
+   [
+    "1.45",
+    "_00235_",
+    "_22313_/D"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.28",
+    "_00276_",
+    "_22322_/D"
+   ],
+   [
+    "1.11",
+    "_01477_",
+    "_20733_/A"
+   ],
+   [
+    "1.10",
+    "fanout_repair_net_504",
+    "_11253_/B"
+   ],
+   [
+    "1.09",
+    "net88",
+    "_11718_/A1"
+   ],
+   [
+    "1.06",
+    "_08054_",
+    "fanout_repair_67/A"
+   ]
+  ]
+ },
+ "20261011-m65-trim-hul-margin65-keep2-min6": {
+  "tag": "20261011-m65-trim-hul-margin65-keep2-min6",
+  "final_antenna_step": "55-openroad-checkantennas-1",
+  "antenna": 4,
+  "antenna_rows": 4,
+  "fanout": 1,
+  "slew": 0,
+  "cap": 1,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.864,
+  "worst_hold": 0.041,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 146702,
+  "core_util": 0.405,
+  "wire_um": 762063,
+  "die": 383188,
+  "power": 0.10277845710515976,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25,
+   "GRT_ANTENNA_MARGIN": 65,
+   "DIODE_TRIM_KEEP": 2,
+   "DIODE_TRIM_MIN_DIODES": 6
+  },
+  "trim": {
+   "keep": 2,
+   "min_diodes": 6,
+   "nets_trimmed": 118,
+   "diodes_removed": 946,
+   "diodes_before": 2309,
+   "diodes_after": 1363
+  },
+  "ant_pins": [
+   [
+    "1.52",
+    "_03644_",
+    "_12437_/A1_N"
+   ],
+   [
+    "1.49",
+    "u0.w[0\\][14\\]",
+    "_21889_/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ }
+}

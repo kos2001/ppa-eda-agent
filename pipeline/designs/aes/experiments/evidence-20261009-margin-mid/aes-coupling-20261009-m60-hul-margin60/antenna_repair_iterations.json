@@ -1,0 +1,83 @@
+{
+ "41-openroad-repairantennas": {
+  "config_GRT_ANTENNA_MARGIN": 60,
+  "config_GRT_ANTENNA_ITERS": 10,
+  "iterations_executed": 4,
+  "hit_iteration_cap": false,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 333,
+    "nets_rerouted": 4394
+   },
+   {
+    "iteration": 2,
+    "violations_found": 58,
+    "nets_rerouted": 293
+   },
+   {
+    "iteration": 3,
+    "violations_found": 4,
+    "nets_rerouted": 4
+   },
+   {
+    "iteration": 4,
+    "violations_found": 0
+   }
+  ]
+ },
+ "46-openroad-repairantennas-1": {
+  "config_GRT_ANTENNA_MARGIN": 60,
+  "config_GRT_ANTENNA_ITERS": 10,
+  "iterations_executed": 4,
+  "hit_iteration_cap": false,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 208,
+    "nets_rerouted": 4670
+   },
+   {
+    "iteration": 2,
+    "violations_found": 55,
+    "nets_rerouted": 188
+   },
+   {
+    "iteration": 3,
+    "violations_found": 3,
+    "nets_rerouted": 3
+   },
+   {
+    "iteration": 4,
+    "violations_found": 0
+   }
+  ]
+ },
+ "50-openroad-repairantennas-2": {
+  "config_GRT_ANTENNA_MARGIN": 60,
+  "config_GRT_ANTENNA_ITERS": 10,
+  "iterations_executed": 4,
+  "hit_iteration_cap": false,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 59,
+    "nets_rerouted": 4448
+   },
+   {
+    "iteration": 2,
+    "violations_found": 34,
+    "nets_rerouted": 109
+   },
+   {
+    "iteration": 3,
+    "violations_found": 1,
+    "nets_rerouted": 1
+   },
+   {
+    "iteration": 4,
+    "violations_found": 0
+   }
+  ]
+ }
+}

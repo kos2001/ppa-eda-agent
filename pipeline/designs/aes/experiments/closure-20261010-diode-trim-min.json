@@ -1,0 +1,68 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261010-m75-min8-hul-margin75-keep2-min8",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 8
+      },
+      "_why": "One axis from the keep 2 run: DIODE_TRIM_MIN_DIODES 8 (was 10), reaching only `clkbuf_0_clk` (8 diodes among 12 sinks) among the three recorded failures. Predicts the clock capacitance below 0.2 pF and `_20345_` still failing fanout. Falsified if the targeted failure remains or the antenna count rises above the 2 to 4 seen."
+    },
+    {
+      "tag": "aes-coupling-20261010-m75-min6-hul-margin75-keep2-min6",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the keep 2 run: DIODE_TRIM_MIN_DIODES 6 (was 10), reaching `clkbuf_0_clk` (8 diodes) and `_20345_` (6 diodes among 18 sinks, limit 16). Predicts fanout 0 and the clock capacitance below 0.2 pF. Falsified if the targeted failure remains or the antenna count rises above the 2 to 4 seen."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Find whether lowering DIODE_TRIM_MIN_DIODES reaches the diode-loaded nets the first trim missed (_20345_ with 6 diodes, clkbuf_0_clk with 8) and what it costs in final antenna violations; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261010-m75-trim2-hul-margin75-trim2 (3 antenna, 1 fanout, 2 slew, 2 cap) and the untrimmed MARGIN 75 run"
+  },
+  "_why": "Follows the 2026-10-10 trim result: the failures left sit on nets below the 10-diode threshold. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}

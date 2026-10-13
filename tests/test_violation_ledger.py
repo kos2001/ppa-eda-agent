@@ -18,6 +18,7 @@ in its first recorded run to 0 in its latest (481, 88, 218, 3, 0, 0,
 8, 0 — not monotone, which is also worth seeing), the fact the page
 exists to make visible.
 """
+import functools
 import json
 import os
 import re
@@ -31,12 +32,14 @@ CASES = ROOT / "reference-db" / "cases"
 
 COUNTED = re.compile(r"^(\d+)\s+(.*)$")
 
-# Read from orchestrator.py so the dashboard's kind matchers are checked
-# against the labels score() actually writes, not a copy of them.
-_orch = (ROOT / "pipeline" / "orchestrator.py").read_text(encoding="utf-8")
+# Read from verdict_scoring.py (split out of orchestrator.py) so the
+# dashboard's kind matchers are checked against the labels score() actually
+# writes, not a copy of them.
+_orch = (ROOT / "pipeline" / "verdict_scoring.py").read_text(encoding="utf-8")
 SIGNOFF_LABELS = re.findall(r'\("[a-z_]+__[a-z_:]+",\s*"([^"]+)"\)', _orch)
 
 
+@functools.lru_cache(maxsize=None)
 def _harness() -> dict:
     try:
         out = subprocess.run(

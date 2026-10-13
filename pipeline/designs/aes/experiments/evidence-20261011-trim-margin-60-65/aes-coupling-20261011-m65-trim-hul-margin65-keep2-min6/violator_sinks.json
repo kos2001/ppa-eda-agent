@@ -1,0 +1,112 @@
+[
+ {
+  "corner": "max_ff_n40C_1v95",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "max_ss_100C_1v60",
+  "kind": "capacitance",
+  "driver": "_11666_/X",
+  "cell": "xor2_1",
+  "net": "_03136_",
+  "limit": "0.045786",
+  "value": "0.046167",
+  "sinks": 3,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "max_tt_025C_1v80",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "min_ff_n40C_1v95",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "min_ss_100C_1v60",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "min_tt_025C_1v80",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "nom_ff_n40C_1v95",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "nom_ss_100C_1v60",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ },
+ {
+  "corner": "nom_tt_025C_1v80",
+  "kind": "fanout",
+  "driver": "_17277_/Y",
+  "cell": "nand4_4",
+  "net": "_08570_",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 2
+ }
+]

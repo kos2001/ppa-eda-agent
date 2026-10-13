@@ -24,16 +24,21 @@ So there are two curves and neither is that one.
 Both are derived from the case store at read time. Nothing is recorded
 to support this page.
 """
+import functools
 import json
 import os
 import re
 import subprocess
+import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HARNESS = ROOT / "tests" / "progress_timeline_check.mjs"
 CASES = ROOT / "reference-db" / "cases"
+
+sys.path.insert(0, str(ROOT / "pipeline"))
+import case_store  # noqa: E402
 
 STAMP = re.compile(r"__(\d{4}-\d{2}-\d{2})(?:__(\d{6}))?\.json$")
 
@@ -47,6 +52,7 @@ DEFAULT_SCL = re.search(r'^DEFAULT_SCL = "([^"]+)"', _surrogate, re.M).group(1)
 DEFAULT_PDK = re.search(r'^DEFAULT_PDK = "([^"]+)"', _surrogate, re.M).group(1)
 
 
+@functools.lru_cache(maxsize=None)
 def _harness() -> dict:
     try:
         out = subprocess.run(
@@ -73,7 +79,7 @@ def _rows() -> list[dict]:
     for path in sorted(CASES.glob("*.json")):
         stamp = STAMP.search(path.name)
         at = f"{stamp.group(1)}T{stamp.group(2) or '000000'}"
-        case = json.loads(path.read_text(encoding="utf-8"))
+        case = case_store.load_light(path)
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
                 out.append({

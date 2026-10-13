@@ -1,0 +1,44 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261011-m75-min6-repeat-hul-margin75-keep2-min6-repeat",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "Unchanged repeat of aes-coupling-20261010-m75-min6-hul-margin75-keep2-min6 (same overrides, PDK, SCL, design files; only the tag differs). Control for the a211oi runs: if the repeat reproduces the 3 antenna pins and the single failing driver, the a211oi result is caused by the upsize; if it does not, the failing set varies without any change and single-run comparisons in this series cannot separate cause from spread."
+    }
+  ],
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1,
+    "max_wall_seconds": 5400
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Measure whether the MIN 6 trim run reproduces when nothing is changed",
+    "reference": "aes-coupling-20261010-m75-min6-hul-margin75-keep2-min6 (3 antenna, 0 fanout, slew and cap on _19764_ only)"
+  },
+  "_why": "Control for the 2026-10-11 a211oi runs, which moved the failing set and raised antenna to 8 and 9. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}

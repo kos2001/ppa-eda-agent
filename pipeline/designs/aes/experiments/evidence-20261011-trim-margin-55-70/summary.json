@@ -1,0 +1,158 @@
+{
+ "20261011-m70-trim-hul-margin70-keep2-min6": {
+  "tag": "20261011-m70-trim-hul-margin70-keep2-min6",
+  "final_antenna_step": "55-openroad-checkantennas-1",
+  "antenna": 4,
+  "antenna_rows": 4,
+  "fanout": 1,
+  "slew": 0,
+  "cap": 0,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.786,
+  "worst_hold": 0.066,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 147856,
+  "core_util": 0.408,
+  "wire_um": 764308,
+  "die": 383188,
+  "power": 0.10309482365846634,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25,
+   "GRT_ANTENNA_MARGIN": 70,
+   "DIODE_TRIM_KEEP": 2,
+   "DIODE_TRIM_MIN_DIODES": 6
+  },
+  "trim": {
+   "keep": 2,
+   "min_diodes": 6,
+   "nets_trimmed": 161,
+   "diodes_removed": 1266,
+   "diodes_before": 3065,
+   "diodes_after": 1799
+  },
+  "ant_pins": [
+   [
+    "1.52",
+    "_01619_",
+    "_21272_/A2"
+   ],
+   [
+    "1.20",
+    "_00033_",
+    "_22535_/D"
+   ],
+   [
+    "1.13",
+    "_02581_",
+    "_11788_/A0"
+   ],
+   [
+    "1.13",
+    "_10241_",
+    "_19185_/A2"
+   ]
+  ]
+ },
+ "20261011-m55-trim-hul-margin55-keep2-min6": {
+  "tag": "20261011-m55-trim-hul-margin55-keep2-min6",
+  "final_antenna_step": "55-openroad-checkantennas-1",
+  "antenna": 9,
+  "antenna_rows": 10,
+  "fanout": 0,
+  "slew": 2,
+  "cap": 1,
+  "setup_vio": 0,
+  "hold_vio": 0,
+  "worst_setup": 0.885,
+  "worst_hold": 0.045,
+  "magic": 0,
+  "klayout": 0,
+  "lvs": 0,
+  "area": 145351,
+  "core_util": 0.401,
+  "wire_um": 757537,
+  "die": 383188,
+  "power": 0.10240975767374039,
+  "flow_err": 0,
+  "resolved": {
+   "FP_CORE_UTIL": 35,
+   "FANOUT_REPAIR_LIMIT": 15,
+   "CLOCK_PERIOD": 12,
+   "MAX_FANOUT_CONSTRAINT": 16,
+   "MAX_TRANSITION_CONSTRAINT": 1.5,
+   "IO_DELAY_CONSTRAINT": 25,
+   "GRT_ANTENNA_MARGIN": 55,
+   "DIODE_TRIM_KEEP": 2,
+   "DIODE_TRIM_MIN_DIODES": 6
+  },
+  "trim": {
+   "keep": 2,
+   "min_diodes": 6,
+   "nets_trimmed": 75,
+   "diodes_removed": 547,
+   "diodes_before": 1440,
+   "diodes_after": 893
+  },
+  "ant_pins": [
+   [
+    "1.93",
+    "u0.w[1\\][21\\]",
+    "fanout_repair_1447/A"
+   ],
+   [
+    "1.75",
+    "net1295",
+    "fanout1291/A"
+   ],
+   [
+    "1.38",
+    "text_in_r[26\\]",
+    "_14993_/A"
+   ],
+   [
+    "1.36",
+    "_00235_",
+    "_22313_/D"
+   ],
+   [
+    "1.22",
+    "_03093_",
+    "_11625_/B1"
+   ],
+   [
+    "1.08",
+    "net1021",
+    "fanout_repair_120/A"
+   ],
+   [
+    "1.07",
+    "_03644_",
+    "_12437_/A1_N"
+   ],
+   [
+    "1.05",
+    "fanout_repair_net_1447",
+    "_11799_/A0"
+   ],
+   [
+    "1.05",
+    "fanout_repair_net_1447",
+    "_11801_/A1"
+   ],
+   [
+    "1.01",
+    "_00231_",
+    "_22285_/D"
+   ]
+  ]
+ }
+}
