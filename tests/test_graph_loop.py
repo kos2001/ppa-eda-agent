@@ -86,6 +86,32 @@ class GraphLoopTests(unittest.TestCase):
         self.assertTrue(graph_loop._infrastructure_failure({
             "error": "Failed to obtain PDK remotely: 403 rate limit exceeded"}))
 
+    def test_expected_failure_control_is_not_optimized(self):
+        def forbidden(*args, **kwargs):
+            raise AssertionError("negative control must not execute")
+        answer = graph_loop.run_loop(
+            Path("dut"),
+            {"design_name": "dut", "expected_outcome": "fail",
+             "expected_outcome_reason": "CDC gate negative control"},
+            self.corpus(), execute=True, runner=forbidden)
+        self.assertEqual(answer["stop_reason"], "expected_failure_control")
+        self.assertFalse(answer["executed"])
+        self.assertIn("CDC", answer["why"])
+
+    def test_existing_signoff_winner_prevents_regression_chasing(self):
+        corpus = self.corpus()
+        corpus[-1]["iterations"][0]["results"] = [
+            result("good", {"K": 1}, passed=True),
+            result("later-regression", {"K": 2},
+                   ["1 max-fanout (DRV) violation(s)"]),
+        ]
+        answer = graph_loop.run_loop(Path("dut"), {"design_name": "dut"},
+                                     corpus, execute=True,
+                                     runner=lambda *args, **kwargs: self.fail())
+        self.assertEqual(answer["stop_reason"], "winner_found")
+        self.assertEqual(answer["winner"]["tag"], "good")
+        self.assertFalse(answer["executed"])
+
 
 if __name__ == "__main__":
     unittest.main()
