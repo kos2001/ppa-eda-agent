@@ -74,6 +74,32 @@ def run_loop(design_dir: Path, run_spec: dict, cases: list[dict], *,
     prior = _all_results(cases, design)
     if not prior:
         raise ValueError(f"case for {design!r} has no measured results")
+    if run_spec.get("expected_outcome") == "fail":
+        return {
+            "design": design,
+            "parent_case": parent.get("_file"),
+            "executed": False,
+            "iterations": [],
+            "winner": None,
+            "stop_reason": "expected_failure_control",
+            "next_candidates": [],
+            "why": run_spec.get("expected_outcome_reason")
+                   or "the run specification declares an expected failure",
+            "publish_case": False,
+        }
+    existing_winner = orchestrator.pick_winner(prior)
+    if existing_winner:
+        return {
+            "design": design,
+            "parent_case": parent.get("_file"),
+            "executed": False,
+            "iterations": [],
+            "winner": existing_winner,
+            "stop_reason": "winner_found",
+            "next_candidates": [],
+            "why": "a previously measured candidate already passes signoff",
+            "publish_case": False,
+        }
     seed = copy.deepcopy(prior[-1])
     session = {
         "design": design,
