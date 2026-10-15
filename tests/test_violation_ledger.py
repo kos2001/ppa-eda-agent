@@ -85,10 +85,16 @@ class ParseTests(unittest.TestCase):
         # a count, and must not be summed into anything.
         seen = False
         for p in self.data["parses"]:
+            # Preserve every non-count diagnostic, including a proof that
+            # could not run. New diagnostic text must not become a fake count
+            # or disappear merely because it is not slack/utilization/IR.
+            self.assertEqual(
+                [v for v in p["other"] if not COUNTED.match(v)],
+                [v for v in p["violations"] if not COUNTED.match(v)])
             for o in p["other"]:
                 seen = True
                 self.assertFalse(COUNTED.match(o) and any(lbl in o for lbl in SIGNOFF_LABELS), o)
-                self.assertTrue(o.startswith(("worst", "utilization", "IR drop")), o)
+                self.assertIn(o, p["violations"])
         self.assertTrue(seen, "the store has no measurement-type violation to test against")
 
     def test_an_absent_kind_is_absent_not_zero(self):

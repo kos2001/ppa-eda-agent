@@ -4,6 +4,37 @@ This follow-up distinguishes tool/test failures, design violations and missing
 qualification. A historical PASS is not a current PASS. Diagnostic timing
 constraints do not qualify the original target.
 
+## Completed outcome
+
+All four RISC-V candidates completed; none qualifies as PASS. These are
+23.6 ns diagnostic results, not qualification of the original 15 ns target.
+
+| Candidate | Setup slack (ns) | Slew | Fanout | Capacitance | Antenna | Magic/KLayout/LVS |
+|---|---:|---:|---:|---:|---:|---|
+| Baseline | +0.530555 | 0 | 46 | 122 | 25 | 0 / 0 / 0 |
+| One repair round | -1.076838 | 0 | 23 | 85 | 34 | 0 / 0 / 0 |
+| Two repair rounds | -1.281068 | 17 | 17 | 75 | 32 | 0 / 0 / 0 |
+| One round, four direct critical sinks | -0.233799 | 0 | 21 | 89 | 26 | 0 / 0 / 0 |
+
+Independent synthesis-to-final proofs pass 10,224 points with zero unproven
+for every candidate. This does not establish RTL-to-synthesis equivalence.
+The full comparisons are recorded in `riscv32i__2026-10-15.json` and
+`riscv32i__2026-10-15__022457.json`; both have no winner. Exact-run archives
+for baseline, r1 and r2 retain final geometry/netlists, reports, proof logs
+and custom-flow sources. The direct-critical run has a retention limitation:
+its WSL `/tmp` directory disappeared after case/proof completion but before
+raw-run archival. Its case, rendered layout, structured successful physical
+proof and run spec survive; full raw reports/netlists do not. The cause is
+unconfirmed. See `reference-db/riscv_direct_artifact_retention_20261015.json`.
+This is not complete raw-report reproducibility. Future Linux-local runs must
+use a persistent workspace rather than `/tmp`; no missing evidence is inferred.
+
+The running orchestrators had loaded the earlier checker before its diagnostic
+wording was corrected. Their raw cases retain the old "NOT functionally
+equivalent" message and the actual error: no SAT model for an async FF.
+Interpret this as unverified, not a demonstrated counterexample. No raw
+measurement or failed proof was rewritten as a success.
+
 ## Corrections
 
 - Graph loop returns `historical_pass_requires_revalidation`, not a current
@@ -83,10 +114,16 @@ capacity, repeated rounds, cycles/connectivity checks and invalid-plan rejection
 This is connectivity evidence only. A separate, validated one-evaluation plan,
 `run_spec_direct_sink_20261015.json`, now measures the option with the exact
 r1 46-net map and constraints. Its two-hour admission budget is separate from
-the original three-run comparison. It is running, not yet a measured success.
+the original three-run comparison. All final checks are complete; despite
+clean DRC/LVS and a synthesis-to-final proof, it is not a closure success.
 RTL/configuration bytes were compared before running in the unique Linux
 temporary workspace `/tmp/ppa-direct-critical-20261015-wEdW79/riscv32i` to
 reduce Windows filesystem overhead. No PDK models or timing limits changed.
+This relocation is not a measured speedup claim: both extraction processes
+were later sampled waiting in `p9_client_rpc`. The PDK is still mounted from
+Windows, so moving design outputs alone does not eliminate cross-filesystem
+I/O. A future Linux-local PDK copy needs complete source-hash verification;
+the running PDK mount was not changed.
 
 The completed r1 final metrics also confirm Magic DRC, KLayout DRC and LVS
 counts are zero. Synthesis-to-final equivalence proves all 10,224 points;
@@ -94,6 +131,35 @@ this does not prove RTL-to-synthesis. Its 23 remaining fanout violators all have
 loads excluding diodes. Their drivers are existing cells rather than the
 new `fanout_repair_*` branch drivers. Removing diodes is not justified by
 that observation; the same candidate still has 34 antenna violations.
+All 23 nets resolve in the final netlist, and their enumerated input-load
+counts match the STA fanout counts. None is in the original 46-net target
+map. Thus the next graph update must consider newly exposed nets rather than
+blindly repeating the original targeted map; a later antenna pass can move
+the remaining violations to other drivers.
+
+The r2 final STA reports fanout 17,
+capacitance 75, antenna 32, but 17 new slew violations and worst setup slack
+-1.281068 ns (hold +0.106745 ns). Repeating repair reduces some counts but
+worsens timing and introduces another electrical failure; r2 is rejected
+despite clean final DRC/LVS. No third repair round is admitted.
+The 17 slew violations share net `_08860_` (driver `_16221_/Y` and 16 input
+pins), not 17 separate nets. The `o21ai_4` driver and all 16 load cells are
+unchanged between r1 and r2, while max-corner SPEF net capacitance rises from
+0.0930201 to 0.10161 pF. This is consistent with a routing/parasitic regression,
+not proof that capacitance alone caused it. Raw selected lines, units and
+full-file hashes are in `reference-db/riscv_slew_net_comparison_20261015.json`.
+
+The direct-critical candidate's final STA reports setup -0.233799 ns,
+hold +0.106571 ns, slew 0, fanout 21, capacitance 89 and antenna 26.
+Relative to r1, setup improves by about 0.843 ns, fanout and antenna improve,
+but capacitance worsens from 85 to 89. It still fails closure. The new worst
+path remains `instr[4] -> aluout[29]` but takes a different internal branch:
+`_02626_ -> fanout_repair_10 -> _09885_/A`. Only this inserted buffer remains
+on that path, with reported cell delay 0.767660 ns; the original four retained
+sinks are not the complete critical-path set. A next bounded hypothesis should
+consider multiple near-critical paths (including `_09885_/A`) while reserving
+root fanout headroom, rather than assuming protection of one path is enough.
+No additional full candidate is admitted beyond this one-candidate follow-up.
 
 ## AES residual-net diagnosis
 
@@ -204,6 +270,17 @@ additional 31 targeted tests checked the final measurement-coverage wording
 separately rather than inferred from the pure suite.
 After the direct-sink option was added, the full suite passed again: 1368
 tests in 229.846 seconds, with the same six conditional skips.
+The final suite, including archive-byte/source-hash tests and the corrected
+"NOT PROVEN" functional diagnostic, passed 1372 tests in 371.394 seconds,
+with six conditional skips. A proof failure still blocks acceptance; the
+wording no longer claims a counterexample from unproven points alone.
+After both new cases were written, a 95-test focused run exposed an old
+ledger-test assumption that every non-count diagnostic must be slack,
+utilization or IR drop. The test now verifies exact preservation of all
+non-count diagnostics, including proof-tool errors. All 95 tests then passed
+(one Docker-conditional skip). Rechecking surrogate selection still yields
+k=1 for area, power and completion (366/366/420 scored folds respectively).
+Both new case filenames are present in `reference-db/index.json`.
 The earlier full run exposed the schematic symlink error, stale surrogate
 default, monotonic-history assumption and four missing PDK support files.
 The existing `pdk_repair.py --pdk sky130 --apply` restored only empty,
