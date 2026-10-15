@@ -543,8 +543,79 @@ def predict_candidate(design: str, cand: dict, config: dict,
     out = {}
     for field in fields:
         p = predict(row, ds, field)
-        out[field] = {k: p.get(k) for k in ("value", "refused", "reason", "k", "neighbours") if k in p}
+        out[field] = {k: p.get(k) for k in (
+            "value", "refused", "reason", "k", "neighbours",
+            "neighbour_distances", "exact_match", "n_samples"
+        ) if k in p}
     return out
+
+
+def rank_candidates(design: str, candidates: list[dict], config: dict,
+                    dataset: list[dict] | None = None) -> list[dict]:
+    """Rank a candidate portfolio without pretending to predict success.
+
+    Area and power are the two targets that currently beat their baselines.
+    They form an equal-weight, min-max-normalised exploitation score.  The
+    nearest-neighbour distance is reported separately as uncertainty/novelty;
+    it is deliberately *not* folded into one magic score.  A caller can then
+    take mostly low-PPA candidates plus one or two high-novelty candidates for
+    active learning, while every selected candidate still goes through the
+    real flow.
+
+    Exact repeats sort last.  Refused predictions remain visible as
+    ``explore`` rather than being assigned invented PPA values.
+    """
+    ds = cached_dataset() if dataset is None else dataset
+    rows = []
+    for index, cand in enumerate(candidates):
+        pred = predict_candidate(design, cand, config, ds)
+        repeat = already_recorded(design, cand.get("overrides") or {}, ds)
+        distances = [
+            p["neighbour_distances"][0]
+            for p in pred.values()
+            if p.get("neighbour_distances")
+        ]
+        values = {field: pred[field].get("value")
+                  for field in ("area_um2", "power_w")}
+        rows.append({
+            "candidate": cand,
+            "prediction": pred,
+            "recorded_repeat": repeat is not None,
+            "novelty": max(distances) if distances else None,
+            "mode": "explore" if any(pred[f].get("refused")
+                                      for f in ("area_um2", "power_w"))
+                    else "exploit",
+            "predicted": values,
+            "_index": index,
+        })
+
+    # Normalise only across supported predictions. A constant target carries
+    # no ranking information and contributes zero rather than arbitrary noise.
+    ranges = {}
+    for field in ("area_um2", "power_w"):
+        vals = [r["predicted"][field] for r in rows
+                if _numeric(r["predicted"][field])]
+        if vals:
+            ranges[field] = (min(vals), max(vals))
+    for row in rows:
+        terms = []
+        for field, (lo, hi) in ranges.items():
+            value = row["predicted"][field]
+            if _numeric(value):
+                terms.append(0.0 if hi == lo else (value - lo) / (hi - lo))
+        row["ppa_score"] = sum(terms) / len(terms) if len(terms) == 2 else None
+
+    rows.sort(key=lambda r: (
+        r["recorded_repeat"],
+        r["ppa_score"] is None,
+        r["ppa_score"] if r["ppa_score"] is not None else math.inf,
+        -(r["novelty"] or 0.0),
+        r["_index"],
+    ))
+    for rank, row in enumerate(rows, 1):
+        row["rank"] = rank
+        del row["_index"]
+    return rows
 
 
 def score_prediction(prediction: dict, verdict: dict | None) -> dict:
