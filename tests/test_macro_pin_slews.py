@@ -102,13 +102,16 @@ class Exhaustive(unittest.TestCase):
             run = make_run(root / "run", corners)
             return model_validity.check(design, run)
 
-    def test_all_pins_inside_the_range_at_every_corner_leaves_nothing_unverified(self):
+    def test_clean_pin_slews_do_not_override_a_stronger_macro_model_audit(self):
         got = self.check({"nom_tt": {"addr0[0]": 0.021, "din0[0]": 0.03, "clk0": 0.039},
                           "max_ss": {"addr0[0]": 0.034, "din0[0]": 0.038, "clk0": 0.04}})
         self.assertEqual(got["coverage"], "every_macro_input_pin_every_corner")
         self.assertTrue(got["model_validity_verified"])
         self.assertEqual(got["pins_checked"], 3)
-        self.assertEqual(model_validity.unverified(got), [])
+        lines = model_validity.unverified(got)
+        self.assertEqual(len(lines), 1)
+        self.assertIn("PVT", lines[0])
+        self.assertNotIn("omit nonviolating pins", lines[0])
 
     def test_a_pin_past_the_range_at_one_corner_is_named_with_that_corner(self):
         got = self.check({"nom_tt": {"addr0[0]": 0.02, "clk0": 0.03},
