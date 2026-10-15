@@ -17,6 +17,10 @@ import experiment_graph
 
 STOP_REASONS = ("winner_found", "plateau", "actions_exhausted", "candidates_proposed")
 
+# Knobs that define the timing target rather than move the design toward
+# it: changing one can make a violation disappear by asking for less.
+OBJECTIVE_KEYS = ("CLOCK_PERIOD", "IO_DELAY_CONSTRAINT")
+
 
 def _results(case: dict) -> list[dict]:
     return [r for it in case.get("iterations", []) or []
@@ -98,8 +102,13 @@ def propose(case: dict, graph: dict, limit: int = 4,
 
     base = dict(current.get("overrides") or {})
     candidates = []
+    excluded_actions: dict[str, int] = {}
     for action_id, evidence in closures.items():
         action = nodes[action_id]
+        if action["key"] in OBJECTIVE_KEYS:
+            excluded_actions["objective_constraint"] = (
+                excluded_actions.get("objective_constraint", 0) + 1)
+            continue
         overrides = dict(base)
         if action.get("value") is None:
             overrides.pop(action["key"], None)
@@ -125,14 +134,14 @@ def propose(case: dict, graph: dict, limit: int = 4,
     candidates = candidates[:limit]
     if candidates:
         return {"stop_reason": "candidates_proposed", "candidates": candidates,
-                "plateau": plateau(results), "excluded_evidence": excluded}
+                "plateau": plateau(results), "excluded_evidence": excluded, "excluded_actions": excluded_actions}
     if plateau(results):
         return {"stop_reason": "plateau", "candidates": [],
                 "why": "distinct configurations repeated the same measured state",
-                "excluded_evidence": excluded}
+                "excluded_evidence": excluded, "excluded_actions": excluded_actions}
     return {"stop_reason": "actions_exhausted", "candidates": [],
             "why": "no untried action has compatible closure evidence for the current state",
-            "excluded_evidence": excluded}
+            "excluded_evidence": excluded, "excluded_actions": excluded_actions}
 
 
 def plan(design: str, refdb: Path | str = case_retrieval.REFDB,

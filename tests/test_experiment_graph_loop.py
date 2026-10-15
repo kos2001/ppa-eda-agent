@@ -228,6 +228,21 @@ class ClosedLoopTests(unittest.TestCase):
         self.assertEqual(plan["stop_reason"], "actions_exhausted")
         self.assertEqual(plan["excluded_evidence"]["technology_unresolved"], 2)
 
+    def test_relaxing_the_timing_objective_is_never_proposed(self):
+        for key in ("CLOCK_PERIOD", "IO_DELAY_CONSTRAINT"):
+            with self.subTest(key=key):
+                setup = "1 setup timing violation(s)"
+                precedent = case("new", [
+                    result("tight", {key: 10}, [setup]),
+                    result("relaxed", {key: 20}, passed=True),
+                ], "old.json")
+                current = case("new", [result("now", {key: 10, "K": 1}, [setup])],
+                               "new.json")
+                plan = closed_loop_search.propose(
+                    current, experiment_graph.build([precedent, current]))
+                self.assertEqual(plan["candidates"], [])
+                self.assertEqual(plan["excluded_actions"], {"objective_constraint": 1})
+
     def test_a_real_winner_is_terminal(self):
         self.current["iterations"][0]["results"].append(result("pass", {}, passed=True))
         self.assertEqual(closed_loop_search.propose(self.current, self.graph)["stop_reason"],
