@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "run_id": "bounded-audit-proof-20261015",
+  "design": "riscv32i baseline proof and sram_wrapper retained-report audit",
+  "toolchain": "OpenLane 2.3.10 image sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e; Yosys 0.46 e97731b9dda91fa5fa53ed87df7c34163ba59a41",
+  "target_identity": "Diagnostic replay of closure-20261015-baseline and evidence-20261015-physical; not physical signoff",
+  "required_gates": [
+    "rtl_to_synthesis",
+    "macro_model"
+  ],
+  "gates": {
+    "rtl_to_synthesis": {
+      "state": "pass",
+      "evidence": [
+        "rtl_proof",
+        "proof_log"
+      ],
+      "scope": "Inductive state correspondence under clk2fflogic; initialization/reset synchronization independently unverified"
+    },
+    "macro_model": {
+      "state": "unverified",
+      "evidence": [
+        "sram_audit"
+      ]
+    }
+  },
+  "artifacts": {
+    "sram_audit": {
+      "path": "sram_archive_audit_bounded_20261015.json",
+      "sha256": "12de65de0b63cfe93eb84fa684575e47bf03c49d59c3e9cf5535ea5506594648"
+    },
+    "rtl_proof": {
+      "path": "riscv_state_first_bounded_20261015.json",
+      "sha256": "e62bf098eb71a43d559d58997993e725ba0df2c2e4d5da8d598e15c0bc750f71"
+    },
+    "proof_log": {
+      "path": "riscv_state_first_bounded_20261015.log",
+      "sha256": "74a055d1a67d7c3fe693d4b402d2cde6b19e0b4d3c45f0109ea69d3de1eb996e"
+    }
+  },
+  "budget": {
+    "full_design_proof_attempts": 1,
+    "proof_timeout_seconds": 120,
+    "cleanup_timeout_seconds": 30,
+    "new_physical_runs": 0,
+    "new_characterization_runs": 0
+  },
+  "verified_input_hashes": true,
+  "source_sha256": {
+    "pipeline/equiv_check.py": "bf675fc06f6216bc9ed573b5e26f5df2b976de11719617de3014cde096540ed2",
+    "pipeline/sta_evidence.py": "5bb0bf4b312b0c8378f1f1bf16660ce337f21ea5088789df64ef1bacb1c84ba2",
+    "pipeline/macro_model_audit.py": "5e7e5684ed0c988254f8febacbdcf715f0c274d2b04d77916cdcffaf78b57fe8",
+    "pipeline/macro_slew_audit.py": "63ab3acf8ebd82f4828eef91067e22b5a30a6d26d07e8b4e8d85b9126ccc5d09"
+  }
+}

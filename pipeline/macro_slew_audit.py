@@ -10,7 +10,7 @@ import json
 import math
 from pathlib import Path
 
-from sta_report import latest_sta_dir
+from sta_evidence import reports as evidence_reports
 
 FIELDS = ("max_rise_ns", "max_fall_ns", "min_rise_ns", "min_fall_ns")
 
@@ -20,11 +20,13 @@ def read_audit(run_dir, expected_inputs=None):
     expected_inputs = expected_inputs or {}
     resolved = json.loads((run_dir / "resolved.json").read_text())
     expected_corners = resolved["STA_CORNERS"]
-    stage = latest_sta_dir(run_dir)
+    if not isinstance(expected_corners, list) or not expected_corners or len(set(expected_corners)) != len(expected_corners):
+        raise ValueError("STA_CORNERS must be a nonempty list of unique corners")
+    discovered = evidence_reports(run_dir, "macro_inputs.csv")
     reports, missing, unknown, rows = {}, [], [], []
     for corner in expected_corners:
-        report = stage / corner / "macro_inputs.csv"
-        if not report.is_file():
+        report = discovered.get(corner)
+        if report is None:
             missing.append(corner)
             continue
         pins = set()

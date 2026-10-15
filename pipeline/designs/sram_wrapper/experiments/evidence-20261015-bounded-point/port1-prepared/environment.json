@@ -1,0 +1,19 @@
+{
+  "openram_revision": "b2b069ce119d1488cbe6883b2240bceb5c7ce29a",
+  "cell_revision": "fc63b12883b4bf458ee8c756ba64c37063e1ffb9",
+  "python": "Python 3.12.3",
+  "packages": [
+    "cloudpickle==3.1.2",
+    "joblib==1.6.0",
+    "narwhals==2.27.1",
+    "numpy==2.5.4",
+    "scikit-learn==1.9.1",
+    "scipy==1.18.1",
+    "threadpoolctl==3.7.0"
+  ],
+  "assets_manifest_sha256": "b4447472c30a3c0bf49779d54289d597541f0f297888fb1b2d23d2dd87f76d9b",
+  "persistent_environment": "/home/kos2001/ppa-sram-bounded-20261015",
+  "simulation_executed": false,
+  "cell_revision_note": "Uses fc63b12883b4bf458ee8c756ba64c37063e1ffb9 from retained 20261004 characterization-environment; differs from upstream Makefile/build20261015 dd64256961317205343a3fd446908b42bafba388. New environment, not an identical restoration.",
+  "asset_scope": "OpenRAM initialization assets only. Prepared deck includes the complete installed SRAM netlist with independently matched source/prepared hashes, plus PDK transistor model includes; cell SPICE assets are not included in generated deck."
+}

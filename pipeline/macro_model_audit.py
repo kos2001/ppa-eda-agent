@@ -184,18 +184,28 @@ def corner_pvt(corner):
 
 
 def check(design_dir, run_dir):
-    from model_validity import _resolve, find_reports, macro_configuration
+    from model_validity import _resolve, macro_configuration
+    from sta_evidence import reports as evidence_reports
     from macro_slew_audit import read_audit
     design_dir, run_dir = Path(design_dir), Path(run_dir)
     cfg, config_source = macro_configuration(design_dir, run_dir)
     macros = cfg.get("MACROS") or {}
     if not macros:
         return None
-    reports = find_reports(run_dir)
+    reports = evidence_reports(run_dir, "checks.rpt")
     models, records, issues = {}, [], []
+    resolved_path = run_dir / "resolved.json"
+    resolved = json.loads(resolved_path.read_text()) if resolved_path.is_file() else {}
+    expected_corners = resolved.get("STA_CORNERS") or []
+    missing_corners = sorted(set(expected_corners) - set(reports))
+    if not reports:
+        issues.append("No STA corner reports found; audit is incomplete")
+    if not expected_corners:
+        issues.append("Expected STA_CORNERS unavailable; corner coverage is unverified")
+    if missing_corners:
+        issues.append("Missing STA corner reports: " + ", ".join(missing_corners))
     for macro, spec in macros.items():
-        for rpt in reports:
-            corner = rpt.parent.name
+        for corner, rpt in reports.items():
             paths, missing = set(), []
             for pattern, entries in (spec.get("lib") or {}).items():
                 if fnmatch.fnmatchcase(corner, pattern):
@@ -240,6 +250,10 @@ def check(design_dir, run_dir):
             continue
         model = next(m for m in models.values() if m["sha256"] == record["model_sha256"])
         for inst in record["instances"]:
+            for pin in model["inputs"]:
+                if (record["corner"], f"{inst}/{pin}") not in rows:
+                    unknown.append(f"missing declared input {record['corner']} {inst}/{pin}")
+                    audit["coverage_complete"] = False
             for arc in model["arcs"]:
                 for index, item in enumerate(arc["axes"], 1):
                     variable = item["variable"]
@@ -270,7 +284,16 @@ def check(design_dir, run_dir):
                                                    "slew_ns": value, "arc_pin": arc["pin"],
                                                    "table": arc["table"], "axis": index, "variable": variable,
                                                    "range_ns": [item["min_ns"], item["max_ns"]]})
+    complete = bool(expected_corners and reports and not missing_corners
+                    and audit["coverage_complete"] and not unknown
+                    and all("error" not in r for r in records))
     return {"model_qualified": False, "corner_models": records, "issues": issues,
+            "audit_complete": complete, "status": "complete" if complete else "incomplete",
+            "expected_corners": expected_corners, "missing_corners": missing_corners,
+            "corners_read": len(reports),
+            "input_audit": {k: v for k, v in audit.items() if k != "rows"},
+            "report_sources_sha256": {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
+                                      for p in [*reports.values(), *evidence_reports(run_dir, "macro_inputs.csv").values()]},
             "config_source": str(config_source),
             "config_sha256": hashlib.sha256(config_source.read_bytes()).hexdigest(),
             "input_coverage_complete": audit["coverage_complete"],
@@ -283,7 +306,9 @@ def main():
     parser.add_argument("--design", type=Path, required=True)
     parser.add_argument("--run-dir", type=Path, required=True)
     args = parser.parse_args()
-    print(json.dumps(check(args.design, args.run_dir), indent=2))
+    result = check(args.design, args.run_dir)
+    print(json.dumps(result, indent=2))
+    raise SystemExit(0 if result is None or result["audit_complete"] else 1)
 
 
 def summary(result):

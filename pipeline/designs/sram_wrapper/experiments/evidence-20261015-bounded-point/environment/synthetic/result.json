@@ -1,0 +1,65 @@
+{
+  "scope": "synthetic model-bin selection, not SRAM characterization",
+  "simulators": {
+    "original": {
+      "path": "/home/kos2001/ppa-sram-bounded-20261015/install-original/bin/ngspice",
+      "sha256": "afdd88118f44759ca0e0fea01e6513ba790e8ce4c19ea69183adebe80cf9dc67"
+    },
+    "indexed": {
+      "path": "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice",
+      "sha256": "9c5478fbae6ddefaf97b4c52b220cf90f57031fae063aa2dc68dba1409de0f67"
+    }
+  },
+  "cases": {
+    "different_bins": {
+      "original": {
+        "current_A": -0.000300053272238858,
+        "wall_seconds": 0.00445747300000221
+      },
+      "indexed": {
+        "current_A": -0.000300053272238858,
+        "wall_seconds": 0.0030246219999980894
+      }
+    },
+    "overlap_original_order": {
+      "original": {
+        "current_A": -2.95042356275542e-05,
+        "wall_seconds": 0.003007264000075338
+      },
+      "indexed": {
+        "current_A": -2.95042356275542e-05,
+        "wall_seconds": 0.002763922999974966
+      }
+    },
+    "overlap_reversed_order": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.0026143239999782963
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.00304791300004581
+      }
+    },
+    "duplicate_exact_model": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.003015329999925598
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.004314749000059237
+      }
+    },
+    "irrelevant_prefix": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.0027931710000075327
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.00404357600007188
+      }
+    }
+  }
+}

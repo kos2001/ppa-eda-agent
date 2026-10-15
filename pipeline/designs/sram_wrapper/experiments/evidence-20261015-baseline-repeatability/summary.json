@@ -1,0 +1,214 @@
+{
+  "status": "measured_unverified",
+  "wall_seconds": 6879.117815899,
+  "returncode": 0,
+  "timed_out": false,
+  "measurements": {
+    "requested_count": 27,
+    "finite_count": 27,
+    "missing_or_invalid": [],
+    "values_SI": {
+      "delay_lh0": 4.83158e-09,
+      "delay_hl0": 1.41998e-09,
+      "slew_lh0": 2.19123e-09,
+      "slew_hl0": 3.28464e-09,
+      "read1_power0": 0.00151354,
+      "read0_power0": 0.00156442,
+      "disabled_read1_power0": 0.00076935,
+      "disabled_read0_power0": 0.00078247,
+      "v_bl_read_zero0": -0.037847,
+      "v_br_read_zero0": 1.33853,
+      "v_bl_read_one0": 1.53702,
+      "v_br_read_one0": -0.0379829,
+      "v_delay_lh0": 1.59999,
+      "v_delay_hl0": 5.82506e-05,
+      "delay_sen0": 4.93488e-09,
+      "v_q_a11111111_b31_read_zero0": 1.42204e-07,
+      "v_q_a11111111_b31_read_one0": 1.59999,
+      "v_qbar_a11111111_b31_read_zero0": 1.59999,
+      "v_qbar_a11111111_b31_read_one0": 2.78398e-07,
+      "write1_power0": 0.00147454,
+      "write0_power0": 0.00192422,
+      "disabled_write1_power0": 0.001128,
+      "disabled_write0_power0": 0.000794481,
+      "v_q_a11111111_b31_write_zero0": 1.9344e-07,
+      "v_q_a11111111_b31_write_one0": 1.59999,
+      "v_qbar_a11111111_b31_write_zero0": 1.59999,
+      "v_qbar_a11111111_b31_write_one0": 3.3915e-07
+    },
+    "all_requested_finite": true
+  },
+  "point_checks": {
+    "point_checks_passed": true,
+    "model_qualified": false,
+    "issues": [],
+    "scope": "one selected address/bit/port; finite values, storage polarity, output rails, sense-enable and timing bounds"
+  },
+  "model_qualified": false,
+  "comparisons": {
+    "delay_lh0": {
+      "historical_SI": 4.83158e-09,
+      "replay_SI": 4.83158e-09,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "delay_hl0": {
+      "historical_SI": 1.41998e-09,
+      "replay_SI": 1.41998e-09,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "slew_lh0": {
+      "historical_SI": 2.19123e-09,
+      "replay_SI": 2.19123e-09,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "slew_hl0": {
+      "historical_SI": 3.28464e-09,
+      "replay_SI": 3.28464e-09,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "read1_power0": {
+      "historical_SI": 0.00151354,
+      "replay_SI": 0.00151354,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "read0_power0": {
+      "historical_SI": 0.00156442,
+      "replay_SI": 0.00156442,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "disabled_read1_power0": {
+      "historical_SI": 0.00076935,
+      "replay_SI": 0.00076935,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "disabled_read0_power0": {
+      "historical_SI": 0.00078247,
+      "replay_SI": 0.00078247,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_bl_read_zero0": {
+      "historical_SI": -0.037847,
+      "replay_SI": -0.037847,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_br_read_zero0": {
+      "historical_SI": 1.33853,
+      "replay_SI": 1.33853,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_bl_read_one0": {
+      "historical_SI": 1.53702,
+      "replay_SI": 1.53702,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_br_read_one0": {
+      "historical_SI": -0.0379829,
+      "replay_SI": -0.0379829,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_delay_lh0": {
+      "historical_SI": 1.59999,
+      "replay_SI": 1.59999,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_delay_hl0": {
+      "historical_SI": 5.82506e-05,
+      "replay_SI": 5.82506e-05,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "delay_sen0": {
+      "historical_SI": 4.93488e-09,
+      "replay_SI": 4.93488e-09,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_q_a11111111_b31_read_zero0": {
+      "historical_SI": 1.42204e-07,
+      "replay_SI": 1.42204e-07,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_q_a11111111_b31_read_one0": {
+      "historical_SI": 1.59999,
+      "replay_SI": 1.59999,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_qbar_a11111111_b31_read_zero0": {
+      "historical_SI": 1.59999,
+      "replay_SI": 1.59999,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_qbar_a11111111_b31_read_one0": {
+      "historical_SI": 2.78398e-07,
+      "replay_SI": 2.78398e-07,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "write1_power0": {
+      "historical_SI": 0.00147454,
+      "replay_SI": 0.00147454,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "write0_power0": {
+      "historical_SI": 0.00192422,
+      "replay_SI": 0.00192422,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "disabled_write1_power0": {
+      "historical_SI": 0.001128,
+      "replay_SI": 0.001128,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "disabled_write0_power0": {
+      "historical_SI": 0.000794481,
+      "replay_SI": 0.000794481,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_q_a11111111_b31_write_zero0": {
+      "historical_SI": 1.9344e-07,
+      "replay_SI": 1.9344e-07,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_q_a11111111_b31_write_one0": {
+      "historical_SI": 1.59999,
+      "replay_SI": 1.59999,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_qbar_a11111111_b31_write_zero0": {
+      "historical_SI": 1.59999,
+      "replay_SI": 1.59999,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    },
+    "v_qbar_a11111111_b31_write_one0": {
+      "historical_SI": 3.3915e-07,
+      "replay_SI": 3.3915e-07,
+      "difference_SI": 0.0,
+      "relative_difference": 0.0
+    }
+  },
+  "comparison_scope": "Observed differences only; no numerical equivalence tolerance asserted",
+  "retained_bytes_verified": true
+}

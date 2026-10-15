@@ -7,3 +7,8 @@ pipeline/designs/riscv32i/experiments/evidence-20261015-closure/closure-*/** -te
 pipeline/designs/sram_wrapper/experiments/evidence-20261015-*/** -text -whitespace
 reference-db/cases/riscv32i__2026-10-15*.json -text
 reference-db/riscv_physical_equiv_direct_20261015.json -text
+# Retained report inputs and bounded proof evidence must retain recorded hashes.
+pipeline/designs/srio_r15_clock_fanout16/** -text -whitespace
+pipeline/designs/srio_r15_clock_fanout16_revalidate_20261015/** -text -whitespace
+reference-db/*20261015.json -text -whitespace
+reference-db/riscv_state_first_bounded_20261015.log -text -whitespace
