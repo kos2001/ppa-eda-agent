@@ -104,7 +104,9 @@ MIN_SAMPLES = 8
 # none of them has gone stale while the data moved underneath.
 DEFAULT_K_BY_TARGET = {
     "area_um2": 1,
-    "power_w": 3,
+    # 2026-10-15: 366 scored folds, k=1 wins 96.175% vs k=3 95.902%.
+    # Existing policy prioritizes win rate over MAE; this is a one-fold margin.
+    "power_w": 1,
     "completed": 1,
 }
 DEFAULT_K = 1

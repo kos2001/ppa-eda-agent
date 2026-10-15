@@ -121,16 +121,15 @@ class LedgerTests(unittest.TestCase):
                     any(kind in r["counts"] or kind in r["unverifiedKinds"] for r in d["runs"]),
                     (design, kind))
 
-    def test_aes_setup_went_from_481_to_0(self):
-        # The fact the page was built to show. If the store's aes
-        # history changes this will need updating — that is fine, it is
-        # a claim about real runs, not a fixture.
+    def test_aes_history_retains_setup_improvement_without_assuming_latest_is_clean(self):
+        # Diagnostic candidates can improve setup while later candidates
+        # regress. The ledger must retain both rather than assume monotonic closure.
         aes = self.designs.get("aes")
         if not aes or len(aes["runs"]) < 2:
             self.skipTest("aes has fewer than two recorded runs")
         setups = [r["counts"].get("setup", 0) for r in aes["runs"]]
         self.assertEqual(setups[0], 481, setups)
-        self.assertEqual(setups[-1], 0, setups)
+        self.assertIn(0, setups[1:], setups)
         self.assertGreaterEqual(aes["max"], max(setups))
 
 

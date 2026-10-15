@@ -118,7 +118,7 @@ def symbol_info(symbol: str, sheet: Path, root: Path, contracts: dict) -> dict |
             master = defaults["prefix"] + Path(symbol).stem
         return {"type": props.get("type", ""), "pins": pins, "master": master,
                 "defaults": defaults,
-                "source": str(found.relative_to(root)),
+                "source": str(found.relative_to(root) if found.is_relative_to(root) else found),
                 "sha256": hashlib.sha256(data.encode()).hexdigest()}
     return contracts.get(symbol)
 
