@@ -466,6 +466,20 @@ def run_variant(v: dict) -> dict:
     }
 
 
+def replay_variants(variants: list[dict], suffix: str) -> list[dict]:
+    """Name a fresh replay without overwriting any existing scratch design."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", suffix):
+        raise ValueError("--name-suffix must contain only letters, digits, underscore or hyphen")
+    renamed = [{**v, "name": f"{v['name']}-{suffix}"} for v in variants]
+    paths = [DESIGNS / f"srio_{v['name'].replace('-', '_')}" for v in renamed]
+    if len(set(paths)) != len(paths):
+        raise ValueError("replay names collide after normalization")
+    for path in paths:
+        if path.exists():
+            raise ValueError(f"replay destination already exists: {path}")
+    return renamed
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -473,8 +487,15 @@ def main() -> None:
     ap.add_argument("--round", choices=sorted(ROUNDS), default="1")
     ap.add_argument("--only", nargs="*")
     ap.add_argument("--out", type=Path)
+    ap.add_argument("--name-suffix", default="",
+                    help="unique experiment suffix for a fresh replay; keeps earlier runs")
     args = ap.parse_args()
     todo = [v for v in ROUNDS[args.round] if not args.only or v["name"] in args.only]
+    if args.name_suffix:
+        try:
+            todo = replay_variants(todo, args.name_suffix)
+        except ValueError as exc:
+            ap.error(str(exc))
     with ThreadPoolExecutor(max_workers=max(1, args.parallel)) as ex:
         rows = list(ex.map(run_variant, todo))
     if args.out:

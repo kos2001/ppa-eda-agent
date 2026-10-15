@@ -11,6 +11,25 @@ import schematic_inspect as si
 
 
 class SheetReviewTests(unittest.TestCase):
+    def test_allowed_external_pdk_symlink_keeps_absolute_provenance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            root = base / "repo"
+            external = base / "external-pdk"
+            external.mkdir()
+            root.mkdir()
+            symbol = external / "probe.sym"
+            symbol.write_text('K {type=primitive}\nB 5 -1 -1 1 1 {name=A dir=in}\n')
+            link = root / "pdk/sky130A/libs.tech/xschem"
+            link.parent.mkdir(parents=True)
+            try:
+                link.symlink_to(external, target_is_directory=True)
+            except OSError:
+                self.skipTest("host does not allow symlinks")
+            got = si.symbol_info("probe", root / "sheet.sch", root, {})
+            self.assertEqual(got["source"], str(symbol.resolve()))
+            self.assertEqual(got["pins"][0]["name"], "A")
+
     def fixture(self, text, symbols=None):
         temp = tempfile.TemporaryDirectory()
         self.addCleanup(temp.cleanup)
