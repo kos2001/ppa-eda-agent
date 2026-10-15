@@ -1,0 +1,80 @@
+{
+  "model_files_checked": 856,
+  "model_hash_mismatches": [],
+  "requested_measurements": [
+    "delay_lh0",
+    "delay_hl0",
+    "slew_lh0",
+    "slew_hl0",
+    "read1_power0",
+    "read0_power0",
+    "disabled_read1_power0",
+    "disabled_read0_power0",
+    "v_bl_read_zero0",
+    "v_br_read_zero0",
+    "v_bl_read_one0",
+    "v_br_read_one0",
+    "v_delay_lh0",
+    "v_delay_hl0",
+    "delay_sen0",
+    "v_q_a11111111_b31_read_zero0",
+    "v_q_a11111111_b31_read_one0",
+    "v_qbar_a11111111_b31_read_zero0",
+    "v_qbar_a11111111_b31_read_one0",
+    "write1_power0",
+    "write0_power0",
+    "disabled_write1_power0",
+    "disabled_write0_power0",
+    "v_q_a11111111_b31_write_zero0",
+    "v_q_a11111111_b31_write_one0",
+    "v_qbar_a11111111_b31_write_zero0",
+    "v_qbar_a11111111_b31_write_one0"
+  ],
+  "point_identity": {
+    "source_spice_sha256": "40ca6e140b45a85adfa0f70095bbf13d6270a79f0a30e3344f164cfc250afcf5",
+    "prepared_spice_sha256": "2d84749242dda91f42df9773b6e49ef41a444f980f30302e7daa0b8106ab9755",
+    "storage_paths": {
+      "checked_bitcells": 8192,
+      "cell_format": "X{name}{hier_sep}xbank0{hier_sep}xbitcell_array{hier_sep}xbitcell_array{hier_sep}xbit_r{row}_c{col}",
+      "storage_nodes": [
+        "Q",
+        "Q_bar"
+      ],
+      "sense_enable_nodes": [
+        "xsky130_sram_1kbyte_1rw1r_32x256_8.s_en0",
+        "xsky130_sram_1kbyte_1rw1r_32x256_8.s_en1"
+      ]
+    },
+    "stimulus_sources": {
+      "delay_stim.sp": {
+        "retained_bytes_sha256": "c507548cb7d937a54e601f9b61345e6fea2f0fafc2dc171117f5590e0f1dc5ae",
+        "lf_normalized_sha256": "668771ec98032325886d0afc828f6038c7a0e5c61fc2814c352a0da0ac1a3042",
+        "historical_sha256": "668771ec98032325886d0afc828f6038c7a0e5c61fc2814c352a0da0ac1a3042",
+        "matches_historical_raw": false
+      },
+      "delay_meas.sp": {
+        "retained_bytes_sha256": "1d7ec1fbb87aa569b7dd18e6d2b9a822fba99016fa3d1ea81efef2fac1d3f104",
+        "lf_normalized_sha256": "cc7f4bf452782dc5587c796548ca07bc993591000821a1604f029fba5e44e211",
+        "historical_sha256": "cc7f4bf452782dc5587c796548ca07bc993591000821a1604f029fba5e44e211",
+        "matches_historical_raw": false
+      }
+    },
+    "pvt": {
+      "process": "SS",
+      "voltage_V": 1.6,
+      "temperature_C": 100
+    },
+    "point": {
+      "port": 0,
+      "period_ns": 10,
+      "input_slew_10_90_ns": 0.56,
+      "load_fF": 27.56
+    },
+    "model_qualified": false
+  },
+  "startup_sha256": "847f57a4e4017f2c64c7a97429bef97179b057859b253a24b217ebd49101b5b1",
+  "simulator_sha256": "9c5478fbae6ddefaf97b4c52b220cf90f57031fae063aa2dc68dba1409de0f67",
+  "netlist_sha256": "2d84749242dda91f42df9773b6e49ef41a444f980f30302e7daa0b8106ab9755",
+  "memory_at_preflight": "MemTotal:       16115888 kB\nMemFree:        13605988 kB\nMemAvailable:   15169824 kB\nBuffers:           58292 kB\nCached:          1678916 kB\nSwapCached:            0 kB\nActive:           149500 kB\nInactive:        1736888 kB\nActive(anon):       3008 kB\nInactive(anon):   149948 kB\nActive(file):     146492 kB\nInactive(file):  1586940 kB\nUnevictable:           0 kB\nMlocked:               0 kB\nSwapTotal:       4194304 kB\nSwapFree:        4194304 kB\nDirty:              7596 kB\nWriteback:             0 kB\nAnonPages:        150000 kB\nMapped:           277024 kB\nShmem:              3672 kB\nKReclaimable:      32884 kB\nSlab:             131916 kB\nSReclaimable:      32884 kB\nSUnreclaim:        99032 kB\nKernelStack:        6992 kB\nPageTables:         6020 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    12252248 kB\nCommitted_AS:    1332092 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       56952 kB\nVmallocChunk:          0 kB\nPercpu:            10464 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:       78848 kB\nDirectMap2M:     8048640 kB\nDirectMap1G:    16777216 kB\n",
+  "model_qualified": false
+}

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/sram_wrapper/experiments/evidence-20261015-baseline-repeatability/execution_sources/sram_point_replay.py", line 21, in <module>
+    from sram_point_stimulus import assess_measurements, validate_decks
+  File "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/sram_wrapper/experiments/evidence-20261015-baseline-repeatability/execution_sources/sram_point_stimulus.py", line 18, in <module>
+    from characterize_sram import MACRO, ROOT, SIGNOFF_PVT, prepare_netlist, validate_storage_paths
+ModuleNotFoundError: No module named 'characterize_sram'

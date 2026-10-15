@@ -1,0 +1,5184 @@
+{
+  "complete": true,
+  "model_qualified": false,
+  "issues": [],
+  "observations": [
+    {
+      "pin": "u_sram/dout0[31]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012129898,
+      "ceff_pf": 0.012129898,
+      "pi_total_pf": 0.012129897,
+      "pi_c1_pf": 0.008378692,
+      "pi_c2_pf": 0.003751205,
+      "pi_resistance_kohm": 0.046784367,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[31]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012098896,
+      "ceff_pf": 0.012098896,
+      "pi_total_pf": 0.012098896,
+      "pi_c1_pf": 0.00834736,
+      "pi_c2_pf": 0.003751536,
+      "pi_resistance_kohm": 0.046797983,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[31]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012129898,
+      "ceff_pf": 0.012129898,
+      "pi_total_pf": 0.012129897,
+      "pi_c1_pf": 0.008378692,
+      "pi_c2_pf": 0.003751205,
+      "pi_resistance_kohm": 0.046784367,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[31]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012098896,
+      "ceff_pf": 0.012098896,
+      "pi_total_pf": 0.012098896,
+      "pi_c1_pf": 0.00834736,
+      "pi_c2_pf": 0.003751536,
+      "pi_resistance_kohm": 0.046797983,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[30]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011936741,
+      "ceff_pf": 0.011936741,
+      "pi_total_pf": 0.011936740999999999,
+      "pi_c1_pf": 0.008122233,
+      "pi_c2_pf": 0.003814508,
+      "pi_resistance_kohm": 0.046759125,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[30]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011905741,
+      "ceff_pf": 0.011905741,
+      "pi_total_pf": 0.011905742,
+      "pi_c1_pf": 0.008090856,
+      "pi_c2_pf": 0.003814886,
+      "pi_resistance_kohm": 0.046775423,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[30]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011936741,
+      "ceff_pf": 0.011936741,
+      "pi_total_pf": 0.011936740999999999,
+      "pi_c1_pf": 0.008122233,
+      "pi_c2_pf": 0.003814508,
+      "pi_resistance_kohm": 0.046759125,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[30]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011905741,
+      "ceff_pf": 0.011905741,
+      "pi_total_pf": 0.011905742,
+      "pi_c1_pf": 0.008090856,
+      "pi_c2_pf": 0.003814886,
+      "pi_resistance_kohm": 0.046775423,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[29]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012114304,
+      "ceff_pf": 0.012114304,
+      "pi_total_pf": 0.012114304000000001,
+      "pi_c1_pf": 0.008245445,
+      "pi_c2_pf": 0.003868859,
+      "pi_resistance_kohm": 0.046567425,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[29]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012083304,
+      "ceff_pf": 0.012083304,
+      "pi_total_pf": 0.012083304,
+      "pi_c1_pf": 0.00821397,
+      "pi_c2_pf": 0.003869334,
+      "pi_resistance_kohm": 0.046588574,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[29]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012114304,
+      "ceff_pf": 0.012114304,
+      "pi_total_pf": 0.012114304000000001,
+      "pi_c1_pf": 0.008245445,
+      "pi_c2_pf": 0.003868859,
+      "pi_resistance_kohm": 0.046567425,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[29]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012083304,
+      "ceff_pf": 0.012083304,
+      "pi_total_pf": 0.012083304,
+      "pi_c1_pf": 0.00821397,
+      "pi_c2_pf": 0.003869334,
+      "pi_resistance_kohm": 0.046588574,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[28]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012746604,
+      "ceff_pf": 0.012746604,
+      "pi_total_pf": 0.012746604,
+      "pi_c1_pf": 0.009461331,
+      "pi_c2_pf": 0.003285273,
+      "pi_resistance_kohm": 0.047359191,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[28]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012715603,
+      "ceff_pf": 0.012715603,
+      "pi_total_pf": 0.012715603,
+      "pi_c1_pf": 0.00942975,
+      "pi_c2_pf": 0.003285853,
+      "pi_resistance_kohm": 0.047382787,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[28]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012746604,
+      "ceff_pf": 0.012746604,
+      "pi_total_pf": 0.012746604,
+      "pi_c1_pf": 0.009461331,
+      "pi_c2_pf": 0.003285273,
+      "pi_resistance_kohm": 0.047359191,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[28]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012715603,
+      "ceff_pf": 0.012715603,
+      "pi_total_pf": 0.012715603,
+      "pi_c1_pf": 0.00942975,
+      "pi_c2_pf": 0.003285853,
+      "pi_resistance_kohm": 0.047382787,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[27]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012176273,
+      "ceff_pf": 0.012176273,
+      "pi_total_pf": 0.012176273,
+      "pi_c1_pf": 0.008241252,
+      "pi_c2_pf": 0.003935021,
+      "pi_resistance_kohm": 0.046980653,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[27]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012145272,
+      "ceff_pf": 0.012145272,
+      "pi_total_pf": 0.012145271999999999,
+      "pi_c1_pf": 0.008209883,
+      "pi_c2_pf": 0.003935389,
+      "pi_resistance_kohm": 0.046996426,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[27]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012176273,
+      "ceff_pf": 0.012176273,
+      "pi_total_pf": 0.012176273,
+      "pi_c1_pf": 0.008241252,
+      "pi_c2_pf": 0.003935021,
+      "pi_resistance_kohm": 0.046980653,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[27]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012145272,
+      "ceff_pf": 0.012145272,
+      "pi_total_pf": 0.012145271999999999,
+      "pi_c1_pf": 0.008209883,
+      "pi_c2_pf": 0.003935389,
+      "pi_resistance_kohm": 0.046996426,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[26]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011355969,
+      "ceff_pf": 0.011355969,
+      "pi_total_pf": 0.011355969,
+      "pi_c1_pf": 0.007764871,
+      "pi_c2_pf": 0.003591098,
+      "pi_resistance_kohm": 0.021188412,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[26]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.01135797,
+      "ceff_pf": 0.01135797,
+      "pi_total_pf": 0.01135797,
+      "pi_c1_pf": 0.007765946,
+      "pi_c2_pf": 0.003592024,
+      "pi_resistance_kohm": 0.021203024,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[26]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011355969,
+      "ceff_pf": 0.011355969,
+      "pi_total_pf": 0.011355969,
+      "pi_c1_pf": 0.007764871,
+      "pi_c2_pf": 0.003591098,
+      "pi_resistance_kohm": 0.021188412,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[26]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.01135797,
+      "ceff_pf": 0.01135797,
+      "pi_total_pf": 0.01135797,
+      "pi_c1_pf": 0.007765946,
+      "pi_c2_pf": 0.003592024,
+      "pi_resistance_kohm": 0.021203024,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[25]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012044773,
+      "ceff_pf": 0.012044773,
+      "pi_total_pf": 0.012044773,
+      "pi_c1_pf": 0.008837431,
+      "pi_c2_pf": 0.003207342,
+      "pi_resistance_kohm": 0.046417214,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[25]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012013773,
+      "ceff_pf": 0.012013773,
+      "pi_total_pf": 0.012013771999999999,
+      "pi_c1_pf": 0.008806126,
+      "pi_c2_pf": 0.003207646,
+      "pi_resistance_kohm": 0.046428829,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[25]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012044773,
+      "ceff_pf": 0.012044773,
+      "pi_total_pf": 0.012044773,
+      "pi_c1_pf": 0.008837431,
+      "pi_c2_pf": 0.003207342,
+      "pi_resistance_kohm": 0.046417214,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[25]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012013773,
+      "ceff_pf": 0.012013773,
+      "pi_total_pf": 0.012013771999999999,
+      "pi_c1_pf": 0.008806126,
+      "pi_c2_pf": 0.003207646,
+      "pi_resistance_kohm": 0.046428829,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[24]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012163143,
+      "ceff_pf": 0.012163143,
+      "pi_total_pf": 0.012163142,
+      "pi_c1_pf": 0.008511098,
+      "pi_c2_pf": 0.003652044,
+      "pi_resistance_kohm": 0.049793243,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[24]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012132143,
+      "ceff_pf": 0.012132143,
+      "pi_total_pf": 0.012132143,
+      "pi_c1_pf": 0.008480049,
+      "pi_c2_pf": 0.003652094,
+      "pi_resistance_kohm": 0.04979055,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[24]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012163143,
+      "ceff_pf": 0.012163143,
+      "pi_total_pf": 0.012163142,
+      "pi_c1_pf": 0.008511098,
+      "pi_c2_pf": 0.003652044,
+      "pi_resistance_kohm": 0.049793243,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[24]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012132143,
+      "ceff_pf": 0.012132143,
+      "pi_total_pf": 0.012132143,
+      "pi_c1_pf": 0.008480049,
+      "pi_c2_pf": 0.003652094,
+      "pi_resistance_kohm": 0.04979055,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[23]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011681164,
+      "ceff_pf": 0.011681164,
+      "pi_total_pf": 0.011681164,
+      "pi_c1_pf": 0.008729318,
+      "pi_c2_pf": 0.002951846,
+      "pi_resistance_kohm": 0.047872271,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[23]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011650164,
+      "ceff_pf": 0.011650164,
+      "pi_total_pf": 0.011650164,
+      "pi_c1_pf": 0.008699785,
+      "pi_c2_pf": 0.002950379,
+      "pi_resistance_kohm": 0.047836013,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[23]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011681164,
+      "ceff_pf": 0.011681164,
+      "pi_total_pf": 0.011681164,
+      "pi_c1_pf": 0.008729318,
+      "pi_c2_pf": 0.002951846,
+      "pi_resistance_kohm": 0.047872271,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[23]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011650164,
+      "ceff_pf": 0.011650164,
+      "pi_total_pf": 0.011650164,
+      "pi_c1_pf": 0.008699785,
+      "pi_c2_pf": 0.002950379,
+      "pi_resistance_kohm": 0.047836013,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[22]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012025765,
+      "ceff_pf": 0.012025765,
+      "pi_total_pf": 0.012025765,
+      "pi_c1_pf": 0.008711049,
+      "pi_c2_pf": 0.003314716,
+      "pi_resistance_kohm": 0.046740323,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[22]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011994766,
+      "ceff_pf": 0.011994766,
+      "pi_total_pf": 0.011994766,
+      "pi_c1_pf": 0.008679475,
+      "pi_c2_pf": 0.003315291,
+      "pi_resistance_kohm": 0.04676592,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[22]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012025765,
+      "ceff_pf": 0.012025765,
+      "pi_total_pf": 0.012025765,
+      "pi_c1_pf": 0.008711049,
+      "pi_c2_pf": 0.003314716,
+      "pi_resistance_kohm": 0.046740323,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[22]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011994766,
+      "ceff_pf": 0.011994766,
+      "pi_total_pf": 0.011994766,
+      "pi_c1_pf": 0.008679475,
+      "pi_c2_pf": 0.003315291,
+      "pi_resistance_kohm": 0.04676592,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[21]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011696829,
+      "ceff_pf": 0.011696829,
+      "pi_total_pf": 0.011696828,
+      "pi_c1_pf": 0.008107706,
+      "pi_c2_pf": 0.003589122,
+      "pi_resistance_kohm": 0.050100222,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[21]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011665829,
+      "ceff_pf": 0.011665829,
+      "pi_total_pf": 0.011665828,
+      "pi_c1_pf": 0.008076428,
+      "pi_c2_pf": 0.0035894,
+      "pi_resistance_kohm": 0.050113246,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[21]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011696829,
+      "ceff_pf": 0.011696829,
+      "pi_total_pf": 0.011696828,
+      "pi_c1_pf": 0.008107706,
+      "pi_c2_pf": 0.003589122,
+      "pi_resistance_kohm": 0.050100222,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[21]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011665829,
+      "ceff_pf": 0.011665829,
+      "pi_total_pf": 0.011665828,
+      "pi_c1_pf": 0.008076428,
+      "pi_c2_pf": 0.0035894,
+      "pi_resistance_kohm": 0.050113246,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[20]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011380382,
+      "ceff_pf": 0.011380382,
+      "pi_total_pf": 0.011380382000000001,
+      "pi_c1_pf": 0.008152051,
+      "pi_c2_pf": 0.003228331,
+      "pi_resistance_kohm": 0.044294514,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[20]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011349381,
+      "ceff_pf": 0.011349381,
+      "pi_total_pf": 0.011349380999999999,
+      "pi_c1_pf": 0.008120721,
+      "pi_c2_pf": 0.00322866,
+      "pi_resistance_kohm": 0.044306584,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[20]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011380382,
+      "ceff_pf": 0.011380382,
+      "pi_total_pf": 0.011380382000000001,
+      "pi_c1_pf": 0.008152051,
+      "pi_c2_pf": 0.003228331,
+      "pi_resistance_kohm": 0.044294514,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[20]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011349381,
+      "ceff_pf": 0.011349381,
+      "pi_total_pf": 0.011349380999999999,
+      "pi_c1_pf": 0.008120721,
+      "pi_c2_pf": 0.00322866,
+      "pi_resistance_kohm": 0.044306584,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[19]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011301744,
+      "ceff_pf": 0.011301744,
+      "pi_total_pf": 0.011301743000000001,
+      "pi_c1_pf": 0.008174112,
+      "pi_c2_pf": 0.003127631,
+      "pi_resistance_kohm": 0.045179516,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[19]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011270743,
+      "ceff_pf": 0.011270743,
+      "pi_total_pf": 0.011270743,
+      "pi_c1_pf": 0.008143257,
+      "pi_c2_pf": 0.003127486,
+      "pi_resistance_kohm": 0.045176487,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[19]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011301744,
+      "ceff_pf": 0.011301744,
+      "pi_total_pf": 0.011301743000000001,
+      "pi_c1_pf": 0.008174112,
+      "pi_c2_pf": 0.003127631,
+      "pi_resistance_kohm": 0.045179516,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[19]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011270743,
+      "ceff_pf": 0.011270743,
+      "pi_total_pf": 0.011270743,
+      "pi_c1_pf": 0.008143257,
+      "pi_c2_pf": 0.003127486,
+      "pi_resistance_kohm": 0.045176487,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[18]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.01215664,
+      "ceff_pf": 0.01215664,
+      "pi_total_pf": 0.01215664,
+      "pi_c1_pf": 0.008758447,
+      "pi_c2_pf": 0.003398193,
+      "pi_resistance_kohm": 0.046876933,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[18]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.01212564,
+      "ceff_pf": 0.01212564,
+      "pi_total_pf": 0.012125641,
+      "pi_c1_pf": 0.008727035,
+      "pi_c2_pf": 0.003398606,
+      "pi_resistance_kohm": 0.046894874,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[18]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.01215664,
+      "ceff_pf": 0.01215664,
+      "pi_total_pf": 0.01215664,
+      "pi_c1_pf": 0.008758447,
+      "pi_c2_pf": 0.003398193,
+      "pi_resistance_kohm": 0.046876933,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[18]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.01212564,
+      "ceff_pf": 0.01212564,
+      "pi_total_pf": 0.012125641,
+      "pi_c1_pf": 0.008727035,
+      "pi_c2_pf": 0.003398606,
+      "pi_resistance_kohm": 0.046894874,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[17]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.013804683,
+      "ceff_pf": 0.013804683,
+      "pi_total_pf": 0.013804681999999999,
+      "pi_c1_pf": 0.010884373,
+      "pi_c2_pf": 0.002920309,
+      "pi_resistance_kohm": 0.04660653,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[17]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.013773683,
+      "ceff_pf": 0.013773683,
+      "pi_total_pf": 0.013773683000000002,
+      "pi_c1_pf": 0.010852975,
+      "pi_c2_pf": 0.002920708,
+      "pi_resistance_kohm": 0.046620794,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[17]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.013804683,
+      "ceff_pf": 0.013804683,
+      "pi_total_pf": 0.013804681999999999,
+      "pi_c1_pf": 0.010884373,
+      "pi_c2_pf": 0.002920309,
+      "pi_resistance_kohm": 0.04660653,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[17]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.013773683,
+      "ceff_pf": 0.013773683,
+      "pi_total_pf": 0.013773683000000002,
+      "pi_c1_pf": 0.010852975,
+      "pi_c2_pf": 0.002920708,
+      "pi_resistance_kohm": 0.046620794,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[16]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011650623,
+      "ceff_pf": 0.011650623,
+      "pi_total_pf": 0.011650622000000001,
+      "pi_c1_pf": 0.00819856,
+      "pi_c2_pf": 0.003452062,
+      "pi_resistance_kohm": 0.04690139,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[16]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011619622,
+      "ceff_pf": 0.011619622,
+      "pi_total_pf": 0.011619622999999999,
+      "pi_c1_pf": 0.008167186,
+      "pi_c2_pf": 0.003452437,
+      "pi_resistance_kohm": 0.046917502,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[16]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011650623,
+      "ceff_pf": 0.011650623,
+      "pi_total_pf": 0.011650622000000001,
+      "pi_c1_pf": 0.00819856,
+      "pi_c2_pf": 0.003452062,
+      "pi_resistance_kohm": 0.04690139,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[16]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011619622,
+      "ceff_pf": 0.011619622,
+      "pi_total_pf": 0.011619622999999999,
+      "pi_c1_pf": 0.008167186,
+      "pi_c2_pf": 0.003452437,
+      "pi_resistance_kohm": 0.046917502,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[15]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.013154012,
+      "ceff_pf": 0.013154012,
+      "pi_total_pf": 0.013154012,
+      "pi_c1_pf": 0.010254714,
+      "pi_c2_pf": 0.002899298,
+      "pi_resistance_kohm": 0.046580113,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[15]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.013123011,
+      "ceff_pf": 0.013123011,
+      "pi_total_pf": 0.013123011,
+      "pi_c1_pf": 0.010223333,
+      "pi_c2_pf": 0.002899678,
+      "pi_resistance_kohm": 0.046594955,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[15]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.013154012,
+      "ceff_pf": 0.013154012,
+      "pi_total_pf": 0.013154012,
+      "pi_c1_pf": 0.010254714,
+      "pi_c2_pf": 0.002899298,
+      "pi_resistance_kohm": 0.046580113,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[15]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.013123011,
+      "ceff_pf": 0.013123011,
+      "pi_total_pf": 0.013123011,
+      "pi_c1_pf": 0.010223333,
+      "pi_c2_pf": 0.002899678,
+      "pi_resistance_kohm": 0.046594955,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[14]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012491742,
+      "ceff_pf": 0.012491742,
+      "pi_total_pf": 0.012491742,
+      "pi_c1_pf": 0.009008884,
+      "pi_c2_pf": 0.003482858,
+      "pi_resistance_kohm": 0.04594538,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[14]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012493743,
+      "ceff_pf": 0.012493743,
+      "pi_total_pf": 0.012493743,
+      "pi_c1_pf": 0.009009803,
+      "pi_c2_pf": 0.00348394,
+      "pi_resistance_kohm": 0.045989938,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[14]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012491742,
+      "ceff_pf": 0.012491742,
+      "pi_total_pf": 0.012491742,
+      "pi_c1_pf": 0.009008884,
+      "pi_c2_pf": 0.003482858,
+      "pi_resistance_kohm": 0.04594538,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[14]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012493743,
+      "ceff_pf": 0.012493743,
+      "pi_total_pf": 0.012493743,
+      "pi_c1_pf": 0.009009803,
+      "pi_c2_pf": 0.00348394,
+      "pi_resistance_kohm": 0.045989938,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[13]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.013756166,
+      "ceff_pf": 0.013756166,
+      "pi_total_pf": 0.013756166,
+      "pi_c1_pf": 0.009200001,
+      "pi_c2_pf": 0.004556165,
+      "pi_resistance_kohm": 0.026772074,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[13]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.013758166,
+      "ceff_pf": 0.013758166,
+      "pi_total_pf": 0.013758165,
+      "pi_c1_pf": 0.009202248,
+      "pi_c2_pf": 0.004555917,
+      "pi_resistance_kohm": 0.026767077,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[13]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.013756166,
+      "ceff_pf": 0.013756166,
+      "pi_total_pf": 0.013756166,
+      "pi_c1_pf": 0.009200001,
+      "pi_c2_pf": 0.004556165,
+      "pi_resistance_kohm": 0.026772074,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[13]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.013758166,
+      "ceff_pf": 0.013758166,
+      "pi_total_pf": 0.013758165,
+      "pi_c1_pf": 0.009202248,
+      "pi_c2_pf": 0.004555917,
+      "pi_resistance_kohm": 0.026767077,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[12]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012341931,
+      "ceff_pf": 0.012341931,
+      "pi_total_pf": 0.012341932,
+      "pi_c1_pf": 0.008921304,
+      "pi_c2_pf": 0.003420628,
+      "pi_resistance_kohm": 0.045450646,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[12]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012310931,
+      "ceff_pf": 0.012310931,
+      "pi_total_pf": 0.012310932,
+      "pi_c1_pf": 0.008890456,
+      "pi_c2_pf": 0.003420476,
+      "pi_resistance_kohm": 0.045446027,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[12]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012341931,
+      "ceff_pf": 0.012341931,
+      "pi_total_pf": 0.012341932,
+      "pi_c1_pf": 0.008921304,
+      "pi_c2_pf": 0.003420628,
+      "pi_resistance_kohm": 0.045450646,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[12]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012310931,
+      "ceff_pf": 0.012310931,
+      "pi_total_pf": 0.012310932,
+      "pi_c1_pf": 0.008890456,
+      "pi_c2_pf": 0.003420476,
+      "pi_resistance_kohm": 0.045446027,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[11]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011531387,
+      "ceff_pf": 0.011531387,
+      "pi_total_pf": 0.011531387,
+      "pi_c1_pf": 0.008204094,
+      "pi_c2_pf": 0.003327293,
+      "pi_resistance_kohm": 0.04686179,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[11]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011500387,
+      "ceff_pf": 0.011500387,
+      "pi_total_pf": 0.011500386999999999,
+      "pi_c1_pf": 0.008172454,
+      "pi_c2_pf": 0.003327933,
+      "pi_resistance_kohm": 0.046892229,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[11]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011531387,
+      "ceff_pf": 0.011531387,
+      "pi_total_pf": 0.011531387,
+      "pi_c1_pf": 0.008204094,
+      "pi_c2_pf": 0.003327293,
+      "pi_resistance_kohm": 0.04686179,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[11]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011500387,
+      "ceff_pf": 0.011500387,
+      "pi_total_pf": 0.011500386999999999,
+      "pi_c1_pf": 0.008172454,
+      "pi_c2_pf": 0.003327933,
+      "pi_resistance_kohm": 0.046892229,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[10]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011670551,
+      "ceff_pf": 0.011670551,
+      "pi_total_pf": 0.011670551000000001,
+      "pi_c1_pf": 0.008162179,
+      "pi_c2_pf": 0.003508372,
+      "pi_resistance_kohm": 0.047355305,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[10]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.01163955,
+      "ceff_pf": 0.01163955,
+      "pi_total_pf": 0.011639551,
+      "pi_c1_pf": 0.008130535,
+      "pi_c2_pf": 0.003509016,
+      "pi_resistance_kohm": 0.047386456,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[10]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011670551,
+      "ceff_pf": 0.011670551,
+      "pi_total_pf": 0.011670551000000001,
+      "pi_c1_pf": 0.008162179,
+      "pi_c2_pf": 0.003508372,
+      "pi_resistance_kohm": 0.047355305,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[10]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.01163955,
+      "ceff_pf": 0.01163955,
+      "pi_total_pf": 0.011639551,
+      "pi_c1_pf": 0.008130535,
+      "pi_c2_pf": 0.003509016,
+      "pi_resistance_kohm": 0.047386456,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[9]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012307236,
+      "ceff_pf": 0.012307236,
+      "pi_total_pf": 0.012307236,
+      "pi_c1_pf": 0.008807463,
+      "pi_c2_pf": 0.003499773,
+      "pi_resistance_kohm": 0.046800144,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[9]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012276237,
+      "ceff_pf": 0.012276237,
+      "pi_total_pf": 0.012276236,
+      "pi_c1_pf": 0.008776157,
+      "pi_c2_pf": 0.003500079,
+      "pi_resistance_kohm": 0.046813209,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[9]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012307236,
+      "ceff_pf": 0.012307236,
+      "pi_total_pf": 0.012307236,
+      "pi_c1_pf": 0.008807463,
+      "pi_c2_pf": 0.003499773,
+      "pi_resistance_kohm": 0.046800144,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[9]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012276237,
+      "ceff_pf": 0.012276237,
+      "pi_total_pf": 0.012276236,
+      "pi_c1_pf": 0.008776157,
+      "pi_c2_pf": 0.003500079,
+      "pi_resistance_kohm": 0.046813209,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[8]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011321215,
+      "ceff_pf": 0.011321215,
+      "pi_total_pf": 0.011321214999999999,
+      "pi_c1_pf": 0.007695637,
+      "pi_c2_pf": 0.003625578,
+      "pi_resistance_kohm": 0.020863589,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[8]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011323215,
+      "ceff_pf": 0.011323215,
+      "pi_total_pf": 0.011323214,
+      "pi_c1_pf": 0.007696671,
+      "pi_c2_pf": 0.003626543,
+      "pi_resistance_kohm": 0.020878498,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[8]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011321215,
+      "ceff_pf": 0.011321215,
+      "pi_total_pf": 0.011321214999999999,
+      "pi_c1_pf": 0.007695637,
+      "pi_c2_pf": 0.003625578,
+      "pi_resistance_kohm": 0.020863589,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[8]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011323215,
+      "ceff_pf": 0.011323215,
+      "pi_total_pf": 0.011323214,
+      "pi_c1_pf": 0.007696671,
+      "pi_c2_pf": 0.003626543,
+      "pi_resistance_kohm": 0.020878498,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[7]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011932961,
+      "ceff_pf": 0.011932961,
+      "pi_total_pf": 0.011932960000000001,
+      "pi_c1_pf": 0.008569101,
+      "pi_c2_pf": 0.003363859,
+      "pi_resistance_kohm": 0.051605344,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[7]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.01190196,
+      "ceff_pf": 0.01190196,
+      "pi_total_pf": 0.01190196,
+      "pi_c1_pf": 0.008537601,
+      "pi_c2_pf": 0.003364359,
+      "pi_resistance_kohm": 0.051632129,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[7]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011932961,
+      "ceff_pf": 0.011932961,
+      "pi_total_pf": 0.011932960000000001,
+      "pi_c1_pf": 0.008569101,
+      "pi_c2_pf": 0.003363859,
+      "pi_resistance_kohm": 0.051605344,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[7]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.01190196,
+      "ceff_pf": 0.01190196,
+      "pi_total_pf": 0.01190196,
+      "pi_c1_pf": 0.008537601,
+      "pi_c2_pf": 0.003364359,
+      "pi_resistance_kohm": 0.051632129,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[6]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011714561,
+      "ceff_pf": 0.011714561,
+      "pi_total_pf": 0.011714561,
+      "pi_c1_pf": 0.007746861,
+      "pi_c2_pf": 0.0039677,
+      "pi_resistance_kohm": 0.0208822,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[6]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.01171656,
+      "ceff_pf": 0.01171656,
+      "pi_total_pf": 0.01171656,
+      "pi_c1_pf": 0.00774772,
+      "pi_c2_pf": 0.00396884,
+      "pi_resistance_kohm": 0.020899326,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[6]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011714561,
+      "ceff_pf": 0.011714561,
+      "pi_total_pf": 0.011714561,
+      "pi_c1_pf": 0.007746861,
+      "pi_c2_pf": 0.0039677,
+      "pi_resistance_kohm": 0.0208822,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[6]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.01171656,
+      "ceff_pf": 0.01171656,
+      "pi_total_pf": 0.01171656,
+      "pi_c1_pf": 0.00774772,
+      "pi_c2_pf": 0.00396884,
+      "pi_resistance_kohm": 0.020899326,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[5]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011793326,
+      "ceff_pf": 0.011793326,
+      "pi_total_pf": 0.011793326,
+      "pi_c1_pf": 0.008301849,
+      "pi_c2_pf": 0.003491477,
+      "pi_resistance_kohm": 0.050866183,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[5]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011795325,
+      "ceff_pf": 0.011795325,
+      "pi_total_pf": 0.011795325999999998,
+      "pi_c1_pf": 0.00830365,
+      "pi_c2_pf": 0.003491676,
+      "pi_resistance_kohm": 0.050879326,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[5]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011793326,
+      "ceff_pf": 0.011793326,
+      "pi_total_pf": 0.011793326,
+      "pi_c1_pf": 0.008301849,
+      "pi_c2_pf": 0.003491477,
+      "pi_resistance_kohm": 0.050866183,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[5]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011795325,
+      "ceff_pf": 0.011795325,
+      "pi_total_pf": 0.011795325999999998,
+      "pi_c1_pf": 0.00830365,
+      "pi_c2_pf": 0.003491676,
+      "pi_resistance_kohm": 0.050879326,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[4]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.010425974,
+      "ceff_pf": 0.010425974,
+      "pi_total_pf": 0.010425974000000001,
+      "pi_c1_pf": 0.007076103,
+      "pi_c2_pf": 0.003349871,
+      "pi_resistance_kohm": 0.049106415,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[4]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.010427973,
+      "ceff_pf": 0.010427973,
+      "pi_total_pf": 0.010427973,
+      "pi_c1_pf": 0.007077539,
+      "pi_c2_pf": 0.003350434,
+      "pi_resistance_kohm": 0.049143717,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[4]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.010425974,
+      "ceff_pf": 0.010425974,
+      "pi_total_pf": 0.010425974000000001,
+      "pi_c1_pf": 0.007076103,
+      "pi_c2_pf": 0.003349871,
+      "pi_resistance_kohm": 0.049106415,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[4]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.010427973,
+      "ceff_pf": 0.010427973,
+      "pi_total_pf": 0.010427973,
+      "pi_c1_pf": 0.007077539,
+      "pi_c2_pf": 0.003350434,
+      "pi_resistance_kohm": 0.049143717,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[3]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.010359396,
+      "ceff_pf": 0.010359396,
+      "pi_total_pf": 0.010359396,
+      "pi_c1_pf": 0.006931558,
+      "pi_c2_pf": 0.003427838,
+      "pi_resistance_kohm": 0.021125421,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[3]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.010361396,
+      "ceff_pf": 0.010361396,
+      "pi_total_pf": 0.010361396,
+      "pi_c1_pf": 0.006931684,
+      "pi_c2_pf": 0.003429712,
+      "pi_resistance_kohm": 0.021157561,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[3]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.010359396,
+      "ceff_pf": 0.010359396,
+      "pi_total_pf": 0.010359396,
+      "pi_c1_pf": 0.006931558,
+      "pi_c2_pf": 0.003427838,
+      "pi_resistance_kohm": 0.021125421,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[3]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.010361396,
+      "ceff_pf": 0.010361396,
+      "pi_total_pf": 0.010361396,
+      "pi_c1_pf": 0.006931684,
+      "pi_c2_pf": 0.003429712,
+      "pi_resistance_kohm": 0.021157561,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[2]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.012210685,
+      "ceff_pf": 0.012210685,
+      "pi_total_pf": 0.012210684999999999,
+      "pi_c1_pf": 0.009137649,
+      "pi_c2_pf": 0.003073036,
+      "pi_resistance_kohm": 0.044126384,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[2]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.012212685,
+      "ceff_pf": 0.012212685,
+      "pi_total_pf": 0.012212685000000001,
+      "pi_c1_pf": 0.0091388,
+      "pi_c2_pf": 0.003073885,
+      "pi_resistance_kohm": 0.044148382,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[2]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.012210685,
+      "ceff_pf": 0.012210685,
+      "pi_total_pf": 0.012210684999999999,
+      "pi_c1_pf": 0.009137649,
+      "pi_c2_pf": 0.003073036,
+      "pi_resistance_kohm": 0.044126384,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[2]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.012212685,
+      "ceff_pf": 0.012212685,
+      "pi_total_pf": 0.012212685000000001,
+      "pi_c1_pf": 0.0091388,
+      "pi_c2_pf": 0.003073885,
+      "pi_resistance_kohm": 0.044148382,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[1]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.01176238,
+      "ceff_pf": 0.01176238,
+      "pi_total_pf": 0.01176238,
+      "pi_c1_pf": 0.008203284,
+      "pi_c2_pf": 0.003559096,
+      "pi_resistance_kohm": 0.051540744,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[1]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.01173138,
+      "ceff_pf": 0.01173138,
+      "pi_total_pf": 0.011731379,
+      "pi_c1_pf": 0.008171981,
+      "pi_c2_pf": 0.003559398,
+      "pi_resistance_kohm": 0.051555902,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[1]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.01176238,
+      "ceff_pf": 0.01176238,
+      "pi_total_pf": 0.01176238,
+      "pi_c1_pf": 0.008203284,
+      "pi_c2_pf": 0.003559096,
+      "pi_resistance_kohm": 0.051540744,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[1]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.01173138,
+      "ceff_pf": 0.01173138,
+      "pi_total_pf": 0.011731379,
+      "pi_c1_pf": 0.008171981,
+      "pi_c2_pf": 0.003559398,
+      "pi_resistance_kohm": 0.051555902,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[0]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011087838,
+      "ceff_pf": 0.011087838,
+      "pi_total_pf": 0.011087838,
+      "pi_c1_pf": 0.007436733,
+      "pi_c2_pf": 0.003651105,
+      "pi_resistance_kohm": 0.031099351,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[0]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011089837,
+      "ceff_pf": 0.011089837,
+      "pi_total_pf": 0.011089838000000001,
+      "pi_c1_pf": 0.007438232,
+      "pi_c2_pf": 0.003651606,
+      "pi_resistance_kohm": 0.031114832,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[0]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011087838,
+      "ceff_pf": 0.011087838,
+      "pi_total_pf": 0.011087838,
+      "pi_c1_pf": 0.007436733,
+      "pi_c2_pf": 0.003651105,
+      "pi_resistance_kohm": 0.031099351,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout0[0]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011089837,
+      "ceff_pf": 0.011089837,
+      "pi_total_pf": 0.011089838000000001,
+      "pi_c1_pf": 0.007438232,
+      "pi_c2_pf": 0.003651606,
+      "pi_resistance_kohm": 0.031114832,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[31]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.010548357,
+      "ceff_pf": 0.010548357,
+      "pi_total_pf": 0.010548357,
+      "pi_c1_pf": 0.007204662,
+      "pi_c2_pf": 0.003343695,
+      "pi_resistance_kohm": 0.049445517,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[31]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.010550356,
+      "ceff_pf": 0.010550356,
+      "pi_total_pf": 0.010550357,
+      "pi_c1_pf": 0.007205906,
+      "pi_c2_pf": 0.003344451,
+      "pi_resistance_kohm": 0.049495667,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[31]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.010548357,
+      "ceff_pf": 0.010548357,
+      "pi_total_pf": 0.010548357,
+      "pi_c1_pf": 0.007204662,
+      "pi_c2_pf": 0.003343695,
+      "pi_resistance_kohm": 0.049445517,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[31]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.010550356,
+      "ceff_pf": 0.010550356,
+      "pi_total_pf": 0.010550357,
+      "pi_c1_pf": 0.007205906,
+      "pi_c2_pf": 0.003344451,
+      "pi_resistance_kohm": 0.049495667,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[30]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009171986,
+      "ceff_pf": 0.009171986,
+      "pi_total_pf": 0.009171986,
+      "pi_c1_pf": 0.006105437,
+      "pi_c2_pf": 0.003066549,
+      "pi_resistance_kohm": 0.042476784,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[30]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009173987,
+      "ceff_pf": 0.009173987,
+      "pi_total_pf": 0.009173986,
+      "pi_c1_pf": 0.006106271,
+      "pi_c2_pf": 0.003067715,
+      "pi_resistance_kohm": 0.042543281,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[30]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009171986,
+      "ceff_pf": 0.009171986,
+      "pi_total_pf": 0.009171986,
+      "pi_c1_pf": 0.006105437,
+      "pi_c2_pf": 0.003066549,
+      "pi_resistance_kohm": 0.042476784,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[30]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009173987,
+      "ceff_pf": 0.009173987,
+      "pi_total_pf": 0.009173986,
+      "pi_c1_pf": 0.006106271,
+      "pi_c2_pf": 0.003067715,
+      "pi_resistance_kohm": 0.042543281,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[29]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009650887,
+      "ceff_pf": 0.009650887,
+      "pi_total_pf": 0.009650886000000001,
+      "pi_c1_pf": 0.006412523,
+      "pi_c2_pf": 0.003238363,
+      "pi_resistance_kohm": 0.044961512,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[29]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009652886,
+      "ceff_pf": 0.009652886,
+      "pi_total_pf": 0.009652886,
+      "pi_c1_pf": 0.006414251,
+      "pi_c2_pf": 0.003238635,
+      "pi_resistance_kohm": 0.044978689,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[29]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009650887,
+      "ceff_pf": 0.009650887,
+      "pi_total_pf": 0.009650886000000001,
+      "pi_c1_pf": 0.006412523,
+      "pi_c2_pf": 0.003238363,
+      "pi_resistance_kohm": 0.044961512,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[29]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009652886,
+      "ceff_pf": 0.009652886,
+      "pi_total_pf": 0.009652886,
+      "pi_c1_pf": 0.006414251,
+      "pi_c2_pf": 0.003238635,
+      "pi_resistance_kohm": 0.044978689,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[28]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009003191,
+      "ceff_pf": 0.009003191,
+      "pi_total_pf": 0.009003191,
+      "pi_c1_pf": 0.005949371,
+      "pi_c2_pf": 0.00305382,
+      "pi_resistance_kohm": 0.040411487,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[28]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009005191,
+      "ceff_pf": 0.009005191,
+      "pi_total_pf": 0.009005191,
+      "pi_c1_pf": 0.00595029,
+      "pi_c2_pf": 0.003054901,
+      "pi_resistance_kohm": 0.040470894,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[28]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009003191,
+      "ceff_pf": 0.009003191,
+      "pi_total_pf": 0.009003191,
+      "pi_c1_pf": 0.005949371,
+      "pi_c2_pf": 0.00305382,
+      "pi_resistance_kohm": 0.040411487,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[28]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009005191,
+      "ceff_pf": 0.009005191,
+      "pi_total_pf": 0.009005191,
+      "pi_c1_pf": 0.00595029,
+      "pi_c2_pf": 0.003054901,
+      "pi_resistance_kohm": 0.040470894,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[27]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009473471,
+      "ceff_pf": 0.009473471,
+      "pi_total_pf": 0.00947347,
+      "pi_c1_pf": 0.006322347,
+      "pi_c2_pf": 0.003151123,
+      "pi_resistance_kohm": 0.044697803,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[27]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.00947547,
+      "ceff_pf": 0.00947547,
+      "pi_total_pf": 0.00947547,
+      "pi_c1_pf": 0.006324068,
+      "pi_c2_pf": 0.003151402,
+      "pi_resistance_kohm": 0.044715371,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[27]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009473471,
+      "ceff_pf": 0.009473471,
+      "pi_total_pf": 0.00947347,
+      "pi_c1_pf": 0.006322347,
+      "pi_c2_pf": 0.003151123,
+      "pi_resistance_kohm": 0.044697803,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[27]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.00947547,
+      "ceff_pf": 0.00947547,
+      "pi_total_pf": 0.00947547,
+      "pi_c1_pf": 0.006324068,
+      "pi_c2_pf": 0.003151402,
+      "pi_resistance_kohm": 0.044715371,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[26]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.010184602,
+      "ceff_pf": 0.010184602,
+      "pi_total_pf": 0.010184602000000001,
+      "pi_c1_pf": 0.007775161,
+      "pi_c2_pf": 0.002409441,
+      "pi_resistance_kohm": 0.039143659,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[26]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.010186603,
+      "ceff_pf": 0.010186603,
+      "pi_total_pf": 0.010186602,
+      "pi_c1_pf": 0.007776223,
+      "pi_c2_pf": 0.002410379,
+      "pi_resistance_kohm": 0.03918365,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[26]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.010184602,
+      "ceff_pf": 0.010184602,
+      "pi_total_pf": 0.010184602000000001,
+      "pi_c1_pf": 0.007775161,
+      "pi_c2_pf": 0.002409441,
+      "pi_resistance_kohm": 0.039143659,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[26]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.010186603,
+      "ceff_pf": 0.010186603,
+      "pi_total_pf": 0.010186602,
+      "pi_c1_pf": 0.007776223,
+      "pi_c2_pf": 0.002410379,
+      "pi_resistance_kohm": 0.03918365,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[25]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008861682,
+      "ceff_pf": 0.008861682,
+      "pi_total_pf": 0.008861682,
+      "pi_c1_pf": 0.005906252,
+      "pi_c2_pf": 0.00295543,
+      "pi_resistance_kohm": 0.040246423,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[25]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008863681,
+      "ceff_pf": 0.008863681,
+      "pi_total_pf": 0.008863682,
+      "pi_c1_pf": 0.005907092,
+      "pi_c2_pf": 0.00295659,
+      "pi_resistance_kohm": 0.040309981,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[25]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008861682,
+      "ceff_pf": 0.008861682,
+      "pi_total_pf": 0.008861682,
+      "pi_c1_pf": 0.005906252,
+      "pi_c2_pf": 0.00295543,
+      "pi_resistance_kohm": 0.040246423,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[25]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008863681,
+      "ceff_pf": 0.008863681,
+      "pi_total_pf": 0.008863682,
+      "pi_c1_pf": 0.005907092,
+      "pi_c2_pf": 0.00295659,
+      "pi_resistance_kohm": 0.040309981,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[24]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009404868,
+      "ceff_pf": 0.009404868,
+      "pi_total_pf": 0.009404868,
+      "pi_c1_pf": 0.007041451,
+      "pi_c2_pf": 0.002363417,
+      "pi_resistance_kohm": 0.05398592,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[24]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009406867,
+      "ceff_pf": 0.009406867,
+      "pi_total_pf": 0.009406868,
+      "pi_c1_pf": 0.007042338,
+      "pi_c2_pf": 0.00236453,
+      "pi_resistance_kohm": 0.054035623,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[24]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009404868,
+      "ceff_pf": 0.009404868,
+      "pi_total_pf": 0.009404868,
+      "pi_c1_pf": 0.007041451,
+      "pi_c2_pf": 0.002363417,
+      "pi_resistance_kohm": 0.05398592,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[24]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009406867,
+      "ceff_pf": 0.009406867,
+      "pi_total_pf": 0.009406868,
+      "pi_c1_pf": 0.007042338,
+      "pi_c2_pf": 0.00236453,
+      "pi_resistance_kohm": 0.054035623,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[23]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.011464241,
+      "ceff_pf": 0.011464241,
+      "pi_total_pf": 0.011464241,
+      "pi_c1_pf": 0.009020342,
+      "pi_c2_pf": 0.002443899,
+      "pi_resistance_kohm": 0.04989966,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[23]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.011433242,
+      "ceff_pf": 0.011433242,
+      "pi_total_pf": 0.011433241,
+      "pi_c1_pf": 0.008989166,
+      "pi_c2_pf": 0.002444075,
+      "pi_resistance_kohm": 0.049911086,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[23]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.011464241,
+      "ceff_pf": 0.011464241,
+      "pi_total_pf": 0.011464241,
+      "pi_c1_pf": 0.009020342,
+      "pi_c2_pf": 0.002443899,
+      "pi_resistance_kohm": 0.04989966,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[23]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.011433242,
+      "ceff_pf": 0.011433242,
+      "pi_total_pf": 0.011433241,
+      "pi_c1_pf": 0.008989166,
+      "pi_c2_pf": 0.002444075,
+      "pi_resistance_kohm": 0.049911086,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[22]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008929063,
+      "ceff_pf": 0.008929063,
+      "pi_total_pf": 0.008929063000000001,
+      "pi_c1_pf": 0.005967336,
+      "pi_c2_pf": 0.002961727,
+      "pi_resistance_kohm": 0.040180221,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[22]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008931063,
+      "ceff_pf": 0.008931063,
+      "pi_total_pf": 0.008931062,
+      "pi_c1_pf": 0.005968201,
+      "pi_c2_pf": 0.002962861,
+      "pi_resistance_kohm": 0.040240109,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[22]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008929063,
+      "ceff_pf": 0.008929063,
+      "pi_total_pf": 0.008929063000000001,
+      "pi_c1_pf": 0.005967336,
+      "pi_c2_pf": 0.002961727,
+      "pi_resistance_kohm": 0.040180221,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[22]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008931063,
+      "ceff_pf": 0.008931063,
+      "pi_total_pf": 0.008931062,
+      "pi_c1_pf": 0.005968201,
+      "pi_c2_pf": 0.002962861,
+      "pi_resistance_kohm": 0.040240109,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[21]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009224617,
+      "ceff_pf": 0.009224617,
+      "pi_total_pf": 0.009224616,
+      "pi_c1_pf": 0.006251611,
+      "pi_c2_pf": 0.002973005,
+      "pi_resistance_kohm": 0.040842652,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[21]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009226616,
+      "ceff_pf": 0.009226616,
+      "pi_total_pf": 0.009226616,
+      "pi_c1_pf": 0.006252015,
+      "pi_c2_pf": 0.002974601,
+      "pi_resistance_kohm": 0.040920548,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[21]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009224617,
+      "ceff_pf": 0.009224617,
+      "pi_total_pf": 0.009224616,
+      "pi_c1_pf": 0.006251611,
+      "pi_c2_pf": 0.002973005,
+      "pi_resistance_kohm": 0.040842652,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[21]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009226616,
+      "ceff_pf": 0.009226616,
+      "pi_total_pf": 0.009226616,
+      "pi_c1_pf": 0.006252015,
+      "pi_c2_pf": 0.002974601,
+      "pi_resistance_kohm": 0.040920548,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[20]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009283032,
+      "ceff_pf": 0.009283032,
+      "pi_total_pf": 0.009283032,
+      "pi_c1_pf": 0.006187739,
+      "pi_c2_pf": 0.003095293,
+      "pi_resistance_kohm": 0.042067733,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[20]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009285033,
+      "ceff_pf": 0.009285033,
+      "pi_total_pf": 0.009285033,
+      "pi_c1_pf": 0.006189433,
+      "pi_c2_pf": 0.0030956,
+      "pi_resistance_kohm": 0.042085174,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[20]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009283032,
+      "ceff_pf": 0.009283032,
+      "pi_total_pf": 0.009283032,
+      "pi_c1_pf": 0.006187739,
+      "pi_c2_pf": 0.003095293,
+      "pi_resistance_kohm": 0.042067733,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[20]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009285033,
+      "ceff_pf": 0.009285033,
+      "pi_total_pf": 0.009285033,
+      "pi_c1_pf": 0.006189433,
+      "pi_c2_pf": 0.0030956,
+      "pi_resistance_kohm": 0.042085174,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[19]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008695803,
+      "ceff_pf": 0.008695803,
+      "pi_total_pf": 0.008695803,
+      "pi_c1_pf": 0.00583945,
+      "pi_c2_pf": 0.002856353,
+      "pi_resistance_kohm": 0.037865847,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[19]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008697803,
+      "ceff_pf": 0.008697803,
+      "pi_total_pf": 0.008697803,
+      "pi_c1_pf": 0.00583999,
+      "pi_c2_pf": 0.002857813,
+      "pi_resistance_kohm": 0.037936848,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[19]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008695803,
+      "ceff_pf": 0.008695803,
+      "pi_total_pf": 0.008695803,
+      "pi_c1_pf": 0.00583945,
+      "pi_c2_pf": 0.002856353,
+      "pi_resistance_kohm": 0.037865847,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[19]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008697803,
+      "ceff_pf": 0.008697803,
+      "pi_total_pf": 0.008697803,
+      "pi_c1_pf": 0.00583999,
+      "pi_c2_pf": 0.002857813,
+      "pi_resistance_kohm": 0.037936848,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[18]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009473659,
+      "ceff_pf": 0.009473659,
+      "pi_total_pf": 0.009473659,
+      "pi_c1_pf": 0.006420898,
+      "pi_c2_pf": 0.003052761,
+      "pi_resistance_kohm": 0.041929271,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[18]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009475659,
+      "ceff_pf": 0.009475659,
+      "pi_total_pf": 0.009475659,
+      "pi_c1_pf": 0.006422612,
+      "pi_c2_pf": 0.003053047,
+      "pi_resistance_kohm": 0.041944452,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[18]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009473659,
+      "ceff_pf": 0.009473659,
+      "pi_total_pf": 0.009473659,
+      "pi_c1_pf": 0.006420898,
+      "pi_c2_pf": 0.003052761,
+      "pi_resistance_kohm": 0.041929271,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[18]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009475659,
+      "ceff_pf": 0.009475659,
+      "pi_total_pf": 0.009475659,
+      "pi_c1_pf": 0.006422612,
+      "pi_c2_pf": 0.003053047,
+      "pi_resistance_kohm": 0.041944452,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[17]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009823887,
+      "ceff_pf": 0.009823887,
+      "pi_total_pf": 0.009823886,
+      "pi_c1_pf": 0.007426796,
+      "pi_c2_pf": 0.00239709,
+      "pi_resistance_kohm": 0.03702914,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[17]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009825886,
+      "ceff_pf": 0.009825886,
+      "pi_total_pf": 0.009825885999999999,
+      "pi_c1_pf": 0.007427543,
+      "pi_c2_pf": 0.002398343,
+      "pi_resistance_kohm": 0.037076786,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[17]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009823887,
+      "ceff_pf": 0.009823887,
+      "pi_total_pf": 0.009823886,
+      "pi_c1_pf": 0.007426796,
+      "pi_c2_pf": 0.00239709,
+      "pi_resistance_kohm": 0.03702914,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[17]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009825886,
+      "ceff_pf": 0.009825886,
+      "pi_total_pf": 0.009825885999999999,
+      "pi_c1_pf": 0.007427543,
+      "pi_c2_pf": 0.002398343,
+      "pi_resistance_kohm": 0.037076786,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[16]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009012908,
+      "ceff_pf": 0.009012908,
+      "pi_total_pf": 0.009012908,
+      "pi_c1_pf": 0.00602605,
+      "pi_c2_pf": 0.002986858,
+      "pi_resistance_kohm": 0.040282946,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[16]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009014907,
+      "ceff_pf": 0.009014907,
+      "pi_total_pf": 0.009014907,
+      "pi_c1_pf": 0.006027644,
+      "pi_c2_pf": 0.002987263,
+      "pi_resistance_kohm": 0.040305085,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[16]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009012908,
+      "ceff_pf": 0.009012908,
+      "pi_total_pf": 0.009012908,
+      "pi_c1_pf": 0.00602605,
+      "pi_c2_pf": 0.002986858,
+      "pi_resistance_kohm": 0.040282946,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[16]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009014907,
+      "ceff_pf": 0.009014907,
+      "pi_total_pf": 0.009014907,
+      "pi_c1_pf": 0.006027644,
+      "pi_c2_pf": 0.002987263,
+      "pi_resistance_kohm": 0.040305085,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[15]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008328725,
+      "ceff_pf": 0.008328725,
+      "pi_total_pf": 0.008328725,
+      "pi_c1_pf": 0.005643155,
+      "pi_c2_pf": 0.00268557,
+      "pi_resistance_kohm": 0.03551757,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[15]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008330725,
+      "ceff_pf": 0.008330725,
+      "pi_total_pf": 0.008330725,
+      "pi_c1_pf": 0.005643521,
+      "pi_c2_pf": 0.002687204,
+      "pi_resistance_kohm": 0.035592236,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[15]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008328725,
+      "ceff_pf": 0.008328725,
+      "pi_total_pf": 0.008328725,
+      "pi_c1_pf": 0.005643155,
+      "pi_c2_pf": 0.00268557,
+      "pi_resistance_kohm": 0.03551757,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[15]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008330725,
+      "ceff_pf": 0.008330725,
+      "pi_total_pf": 0.008330725,
+      "pi_c1_pf": 0.005643521,
+      "pi_c2_pf": 0.002687204,
+      "pi_resistance_kohm": 0.035592236,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[14]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008765666,
+      "ceff_pf": 0.008765666,
+      "pi_total_pf": 0.008765666,
+      "pi_c1_pf": 0.006145468,
+      "pi_c2_pf": 0.002620198,
+      "pi_resistance_kohm": 0.030113734,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[14]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008767667,
+      "ceff_pf": 0.008767667,
+      "pi_total_pf": 0.008767666,
+      "pi_c1_pf": 0.006145418,
+      "pi_c2_pf": 0.002622248,
+      "pi_resistance_kohm": 0.03017997,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[14]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008765666,
+      "ceff_pf": 0.008765666,
+      "pi_total_pf": 0.008765666,
+      "pi_c1_pf": 0.006145468,
+      "pi_c2_pf": 0.002620198,
+      "pi_resistance_kohm": 0.030113734,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[14]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008767667,
+      "ceff_pf": 0.008767667,
+      "pi_total_pf": 0.008767666,
+      "pi_c1_pf": 0.006145418,
+      "pi_c2_pf": 0.002622248,
+      "pi_resistance_kohm": 0.03017997,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[13]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.010394432,
+      "ceff_pf": 0.010394432,
+      "pi_total_pf": 0.010394432,
+      "pi_c1_pf": 0.007476684,
+      "pi_c2_pf": 0.002917748,
+      "pi_resistance_kohm": 0.037574738,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[13]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.010396431,
+      "ceff_pf": 0.010396431,
+      "pi_total_pf": 0.010396433,
+      "pi_c1_pf": 0.007477378,
+      "pi_c2_pf": 0.002919055,
+      "pi_resistance_kohm": 0.037620254,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[13]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.010394432,
+      "ceff_pf": 0.010394432,
+      "pi_total_pf": 0.010394432,
+      "pi_c1_pf": 0.007476684,
+      "pi_c2_pf": 0.002917748,
+      "pi_resistance_kohm": 0.037574738,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[13]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.010396431,
+      "ceff_pf": 0.010396431,
+      "pi_total_pf": 0.010396433,
+      "pi_c1_pf": 0.007477378,
+      "pi_c2_pf": 0.002919055,
+      "pi_resistance_kohm": 0.037620254,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[12]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008290286,
+      "ceff_pf": 0.008290286,
+      "pi_total_pf": 0.008290285,
+      "pi_c1_pf": 0.005621266,
+      "pi_c2_pf": 0.002669019,
+      "pi_resistance_kohm": 0.033105075,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[12]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008292285,
+      "ceff_pf": 0.008292285,
+      "pi_total_pf": 0.008292286,
+      "pi_c1_pf": 0.005621281,
+      "pi_c2_pf": 0.002671005,
+      "pi_resistance_kohm": 0.033184636,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[12]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008290286,
+      "ceff_pf": 0.008290286,
+      "pi_total_pf": 0.008290285,
+      "pi_c1_pf": 0.005621266,
+      "pi_c2_pf": 0.002669019,
+      "pi_resistance_kohm": 0.033105075,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[12]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008292285,
+      "ceff_pf": 0.008292285,
+      "pi_total_pf": 0.008292286,
+      "pi_c1_pf": 0.005621281,
+      "pi_c2_pf": 0.002671005,
+      "pi_resistance_kohm": 0.033184636,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[11]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008316775,
+      "ceff_pf": 0.008316775,
+      "pi_total_pf": 0.008316775,
+      "pi_c1_pf": 0.005636934,
+      "pi_c2_pf": 0.002679841,
+      "pi_resistance_kohm": 0.035424933,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[11]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008318775,
+      "ceff_pf": 0.008318775,
+      "pi_total_pf": 0.008318775,
+      "pi_c1_pf": 0.005637289,
+      "pi_c2_pf": 0.002681486,
+      "pi_resistance_kohm": 0.035499819,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[11]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008316775,
+      "ceff_pf": 0.008316775,
+      "pi_total_pf": 0.008316775,
+      "pi_c1_pf": 0.005636934,
+      "pi_c2_pf": 0.002679841,
+      "pi_resistance_kohm": 0.035424933,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[11]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008318775,
+      "ceff_pf": 0.008318775,
+      "pi_total_pf": 0.008318775,
+      "pi_c1_pf": 0.005637289,
+      "pi_c2_pf": 0.002681486,
+      "pi_resistance_kohm": 0.035499819,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[10]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008721073,
+      "ceff_pf": 0.008721073,
+      "pi_total_pf": 0.008721073,
+      "pi_c1_pf": 0.005902699,
+      "pi_c2_pf": 0.002818374,
+      "pi_resistance_kohm": 0.037302464,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[10]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008723073,
+      "ceff_pf": 0.008723073,
+      "pi_total_pf": 0.008723073,
+      "pi_c1_pf": 0.005904284,
+      "pi_c2_pf": 0.002818789,
+      "pi_resistance_kohm": 0.037322231,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[10]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008721073,
+      "ceff_pf": 0.008721073,
+      "pi_total_pf": 0.008721073,
+      "pi_c1_pf": 0.005902699,
+      "pi_c2_pf": 0.002818374,
+      "pi_resistance_kohm": 0.037302464,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[10]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008723073,
+      "ceff_pf": 0.008723073,
+      "pi_total_pf": 0.008723073,
+      "pi_c1_pf": 0.005904284,
+      "pi_c2_pf": 0.002818789,
+      "pi_resistance_kohm": 0.037322231,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[9]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008285169,
+      "ceff_pf": 0.008285169,
+      "pi_total_pf": 0.008285169,
+      "pi_c1_pf": 0.00574714,
+      "pi_c2_pf": 0.002538029,
+      "pi_resistance_kohm": 0.032995988,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[9]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008287169,
+      "ceff_pf": 0.008287169,
+      "pi_total_pf": 0.008287169,
+      "pi_c1_pf": 0.005747136,
+      "pi_c2_pf": 0.002540033,
+      "pi_resistance_kohm": 0.033074427,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[9]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008285169,
+      "ceff_pf": 0.008285169,
+      "pi_total_pf": 0.008285169,
+      "pi_c1_pf": 0.00574714,
+      "pi_c2_pf": 0.002538029,
+      "pi_resistance_kohm": 0.032995988,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[9]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008287169,
+      "ceff_pf": 0.008287169,
+      "pi_total_pf": 0.008287169,
+      "pi_c1_pf": 0.005747136,
+      "pi_c2_pf": 0.002540033,
+      "pi_resistance_kohm": 0.033074427,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[8]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008621943,
+      "ceff_pf": 0.008621943,
+      "pi_total_pf": 0.008621943,
+      "pi_c1_pf": 0.005939216,
+      "pi_c2_pf": 0.002682727,
+      "pi_resistance_kohm": 0.035505049,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[8]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008623943,
+      "ceff_pf": 0.008623943,
+      "pi_total_pf": 0.008623942,
+      "pi_c1_pf": 0.005940774,
+      "pi_c2_pf": 0.002683168,
+      "pi_resistance_kohm": 0.035524383,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[8]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008621943,
+      "ceff_pf": 0.008621943,
+      "pi_total_pf": 0.008621943,
+      "pi_c1_pf": 0.005939216,
+      "pi_c2_pf": 0.002682727,
+      "pi_resistance_kohm": 0.035505049,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[8]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008623943,
+      "ceff_pf": 0.008623943,
+      "pi_total_pf": 0.008623942,
+      "pi_c1_pf": 0.005940774,
+      "pi_c2_pf": 0.002683168,
+      "pi_resistance_kohm": 0.035524383,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[7]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.009291846,
+      "ceff_pf": 0.009291846,
+      "pi_total_pf": 0.009291846999999999,
+      "pi_c1_pf": 0.00715884,
+      "pi_c2_pf": 0.002133007,
+      "pi_resistance_kohm": 0.029745888,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[7]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.009293846,
+      "ceff_pf": 0.009293846,
+      "pi_total_pf": 0.009293847000000001,
+      "pi_c1_pf": 0.007158898,
+      "pi_c2_pf": 0.002134949,
+      "pi_resistance_kohm": 0.029798789,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[7]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.009291846,
+      "ceff_pf": 0.009291846,
+      "pi_total_pf": 0.009291846999999999,
+      "pi_c1_pf": 0.00715884,
+      "pi_c2_pf": 0.002133007,
+      "pi_resistance_kohm": 0.029745888,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[7]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.009293846,
+      "ceff_pf": 0.009293846,
+      "pi_total_pf": 0.009293847000000001,
+      "pi_c1_pf": 0.007158898,
+      "pi_c2_pf": 0.002134949,
+      "pi_resistance_kohm": 0.029798789,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[6]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.008243713,
+      "ceff_pf": 0.008243713,
+      "pi_total_pf": 0.008243712,
+      "pi_c1_pf": 0.005611937,
+      "pi_c2_pf": 0.002631775,
+      "pi_resistance_kohm": 0.032739632,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[6]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.008245713,
+      "ceff_pf": 0.008245713,
+      "pi_total_pf": 0.008245713,
+      "pi_c1_pf": 0.005613286,
+      "pi_c2_pf": 0.002632427,
+      "pi_resistance_kohm": 0.032765578,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[6]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.008243713,
+      "ceff_pf": 0.008243713,
+      "pi_total_pf": 0.008243712,
+      "pi_c1_pf": 0.005611937,
+      "pi_c2_pf": 0.002631775,
+      "pi_resistance_kohm": 0.032739632,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[6]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.008245713,
+      "ceff_pf": 0.008245713,
+      "pi_total_pf": 0.008245713,
+      "pi_c1_pf": 0.005613286,
+      "pi_c2_pf": 0.002632427,
+      "pi_resistance_kohm": 0.032765578,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[5]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.0077749,
+      "ceff_pf": 0.0077749,
+      "pi_total_pf": 0.0077748999999999995,
+      "pi_c1_pf": 0.005396926,
+      "pi_c2_pf": 0.002377974,
+      "pi_resistance_kohm": 0.030758627,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[5]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.007776901,
+      "ceff_pf": 0.007776901,
+      "pi_total_pf": 0.007776901,
+      "pi_c1_pf": 0.005398212,
+      "pi_c2_pf": 0.002378689,
+      "pi_resistance_kohm": 0.030784963,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[5]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.0077749,
+      "ceff_pf": 0.0077749,
+      "pi_total_pf": 0.0077748999999999995,
+      "pi_c1_pf": 0.005396926,
+      "pi_c2_pf": 0.002377974,
+      "pi_resistance_kohm": 0.030758627,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[5]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.007776901,
+      "ceff_pf": 0.007776901,
+      "pi_total_pf": 0.007776901,
+      "pi_c1_pf": 0.005398212,
+      "pi_c2_pf": 0.002378689,
+      "pi_resistance_kohm": 0.030784963,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[4]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.007295866,
+      "ceff_pf": 0.007295866,
+      "pi_total_pf": 0.0072958649999999995,
+      "pi_c1_pf": 0.005125601,
+      "pi_c2_pf": 0.002170264,
+      "pi_resistance_kohm": 0.026812311,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[4]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.007297865,
+      "ceff_pf": 0.007297865,
+      "pi_total_pf": 0.007297865,
+      "pi_c1_pf": 0.00512417,
+      "pi_c2_pf": 0.002173695,
+      "pi_resistance_kohm": 0.026920222,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[4]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.007295866,
+      "ceff_pf": 0.007295866,
+      "pi_total_pf": 0.0072958649999999995,
+      "pi_c1_pf": 0.005125601,
+      "pi_c2_pf": 0.002170264,
+      "pi_resistance_kohm": 0.026812311,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[4]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.007297865,
+      "ceff_pf": 0.007297865,
+      "pi_total_pf": 0.007297865,
+      "pi_c1_pf": 0.00512417,
+      "pi_c2_pf": 0.002173695,
+      "pi_resistance_kohm": 0.026920222,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[3]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.007356075,
+      "ceff_pf": 0.007356075,
+      "pi_total_pf": 0.007356074,
+      "pi_c1_pf": 0.005176554,
+      "pi_c2_pf": 0.00217952,
+      "pi_resistance_kohm": 0.026468661,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[3]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.007358075,
+      "ceff_pf": 0.007358075,
+      "pi_total_pf": 0.007358073999999999,
+      "pi_c1_pf": 0.005175325,
+      "pi_c2_pf": 0.002182749,
+      "pi_resistance_kohm": 0.026564635,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[3]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.007356075,
+      "ceff_pf": 0.007356075,
+      "pi_total_pf": 0.007356074,
+      "pi_c1_pf": 0.005176554,
+      "pi_c2_pf": 0.00217952,
+      "pi_resistance_kohm": 0.026468661,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[3]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.007358075,
+      "ceff_pf": 0.007358075,
+      "pi_total_pf": 0.007358073999999999,
+      "pi_c1_pf": 0.005175325,
+      "pi_c2_pf": 0.002182749,
+      "pi_resistance_kohm": 0.026564635,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[2]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.007668359,
+      "ceff_pf": 0.007668359,
+      "pi_total_pf": 0.007668358,
+      "pi_c1_pf": 0.005365234,
+      "pi_c2_pf": 0.002303124,
+      "pi_resistance_kohm": 0.042496923,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[2]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.007670358,
+      "ceff_pf": 0.007670358,
+      "pi_total_pf": 0.007670359,
+      "pi_c1_pf": 0.005365883,
+      "pi_c2_pf": 0.002304476,
+      "pi_resistance_kohm": 0.04258357,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[2]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.007668359,
+      "ceff_pf": 0.007668359,
+      "pi_total_pf": 0.007668358,
+      "pi_c1_pf": 0.005365234,
+      "pi_c2_pf": 0.002303124,
+      "pi_resistance_kohm": 0.042496923,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[2]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.007670358,
+      "ceff_pf": 0.007670358,
+      "pi_total_pf": 0.007670359,
+      "pi_c1_pf": 0.005365883,
+      "pi_c2_pf": 0.002304476,
+      "pi_resistance_kohm": 0.04258357,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[1]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.007820369,
+      "ceff_pf": 0.007820369,
+      "pi_total_pf": 0.007820369,
+      "pi_c1_pf": 0.005399204,
+      "pi_c2_pf": 0.002421165,
+      "pi_resistance_kohm": 0.028248362,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[1]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.007822369,
+      "ceff_pf": 0.007822369,
+      "pi_total_pf": 0.007822369,
+      "pi_c1_pf": 0.005400299,
+      "pi_c2_pf": 0.00242207,
+      "pi_resistance_kohm": 0.028277272,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[1]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.007820369,
+      "ceff_pf": 0.007820369,
+      "pi_total_pf": 0.007820369,
+      "pi_c1_pf": 0.005399204,
+      "pi_c2_pf": 0.002421165,
+      "pi_resistance_kohm": 0.028248362,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[1]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.007822369,
+      "ceff_pf": 0.007822369,
+      "pi_total_pf": 0.007822369,
+      "pi_c1_pf": 0.005400299,
+      "pi_c2_pf": 0.00242207,
+      "pi_resistance_kohm": 0.028277272,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[0]",
+      "analysis": "min",
+      "edge": "rise",
+      "table_load_pf": 0.007023446,
+      "ceff_pf": 0.007023446,
+      "pi_total_pf": 0.007023445,
+      "pi_c1_pf": 0.004934811,
+      "pi_c2_pf": 0.002088634,
+      "pi_resistance_kohm": 0.024482168,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[0]",
+      "analysis": "min",
+      "edge": "fall",
+      "table_load_pf": 0.007025445,
+      "ceff_pf": 0.007025445,
+      "pi_total_pf": 0.007025445999999999,
+      "pi_c1_pf": 0.004932776,
+      "pi_c2_pf": 0.00209267,
+      "pi_resistance_kohm": 0.024594758,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[0]",
+      "analysis": "max",
+      "edge": "rise",
+      "table_load_pf": 0.007023446,
+      "ceff_pf": 0.007023446,
+      "pi_total_pf": 0.007023445,
+      "pi_c1_pf": 0.004934811,
+      "pi_c2_pf": 0.002088634,
+      "pi_resistance_kohm": 0.024482168,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    },
+    {
+      "pin": "u_sram/dout1[0]",
+      "analysis": "max",
+      "edge": "fall",
+      "table_load_pf": 0.007025445,
+      "ceff_pf": 0.007025445,
+      "pi_total_pf": 0.007025445999999999,
+      "pi_c1_pf": 0.004932776,
+      "pi_c2_pf": 0.00209267,
+      "pi_resistance_kohm": 0.024594758,
+      "delay_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "slew_interpolation_bracket_pf": [
+        0.00689,
+        0.027559999
+      ],
+      "within_interpolation_brackets": true
+    }
+  ],
+  "ranges": {
+    "table_load_pf": {
+      "min": 0.007023446,
+      "max": 0.013804683
+    },
+    "ceff_pf": {
+      "min": 0.007023446,
+      "max": 0.013804683
+    },
+    "pi_total_pf": {
+      "min": 0.007023445,
+      "max": 0.013804681999999999
+    }
+  },
+  "units": "pF",
+  "expected_observations": 256,
+  "observed_observations": 256,
+  "all_within_interpolation_brackets": true,
+  "table_axis_scope": "Printed adjacent interpolation brackets only; full Liberty load-axis extent is not reconstructed here",
+  "missing_observations": [],
+  "unannotated_drivers": [
+    "clkload0/Y",
+    "clkload1/Y",
+    "clkload2/Y",
+    "clkload3/Y",
+    "u_sram_68/HI",
+    "u_sram_69/HI",
+    "u_sram_70/HI",
+    "u_sram_71/HI",
+    "u_sram_72/HI",
+    "u_sram_73/HI",
+    "u_sram_74/HI",
+    "u_sram_75/HI",
+    "u_sram_76/HI",
+    "u_sram_77/HI",
+    "u_sram_78/HI",
+    "u_sram_79/HI",
+    "u_sram_80/HI",
+    "u_sram_81/HI",
+    "u_sram_82/HI",
+    "u_sram_83/HI",
+    "u_sram_84/HI",
+    "u_sram_85/HI",
+    "u_sram_86/HI",
+    "u_sram_87/HI",
+    "u_sram_88/HI",
+    "u_sram_89/HI",
+    "u_sram_90/HI",
+    "u_sram_91/HI",
+    "u_sram_92/HI",
+    "u_sram_93/HI",
+    "u_sram_94/LO",
+    "u_sram_95/LO",
+    "u_sram_96/LO",
+    "u_sram_97/LO"
+  ],
+  "scope": "all SRAM output table loads from the loaded STA model; model measurement/PVT qualification remains separate"
+}

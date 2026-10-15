@@ -1,0 +1,40 @@
+{
+  "status": "measured_point_checks_failed",
+  "wall_seconds": 6816.598121844,
+  "timed_out": false,
+  "measurements": {
+    "requested_count": 27,
+    "finite_count": 27,
+    "missing_or_invalid": [],
+    "values_SI": {
+      "delay_lh1": 5.30368e-09,
+      "delay_hl1": 9.8589e-10,
+      "slew_lh1": 2.02339e-09,
+      "slew_hl1": 3.47562e-09,
+      "read1_power1": 0.00170104,
+      "read0_power1": 0.00174612,
+      "disabled_read1_power1": 0.000790811,
+      "disabled_read0_power1": 0.000772982,
+      "v_bl_read_zero1": -0.0155798,
+      "v_br_read_zero1": 1.52523,
+      "v_bl_read_one1": 1.58936,
+      "v_br_read_one1": -0.0156007,
+      "v_delay_lh1": 1.6,
+      "v_delay_hl1": 2.71363e-08,
+      "delay_sen1": 5.15392e-09,
+      "v_q_a11111111_b31_read_zero1": 7.70087e-08,
+      "v_q_a11111111_b31_read_one1": 1.6,
+      "v_qbar_a11111111_b31_read_zero1": 1.6,
+      "v_qbar_a11111111_b31_read_one1": 3.96197e-08,
+      "write1_power0": 0.00146546,
+      "write0_power0": 0.00192422,
+      "disabled_write1_power0": 0.00111792,
+      "disabled_write0_power0": 0.000765429,
+      "v_q_a11111111_b31_write_zero0": 1.9344e-07,
+      "v_q_a11111111_b31_write_one0": 1.59999,
+      "v_qbar_a11111111_b31_write_zero0": 1.59999,
+      "v_qbar_a11111111_b31_write_one0": 3.38985e-07
+    },
+    "all_requested_finite": true
+  }
+}

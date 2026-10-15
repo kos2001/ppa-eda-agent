@@ -1,0 +1,28 @@
+{
+  "scope": "Recovered experimental simulator runtime; no SRAM qualification",
+  "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "user_startup_suppression": "Use -n; excludes local/user .spiceinit; pinned system spinit still loaded",
+  "make_check_limit": "Exit 0 includes printed differences against historical references; not all-reference agreement",
+  "simulators": {
+    "original": {
+      "binary": "/home/kos2001/ppa-sram-bounded-20261015/install-original/bin/ngspice",
+      "binary_sha256": "afdd88118f44759ca0e0fea01e6513ba790e8ce4c19ea69183adebe80cf9dc67",
+      "SPICE_SCRIPTS": "/home/kos2001/ppa-sram-bounded-20261015/install-original/share/ngspice/scripts",
+      "spinit_sha256": "9392fe55addecaa98d46e9f8eed0c36a5d8097f72637940518762b42a25f4138",
+      "version": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct 15 04:01:58 UTC 2026\n******\n",
+      "help": "Usage: ngspice [OPTION]... [FILE]...\nSimulate the electical circuits in FILE.\n\n  -a  --autorun             run the loaded netlist\n  -b, --batch               process FILE in batch mode\n  -c, --circuitfile=FILE    set the circuitfile\n  -D, --define=variable[=value] define variable to true/[value]\n  -i, --interactive         run in interactive mode\n  -n, --no-spiceinit        don't load the local or user's config file\n  -o, --output=FILE         set the outputfile\n  -p, --pipe                run in I/O pipe mode\n  -r, --rawfile=FILE        set the rawfile output\n      --soa-log=FILE        set the outputfile for SOA warnings\n  -s, --server              run spice as a server process\n  -t, --term=TERM           set the terminal type\n  -h, --help                display this help and exit\n  -v, --version             output version information and exit\n  -f, --version-full        output full version information\n      --version-small       output small version information\n\nReport bugs to http://ngspice.sourceforge.net/bugrep.html.\n",
+      "linked_dependencies": "\tlinux-vdso.so.1 (0x00007b68bf56a000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007b68bf472000)\n\tlibstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007b68be800000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007b68bf444000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007b68be400000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007b68bf56c000)\n"
+    },
+    "indexed": {
+      "binary": "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice",
+      "binary_sha256": "9c5478fbae6ddefaf97b4c52b220cf90f57031fae063aa2dc68dba1409de0f67",
+      "SPICE_SCRIPTS": "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/share/ngspice/scripts",
+      "spinit_sha256": "847f57a4e4017f2c64c7a97429bef97179b057859b253a24b217ebd49101b5b1",
+      "version": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n** Creation Date: Thu Oct 15 04:05:37 UTC 2026\n******\n",
+      "help": "Usage: ngspice [OPTION]... [FILE]...\nSimulate the electical circuits in FILE.\n\n  -a  --autorun             run the loaded netlist\n  -b, --batch               process FILE in batch mode\n  -c, --circuitfile=FILE    set the circuitfile\n  -D, --define=variable[=value] define variable to true/[value]\n  -i, --interactive         run in interactive mode\n  -n, --no-spiceinit        don't load the local or user's config file\n  -o, --output=FILE         set the outputfile\n  -p, --pipe                run in I/O pipe mode\n  -r, --rawfile=FILE        set the rawfile output\n      --soa-log=FILE        set the outputfile for SOA warnings\n  -s, --server              run spice as a server process\n  -t, --term=TERM           set the terminal type\n  -h, --help                display this help and exit\n  -v, --version             output version information and exit\n  -f, --version-full        output full version information\n      --version-small       output small version information\n\nReport bugs to http://ngspice.sourceforge.net/bugrep.html.\n",
+      "linked_dependencies": "\tlinux-vdso.so.1 (0x0000714a4f440000)\n\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x0000714a4eb17000)\n\tlibstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x0000714a4e800000)\n\tlibgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x0000714a4f403000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000714a4e400000)\n\t/lib64/ld-linux-x86-64.so.2 (0x0000714a4f442000)\n"
+    }
+  },
+  "source_driver_sha256": "77686b6ddd4979b408f20fd8c905abd6141bb9c1dbac05ea38ec13c5549e73c0",
+  "model_manifest_sha256": "cbff54b9196e0ec112cb641745ab0219f8e7b56cfe7b59c1b8dc1b85aaf901a0"
+}

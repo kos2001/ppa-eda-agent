@@ -32,6 +32,7 @@ Usage:
 import argparse
 import hashlib
 import json
+import math
 import re
 import shutil
 import subprocess
@@ -68,8 +69,7 @@ design -copy-from gold -as gold {top}
 design -copy-from gate -as gate {top}
 equiv_make gold gate equiv
 prep -top equiv
-equiv_simple -seq 5
-equiv_induct -seq 5
+{proof_commands}
 equiv_status -assert
 """
 
@@ -168,9 +168,12 @@ def physical_models(netlist: str, liberty: str, lef: str = "") -> tuple[str, lis
 
 def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
           final_netlist: bool = False, log_path: Path | None = None,
-          reference_synthesis: bool = False) -> dict:
+          reference_synthesis: bool = False, timeout_s: float = 600,
+          state_first: bool = False) -> dict:
     """Returns a structured result. Never raises on non-equivalence —
     "these differ" is a finding to record, not a crash."""
+    if not math.isfinite(timeout_s) or timeout_s <= 0:
+        raise ValueError("proof timeout must be finite and positive")
     if reference_synthesis and not final_netlist:
         raise ValueError("synthesis reference is only supported with final-netlist proof")
     rtl_files = sorted(design_dir.glob("src/*.v"))
@@ -218,7 +221,9 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
                        physical_models=physical_command,
                        gold_models=("read_liberty -ignore_miss_func /work/cells.lib\n"
                                     + physical_command if reference_synthesis else ""),
-                       normalization="memory_map\nclk2fflogic\nopt_clean\nsplitnets" if final_netlist else ""),
+                       normalization="memory_map\nclk2fflogic\nopt_clean\nsplitnets" if final_netlist or state_first else "",
+                       proof_commands=("equiv_induct -seq 5\nequiv_simple -seq 5" if state_first
+                                       else "equiv_simple -seq 5\nequiv_induct -seq 5")),
             encoding="utf-8")
 
         container_name = "ppa-equiv-" + uuid.uuid4().hex
@@ -226,14 +231,18 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
                "-v", f"{work}:/work", IMAGE, "yosys", "-s", "/work/eq.ys"]
         print(f"$ {' '.join(cmd)}", file=sys.stderr)
         timed_out = False
+        cleanup_error = None
         try:
             result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
-                                    timeout=600 if final_netlist else None)
+                                    timeout=timeout_s)
         except subprocess.TimeoutExpired as exc:
             # Killing only the Docker client would leave the proof running.
             # Remove only the uniquely named container created by this call.
-            subprocess.run(["docker", "rm", "-f", container_name],
-                           capture_output=True, text=True, check=True)
+            try:
+                subprocess.run(["docker", "rm", "-f", container_name],
+                               capture_output=True, text=True, check=True, timeout=30)
+            except (subprocess.SubprocessError, OSError) as cleanup:
+                cleanup_error = str(cleanup)
             def decoded(value):
                 return value.decode("utf-8", errors="replace") if isinstance(value, bytes) else value or ""
             result = subprocess.CompletedProcess(cmd, 124, decoded(exc.stdout),
@@ -265,8 +274,8 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
                   if final_netlist else "synthesis netlist vs RTL"),
         "reference_sources_sha256": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in rtl_files},
         "formal_assumptions": (["clk2fflogic global clock and negative hold time for async FF inputs",
-                                "No analog delay, clock skew or metastability model"] if final_netlist else []),
-        "normalization": ["memory_map", "clk2fflogic", "opt_clean", "splitnets"] if final_netlist else [],
+                                "No analog delay, clock skew or metastability model"] if final_netlist or state_first else []),
+        "normalization": ["memory_map", "clk2fflogic", "opt_clean", "splitnets"] if final_netlist or state_first else [],
         "physical_input_only_models": modeled_cells,
         "netlist_sha256": hashlib.sha256(netlist.read_bytes()).hexdigest(),
         "liberty_sha256": hashlib.sha256(liberty.read_bytes()).hexdigest(),
@@ -275,6 +284,10 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
         "log_sha256": hashlib.sha256(out.encode("utf-8")).hexdigest(),
         "equivalent": result.returncode == 0,
         "timed_out": timed_out,
+        "timeout_s": timeout_s,
+        "proof_order": "state_first" if state_first else "simple_first",
+        "cleanup_error": cleanup_error,
+        "container_name": container_name,
         "proven_points": proven,
         "unproven_points": unproven,
         # A pass with zero compared points would be vacuous — surfaced so
@@ -290,6 +303,8 @@ def main() -> None:
     ap.add_argument("--design", required=True, type=Path)
     ap.add_argument("--run-dir", required=True, type=Path)
     ap.add_argument("--top", default=None)
+    ap.add_argument("--timeout", type=float, default=600, help="finite positive proof deadline in seconds (default: 600)")
+    ap.add_argument("--state-first", action="store_true", help="normalize state and try induction before simple proof; keeps all final obligations")
     ap.add_argument("--final-netlist", action="store_true",
                     help="prove final routed logic, explicitly modeling Liberty-checked input-only physical cells")
     ap.add_argument("--reference-synthesis", action="store_true",
@@ -300,7 +315,8 @@ def main() -> None:
 
     r = check(args.design.resolve(), args.run_dir.resolve(), args.top,
               final_netlist=args.final_netlist, log_path=args.log,
-              reference_synthesis=args.reference_synthesis)
+              reference_synthesis=args.reference_synthesis, timeout_s=args.timeout,
+              state_first=args.state_first)
     if args.out:
         args.out.write_text(json.dumps(r, indent=2) + "\n", encoding="utf-8")
     verdict = ("EQUIVALENT" if r["equivalent"] else "NOT PROVEN EQUIVALENT")
