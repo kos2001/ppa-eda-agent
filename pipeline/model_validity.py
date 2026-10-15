@@ -162,6 +162,74 @@ def parse_slews(text: str) -> list[dict]:
     return out
 
 
+# One line per macro input pin, written by flows/macro_signoff.py's STA step:
+#   MACRO_PIN u_sram/addr0[3] 0.0412
+_PIN_SLEW = re.compile(r"^MACRO_PIN\s+(\S+)\s+(\S+)\s*$", re.M)
+
+
+def find_pin_slew_reports(run_dir: Path | str) -> list[Path]:
+    """The per-corner reports of EVERY macro input pin's slew, if the run wrote them."""
+    return sorted(Path(run_dir).glob("*stapostpnr*/*/macro_pin_slews.rpt"))
+
+
+def parse_pin_slews(text: str) -> tuple[list[dict], int]:
+    """(measured pins, pins that were listed but had no number)."""
+    pins, unmeasured = [], 0
+    for m in _PIN_SLEW.finditer(text):
+        try:
+            pins.append({"pin": m.group(1), "slew_ns": float(m.group(2))})
+        except ValueError:
+            unmeasured += 1
+    return pins, unmeasured
+
+
+def check_every_pin(ceilings: dict[str, float], run_dir: Path | str) -> dict | None:
+    """The exhaustive form: every macro input pin, every corner.
+
+    None unless the run wrote a report for each corner the signoff STA
+    covered - a report for some corners says nothing about the rest, so a
+    partial set falls back to the violator-only check rather than claiming
+    coverage it does not have.
+    """
+    run_dir = Path(run_dir)
+    pin_reports = find_pin_slew_reports(run_dir)
+    corner_dirs = {r.parent for r in find_reports(run_dir)}
+    if not pin_reports or {r.parent for r in pin_reports} != corner_dirs:
+        return None
+    worst: dict[str, dict] = {}
+    checked: set[str] = set()
+    unmeasured = 0
+    for rpt in pin_reports:
+        pins, missing = parse_pin_slews(rpt.read_text(encoding="utf-8", errors="ignore"))
+        unmeasured += missing
+        for row in pins:
+            inst = row["pin"].split("/", 1)[0]
+            ceiling = ceilings.get(inst)
+            if ceiling is None:
+                continue
+            checked.add(row["pin"])
+            if row["slew_ns"] <= ceiling:
+                continue
+            entry = {"pin": row["pin"], "corner": rpt.parent.name,
+                     "slew_ns": row["slew_ns"], "characterised_to_ns": ceiling,
+                     "times_past_ceiling": round(row["slew_ns"] / ceiling, 1)}
+            prev = worst.get(row["pin"])
+            if prev is None or entry["slew_ns"] > prev["slew_ns"]:
+                worst[row["pin"]] = entry
+    if not checked or unmeasured:
+        return None
+    pins = sorted(worst.values(), key=lambda e: -e["slew_ns"])
+    return {
+        "coverage": "every_macro_input_pin_every_corner",
+        "model_validity_verified": not pins,
+        "macro_ceilings_ns": ceilings,
+        "corners_read": len(pin_reports),
+        "pins_checked": len(checked),
+        "extrapolated_pins": pins,
+        "worst_times_past_ceiling": pins[0]["times_past_ceiling"] if pins else 0.0,
+    }
+
+
 def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
     """Pins whose reported slew is past their model's characterisation.
 
@@ -177,6 +245,11 @@ def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
         return None
     from macro_model_audit import check as check_arcs, summary as arc_summary
     arcs = arc_summary(check_arcs(design_dir, run_dir))
+
+    exhaustive = check_every_pin(ceilings, run_dir)
+    if exhaustive is not None:
+        exhaustive["macro_arc_audit"] = arcs
+        return exhaustive
 
     worst: dict[str, dict] = {}
     for rpt in reports:
@@ -254,7 +327,9 @@ def unverified(result: dict | None) -> list[str]:
         "rise/fall slew at every corner, checked against its Liberty arc "
         "axes and explicit PVT mapping"
     )
-    if result.get("coverage") == "all_macro_input_edges":
+    exhaustive = result.get("coverage") == "every_macro_input_pin_every_corner"
+    if result.get("coverage") in ("all_macro_input_edges",
+                                   "every_macro_input_pin_every_corner"):
         coverage = ("every macro input's rise/fall slew was exported at every corner; "
                     "per-arc Liberty range and explicit PVT mapping still require qualification")
     arcs = result.get("macro_arc_audit")
@@ -264,7 +339,9 @@ def unverified(result: dict | None) -> list[str]:
                      f"{arcs['input_axis_extrapolation_count']} timing-table input-axis check(s) are outside "
                      "their ranges; extracted output loads and measured model provenance remain unqualified")
     if not result["extrapolated_pins"]:
-        return [coverage]
+        # Slew coverage can be complete while the macro model's arc/PVT
+        # provenance remains unqualified. Preserve that stronger audit.
+        return [] if exhaustive and not arcs else [coverage]
     pins = result["extrapolated_pins"]
     worst = pins[0]
     return [
@@ -275,7 +352,8 @@ def unverified(result: dict | None) -> list[str]:
         f"({worst['times_past_ceiling']}x past the last table entry, "
         f"corner {worst['corner']}) — these delays are off the end of "
         f"the table, not measurements, and signoff needs a "
-        f"re-characterised liberty. {coverage}"
+        f"re-characterised liberty."
+        + ("" if exhaustive and not arcs else f" {coverage}")
     ]
 
 
