@@ -31,13 +31,14 @@ class TestVerifyFunctionGate(unittest.TestCase):
         equiv_check.check = fake
         self.addCleanup(lambda: setattr(equiv_check, "check", original))
 
-    def test_non_equivalent_fails_an_otherwise_clean_candidate(self):
+    def test_unproven_blocks_acceptance_without_claiming_a_counterexample(self):
         self._patched(lambda d, r: {"equivalent": False, "vacuous": False,
                                      "unproven_points": 4})
         v = _verdict()
         orchestrator.verify_function(object(), object(), v)
         self.assertFalse(v["passed"])
-        self.assertTrue(any("NOT functionally equivalent" in s for s in v["violations"]))
+        self.assertTrue(any("NOT PROVEN" in s for s in v["violations"]))
+        self.assertFalse(any("NOT functionally equivalent" in s for s in v["violations"]))
 
     def test_a_vacuous_pass_is_not_a_pass(self):
         """Yosys exiting 0 having compared nothing must not read as
