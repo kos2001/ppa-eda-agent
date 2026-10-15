@@ -1,0 +1,1360 @@
+[
+ {
+  "name": "shipped",
+  "seconds": 249.8,
+  "crashed": false,
+  "error": null,
+  "diodes": true,
+  "dont_touch": false,
+  "placed": false,
+  "clock_drivers": false,
+  "corners_read": 9,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 57,
+  "macro_pins_over_ceiling": 27,
+  "worst_macro_slew_ns": 0.459601,
+  "macro_pin_detail": {
+   "u_sram/addr0[0]": {
+    "slew_ns": 0.12201,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[1]": {
+    "slew_ns": 0.085286,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[2]": {
+    "slew_ns": 0.070566,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[3]": {
+    "slew_ns": 0.088585,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[4]": {
+    "slew_ns": 0.083742,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[5]": {
+    "slew_ns": 0.085644,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[6]": {
+    "slew_ns": 0.079069,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[7]": {
+    "slew_ns": 0.080806,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[0]": {
+    "slew_ns": 0.06841,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[1]": {
+    "slew_ns": 0.101799,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[2]": {
+    "slew_ns": 0.107296,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[3]": {
+    "slew_ns": 0.098798,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[4]": {
+    "slew_ns": 0.082022,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[5]": {
+    "slew_ns": 0.078688,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[6]": {
+    "slew_ns": 0.087138,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[7]": {
+    "slew_ns": 0.083479,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk0": {
+    "slew_ns": 0.324448,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk1": {
+    "slew_ns": 0.281028,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/csb0": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/csb1": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[0]": {
+    "slew_ns": 0.459558,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[10]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[11]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[12]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[13]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[14]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[15]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[16]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[17]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[18]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[19]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[1]": {
+    "slew_ns": 0.185536,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[20]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[21]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[22]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[23]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[24]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[25]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[26]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[27]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[28]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[29]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[2]": {
+    "slew_ns": 0.123763,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[30]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[31]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[3]": {
+    "slew_ns": 0.118952,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[4]": {
+    "slew_ns": 0.126544,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[5]": {
+    "slew_ns": 0.122788,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[6]": {
+    "slew_ns": 0.123592,
+    "corner": "nom_ss_100C_1v60"
+   },
+   "u_sram/din0[7]": {
+    "slew_ns": 0.125401,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[8]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[9]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/web0": {
+    "slew_ns": 0.459601,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/wmask0[0]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[1]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[2]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[3]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   }
+  },
+  "max_slew": 16,
+  "max_fanout": 18,
+  "max_cap": 0,
+  "antenna": 0,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "setup_ws": 9.264176354935646,
+  "hold_ws": 0.1238403858957707,
+  "wirelength": 20688,
+  "instance_area": 200142,
+  "diode_cells": 486,
+  "passed": false,
+  "violations": [
+   "16 max-slew (DRV) violation(s)",
+   "18 max-fanout (DRV) violation(s)"
+  ],
+  "unverified": [
+   "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/web0 at 0.460 ns against a model characterised to 0.040 ns (11."
+  ]
+ },
+ {
+  "name": "io-diodes",
+  "seconds": 248.8,
+  "crashed": false,
+  "error": null,
+  "diodes": true,
+  "dont_touch": false,
+  "placed": false,
+  "clock_drivers": false,
+  "corners_read": 9,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 57,
+  "macro_pins_over_ceiling": 27,
+  "worst_macro_slew_ns": 0.315926,
+  "macro_pin_detail": {
+   "u_sram/addr0[0]": {
+    "slew_ns": 0.078422,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[1]": {
+    "slew_ns": 0.139113,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[2]": {
+    "slew_ns": 0.138589,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[3]": {
+    "slew_ns": 0.13773,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[4]": {
+    "slew_ns": 0.123444,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[5]": {
+    "slew_ns": 0.126855,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[6]": {
+    "slew_ns": 0.098369,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[7]": {
+    "slew_ns": 0.12559,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[0]": {
+    "slew_ns": 0.088402,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[1]": {
+    "slew_ns": 0.159033,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[2]": {
+    "slew_ns": 0.199637,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[3]": {
+    "slew_ns": 0.142692,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[4]": {
+    "slew_ns": 0.133255,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[5]": {
+    "slew_ns": 0.138788,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[6]": {
+    "slew_ns": 0.132172,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[7]": {
+    "slew_ns": 0.14502,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk0": {
+    "slew_ns": 0.315926,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk1": {
+    "slew_ns": 0.26669,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/csb0": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/csb1": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[0]": {
+    "slew_ns": 0.075188,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[10]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[11]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[12]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[13]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[14]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[15]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[16]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[17]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[18]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[19]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[1]": {
+    "slew_ns": 0.073327,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[20]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[21]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[22]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[23]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[24]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[25]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[26]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[27]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[28]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[29]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[2]": {
+    "slew_ns": 0.074033,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[30]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[31]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[3]": {
+    "slew_ns": 0.074412,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[4]": {
+    "slew_ns": 0.080951,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[5]": {
+    "slew_ns": 0.077183,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[6]": {
+    "slew_ns": 0.084742,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[7]": {
+    "slew_ns": 0.073538,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[8]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[9]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/web0": {
+    "slew_ns": 0.135977,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/wmask0[0]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[1]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[2]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[3]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   }
+  },
+  "max_slew": 16,
+  "max_fanout": 18,
+  "max_cap": 0,
+  "antenna": 1,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "setup_ws": 9.257311623735637,
+  "hold_ws": 0.08758055639716632,
+  "wirelength": 20767,
+  "instance_area": 199803,
+  "diode_cells": 481,
+  "passed": false,
+  "violations": [
+   "1 routing antenna violation(s)",
+   "16 max-slew (DRV) violation(s)",
+   "18 max-fanout (DRV) violation(s)"
+  ],
+  "unverified": [
+   "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk0 at 0.316 ns against a model characterised to 0.040 ns (7.9"
+  ]
+ },
+ {
+  "name": "io-nodiode",
+  "seconds": 246.0,
+  "crashed": false,
+  "error": null,
+  "diodes": false,
+  "dont_touch": false,
+  "placed": false,
+  "clock_drivers": false,
+  "corners_read": 9,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 57,
+  "macro_pins_over_ceiling": 27,
+  "worst_macro_slew_ns": 0.24646,
+  "macro_pin_detail": {
+   "u_sram/addr0[0]": {
+    "slew_ns": 0.074343,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[1]": {
+    "slew_ns": 0.119488,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[2]": {
+    "slew_ns": 0.121536,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[3]": {
+    "slew_ns": 0.125829,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[4]": {
+    "slew_ns": 0.110637,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[5]": {
+    "slew_ns": 0.111197,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[6]": {
+    "slew_ns": 0.096666,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[7]": {
+    "slew_ns": 0.102454,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[0]": {
+    "slew_ns": 0.08678,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[1]": {
+    "slew_ns": 0.139668,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[2]": {
+    "slew_ns": 0.180693,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[3]": {
+    "slew_ns": 0.131809,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[4]": {
+    "slew_ns": 0.120828,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[5]": {
+    "slew_ns": 0.119,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[6]": {
+    "slew_ns": 0.112806,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[7]": {
+    "slew_ns": 0.131472,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk0": {
+    "slew_ns": 0.24646,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk1": {
+    "slew_ns": 0.22741,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/csb0": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/csb1": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[0]": {
+    "slew_ns": 0.072556,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[10]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[11]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[12]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[13]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[14]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[15]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[16]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[17]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[18]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[19]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[1]": {
+    "slew_ns": 0.071629,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[20]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[21]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[22]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[23]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[24]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[25]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[26]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[27]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[28]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[29]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[2]": {
+    "slew_ns": 0.072319,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[30]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[31]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[3]": {
+    "slew_ns": 0.073458,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[4]": {
+    "slew_ns": 0.079984,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[5]": {
+    "slew_ns": 0.077008,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[6]": {
+    "slew_ns": 0.083932,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[7]": {
+    "slew_ns": 0.073787,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[8]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[9]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/web0": {
+    "slew_ns": 0.11288,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/wmask0[0]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[1]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[2]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[3]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   }
+  },
+  "max_slew": 16,
+  "max_fanout": 5,
+  "max_cap": 0,
+  "antenna": 1,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "setup_ws": 9.241062399087664,
+  "hold_ws": 0.07509204581801734,
+  "wirelength": 20089,
+  "instance_area": 198824,
+  "diode_cells": 90,
+  "passed": false,
+  "violations": [
+   "1 routing antenna violation(s)",
+   "16 max-slew (DRV) violation(s)",
+   "5 max-fanout (DRV) violation(s)"
+  ],
+  "unverified": [
+   "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk0 at 0.246 ns against a model characterised to 0.040 ns (6.2"
+  ]
+ },
+ {
+  "name": "io-dt",
+  "seconds": 245.3,
+  "crashed": false,
+  "error": null,
+  "diodes": false,
+  "dont_touch": true,
+  "placed": false,
+  "clock_drivers": false,
+  "corners_read": 9,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 57,
+  "macro_pins_over_ceiling": 27,
+  "worst_macro_slew_ns": 0.257917,
+  "macro_pin_detail": {
+   "u_sram/addr0[0]": {
+    "slew_ns": 0.071927,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[1]": {
+    "slew_ns": 0.093108,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[2]": {
+    "slew_ns": 0.087512,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[3]": {
+    "slew_ns": 0.089052,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[4]": {
+    "slew_ns": 0.085321,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[5]": {
+    "slew_ns": 0.093126,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[6]": {
+    "slew_ns": 0.08645,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[7]": {
+    "slew_ns": 0.091934,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[0]": {
+    "slew_ns": 0.086678,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[1]": {
+    "slew_ns": 0.082988,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[2]": {
+    "slew_ns": 0.075197,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[3]": {
+    "slew_ns": 0.075981,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[4]": {
+    "slew_ns": 0.069326,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[5]": {
+    "slew_ns": 0.067893,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[6]": {
+    "slew_ns": 0.066637,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[7]": {
+    "slew_ns": 0.067297,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk0": {
+    "slew_ns": 0.257917,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk1": {
+    "slew_ns": 0.228694,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/csb0": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/csb1": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[0]": {
+    "slew_ns": 0.071114,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[10]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[11]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[12]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[13]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[14]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[15]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[16]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[17]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[18]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[19]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[1]": {
+    "slew_ns": 0.067303,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[20]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[21]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[22]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[23]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[24]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[25]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[26]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[27]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[28]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[29]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[2]": {
+    "slew_ns": 0.06698,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[30]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[31]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[3]": {
+    "slew_ns": 0.066347,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[4]": {
+    "slew_ns": 0.074855,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[5]": {
+    "slew_ns": 0.065992,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[6]": {
+    "slew_ns": 0.076501,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[7]": {
+    "slew_ns": 0.065525,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[8]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[9]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/web0": {
+    "slew_ns": 0.08174,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/wmask0[0]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[1]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[2]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[3]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   }
+  },
+  "max_slew": 16,
+  "max_fanout": 5,
+  "max_cap": 0,
+  "antenna": 0,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "setup_ws": 9.236149884109366,
+  "hold_ws": 0.02661143603022427,
+  "wirelength": 19997,
+  "instance_area": 199417,
+  "diode_cells": 88,
+  "passed": false,
+  "violations": [
+   "16 max-slew (DRV) violation(s)",
+   "5 max-fanout (DRV) violation(s)"
+  ],
+  "unverified": [
+   "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk0 at 0.258 ns against a model characterised to 0.040 ns (6.4"
+  ]
+ },
+ {
+  "name": "io-dt-placed",
+  "seconds": 245.1,
+  "crashed": false,
+  "error": null,
+  "diodes": false,
+  "dont_touch": true,
+  "placed": true,
+  "clock_drivers": false,
+  "corners_read": 9,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 57,
+  "macro_pins_over_ceiling": 27,
+  "worst_macro_slew_ns": 0.243,
+  "macro_pin_detail": {
+   "u_sram/addr0[0]": {
+    "slew_ns": 0.077703,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[1]": {
+    "slew_ns": 0.078151,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[2]": {
+    "slew_ns": 0.079358,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[3]": {
+    "slew_ns": 0.079281,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[4]": {
+    "slew_ns": 0.081726,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[5]": {
+    "slew_ns": 0.076536,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[6]": {
+    "slew_ns": 0.079688,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr0[7]": {
+    "slew_ns": 0.076665,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[0]": {
+    "slew_ns": 0.073993,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[1]": {
+    "slew_ns": 0.064846,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[2]": {
+    "slew_ns": 0.063612,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[3]": {
+    "slew_ns": 0.060423,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[4]": {
+    "slew_ns": 0.056042,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[5]": {
+    "slew_ns": 0.057916,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[6]": {
+    "slew_ns": 0.059586,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/addr1[7]": {
+    "slew_ns": 0.060976,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk0": {
+    "slew_ns": 0.243,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/clk1": {
+    "slew_ns": 0.227468,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/csb0": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/csb1": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[0]": {
+    "slew_ns": 0.077416,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[10]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[11]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[12]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[13]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[14]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[15]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[16]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[17]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[18]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[19]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[1]": {
+    "slew_ns": 0.079875,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[20]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[21]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[22]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[23]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[24]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[25]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[26]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[27]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[28]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[29]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[2]": {
+    "slew_ns": 0.078922,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[30]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[31]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[3]": {
+    "slew_ns": 0.080898,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[4]": {
+    "slew_ns": 0.081658,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[5]": {
+    "slew_ns": 0.079582,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[6]": {
+    "slew_ns": 0.081371,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[7]": {
+    "slew_ns": 0.076678,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/din0[8]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/din0[9]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/web0": {
+    "slew_ns": 0.077518,
+    "corner": "max_ss_100C_1v60"
+   },
+   "u_sram/wmask0[0]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[1]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[2]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   },
+   "u_sram/wmask0[3]": {
+    "slew_ns": 0.0,
+    "corner": "max_ff_n40C_1v95"
+   }
+  },
+  "max_slew": 65,
+  "max_fanout": 5,
+  "max_cap": 0,
+  "antenna": 0,
+  "drc_magic": 0,
+  "drc_klayout": 0,
+  "lvs": 0,
+  "setup_ws": 9.264128393299627,
+  "hold_ws": 0.04659261996987077,
+  "wirelength": 20512,
+  "instance_area": 199422,
+  "diode_cells": 90,
+  "passed": false,
+  "violations": [
+   "65 max-slew (DRV) violation(s)",
+   "5 max-fanout (DRV) violation(s)"
+  ],
+  "unverified": [
+   "timing on 27 macro pin(s) is extrapolated beyond the liberty's characterisation: worst is u_sram/clk0 at 0.243 ns against a model characterised to 0.040 ns (6.1"
+  ]
+ },
+ {
+  "name": "io-dt-placed-clk",
+  "seconds": 30.7,
+  "crashed": true,
+  "error": "v/lib/python3.11/site-packages/openlane/flows/sequential.py\", line 347, in run\n    raise FlowError(str(e)) from None\nopenlane.flows.flow.FlowError: OpenROAD.ResizerTimingPostCTS failed with the following errors:\n[ODB-0370] Attempt to disconnect iterm of dont_touch instance gen_io_drv_addr1\\[5\\].u_b\n",
+  "diodes": false,
+  "dont_touch": true,
+  "placed": true,
+  "clock_drivers": true,
+  "corners_read": 0,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 0,
+  "macro_pins_over_ceiling": 0,
+  "worst_macro_slew_ns": null,
+  "macro_pin_detail": {},
+  "max_slew": null,
+  "max_fanout": null,
+  "max_cap": null,
+  "antenna": null,
+  "drc_magic": null,
+  "drc_klayout": null,
+  "lvs": null,
+  "setup_ws": null,
+  "hold_ws": null,
+  "wirelength": null,
+  "instance_area": null,
+  "diode_cells": null,
+  "passed": null,
+  "violations": [],
+  "unverified": []
+ }
+]
