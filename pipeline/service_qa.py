@@ -34,6 +34,7 @@ sentence computed is right forever.
 from __future__ import annotations
 
 import ast
+import functools
 import json
 import math
 import re
@@ -51,7 +52,16 @@ REFDB = REPO_ROOT / "reference-db"
 # the cost of a corpus nobody chose is a retrieval layer that confidently
 # cites a vendor README.
 CORPUS_FILES = ("README.md", "soul.md")
-CORPUS_GLOBS = ("docs/**/*.md", "references/*.md")
+# The design directories' own READMEs hold what was learned running that
+# design for real - the SRAM wrapper's orientation grid, its CTS dead end,
+# its characterisation record - and the agent definitions say what each
+# stage of the pipeline is for. Neither was indexed, so a question the repo
+# answers in so many words came back empty or landed on a distant document
+# (tests/retrieval_gold.json: every question answerable only from the SRAM
+# experiment README missed).
+CORPUS_GLOBS = ("docs/**/*.md", "references/*.md",
+                "pipeline/designs/*/README.md", "pipeline/designs/*/*/README.md",
+                ".claude/agents/*.md")
 
 # Module docstrings, which is where most of this project's reasoning
 # actually lives. Why gf180mcuA and B cannot run, why the surrogate
@@ -155,6 +165,34 @@ GLOSSARY = {
     "모델": "model",
     "학습": "learning",
     "정확도": "accuracy",
+    # Added with the 2026-10-02 retrieval measurement. The vocabulary of the
+    # failures this project actually debugs - written in Korean by the people
+    # who debug them, in English in the reports - and of the tools used to
+    # watch them.
+    "슬루": "slew",
+    "팬아웃": "fanout",
+    "안테나": "antenna",
+    "다이오드": "diode",
+    "버퍼": "buffer",
+    "터미널": "terminal",
+    "실시간": "live",
+    "진행": "progress",
+    "서버": "server",
+    "콘솔": "console",
+    "대시보드": "dashboard",
+    "위반": "violation",
+    "홀드": "hold",
+    "셋업": "setup",
+    "혼잡": "congestion",
+    "방향": "orientation",
+    "핀": "pin",
+    "클러스터": "cluster",
+    "크기": "size",
+    "배선길이": "wirelength",
+    "전선": "wire",
+    "비교": "compare",
+    "제거": "retire",
+    "삭제": "delete",
 }
 
 # Below this, a passage shares only incidental vocabulary with the
@@ -162,7 +200,37 @@ GLOSSARY = {
 # hands a model a passage about something else and invites an answer
 # anyway. Calibrated against the tests — an off-topic question scores
 # under it, a real one well over.
-MIN_SCORE = 0.25
+#
+# Re-measured on tests/retrieval_gold.json once unseen words started counting
+# against a question: the weakest answerable question's best passage scores
+# 0.62, and the best passage for the one off-topic question that still got an
+# answer ("Write me a poem about autumn leaves", which shares 'about', 'write'
+# and 'leaves' with a comment) scores 0.47. 0.5 sits in that gap; it was 0.25,
+# which is where the poem question was answered.
+MIN_SCORE = 0.5
+
+
+@functools.lru_cache(maxsize=65536)
+def stem(word: str) -> str:
+    """A crude English stem: violations -> violation, fails -> fail, pinned -> pin.
+
+    Applied only to plain alphabetic words and only to make a plural, a
+    -ed or an -ing meet its base form. It is not linguistics: 'process'
+    and 'processes' are both left alone by the -ss guard, and a wrong
+    stem costs nothing because the same function runs over the question
+    and the corpus - two words meet or they do not. The unstemmed word is
+    emitted too, so an exact match still scores higher than a stem match.
+    """
+    if not word.isascii() or not word.isalpha() or len(word) < 5:
+        return word
+    for suffix, keep in (("ies", "y"), ("ing", ""), ("ed", ""), ("es", ""), ("s", "")):
+        if word.endswith(suffix) and not word.endswith("ss") and len(word) - len(suffix) >= 3:
+            base = word[: -len(suffix)] + keep
+            # pinned -> pinn -> pin
+            if suffix in ("ing", "ed") and len(base) > 3 and base[-1] == base[-2] and base[-1] not in "lsz":
+                base = base[:-1]
+            return base
+    return word
 
 
 def tokenize(text: str) -> list[str]:
@@ -180,6 +248,9 @@ def tokenize(text: str) -> list[str]:
         if word in STOPWORDS or len(word) < 2:
             continue
         out.append(word)
+        base = stem(word)
+        if base != word:
+            out.append(base)
         if "_" in word:
             out.extend(p for p in word.split("_")
                        if len(p) > 1 and p not in STOPWORDS)
@@ -188,9 +259,20 @@ def tokenize(text: str) -> list[str]:
         # misses almost everything. Substring containment is crude and
         # right here: the glossary keys are domain nouns long enough not
         # to collide.
-        for korean, english in GLOSSARY.items():
+        translated = False
+        # Hangul only: an ASCII word cannot contain a Korean glossary key, and
+        # checking all of them against every English token was most of the cost.
+        for korean, english in (() if word.isascii() else GLOSSARY.items()):
             if korean in word:
                 out.extend(english.split())
+                translated = True
+        if translated:
+            # The surface form ("위반은") has been replaced by its meaning.
+            # Left in, it is a rare token that only the Korean-language
+            # documents contain, and it penalised every English section that
+            # answers the same question: a Korean fan-out question ranked a
+            # progress note above the document that explains fan-out.
+            out.remove(word)
     return out
 
 
@@ -309,12 +391,32 @@ def _comment_blocks(path: Path, source: str) -> list[dict]:
     return out
 
 
-def _idf(docs: list[dict]) -> dict[str, float]:
+def _path_words(doc: dict) -> str:
+    return doc["source"].replace("/", " ").replace("-", " ")
+
+
+def _index(docs: list[dict]) -> list[tuple[set, set, set]]:
+    """(path words, title words, text words) of every passage, tokenized once.
+
+    search() used to tokenize every passage twice per question - once for
+    the rarity weights and once for scoring - which was most of the 0.9 s a
+    question took. The three parts are kept apart because the title and the
+    path earn a bonus the body does not.
+    """
+    return [(set(tokenize(_path_words(d))), set(tokenize(d["title"])), set(tokenize(d["text"])))
+            for d in docs]
+
+
+def _idf_from(index: list[tuple[set, set, set]]) -> dict[str, float]:
     seen: Counter[str] = Counter()
-    for doc in docs:
-        seen.update(set(tokenize(f"{doc['title']} {doc['text']}")))
-    total = len(docs) or 1
+    for _path, title, text in index:
+        seen.update(title | text)
+    total = len(index) or 1
     return {term: math.log(1 + total / count) for term, count in seen.items()}
+
+
+def _idf(docs: list[dict]) -> dict[str, float]:
+    return _idf_from(_index(docs))
 
 
 def search(question: str, docs: list[dict], top: int = 4) -> list[dict]:
@@ -327,34 +429,63 @@ def search(question: str, docs: list[dict], top: int = 4) -> list[dict]:
     terms = set(tokenize(question))
     if not terms:
         return []
-    idf = _idf(docs)
+    index = _index(docs)
+    idf = _idf_from(index)
+    # A word the question asks for and the corpus has never used is the
+    # strongest evidence that the corpus cannot answer. It used to weigh
+    # nothing - `idf.get(t, 0.0)` - so "How do I configure a Kubernetes
+    # ingress controller?" scored 1.0 against the one passage that says
+    # "controller": the two words nobody has written were simply not
+    # counted. Non-ASCII words stay free, because the glossary only covers
+    # this project's own vocabulary and an unlisted Korean word is a gap in
+    # the glossary, not evidence about the corpus.
+    unseen = max(idf.values(), default=1.0)
+
+    def weight(term: str) -> float:
+        if term in idf:
+            return idf[term]
+        # Free: non-ASCII words (a glossary gap, not evidence about the
+        # corpus) and identifiers with digits (gf180mcuB, when the corpus
+        # writes "gf180mcuA and B": a spelling variant of a term that is there).
+        if not term.isascii() or any(ch.isdigit() for ch in term):
+            return 0.0
+        return unseen
+
+    # Distinct words the question asked for, stems folded together: a word
+    # and its stem are one concept, not two.
+    # Words that cannot be matched either way (an unlisted Korean word, an
+    # identifier variant) are not concepts the passage failed to cover.
+    concepts = {stem(t) for t in terms if weight(t) > 0}
 
     scored: list[dict] = []
-    for doc in docs:
+    for doc, (path_words, title_words, text_words) in zip(docs, index):
         # The path is part of what a passage is about: every section of
         # references/report-timing.md is about timing whether or not its
         # own heading says so, and without this a question naming the
         # format ranks the documents that merely mention it above the
         # one that defines it.
-        haystack = f"{doc['source'].replace('/', ' ').replace('-', ' ')} " \
-                   f"{doc['title']} {doc['text']}"
-        words = tokenize(haystack)
-        if not words:
+        present = path_words | title_words | text_words
+        if not present:
             continue
-        present = set(words)
         matched = sorted(terms & present)
         if not matched:
             continue
         # Weight of the question's terms this passage covers, over the
         # weight of everything the question asked for. A long passage
         # cannot win by being long: it has to cover rare terms.
-        got = sum(idf.get(t, 0.0) for t in matched)
-        want = sum(idf.get(t, 0.0) for t in terms) or 1.0
+        got = sum(weight(t) for t in matched)
+        want = sum(weight(t) for t in terms) or 1.0
         # The title names what a section is about, so a match there is
         # worth more than one buried in prose.
-        title_terms = terms & set(tokenize(
-            f"{doc['source'].replace('/', ' ').replace('-', ' ')} {doc['title']}"))
-        score = (got / want) + 0.35 * len(title_terms)
+        title_terms = terms & (path_words | title_words)
+        # One word is one bonus, however many forms of it were indexed.
+        title_concepts = {stem(t) for t in title_terms}
+        score = (got / want) + 0.35 * len(title_concepts)
+        # A single shared word is not an answer. "Write me a poem about autumn
+        # leaves" matched a comment about a run that "leaves" an error log, and
+        # scored 0.98. Unless the question is itself one word, require two.
+        if len({stem(t) for t in matched}) < min(2, len(concepts)):
+            continue
         scored.append({**doc, "score": round(score, 4), "matched": matched})
 
     scored.sort(key=lambda d: (-d["score"], d["source"]))

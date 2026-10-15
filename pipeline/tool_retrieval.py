@@ -420,6 +420,94 @@ MEASUREMENTS: list[dict] = [
                     "actually published.",
     },
     {
+        "id": "is-this-slew-reachable",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090", "signoff:max-slew",
+                 "unverified:macro-model"],
+        "tool": "lib_slew_floor.py, then lib_chain.py",
+        "cli": "python3 pipeline/lib_slew_floor.py --lib <corner>.lib "
+               "--cells buf_16 clkinv_16 --load 0.009 && "
+               "python3 pipeline/lib_chain.py --lib <corner>.lib "
+               "--chain clkinv_2 clkinv_4 clkinv_8 clkinv_16 --load 0.009",
+        "answers": "Whether any standard-cell driver can meet a slew limit at "
+                   "all at a given corner, and which taper gets closest - "
+                   "from the liberty's own tables, before a 4-minute run.",
+        "trap": "Three. A buffer is two stages and its output edge is slow: at "
+                "ss_100C into a macro pin (9 fF) buf_16 gives 0.048 ns and "
+                "clkinv_16 gives 0.026, so the last stage that can meet a tight "
+                "limit is an inverter. The macro's liberty measures slew 10-90% "
+                "where the standard cells measure 20-80%, so STA reports the "
+                "same edge 1.333x slower at the macro pin than at the driver "
+                "(0.0588 ns out, 0.0785 ns in, on 28 ohm of wire). And a "
+                "strong last stage still gives a slow edge when what feeds it "
+                "is slow: clkinv_16 is 0.032 ns on a sharp input and 0.059 on a "
+                "0.24 ns one.",
+        "evidence": "sram_wrapper: RSZ-0090's 'best achievable 0.043 ns' is the "
+                    "best BUFFER. With per-port counters and a four-stage "
+                    "inverter taper the address pins came to 0.039-0.050 ns at "
+                    "ss against 0.07-0.12 before, which is the edge of what "
+                    "this library can do (experiments/README.md).",
+    },
+    {
+        "id": "macro-pin-geometry",
+        "design": "sram_wrapper",
+        "when": ["macro_present", "max_slew_violation", "long_net_suspected",
+                 "signoff:max-slew"],
+        "tool": "macro_pins.py, then io_driver_report.py",
+        "cli": "python3 pipeline/macro_pins.py --lef <macro>.lef --origin X Y "
+               "--prefix addr0 addr1",
+        "answers": "Which side of the block every pin is on, where it is in "
+                   "the die, and how far the cell that drives it ended up.",
+        "trap": "Pin NAMES say nothing about sides. The SRAM's addr0[0] is on "
+                "its bottom edge and addr0[1..7] on its left; addr1 is spread "
+                "over the top, right and bottom. An earlier note in this repo "
+                "grouped pins by prefix ('addr0 left, addr1 right') and an "
+                "orientation grid was reasoned from it.",
+        "evidence": "sram_wrapper: the finished run's address drivers sat "
+                    "60-157 um from their pins once the resizer had shrunk them "
+                    "to inv_4; io_driver_report.py prints that distance per pin.",
+    },
+    {
+        "id": "fanout-made-of-diodes",
+        "design": "sram_wrapper",
+        "when": ["signoff:max-fanout", "signoff:antenna"],
+        "tool": "fanout_loads.py",
+        "cli": "python3 pipeline/fanout_loads.py --run-dir <run>",
+        "answers": "What the loads on each over-fanout net are, and what the "
+                   "fanout would be without antenna diodes.",
+        "trap": "Turning the fanout limit up makes the number go away by "
+                "editing the test. Look at the loads first: diode insertion "
+                "(RUN_HEURISTIC_DIODE_INSERTION, GRT antenna repair) runs "
+                "AFTER the resizer's last fanout repair, so every diode it adds "
+                "is a load nothing then fixes. The clock tree is affected too: "
+                "diodes land on clock nets.",
+        "evidence": "sram_wrapper: 486 diodes, 10 of 15 listed violators were "
+                    "within the limit without them (e.g. 17 loads, 9 of them "
+                    "diodes). Turning heuristic insertion off took max-fanout "
+                    "18 -> 5 with antenna violations still 0-1. aes shows the "
+                    "same coupling: antenna 15 -> 8 as fanout went 4 -> 16.",
+    },
+    {
+        "id": "dont-touch-needs-the-nets",
+        "design": "sram_wrapper",
+        "when": ["ODB-0370"],
+        "tool": "RSZ_DONT_TOUCH_RX, on nets as well as instances",
+        "cli": "python3 pipeline/sram_io_experiment.py --round 2",
+        "answers": "Why the post-CTS resizer aborts when a cell was protected "
+                   "from it.",
+        "trap": "ODB-0370 'attempt to disconnect iterm of dont_touch "
+                "instance' is repair_timing trying to put a buffer at the "
+                "protected cell's pin. Protecting only the instances moves the "
+                "problem to the net around them; protect those too. Without any "
+                "protection the resizer undoes the sizing instead: hand-placed "
+                "clkinv_16 pin drivers came back as inv_4 and the address "
+                "slews went back to 0.07-0.10 ns.",
+        "evidence": "sram_wrapper rounds 1-3: instance-only protection crashed "
+                    "in ResizerTimingPostCTS on gen_io_drv_addr1[5].u_a; adding "
+                    "the counters' nets to the regex fixed it; removing "
+                    "protection altogether returned 16 max-slew violations.",
+    },
+    {
         "id": "timing-trustworthy",
         "design": "sram_wrapper",
         "when": ["macro_present", "max_slew_violation"],
@@ -479,9 +567,18 @@ def symptoms(case: dict) -> set[str]:
 
 
 def case_keys(case: dict) -> set[str]:
-    """Everything this case can be matched on: real codes plus symptoms."""
+    """Everything this case can be matched on: real codes plus symptoms.
+
+    Includes the verdict's own signatures (signoff:max-fanout,
+    unverified:macro-model, ...), not only codes found in error text. Most
+    failing cases in the store never raised a tool error - the flow finished
+    and the gate said no - so keyed on error text alone, a measurement could
+    be offered to a design that crashed and never to one that completed and
+    failed signoff, which is the commoner case.
+    """
     errors, _tags = _recorded_errors(case)
-    return case_retrieval.signatures(errors) | symptoms(case)
+    return (case_retrieval.signatures(errors) | symptoms(case)
+            | case_retrieval.case_signatures(case))
 
 
 def _recorded_errors(case: dict) -> tuple[str, set]:

@@ -1,0 +1,112 @@
+{
+ "ask": {
+  "passages": 373,
+  "sources": 83,
+  "splits": {
+   "dev": {
+    "questions": 19,
+    "negatives": 3,
+    "hit@1": 0.421,
+    "hit@3": 0.579,
+    "hit@4": 0.579,
+    "mrr": 0.491,
+    "false_positive_rate": 0.667,
+    "missed": [
+     "Why did the sram_wrapper Magic fatal errors stop reproducing?",
+     "Why can the sram macro pins not be verified when slew is above 0.04?",
+     "Why can gf180mcuA and gf180mcuB not run?",
+     "How do I start the dashboard server?",
+     "팬아웃 위반은 왜 생기나요?",
+     "실시간으로 진행 상황을 터미널에서 보려면?",
+     "How can the console panel of the dashboard be resized or collapsed?",
+     "How is the distance between two designs' topologies computed for retrieval?"
+    ],
+    "answered_when_it_should_not": [
+     "What is the share price of TSMC today?",
+     "Write me a poem about autumn leaves"
+    ]
+   },
+   "test": {
+    "questions": 19,
+    "negatives": 3,
+    "hit@1": 0.421,
+    "hit@3": 0.632,
+    "hit@4": 0.632,
+    "mrr": 0.509,
+    "false_positive_rate": 0.333,
+    "missed": [
+     "aes는 왜 fail 하나요?",
+     "Which orientation of the SRAM macro gives the shortest routed wire?",
+     "Which tool versions are pinned for the flow?",
+     "슬루 위반은 왜 생기고 어떻게 줄이나요?",
+     "안테나 다이오드를 넣으면 무엇이 달라지나요?",
+     "CTS 클러스터 크기를 바꾸면 클럭 버퍼 fanout이 줄어드나요?",
+     "What happened when CTS sink clustering size was changed for sram_wrapper?"
+    ],
+    "answered_when_it_should_not": [
+     "How do I configure a Kubernetes ingress controller?"
+    ]
+   },
+   "all": {
+    "questions": 38,
+    "negatives": 6,
+    "hit@1": 0.421,
+    "hit@3": 0.605,
+    "hit@4": 0.605,
+    "mrr": 0.5,
+    "false_positive_rate": 0.5,
+    "missed": [
+     "aes는 왜 fail 하나요?",
+     "Why did the sram_wrapper Magic fatal errors stop reproducing?",
+     "Which orientation of the SRAM macro gives the shortest routed wire?",
+     "Why can the sram macro pins not be verified when slew is above 0.04?",
+     "Why can gf180mcuA and gf180mcuB not run?",
+     "How do I start the dashboard server?",
+     "Which tool versions are pinned for the flow?",
+     "슬루 위반은 왜 생기고 어떻게 줄이나요?",
+     "팬아웃 위반은 왜 생기나요?",
+     "안테나 다이오드를 넣으면 무엇이 달라지나요?",
+     "실시간으로 진행 상황을 터미널에서 보려면?",
+     "CTS 클러스터 크기를 바꾸면 클럭 버퍼 fanout이 줄어드나요?",
+     "How can the console panel of the dashboard be resized or collapsed?",
+     "How is the distance between two designs' topologies computed for retrieval?",
+     "What happened when CTS sink clustering size was changed for sram_wrapper?"
+    ],
+    "answered_when_it_should_not": [
+     "What is the share price of TSMC today?",
+     "Write me a poem about autumn leaves",
+     "How do I configure a Kubernetes ingress controller?"
+    ]
+   }
+  }
+ },
+ "cases_before": {
+  "cases": 72,
+  "failing": 34,
+  "failing_with_no_signature": 14,
+  "failing_cold_start": 16,
+  "no_signature_cases": [
+   "reference-db/cases/cdc_twoclock__2026-08-27.json",
+   "reference-db/cases/cdc_twoclock__2026-08-28.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__015334.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__015711.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__041758.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__043342.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__044326.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__044538.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__044616.json",
+   "reference-db/cases/cdc_twoclock__2026-08-30__141631.json",
+   "reference-db/cases/cdc_twoclock__2026-09-10.json",
+   "reference-db/cases/counter4_tinydie__2026-08-30__015555.json",
+   "reference-db/cases/spm__2026-08-30__015017.json"
+  ]
+ },
+ "cases_after": {
+  "cases": 72,
+  "failing": 34,
+  "failing_with_no_signature": 0,
+  "failing_cold_start": 2,
+  "no_signature_cases": []
+ }
+}
