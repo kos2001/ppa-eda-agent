@@ -67,6 +67,12 @@ candidate A — still positive slack, so both pass, but A has more margin").
 
 ## Scope boundary
 
+For residual closure work, read the ppa-eda-flow reference
+`.codex/skills/ppa-eda-flow/references/closure-handoff.md`. Use its exact-run
+graph refresh, shared budget, specialist routing and evidence handoff contract.
+Keep original targets and proof/model qualification separate from diagnostic
+improvements. The handoff checker is not independent signoff.
+
 Reads and interprets real signoff output only. Does not propose the next
 candidate or constraint delta (that's `feedback-optimizer`) and does not
 re-run any tool.

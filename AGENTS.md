@@ -158,6 +158,11 @@ bottleneck instead of assuming waveform retention is responsible.
 
 ## Checks
 
+For closure handoff and specialist routing, read
+`.codex/skills/ppa-eda-flow/references/closure-handoff.md`.
+`pipeline/closure_review.py <manifest.json>` checks declared evidence integrity
+and recommends relevant roles; it neither dispatches agents nor certifies PASS.
+
 Fast checks do not require Docker or a PDK:
 
 ```sh

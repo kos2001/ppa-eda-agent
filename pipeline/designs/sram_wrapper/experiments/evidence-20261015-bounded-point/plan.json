@@ -1,0 +1,21 @@
+{
+  "full_sram_attempt_budget": 1,
+  "wall_timeout_seconds": 300,
+  "termination_grace_seconds": 10,
+  "point": {
+    "port": 0,
+    "period_ns": 10,
+    "input_slew_10_90_ns": 0.56,
+    "load_fF": 27.56
+  },
+  "pvt": {
+    "process": "SS",
+    "voltage_V": 1.6,
+    "temperature_C": 100
+  },
+  "runtime_root": "/home/kos2001/ppa-sram-bounded-20261015",
+  "replay_dir": "/home/kos2001/ppa-sram-bounded-20261015/ss-port0-replay-300s",
+  "preconditions": "recovery controls_passed: both builds/checks, five synthetic and SS/TT/FF device controls",
+  "model_qualified": false,
+  "port1_scope": "prepare-only; no simulation admitted"
+}
