@@ -1,0 +1,40 @@
+{
+  "design_name": "riscv32i",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1,
+    "max_wall_seconds": 7200
+  },
+  "search": {
+    "mode": "explicit",
+    "objective": "Diagnostic 23.6 ns: retain four measured critical sinks directly while keeping r1's 46-net headroom map. Original 15 ns remains unqualified.",
+    "reference": "closure-20261015-netrepair-r1; source/configuration bytes unchanged in Linux temporary workspace"
+  },
+  "max_iterations": 1,
+  "candidates": [
+    {
+      "tag": "closure-20261015-direct-critical-r1",
+      "flow": "FanoutRepair",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 3",
+        "CLOCK_PERIOD": 23.6,
+        "RUN_POST_GRT_DESIGN_REPAIR": true,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "DESIGN_REPAIR_MAX_CAP_PCT": 40,
+        "FP_CORE_UTIL": 50,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 1,
+        "FANOUT_REPAIR_NET_LIMITS": "{\"_01732_\":12,\"_02618_\":12,\"_02619_\":12,\"_02624_\":12,\"_02626_\":12,\"_02638_\":12,\"_02644_\":12,\"_02648_\":12,\"_02652_\":12,\"_02660_\":12,\"_02711_\":12,\"_02719_\":12,\"_02750_\":12,\"_02755_\":12,\"_02756_\":12,\"_02845_\":12,\"_02858_\":12,\"_02861_\":12,\"_02862_\":12,\"_02865_\":12,\"_02875_\":12,\"_02892_\":12,\"_02894_\":12,\"_02906_\":12,\"_02930_\":12,\"_02948_\":12,\"_02963_\":12,\"_02992_\":12,\"_02999_\":12,\"_03008_\":12,\"_03018_\":12,\"_03042_\":12,\"_03063_\":12,\"_03064_\":12,\"_03095_\":12,\"_03216_\":12,\"_03281_\":12,\"_03309_\":12,\"_03774_\":12,\"_03778_\":12,\"_03794_\":12,\"_03804_\":12,\"_03955_\":12,\"_04029_\":12,\"net172\":12,\"net231\":12}",
+        "FANOUT_REPAIR_DIRECT_SINKS": "{\"_02626_\":[\"_10008_/A\"],\"_02750_\":[\"_10119_/A\"],\"_02861_\":[\"_10120_/A\"],\"_02862_\":[\"_11353_/A\"]}"
+      }
+    }
+  ]
+}

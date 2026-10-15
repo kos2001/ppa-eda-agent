@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "violation_pin_rows": 6,
+  "violating_nets": 6,
+  "rows": [
+    {
+      "net": "u0.w[1][21]",
+      "pin": "fanout_repair_1442/A",
+      "layer": "met3",
+      "ratio": 1.96,
+      "partial": 785.1,
+      "required": 400.0,
+      "driver": {
+        "instance": "_22427_",
+        "cell": "sky130_fd_sc_hd__dfxtp_4"
+      },
+      "matched_net": true,
+      "diodes": [
+        "ANTENNA_874",
+        "ANTENNA_875"
+      ],
+      "logic_loads": [
+        {
+          "instance": "fanout_repair_1441",
+          "cell": "sky130_fd_sc_hd__buf_4"
+        },
+        {
+          "instance": "fanout_repair_1442",
+          "cell": "sky130_fd_sc_hd__buf_4"
+        }
+      ],
+      "route_geometry": null
+    },
+    {
+      "net": "_04779_",
+      "pin": "fanout1025/A",
+      "layer": "met3",
+      "ratio": 1.39,
+      "partial": 555.62,
+      "required": 400.0,
+      "driver": {
+        "instance": "_13430_",
+        "cell": "sky130_fd_sc_hd__nand2_1"
+      },
+      "matched_net": true,
+      "diodes": [],
+      "logic_loads": [
+        {
+          "instance": "fanout1024",
+          "cell": "sky130_fd_sc_hd__buf_4"
+        },
+        {
+          "instance": "fanout1025",
+          "cell": "sky130_fd_sc_hd__buf_2"
+        }
+      ],
+      "route_geometry": null
+    },
+    {
+      "net": "text_in_r[26]",
+      "pin": "_14993_/A",
+      "layer": "met1",
+      "ratio": 1.38,
+      "partial": 552.42,
+      "required": 400.0,
+      "driver": {
+        "instance": "_22134_",
+        "cell": "sky130_fd_sc_hd__dfxtp_2"
+      },
+      "matched_net": true,
+      "diodes": [],
+      "logic_loads": [
+        {
+          "instance": "_14993_",
+          "cell": "sky130_fd_sc_hd__or2_1"
+        },
+        {
+          "instance": "_15012_",
+          "cell": "sky130_fd_sc_hd__nand2_2"
+        },
+        {
+          "instance": "_15013_",
+          "cell": "sky130_fd_sc_hd__o211ai_4"
+        },
+        {
+          "instance": "_21973_",
+          "cell": "sky130_fd_sc_hd__mux2_1"
+        }
+      ],
+      "route_geometry": null
+    },
+    {
+      "net": "_03113_",
+      "pin": "_11635_/B",
+      "layer": "met3",
+      "ratio": 1.28,
+      "partial": 513.02,
+      "required": 400.0,
+      "driver": {
+        "instance": "_11634_",
+        "cell": "sky130_fd_sc_hd__nand2_4"
+      },
+      "matched_net": true,
+      "diodes": [],
+      "logic_loads": [
+        {
+          "instance": "_11635_",
+          "cell": "sky130_fd_sc_hd__xor2_1"
+        }
+      ],
+      "route_geometry": null
+    },
+    {
+      "net": "net5",
+      "pin": "_11872_/A2",
+      "layer": "met3",
+      "ratio": 1.03,
+      "partial": 410.47,
+      "required": 400.0,
+      "driver": {
+        "instance": "input5",
+        "cell": "sky130_fd_sc_hd__clkbuf_2"
+      },
+      "matched_net": true,
+      "diodes": [],
+      "logic_loads": [
+        {
+          "instance": "_11872_",
+          "cell": "sky130_fd_sc_hd__a21bo_1"
+        }
+      ],
+      "route_geometry": null
+    },
+    {
+      "net": "_00231_",
+      "pin": "_22285_/D",
+      "layer": "met1",
+      "ratio": 1.01,
+      "partial": 405.89,
+      "required": 400.0,
+      "driver": {
+        "instance": "_21905_",
+        "cell": "sky130_fd_sc_hd__xor2_1"
+      },
+      "matched_net": true,
+      "diodes": [],
+      "logic_loads": [
+        {
+          "instance": "_22285_",
+          "cell": "sky130_fd_sc_hd__dfxtp_1"
+        }
+      ],
+      "route_geometry": null
+    }
+  ],
+  "sources": [
+    {
+      "path": "pipeline\\designs\\aes\\experiments\\evidence-20261005\\aes-coupling-20261005-hul-h15-both\\aes_cipher_top.nl.v.gz",
+      "sha256": "57fabf0726a2590d31fd7a9459732f2b3f07bbc48b66b932bf75af231bdf3424"
+    },
+    {
+      "path": "pipeline\\designs\\aes\\experiments\\evidence-20261005\\aes-coupling-20261005-hul-h15-both\\54-openroad-checkantennas-1-antenna_summary.rpt",
+      "sha256": "c32362fc4e27bb5a8cfb210b05fc14c617fe25387a8ae3386038f61e6239ca82"
+    }
+  ],
+  "limitations": [
+    "No route geometry supplied; layer lengths and diode locations are unknown",
+    "Flat SKY130 netlist parsing does not qualify arbitrary cell pin directions"
+  ]
+}

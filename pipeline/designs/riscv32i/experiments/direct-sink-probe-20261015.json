@@ -1,0 +1,12 @@
+{
+  "scope": "connectivity probe only, not an admitted full physical evaluation",
+  "reference_run": "closure-20261015-netrepair-r1",
+  "hypothesis": "Retain the four measured critical-path sinks on their original drivers, without buffering those sinks.",
+  "overrides": {
+    "FANOUT_REPAIR_LIMIT": 16,
+    "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+    "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+    "FANOUT_REPAIR_NET_LIMITS": "{\"_02626_\":12,\"_02750_\":12,\"_02861_\":12,\"_02862_\":12}",
+    "FANOUT_REPAIR_DIRECT_SINKS": "{\"_02626_\":[\"_10008_/A\"],\"_02750_\":[\"_10119_/A\"],\"_02861_\":[\"_10120_/A\"],\"_02862_\":[\"_11353_/A\"]}"
+  }
+}
