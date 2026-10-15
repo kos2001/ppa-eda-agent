@@ -40,7 +40,7 @@ REFDB = REPO_ROOT / "reference-db"
 # Tool error codes as the tools themselves write them. Matching these
 # rather than prose is the whole point: "RSZ-0090" means one specific
 # failure, where "transition time problem" could mean several.
-_CODE = re.compile(r"\b((?:RSZ|PDN|GRT|DRT|ANT|CTS|ORD|STA|DPL|GPL|MPL)-\d{4})\b")
+_CODE = re.compile(r"\b((?:RSZ|PDN|GRT|DRT|ANT|CTS|ORD|STA|DPL|GPL|MPL|ODB|IFP|PPL|PSM|RCX|TAP)-\d{4})\b")
 # Some failures announce themselves by step name rather than a code.
 _NAMED = (
     ("core_area", "floorplan-core-area"),
@@ -110,6 +110,36 @@ def signoff_signatures(verdict: dict | None) -> set[str]:
     return found
 
 
+# A verdict can refuse a pass without counting a single violation: a check
+# nobody could run is `unverified`, and `unverified` blocks a pass as firmly
+# as a failure does. Retrieval read only `violations`, so those cases had
+# no fingerprint at all. Measured on the store (2026-10-02): 14 of the 34
+# cases whose best candidate failed - every cdc_twoclock run, among others -
+# carried no signature, and were retrieved by topology alone. These name what
+# could not be checked, in the words score() and its checkers write. The
+# prefix keeps "a DRC check that found errors" and "a DRC check that did not
+# run" apart: they call for different next steps.
+_UNVERIFIED_KINDS = (
+    ("clock domain", "unverified:cdc-unconstrained"),
+    ("extrapolated beyond", "unverified:macro-model"),
+    ("macro timing model", "unverified:macro-model"),
+    ("Magic DRC on abstracts", "unverified:magic-abstract"),
+    ("unmapped instance", "unverified:unmapped"),
+) + tuple((needle, "unverified:" + label) for needle, label in _SIGNOFF_KINDS)
+
+
+def unverified_signatures(verdict: dict | None) -> set[str]:
+    """Fingerprints of checks that did not run, or ran on a model that
+    cannot answer. One per kind named in the verdict's `unverified` list."""
+    found = set()
+    for v in (verdict or {}).get("unverified", []) or []:
+        for needle, label in _UNVERIFIED_KINDS:
+            if needle in v:
+                found.add(label)
+                break
+    return found
+
+
 def case_signatures(case: dict) -> set[str]:
     """Every fingerprint anywhere in a case — candidate errors, gate
     rejections and the recorded diagnosis alike, since a diagnosis
@@ -119,6 +149,7 @@ def case_signatures(case: dict) -> set[str]:
         for result in iteration.get("results", []):
             found |= signatures(result.get("error", ""))
             found |= signoff_signatures(result.get("verdict"))
+            found |= unverified_signatures(result.get("verdict"))
     found |= signatures(case.get("diagnosis", "") or "")
     return found
 
