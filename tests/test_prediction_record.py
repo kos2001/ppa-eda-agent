@@ -90,6 +90,39 @@ class ScorePredictionTests(unittest.TestCase):
         self.assertNotIn("error", s["area_um2"])
 
 
+class CandidateRankingTests(unittest.TestCase):
+    def test_ranks_supported_candidates_by_predicted_ppa(self):
+        ds = rows()
+        candidates = [
+            {"tag": "large", "overrides": {"FP_CORE_UTIL": 65}},
+            {"tag": "small", "overrides": {"FP_CORE_UTIL": 25}},
+            {"tag": "middle", "overrides": {"FP_CORE_UTIL": 45}},
+        ]
+        ranked = surrogate.rank_candidates(
+            "toy", candidates, {"CLOCK_PERIOD": 10}, dataset=ds)
+        self.assertEqual([r["candidate"]["tag"] for r in ranked],
+                         ["small", "middle", "large"])
+        self.assertTrue(all(r["mode"] == "exploit" for r in ranked))
+
+    def test_refused_predictions_are_exploration_not_fake_numbers(self):
+        ranked = surrogate.rank_candidates(
+            "new_design", [{"tag": "new", "overrides": {"FP_CORE_UTIL": 42}}],
+            {}, dataset=rows(design="other"))
+        self.assertEqual(ranked[0]["mode"], "explore")
+        self.assertIsNone(ranked[0]["ppa_score"])
+        self.assertIsNone(ranked[0]["predicted"]["area_um2"])
+
+    def test_an_exact_repeat_sorts_after_a_new_candidate(self):
+        ds = rows()
+        ranked = surrogate.rank_candidates(
+            "toy", [
+                {"tag": "repeat", "overrides": {"FP_CORE_UTIL": 20}},
+                {"tag": "new", "overrides": {"FP_CORE_UTIL": 22}},
+            ], {"CLOCK_PERIOD": 10}, dataset=ds)
+        self.assertEqual(ranked[0]["candidate"]["tag"], "new")
+        self.assertTrue(ranked[1]["recorded_repeat"])
+
+
 class RealStoreTests(unittest.TestCase):
     """The measured state that justifies recording rather than gating."""
 
