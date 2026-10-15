@@ -12,6 +12,36 @@ from equiv_check import physical_models, check
 
 
 class PhysicalModelTests(unittest.TestCase):
+    def test_invalid_deadlines_are_rejected_before_reading_inputs(self):
+        for value in (0, -1, float("inf"), float("nan")):
+            with self.assertRaises(ValueError):
+                check(Path("absent"), Path("absent"), timeout_s=value)
+
+    def test_ordinary_proof_timeout_and_cleanup_failure_preserve_unverified_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "src").mkdir()
+            (root / "src/dut.v").write_text("module dut; endmodule")
+            (root / "config.json").write_text('{"DESIGN_NAME":"dut"}')
+            (root / "01-yosys-synthesis").mkdir()
+            (root / "01-yosys-synthesis/dut.nl.v").write_text("module dut; endmodule")
+            liberty = root / "cells.lib"
+            liberty.write_text("library(L) {}")
+            for deadline in (600, 2):
+                with patch("equiv_check.find_liberty", return_value=liberty), patch(
+                        "equiv_check.subprocess.run", side_effect=[
+                            subprocess.TimeoutExpired("docker", deadline, output=b"partial"),
+                            subprocess.TimeoutExpired("cleanup", 30)]) as runner:
+                    kwargs = {} if deadline == 600 else {"timeout_s": deadline}
+                    result = check(root, root, log_path=root / "proof.log", **kwargs)
+                self.assertEqual(runner.call_args_list[0].kwargs["timeout"], deadline)
+                self.assertEqual(runner.call_args_list[1].kwargs["timeout"], 30)
+                self.assertTrue(result["timed_out"])
+                self.assertFalse(result["equivalent"])
+                self.assertIsNone(result["proven_points"])
+                self.assertTrue(result["cleanup_error"])
+                self.assertIn("partial", (root / "proof.log").read_text())
+
     def test_timeout_is_unverified_and_removes_only_its_owned_container(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -65,6 +95,27 @@ class PhysicalModelTests(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("PPA_FINAL_EQUIV_INTEGRATION") == "1", "requires Docker and SKY130 PDK")
 class ActualFinalProofTests(unittest.TestCase):
+    def test_state_first_sequential_controls(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "src").mkdir()
+            (root / "config.json").write_text('{"DESIGN_NAME":"dut"}')
+            (root / "src/dut.v").write_text(
+                "module dut(input clk, input d, output reg q); always @(posedge clk) q <= d; endmodule\n")
+            stage = root / "01-yosys-synthesis"
+            stage.mkdir()
+            for data, expected in (("d", True), ("~d", False)):
+                (stage / "dut.nl.v").write_text(
+                    f"module dut(input clk, input d, output q); wire x = {data}; "
+                    "sky130_fd_sc_hd__dfxtp_1 ff(.CLK(clk),.D(x),.Q(q)); endmodule\n")
+                result = check(root, root, state_first=True, timeout_s=30)
+                self.assertEqual(result["equivalent"], expected, result)
+                self.assertFalse(result["timed_out"])
+                if expected:
+                    self.assertFalse(result["vacuous"])
+                else:
+                    self.assertGreater(result["unproven_points"], 0)
+
     def test_correct_buffer_passes_and_wrong_inverter_fails(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -3,6 +3,8 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import shutil
+import subprocess
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pipeline"))
 import macro_model_audit as audit
@@ -62,7 +64,59 @@ class MacroModelAuditTests(unittest.TestCase):
             self.assertEqual((row["pin"], row["axis"], row["variable"]),
                              ("u/d[0]", 2, "constrained_pin_transition"))
             self.assertEqual(row["range_ns"], [0.001, 0.02])
+            self.assertTrue(result["audit_complete"])
+            # The current archive omits the STA stage but retains corner folders.
+            shutil.move(str(rpt), str(run / rpt.name))
+            rpt.parent.rmdir()
+            rpt = run / rpt.name
+            direct = audit.check(root, run)
+            self.assertTrue(direct["audit_complete"])
+            self.assertEqual(direct["corner_models"], result["corner_models"])
+            # Flatten the exact same bytes, as the retained physical archive does.
+            for name, suffix in (("checks.rpt", "-drv.rpt"), ("macro_inputs.csv", "-macro-inputs.csv")):
+                (run / (rpt.name + suffix)).write_bytes((rpt / name).read_bytes())
+            shutil.rmtree(rpt)
+            archived = audit.check(root, run)
+            self.assertTrue(archived["audit_complete"])
+            for key in ("corner_models", "input_axis_extrapolations", "unknown_input_checks"):
+                self.assertEqual(archived[key], result[key])
+            csv_path = run / (rpt.name + "-macro-inputs.csv")
+            saved = csv_path.read_bytes()
+            csv_path.write_bytes(saved.replace(b"u/d[1]", b"u/other"))
+            wrong_pin = audit.check(root, run)
+            self.assertFalse(wrong_pin["audit_complete"])
+            self.assertFalse(wrong_pin["input_coverage_complete"])
+            self.assertTrue(wrong_pin["unknown_input_checks"])
+            csv_path.unlink()
+            missing_input = audit.check(root, run)
+            self.assertFalse(missing_input["audit_complete"])
+            self.assertEqual(missing_input["input_audit"]["missing_corners"], [rpt.name])
+            csv_path.write_bytes(saved)
+            (run / (rpt.name + "-drv.rpt")).unlink()
+            incomplete = audit.check(root, run)
+            self.assertFalse(incomplete["audit_complete"])
+            self.assertEqual(incomplete["missing_corners"], [rpt.name])
+            self.assertTrue(incomplete["issues"])
+            cli = subprocess.run([sys.executable, str(Path(audit.__file__)),
+                                  "--design", str(root), "--run-dir", str(run)],
+                                 capture_output=True, text=True, timeout=10)
+            self.assertEqual(cli.returncode, 1)
+            self.assertEqual(json.loads(cli.stdout)["status"], "incomplete")
             # Largest global axis (.100ns) would miss this .020ns data limit.
+
+    def test_live_stage_does_not_borrow_missing_reports_from_archive(self):
+        from sta_evidence import reports
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "62-openroad-stapostpnr").mkdir()
+            (root / "max_ss_100C_1v60").mkdir()
+            (root / "max_ss_100C_1v60/checks.rpt").write_text("stale")
+            (root / "max_ss_100C_1v60-macro-inputs.csv").write_text("stale")
+            self.assertEqual(reports(root, "checks.rpt"), {})
+            self.assertEqual(reports(root, "macro_inputs.csv"), {})
+            (root / "62-openroad-stapostpnr").rmdir()
+            self.assertEqual(set(reports(root, "checks.rpt")), {"max_ss_100C_1v60"})
+            self.assertEqual(reports(root, "macro_inputs.csv"), {})
 
     def test_rejects_partial_lib_and_invalid_table_dimensions_or_axes(self):
         with tempfile.TemporaryDirectory() as tmp:

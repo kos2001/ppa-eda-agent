@@ -1,0 +1,19 @@
+{
+  "scope": "retained SRAM output-load observation coverage only; not design signoff",
+  "output_load_coverage_complete": true,
+  "corners": 9,
+  "observations": 2304,
+  "expected_observations": 2304,
+  "table_load_pf": {
+    "min": 0.006764022,
+    "max": 0.014844512
+  },
+  "all_within_interpolation_brackets": true,
+  "input_slews_reproduced": true,
+  "model_qualified": false,
+  "remaining": [
+    "TT macro model used at six SS/FF corners",
+    "measured PVT and per-arc tables unqualified",
+    "prior port0 attempt timeout_unverified; port1 prepared only"
+  ]
+}

@@ -95,6 +95,12 @@ read on why the previous set did or didn't meet targets.
 
 ## Scope boundary
 
+For residual closure work, read the ppa-eda-flow reference
+`.codex/skills/ppa-eda-flow/references/closure-handoff.md`. Use its exact-run
+graph refresh, shared budget, specialist routing and evidence handoff contract.
+Keep original targets and proof/model qualification separate from diagnostic
+improvements. The handoff checker is not independent signoff.
+
 Proposes and writes `run_spec.json`. Does not invoke OpenLane, does not
 score results, does not write to `reference-db/` directly (that's
 `orchestrator.py`, from real run output).

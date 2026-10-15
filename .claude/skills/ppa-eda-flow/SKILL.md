@@ -7,6 +7,12 @@ description: Plan, validate, run, or review bounded OpenLane PPA experiments in 
 
 Work from measured artifacts and keep the experiment bounded and reproducible.
 
+For residual closure failures, SRAM model qualification, incomplete proofs or
+environment/evidence failures, read
+[references/closure-handoff.md](references/closure-handoff.md) before selecting
+specialists or admitting another repair. It defines review routing, graph
+refresh, loop stopping and the read-only evidence handoff check.
+
 1. Read `AGENTS.md`, the design's `config.json`, topology, `run_spec.json`, and
    compatible `reference-db/cases/` precedent. Check the recorded PDK, SCL, and
    toolchain before using a precedent as a baseline.

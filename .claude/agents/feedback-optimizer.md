@@ -80,6 +80,12 @@ unless the difference itself is the declared experiment axis.
 
 ## Scope boundary
 
+For residual closure work, read the ppa-eda-flow reference
+`.codex/skills/ppa-eda-flow/references/closure-handoff.md`. Use its exact-run
+graph refresh, shared budget, specialist routing and evidence handoff contract.
+Keep original targets and proof/model qualification separate from diagnostic
+improvements. The handoff checker is not independent signoff.
+
 Decides and documents; does not run OpenLane and does not invent new
 config-override values itself beyond stating what should change and
 why — the concrete `run_spec.json` candidates come from
