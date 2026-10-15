@@ -1,0 +1,676 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2024  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.46 (git sha1 e97731b9dda91fa5fa53ed87df7c34163ba59a41, clang++ 17.0.6 -fPIC -O3)
+Loaded SDC plugin
+
+-- Executing script file `pipeline/designs/sram_wrapper/experiments/verify_interface_negative.ys' --
+
+1. Executing Verilog-2005 frontend: pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v
+Parsing Verilog input from `pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v' to AST representation.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__buf_16'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_2'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_4'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_8'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_16'.
+Generating RTLIL representation for module `\sky130_sram_1kbyte_1rw1r_32x256_8'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: pipeline/designs/sram_wrapper/src/sram_wrapper.v
+Parsing Verilog input from `pipeline/designs/sram_wrapper/src/sram_wrapper.v' to AST representation.
+Generating RTLIL representation for module `\sram_wrapper'.
+Successfully finished Verilog frontend.
+
+3. Executing PREP pass.
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Analyzing design hierarchy..
+Top module:  \sram_wrapper
+Used module:     \sky130_fd_sc_hd__buf_16
+Used module:     \sky130_sram_1kbyte_1rw1r_32x256_8
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \sram_wrapper
+Used module:     \sky130_fd_sc_hd__buf_16
+Used module:     \sky130_sram_1kbyte_1rw1r_32x256_8
+Removing unused module `\sky130_fd_sc_hd__clkinv_16'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_8'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_4'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_2'.
+Removed 4 unused modules.
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:55$7 in module sram_wrapper.
+Marked 1 switch rules as full_case in process $proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:20$5 in module sram_wrapper.
+Removed a total of 0 dead cases.
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 2 redundant assignments.
+Promoted 2 assignments to connections.
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~2 debug messages>
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:107$8'.
+Creating decoders for process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:55$7'.
+     1/1: $0\addr_prev[7:0]
+Creating decoders for process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:20$5'.
+     1/1: $0\addr_ctr[7:0]
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\sram_wrapper.\dout0_r' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:107$8'.
+  created $dff cell `$procdff$15' with positive edge clock.
+Creating register for signal `\sram_wrapper.\dout1_r' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:107$8'.
+  created $dff cell `$procdff$16' with positive edge clock.
+Creating register for signal `\sram_wrapper.\addr_prev' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:55$7'.
+  created $dff cell `$procdff$17' with positive edge clock.
+Creating register for signal `\sram_wrapper.\addr_ctr' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:20$5'.
+  created $dff cell `$procdff$18' with positive edge clock.
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:107$8'.
+Found and cleaned up 1 empty switch in `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:55$7'.
+Removing empty process `sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:55$7'.
+Found and cleaned up 1 empty switch in `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:20$5'.
+Removing empty process `sram_wrapper.$proc$pipeline/designs/sram_wrapper/src/sram_wrapper.v:20$5'.
+Cleaned up 2 empty switches.
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+Optimizing module sky130_sram_1kbyte_1rw1r_32x256_8.
+Optimizing module sky130_fd_sc_hd__buf_16.
+
+3.3. Executing FLATTEN pass (flatten design).
+Deleting now unused module sky130_sram_1kbyte_1rw1r_32x256_8.
+Deleting now unused module sky130_fd_sc_hd__buf_16.
+<suppressed ~33 debug messages>
+
+3.4. Executing FUTURE pass.
+
+3.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+3.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+Removed 0 unused cells and 6 unused wires.
+<suppressed ~1 debug messages>
+
+3.7. Executing CHECK pass (checking for obvious problems).
+Checking module sram_wrapper...
+Found and reported 0 problems.
+
+3.8. Executing OPT pass (performing simple optimizations).
+
+3.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+3.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+3.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \sram_wrapper..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~2 debug messages>
+
+3.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \sram_wrapper.
+Performed a total of 0 changes.
+
+3.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+3.8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+
+3.8.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+3.8.8. Finished OPT passes. (There is nothing left to do.)
+
+3.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 7 bits (of 8) from port B of cell sram_wrapper.$add$pipeline/designs/sram_wrapper/src/sram_wrapper.v:24$6 ($add).
+Removed top 7 bits (of 32) from wire sram_wrapper.sram_dout1.
+
+3.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+3.11. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.12. Executing OPT pass (performing simple optimizations).
+
+3.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+3.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+3.12.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+
+3.12.4. Finished fast OPT passes.
+
+3.13. Printing statistics.
+
+=== sram_wrapper ===
+
+   Number of wires:                 95
+   Number of wire bits:            461
+   Number of public wires:          92
+   Number of public wire bits:     437
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 40
+     $add                            1
+     $dff                            4
+     $mux                            2
+     $scopeinfo                     33
+
+3.14. Executing CHECK pass (checking for obvious problems).
+Checking module sram_wrapper...
+Found and reported 0 problems.
+
+4. Executing Verilog-2005 frontend: pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v
+Parsing Verilog input from `pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v' to AST representation.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__buf_16'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_2'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_4'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_8'.
+Generating RTLIL representation for module `\sky130_fd_sc_hd__clkinv_16'.
+Generating RTLIL representation for module `\sky130_sram_1kbyte_1rw1r_32x256_8'.
+Successfully finished Verilog frontend.
+
+5. Executing Verilog-2005 frontend: pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v
+Parsing Verilog input from `pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v' to AST representation.
+Generating RTLIL representation for module `\sram_wrapper'.
+Successfully finished Verilog frontend.
+
+6. Executing PREP pass.
+
+6.1. Executing HIERARCHY pass (managing design hierarchy).
+
+6.1.1. Analyzing design hierarchy..
+Top module:  \sram_wrapper
+Used module:     \sky130_fd_sc_hd__clkinv_16
+Used module:     \sky130_fd_sc_hd__clkinv_4
+Used module:     \sky130_fd_sc_hd__clkinv_2
+Used module:     \sky130_sram_1kbyte_1rw1r_32x256_8
+
+6.1.2. Analyzing design hierarchy..
+Top module:  \sram_wrapper
+Used module:     \sky130_fd_sc_hd__clkinv_16
+Used module:     \sky130_fd_sc_hd__clkinv_4
+Used module:     \sky130_fd_sc_hd__clkinv_2
+Used module:     \sky130_sram_1kbyte_1rw1r_32x256_8
+Removing unused module `\sky130_fd_sc_hd__clkinv_8'.
+Removing unused module `\sky130_fd_sc_hd__buf_16'.
+Removed 2 unused modules.
+
+6.2. Executing PROC pass (convert processes to netlists).
+
+6.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+6.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58 in module sram_wrapper.
+Removed a total of 0 dead cases.
+
+6.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 4 redundant assignments.
+Promoted 2 assignments to connections.
+
+6.2.4. Executing PROC_INIT pass (extract init attributes).
+
+6.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+6.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~1 debug messages>
+
+6.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:188$62'.
+Creating decoders for process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+     1/4: $0\started[0:0]
+     2/4: $0\ctr_a1[7:0]
+     3/4: $0\ctr_d[7:0]
+     4/4: $0\ctr_a0[7:0]
+
+6.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+6.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\sram_wrapper.\dout0_r' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:188$62'.
+  created $dff cell `$procdff$75' with positive edge clock.
+Creating register for signal `\sram_wrapper.\dout1_r' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:188$62'.
+  created $dff cell `$procdff$76' with positive edge clock.
+Creating register for signal `\sram_wrapper.\ctr_a0' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+  created $dff cell `$procdff$77' with positive edge clock.
+Creating register for signal `\sram_wrapper.\ctr_d' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+  created $dff cell `$procdff$78' with positive edge clock.
+Creating register for signal `\sram_wrapper.\ctr_a1' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+  created $dff cell `$procdff$79' with positive edge clock.
+Creating register for signal `\sram_wrapper.\started' using process `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+  created $dff cell `$procdff$80' with positive edge clock.
+
+6.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+6.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:188$62'.
+Found and cleaned up 1 empty switch in `\sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+Removing empty process `sram_wrapper.$proc$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:38$58'.
+Cleaned up 1 empty switch.
+
+6.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sky130_fd_sc_hd__clkinv_16.
+Optimizing module sram_wrapper.
+Optimizing module sky130_fd_sc_hd__clkinv_4.
+Optimizing module sky130_fd_sc_hd__clkinv_2.
+Optimizing module sky130_sram_1kbyte_1rw1r_32x256_8.
+
+6.3. Executing FLATTEN pass (flatten design).
+Deleting now unused module sky130_fd_sc_hd__clkinv_16.
+Deleting now unused module sky130_fd_sc_hd__clkinv_4.
+Deleting now unused module sky130_fd_sc_hd__clkinv_2.
+Deleting now unused module sky130_sram_1kbyte_1rw1r_32x256_8.
+<suppressed ~105 debug messages>
+
+6.4. Executing FUTURE pass.
+
+6.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+<suppressed ~52 debug messages>
+
+6.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+Removed 52 unused cells and 115 unused wires.
+<suppressed ~53 debug messages>
+
+6.7. Executing CHECK pass (checking for obvious problems).
+Checking module sram_wrapper...
+Found and reported 0 problems.
+
+6.8. Executing OPT pass (performing simple optimizations).
+
+6.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+6.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+6.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \sram_wrapper..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~4 debug messages>
+
+6.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \sram_wrapper.
+Performed a total of 0 changes.
+
+6.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+6.8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+Removed 0 unused cells and 156 unused wires.
+<suppressed ~156 debug messages>
+
+6.8.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+6.8.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+6.8.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \sram_wrapper..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~4 debug messages>
+
+6.8.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \sram_wrapper.
+Performed a total of 0 changes.
+
+6.8.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+6.8.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+
+6.8.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+6.8.14. Finished OPT passes. (There is nothing left to do.)
+
+6.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 7 bits (of 8) from port B of cell sram_wrapper.$add$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:45$59 ($add).
+Removed top 7 bits (of 8) from port B of cell sram_wrapper.$add$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:46$60 ($add).
+Removed top 7 bits (of 8) from port B of cell sram_wrapper.$add$pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v:49$61 ($add).
+Removed top 7 bits (of 32) from wire sram_wrapper.sram_dout1.
+
+6.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+Removed 0 unused cells and 1 unused wires.
+<suppressed ~1 debug messages>
+
+6.11. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+6.12. Executing OPT pass (performing simple optimizations).
+
+6.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sram_wrapper.
+
+6.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\sram_wrapper'.
+Removed a total of 0 cells.
+
+6.12.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \sram_wrapper..
+
+6.12.4. Finished fast OPT passes.
+
+6.13. Printing statistics.
+
+=== sram_wrapper ===
+
+   Number of wires:                166
+   Number of wire bits:            539
+   Number of public wires:         159
+   Number of public wire bits:     490
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                119
+     $add                            3
+     $dff                            6
+     $mux                            4
+     $not                            1
+     $scopeinfo                    105
+
+6.14. Executing CHECK pass (checking for obvious problems).
+Checking module sram_wrapper...
+Found and reported 0 problems.
+
+7. Executing EQUIV_MAKE pass (creating equiv checking module).
+Presumably equivalent wires: addr0_gold (\addr_ctr_gold), addr0_gate (\ctr_a0_gate) -> addr0
+Presumably equivalent wires: addr1_gold (\addr_prev_gold), addr1_gate (\ctr_a1_gate) -> addr1
+Presumably equivalent wires: clk_gold (\clk_gold), clk_gate (\clk_gate) -> clk
+Presumably equivalent wires: dout0_gold (\dout0_r_gold), dout0_gate (\dout0_r_gate) -> dout0
+Presumably equivalent wires: dout0_r_gold (\dout0_r_gold), dout0_r_gate (\dout0_r_gate) -> dout0_r
+Presumably equivalent wires: dout1_gold (\dout1_r_gold), dout1_gate (\dout1_r_gate) -> dout1
+Presumably equivalent wires: dout1_r_gold (\dout1_r_gold), dout1_r_gate (\dout1_r_gate) -> dout1_r
+Presumably equivalent wires: rst_gold (\rst_gold), rst_gate (\rst_gate) -> rst
+Presumably equivalent wires: sram_dout0_gold ({ 24'000000000000000000000000 \addr_ctr_gold }), sram_dout0_gate ({ 24'000000000000000000000000 \ctr_d_gate }) -> sram_dout0
+Presumably equivalent wires: sram_dout1_gold ({ \clk_gold 1'0 \addr_ctr_gold [0] 4'1111 \addr_ctr_gold \clk_gold 1'0 \addr_prev_gold }), sram_dout1_gate ({ \clk_gate 1'0 \u_sram.observed_web0_gate 4'1111 \ctr_a0_gate \clk_gate 1'0 \ctr_a1_gate }) -> sram_dout1
+Presumably equivalent wires: u_sram.addr0_gold (\addr_ctr_gold), u_sram.addr0_gate (\ctr_a0_gate) -> u_sram.addr0
+Presumably equivalent wires: u_sram.addr1_gold (\addr_prev_gold), u_sram.addr1_gate (\ctr_a1_gate) -> u_sram.addr1
+Presumably equivalent wires: u_sram.clk0_gold (\clk_gold), u_sram.clk0_gate (\clk_gate) -> u_sram.clk0
+Presumably equivalent wires: u_sram.clk1_gold (\clk_gold), u_sram.clk1_gate (\clk_gate) -> u_sram.clk1
+Presumably equivalent wires: u_sram.csb0_gold (1'0), u_sram.csb0_gate (1'0) -> u_sram.csb0
+Presumably equivalent wires: u_sram.csb1_gold (1'0), u_sram.csb1_gate (1'0) -> u_sram.csb1
+Presumably equivalent wires: u_sram.din0_gold ({ 24'000000000000000000000000 \addr_ctr_gold }), u_sram.din0_gate ({ 24'000000000000000000000000 \ctr_d_gate }) -> u_sram.din0
+Presumably equivalent wires: u_sram.dout0_gold ({ 24'000000000000000000000000 \addr_ctr_gold }), u_sram.dout0_gate ({ 24'000000000000000000000000 \ctr_d_gate }) -> u_sram.dout0
+Presumably equivalent wires: u_sram.dout1_gold ({ 7'0000000 \clk_gold 1'0 \addr_ctr_gold [0] 4'1111 \addr_ctr_gold \clk_gold 1'0 \addr_prev_gold }), u_sram.dout1_gate ({ 7'0000000 \clk_gate 1'0 \u_sram.observed_web0_gate 4'1111 \ctr_a0_gate \clk_gate 1'0 \ctr_a1_gate }) -> u_sram.dout1
+Presumably equivalent wires: u_sram.observed_web0_gold (\addr_ctr_gold [0]), u_sram.observed_web0_gate (\u_sram.observed_web0_gate) -> u_sram.observed_web0
+Presumably equivalent wires: u_sram.web0_gold (\addr_ctr_gold [0]), u_sram.web0_gate (\ctr_d_gate [0]) -> u_sram.web0
+Presumably equivalent wires: u_sram.wmask0_gold (4'1111), u_sram.wmask0_gate (4'1111) -> u_sram.wmask0
+Changing input D of cell $procdff$76_gate ($dff): { 7'0000000 \clk_gate 1'0 \u_sram.observed_web0_gate 4'1111 \ctr_a0_gate \clk_gate 1'0 \ctr_a1_gate } -> { 7'0000000 \clk_gate 1'0 \u_sram.observed_web0 4'1111 \ctr_a0_gate \clk_gate 1'0 \ctr_a1_gate }
+Presumably equivalent cells: u_sram_gold u_sram_gate ($scopeinfo) -> u_sram
+
+8. Executing PREP pass.
+
+8.1. Executing HIERARCHY pass (managing design hierarchy).
+
+8.1.1. Analyzing design hierarchy..
+Top module:  \equiv
+
+8.1.2. Analyzing design hierarchy..
+Top module:  \equiv
+Removing unused module `\gate'.
+Removing unused module `\gold'.
+Removed 2 unused modules.
+
+8.2. Executing PROC pass (convert processes to netlists).
+
+8.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+8.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+8.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+8.2.4. Executing PROC_INIT pass (extract init attributes).
+
+8.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+8.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+
+8.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+8.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+8.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+
+8.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+8.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+8.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+8.3. Executing FUTURE pass.
+
+8.4. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+8.5. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+Removed 258 unused cells and 17 unused wires.
+<suppressed ~275 debug messages>
+
+8.6. Executing CHECK pass (checking for obvious problems).
+Checking module equiv...
+Found and reported 0 problems.
+
+8.7. Executing OPT pass (performing simple optimizations).
+
+8.7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+8.7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\equiv'.
+Removed a total of 0 cells.
+
+8.7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \equiv..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~6 debug messages>
+
+8.7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \equiv.
+Performed a total of 0 changes.
+
+8.7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\equiv'.
+Removed a total of 0 cells.
+
+8.7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+8.7.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+8.7.8. Finished OPT passes. (There is nothing left to do.)
+
+8.8. Executing WREDUCE pass (reducing word size of cells).
+
+8.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+8.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+8.11. Executing OPT pass (performing simple optimizations).
+
+8.11.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+8.11.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\equiv'.
+Removed a total of 0 cells.
+
+8.11.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+8.11.4. Finished fast OPT passes.
+
+8.12. Printing statistics.
+
+=== equiv ===
+
+   Number of wires:                266
+   Number of wire bits:           1067
+   Number of public wires:         256
+   Number of public wire bits:     994
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                223
+     $add                            4
+     $dff                           10
+     $equiv                         65
+     $mux                            6
+     $not                            1
+     $scopeinfo                    137
+
+8.13. Executing CHECK pass (checking for obvious problems).
+Checking module equiv...
+Found and reported 0 problems.
+
+9. Executing EQUIV_SIMPLE pass.
+Found 65 unproven $equiv cells (3 groups) in equiv:
+ Grouping SAT models for \dout0:
+  Trying to prove $equiv for \dout0 [0]: failed.
+  Trying to prove $equiv for \dout0 [1]: failed.
+  Trying to prove $equiv for \dout0 [2]: failed.
+  Trying to prove $equiv for \dout0 [3]: failed.
+  Trying to prove $equiv for \dout0 [4]: failed.
+  Trying to prove $equiv for \dout0 [5]: failed.
+  Trying to prove $equiv for \dout0 [6]: failed.
+  Trying to prove $equiv for \dout0 [7]: failed.
+  Trying to prove $equiv for \dout0 [8]: success!
+  Trying to prove $equiv for \dout0 [9]: success!
+  Trying to prove $equiv for \dout0 [10]: success!
+  Trying to prove $equiv for \dout0 [11]: success!
+  Trying to prove $equiv for \dout0 [12]: success!
+  Trying to prove $equiv for \dout0 [13]: success!
+  Trying to prove $equiv for \dout0 [14]: success!
+  Trying to prove $equiv for \dout0 [15]: success!
+  Trying to prove $equiv for \dout0 [16]: success!
+  Trying to prove $equiv for \dout0 [17]: success!
+  Trying to prove $equiv for \dout0 [18]: success!
+  Trying to prove $equiv for \dout0 [19]: success!
+  Trying to prove $equiv for \dout0 [20]: success!
+  Trying to prove $equiv for \dout0 [21]: success!
+  Trying to prove $equiv for \dout0 [22]: success!
+  Trying to prove $equiv for \dout0 [23]: success!
+  Trying to prove $equiv for \dout0 [24]: success!
+  Trying to prove $equiv for \dout0 [25]: success!
+  Trying to prove $equiv for \dout0 [26]: success!
+  Trying to prove $equiv for \dout0 [27]: success!
+  Trying to prove $equiv for \dout0 [28]: success!
+  Trying to prove $equiv for \dout0 [29]: success!
+  Trying to prove $equiv for \dout0 [30]: success!
+  Trying to prove $equiv for \dout0 [31]: success!
+ Grouping SAT models for \dout1:
+  Trying to prove $equiv for \dout1 [0]: failed.
+  Trying to prove $equiv for \dout1 [1]: failed.
+  Trying to prove $equiv for \dout1 [2]: failed.
+  Trying to prove $equiv for \dout1 [3]: failed.
+  Trying to prove $equiv for \dout1 [4]: failed.
+  Trying to prove $equiv for \dout1 [5]: failed.
+  Trying to prove $equiv for \dout1 [6]: failed.
+  Trying to prove $equiv for \dout1 [7]: failed.
+  Trying to prove $equiv for \dout1 [8]: success!
+  Trying to prove $equiv for \dout1 [9]: success!
+  Trying to prove $equiv for \dout1 [10]: failed.
+  Trying to prove $equiv for \dout1 [11]: failed.
+  Trying to prove $equiv for \dout1 [12]: failed.
+  Trying to prove $equiv for \dout1 [13]: failed.
+  Trying to prove $equiv for \dout1 [14]: failed.
+  Trying to prove $equiv for \dout1 [15]: failed.
+  Trying to prove $equiv for \dout1 [16]: failed.
+  Trying to prove $equiv for \dout1 [17]: failed.
+  Trying to prove $equiv for \dout1 [18]: success!
+  Trying to prove $equiv for \dout1 [19]: success!
+  Trying to prove $equiv for \dout1 [20]: success!
+  Trying to prove $equiv for \dout1 [21]: success!
+  Trying to prove $equiv for \dout1 [22]: success!
+  Trying to prove $equiv for \dout1 [23]: success!
+  Trying to prove $equiv for \dout1 [24]: success!
+  Trying to prove $equiv for \dout1 [25]: success!
+  Trying to prove $equiv for \dout1 [26]: success!
+  Trying to prove $equiv for \dout1 [27]: success!
+  Trying to prove $equiv for \dout1 [28]: success!
+  Trying to prove $equiv for \dout1 [29]: success!
+  Trying to prove $equiv for \dout1 [30]: success!
+  Trying to prove $equiv for \dout1 [31]: success!
+  Trying to prove $equiv for \u_sram.observed_web0: failed.
+Proved 40 previously unproven $equiv cells.
+
+10. Executing EQUIV_INDUCT pass.
+Found 25 unproven $equiv cells in module equiv:
+  Proving existence of base case for step 1. (2392 clauses over 1005 variables)
+  Proving induction step 1. (6251 clauses over 2499 variables)
+  Proof for induction step failed. Extending to next time step.
+  Proving existence of base case for step 2. (6252 clauses over 2499 variables)
+  Proof for base case failed. Circuit inherently diverges!
+Proved 0 previously unproven $equiv cells.
+
+11. Executing EQUIV_STATUS pass.
+ERROR: Found 25 unproven $equiv cells in 'equiv_status -assert'.

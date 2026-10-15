@@ -1,0 +1,15 @@
+{
+  "run": "closure-20261015-direct-critical-r1",
+  "status": "physical run and proof completed; full raw-run archive unavailable",
+  "observed_at_utc": "2026-10-15 02:28",
+  "missing_run_directory": "/tmp/ppa-direct-critical-20261015-wEdW79/riscv32i/runs/closure-20261015-direct-critical-r1",
+  "observation": "The WSL /tmp task files disappeared before archive.py could read the completed run. WSL uptime did not indicate a reboot. The queried systemd-tmpfiles-clean service journal had no entries for the incident interval. Cause is unconfirmed.",
+  "preserved": [
+    {"path": "reference-db/cases/riscv32i__2026-10-15__022457.json", "sha256": "e54a4b1219dabba25f546257cb2e5a3b06e1a1a463b12a54787e2365fde0312d"},
+    {"path": "reference-db/riscv_physical_equiv_direct_20261015.json", "sha256": "9fe5a7ddad676d925ae6473830ad53d392b11a101c2f50281ab7e4c7472a5d8a"},
+    {"path": "reference-db/layouts/riscv32i__2026-10-15__closure-20261015-direct-critical-r1.png"},
+    {"path": "pipeline/designs/riscv32i/run_spec_direct_sink_20261015.json"}
+  ],
+  "missing_raw_evidence": ["final DEF/ODB/netlist files", "final metrics.json", "full STA/DRC/LVS reports", "full independent proof log", "runtime custom-flow snapshot"],
+  "limitations": ["The preserved structured case and proof result retain measured values and input hashes, not the full raw artifact set.", "The candidate remains rejected; do not promote it to PASS or claim complete raw-report reproducibility.", "Future WSL physical runs should use a persistent Linux workspace and archive to the repository before removing it."]
+}

@@ -227,8 +227,10 @@ def expand_synthesis_exploration(design_dir: Path, run_spec: dict) -> tuple[list
 
 
 def verify_function(design_dir: Path, run_dir: Path, verdict: dict) -> dict | None:
-    """Proves the candidate's netlist still computes the RTL's function,
-    and records a real violation if it doesn't.
+    """Requires a synthesis-netlist/RTL proof; failure blocks acceptance.
+
+    Unproven points are not necessarily counterexamples. Later physical
+    transformations need their own final-netlist check.
 
     Kept separate from score() because score() reads only metrics.json,
     while this needs the run's actual netlist and the liberty for the SCL
@@ -248,7 +250,7 @@ def verify_function(design_dir: Path, run_dir: Path, verdict: dict) -> dict | No
         return None
     if not result["equivalent"]:
         verdict["violations"].append(
-            f"netlist is NOT functionally equivalent to the RTL "
+            f"synthesis netlist equivalence to RTL is NOT PROVEN "
             f"({result['unproven_points']} unproven equivalence point(s))")
         verdict["passed"] = False
     elif result["vacuous"]:

@@ -1,0 +1,803 @@
+{
+  "meta": {
+    "version": 2,
+    "flow": "MacroSignoff"
+  },
+  "DESIGN_NAME": "sram_wrapper",
+  "VERILOG_FILES": "dir::src/sram_wrapper.v",
+  "EXTRA_VERILOG_MODELS": [
+    "dir::src/sky130_sram_1kbyte_1rw1r_32x256_8.blackbox.v"
+  ],
+  "MACROS": {
+    "sky130_sram_1kbyte_1rw1r_32x256_8": {
+      "gds": [
+        "/pdk/sky130A/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds"
+      ],
+      "lef": [
+        "/pdk/sky130A/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef"
+      ],
+      "lib": {
+        "*": [
+          "dir::lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.relaxed.lib"
+        ]
+      },
+      "instances": {
+        "u_sram": {
+          "location": [
+            110,
+            150
+          ],
+          "orientation": "N"
+        }
+      }
+    }
+  },
+  "PDN_MACRO_CONNECTIONS": [
+    "u_sram VPWR VGND vccd1 vssd1"
+  ],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 20,
+  "TIMING_VIOLATION_CORNERS": [
+    "*"
+  ],
+  "MAX_TRANSITION_CONSTRAINT": 1.5,
+  "FP_SIZING": "absolute",
+  "DIE_AREA": [
+    0,
+    0,
+    700,
+    700
+  ],
+  "PNR_EXCLUDED_CELL_FILE": "dir::pnr/pnr_exclude.cells",
+  "MAGIC_CAPTURE_ERRORS": false,
+  "MAGIC_DRC_USE_GDS": false,
+  "PRIMARY_GDSII_STREAMOUT_TOOL": "klayout",
+  "GRT_ANTENNA_MARGIN": 50,
+  "GRT_ANTENNA_ITERS": 10,
+  "RUN_HEURISTIC_DIODE_INSERTION": false,
+  "HEURISTIC_ANTENNA_THRESHOLD": 60,
+  "RSZ_DONT_TOUCH_RX": "io_drv|ctr_a0|ctr_a1|ctr_d|^addr0|^addr1|^din0_lo|^web0",
+  "VERILOG_DEFINES": [
+    "IO_CHAIN4",
+    "IO_STRONG_PREDRIVER",
+    "IO_CLK_DRV",
+    "IO_CLK_CHAIN2",
+    "IO_CLK_STRONG_PREDRIVER"
+  ],
+  "MANUAL_GLOBAL_PLACEMENTS": {
+    "gen_io_drv_addr0[0].u_d": {
+      "location": [
+        182.71,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[0].u_a": {
+      "location": [
+        182.71,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[0].u_b": {
+      "location": [
+        182.71,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[0].u_c": {
+      "location": [
+        182.71,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[1].u_d": {
+      "location": [
+        96.0,
+        278.71
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[1].u_a": {
+      "location": [
+        63.0,
+        278.71
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[1].u_b": {
+      "location": [
+        74.0,
+        278.71
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[1].u_c": {
+      "location": [
+        85.0,
+        278.71
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[2].u_d": {
+      "location": [
+        96.0,
+        287.55
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[2].u_a": {
+      "location": [
+        63.0,
+        287.55
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[2].u_b": {
+      "location": [
+        74.0,
+        287.55
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[2].u_c": {
+      "location": [
+        85.0,
+        287.55
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[3].u_d": {
+      "location": [
+        96.0,
+        292.31
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[3].u_a": {
+      "location": [
+        63.0,
+        292.31
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[3].u_b": {
+      "location": [
+        74.0,
+        292.31
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[3].u_c": {
+      "location": [
+        85.0,
+        292.31
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[4].u_d": {
+      "location": [
+        96.0,
+        300.47
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[4].u_a": {
+      "location": [
+        63.0,
+        300.47
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[4].u_b": {
+      "location": [
+        74.0,
+        300.47
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[4].u_c": {
+      "location": [
+        85.0,
+        300.47
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[5].u_d": {
+      "location": [
+        96.0,
+        305.91
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[5].u_a": {
+      "location": [
+        63.0,
+        305.91
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[5].u_b": {
+      "location": [
+        74.0,
+        305.91
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[5].u_c": {
+      "location": [
+        85.0,
+        305.91
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[6].u_d": {
+      "location": [
+        96.0,
+        314.75
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[6].u_a": {
+      "location": [
+        63.0,
+        314.75
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[6].u_b": {
+      "location": [
+        74.0,
+        314.75
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[6].u_c": {
+      "location": [
+        85.0,
+        314.75
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[7].u_d": {
+      "location": [
+        96.0,
+        320.87
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[7].u_a": {
+      "location": [
+        63.0,
+        320.87
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[7].u_b": {
+      "location": [
+        74.0,
+        320.87
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr0[7].u_c": {
+      "location": [
+        85.0,
+        320.87
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[0].u_d": {
+      "location": [
+        502.31,
+        551.5
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[0].u_a": {
+      "location": [
+        502.31,
+        562.66
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[0].u_b": {
+      "location": [
+        502.31,
+        558.94
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[0].u_c": {
+      "location": [
+        502.31,
+        555.22
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[1].u_d": {
+      "location": [
+        593.78,
+        233.15
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[1].u_a": {
+      "location": [
+        626.78,
+        233.15
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[1].u_b": {
+      "location": [
+        615.78,
+        233.15
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[1].u_c": {
+      "location": [
+        604.78,
+        233.15
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[2].u_d": {
+      "location": [
+        593.78,
+        224.99
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[2].u_a": {
+      "location": [
+        626.78,
+        224.99
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[2].u_b": {
+      "location": [
+        615.78,
+        224.99
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[2].u_c": {
+      "location": [
+        604.78,
+        224.99
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[3].u_d": {
+      "location": [
+        593.78,
+        218.19
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[3].u_a": {
+      "location": [
+        626.78,
+        218.19
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[3].u_b": {
+      "location": [
+        615.78,
+        218.19
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[3].u_c": {
+      "location": [
+        604.78,
+        218.19
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[4].u_d": {
+      "location": [
+        520.67,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[4].u_a": {
+      "location": [
+        520.67,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[4].u_b": {
+      "location": [
+        520.67,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[4].u_c": {
+      "location": [
+        520.67,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[5].u_d": {
+      "location": [
+        518.63,
+        132.4
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[5].u_a": {
+      "location": [
+        518.63,
+        121.24
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[5].u_b": {
+      "location": [
+        518.63,
+        124.96
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[5].u_c": {
+      "location": [
+        518.63,
+        128.68
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[6].u_d": {
+      "location": [
+        519.31,
+        121.52
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[6].u_a": {
+      "location": [
+        519.31,
+        110.36
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[6].u_b": {
+      "location": [
+        519.31,
+        114.08
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[6].u_c": {
+      "location": [
+        519.31,
+        117.8
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[7].u_d": {
+      "location": [
+        508.99,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[7].u_a": {
+      "location": [
+        508.99,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[7].u_b": {
+      "location": [
+        508.99,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_addr1[7].u_c": {
+      "location": [
+        508.99,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "io_drv_clk0_b": {
+      "location": [
+        134.43,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "io_drv_clk0_a": {
+      "location": [
+        134.43,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "io_drv_clk1_b": {
+      "location": [
+        555.35,
+        551.5
+      ],
+      "orientation": "N"
+    },
+    "io_drv_clk1_a": {
+      "location": [
+        555.35,
+        555.22
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[0].u_d": {
+      "location": [
+        211.95,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[0].u_a": {
+      "location": [
+        211.95,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[0].u_b": {
+      "location": [
+        211.95,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[0].u_c": {
+      "location": [
+        211.95,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[1].u_d": {
+      "location": [
+        218.07,
+        132.4
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[1].u_a": {
+      "location": [
+        218.07,
+        121.24
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[1].u_b": {
+      "location": [
+        218.07,
+        124.96
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[1].u_c": {
+      "location": [
+        218.07,
+        128.68
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[2].u_d": {
+      "location": [
+        223.51,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[2].u_a": {
+      "location": [
+        223.51,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[2].u_b": {
+      "location": [
+        223.51,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[2].u_c": {
+      "location": [
+        223.51,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[3].u_d": {
+      "location": [
+        230.31,
+        132.4
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[3].u_a": {
+      "location": [
+        230.31,
+        121.24
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[3].u_b": {
+      "location": [
+        230.31,
+        124.96
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[3].u_c": {
+      "location": [
+        230.31,
+        128.68
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[4].u_d": {
+      "location": [
+        235.75,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[4].u_a": {
+      "location": [
+        235.75,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[4].u_b": {
+      "location": [
+        235.75,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[4].u_c": {
+      "location": [
+        235.75,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[5].u_d": {
+      "location": [
+        241.19,
+        121.52
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[5].u_a": {
+      "location": [
+        241.19,
+        110.36
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[5].u_b": {
+      "location": [
+        241.19,
+        114.08
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[5].u_c": {
+      "location": [
+        241.19,
+        117.8
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[6].u_d": {
+      "location": [
+        246.63,
+        132.4
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[6].u_a": {
+      "location": [
+        246.63,
+        121.24
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[6].u_b": {
+      "location": [
+        246.63,
+        124.96
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[6].u_c": {
+      "location": [
+        246.63,
+        128.68
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[7].u_d": {
+      "location": [
+        253.43,
+        143.28
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[7].u_a": {
+      "location": [
+        253.43,
+        132.12
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[7].u_b": {
+      "location": [
+        253.43,
+        135.84
+      ],
+      "orientation": "N"
+    },
+    "gen_io_drv_din0[7].u_c": {
+      "location": [
+        253.43,
+        139.56
+      ],
+      "orientation": "N"
+    },
+    "io_drv_web0_d": {
+      "location": [
+        96.0,
+        186.23
+      ],
+      "orientation": "N"
+    },
+    "io_drv_web0_a": {
+      "location": [
+        63.0,
+        186.23
+      ],
+      "orientation": "N"
+    },
+    "io_drv_web0_b": {
+      "location": [
+        74.0,
+        186.23
+      ],
+      "orientation": "N"
+    },
+    "io_drv_web0_c": {
+      "location": [
+        85.0,
+        186.23
+      ],
+      "orientation": "N"
+    }
+  },
+  "CTS_CLK_BUFFERS": [
+    "sky130_fd_sc_hd__clkbuf_16",
+    "sky130_fd_sc_hd__clkbuf_8"
+  ],
+  "CTS_DISTANCE_BETWEEN_BUFFERS": 100,
+  "MAX_FANOUT_CONSTRAINT": 16
+}

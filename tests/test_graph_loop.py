@@ -108,8 +108,9 @@ class GraphLoopTests(unittest.TestCase):
         answer = graph_loop.run_loop(Path("dut"), {"design_name": "dut"},
                                      corpus, execute=True,
                                      runner=lambda *args, **kwargs: self.fail())
-        self.assertEqual(answer["stop_reason"], "winner_found")
-        self.assertEqual(answer["winner"]["tag"], "good")
+        self.assertEqual(answer["stop_reason"], "historical_pass_requires_revalidation")
+        self.assertIsNone(answer["winner"])
+        self.assertEqual(answer["historical_winner"]["tag"], "good")
         self.assertFalse(answer["executed"])
 
 

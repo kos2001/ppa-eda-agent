@@ -1,0 +1,18 @@
+{
+  "flow": "MacroSignoff",
+  "entrypoint": [
+    "python3",
+    "/flows/macro_signoff.py"
+  ],
+  "sources_sha256": {
+    "diode_trim.py": "307f22c4f1091f39688f81879e0a2ad8b69c796e025cfe7ef191e086a4c4c062",
+    "driver_size.py": "7810e89379d9674f62ac6b877a0013b5d1ee8d41d6ca187ce6b5cbb062d36d55",
+    "fanout_buffer.py": "2ccba11943b3d4a5471344013e55d9e46f91ea5c333b8db94b22742f0b46cb8b",
+    "fanout_repair.py": "3d15143c32b9e0b84c0c01b5db540a233bfb36169efab548b33d61e11286d121",
+    "macro_autoplace.py": "2d6055fde6884623a5b4aa443e1593595829a0433f501db1bb6c2de3af4fff42",
+    "macro_input_audit.py": "d62ec1ffa96c16680354433f92f86120d8cbe7c705d3c8065de01e36186c70c5",
+    "macro_pin_buffer.py": "764e53191b226bee16a9a827b8e150f3de426595c8264557d63894f241f36e31",
+    "macro_signoff.py": "1edce82cdff859839fe8a474af1e03fb23b3e15d032317ab2adb18dfdbef5b79",
+    "upstream_classic.py": "093e2314a38ba7c96c8f7646b93e67db0ca39e2fca3834f59986a396fbffe115"
+  }
+}

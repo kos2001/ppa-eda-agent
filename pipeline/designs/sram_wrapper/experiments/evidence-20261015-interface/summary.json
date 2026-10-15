@@ -1,0 +1,58 @@
+{
+  "image": "ghcr.io/efabless/openlane2:2.3.10",
+  "sources_sha256": {
+    "pipeline/designs/sram_wrapper/experiments/verify_interface.ys": "2bf37e7ebc7f939723cf19a11cb5bc7b4179d5404a67a6470ae99921e9f24fe0",
+    "pipeline/designs/sram_wrapper/experiments/verify_interface_negative.ys": "2c79796d0ec9eb194d1920fcb9ff3bcc54ac36de4fc7759a23ab79118cb16708",
+    "pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v": "3c5987a39b05ba6d573fe82958f218c46f1db4887ec1500ca22ed39c58e87eb9",
+    "pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v": "2c72cfbc198f7dff579e203ebaeef6922288fdfe793be1382f9fcf148e47cf0a",
+    "pipeline/designs/sram_wrapper/src/sram_wrapper.v": "4a82bcf8513c9ad4191fccaac1855b0944f74e936feb3f2654ef1062c09100c6"
+  },
+  "runs": [
+    {
+      "name": "verify_interface",
+      "returncode": 0,
+      "expected_outcome_observed": true,
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-v",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup:/repo:ro",
+        "-w",
+        "/repo",
+        "ghcr.io/efabless/openlane2:2.3.10",
+        "yosys",
+        "-s",
+        "pipeline/designs/sram_wrapper/experiments/verify_interface.ys"
+      ],
+      "log_sha256": "8b12da4815346d00b48b94f1741b76329b29cddf63f969c34382bad536a2a8a2"
+    },
+    {
+      "name": "verify_interface_negative",
+      "returncode": 1,
+      "expected_outcome_observed": true,
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-v",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup:/repo:ro",
+        "-w",
+        "/repo",
+        "ghcr.io/efabless/openlane2:2.3.10",
+        "yosys",
+        "-s",
+        "pipeline/designs/sram_wrapper/experiments/verify_interface_negative.ys"
+      ],
+      "log_sha256": "f6f4b1d2e0ea199cce9d0d8e21bb25ea8d29cd0fa829676ae6aedf87fd9ee01e"
+    }
+  ],
+  "sources_unchanged": true,
+  "passed": true,
+  "scope": "Logical sampled macro-input interface only; ideal gates and signal monitor",
+  "unverified": [
+    "SRAM internal functionality",
+    "physical clock skew",
+    "Liberty PVT/arc/load qualification"
+  ]
+}

@@ -2,3 +2,8 @@
 pipeline/designs/sram_wrapper/characterization/ngspice-bin-index/*.patch -whitespace
 pipeline/designs/sram_wrapper/characterization/ngspice-vector-selection/evidence/*.log -whitespace
 pipeline/designs/sram_wrapper/experiments/evidence-20261004/characterization-algorithm/** -whitespace
+# These archives carry hashes of raw tool bytes, including original whitespace.
+pipeline/designs/riscv32i/experiments/evidence-20261015-closure/closure-*/** -text -whitespace
+pipeline/designs/sram_wrapper/experiments/evidence-20261015-*/** -text -whitespace
+reference-db/cases/riscv32i__2026-10-15*.json -text
+reference-db/riscv_physical_equiv_direct_20261015.json -text

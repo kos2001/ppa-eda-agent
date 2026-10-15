@@ -177,7 +177,10 @@ def parse_pin_slews(text: str) -> tuple[list[dict], int]:
     pins, unmeasured = [], 0
     for m in _PIN_SLEW.finditer(text):
         try:
-            pins.append({"pin": m.group(1), "slew_ns": float(m.group(2))})
+            value = float(m.group(2))
+            if not math.isfinite(value) or value < 0:
+                raise ValueError("invalid slew")
+            pins.append({"pin": m.group(1), "slew_ns": value})
         except ValueError:
             unmeasured += 1
     return pins, unmeasured
@@ -198,10 +201,16 @@ def check_every_pin(ceilings: dict[str, float], run_dir: Path | str) -> dict | N
         return None
     worst: dict[str, dict] = {}
     checked: set[str] = set()
+    corner_pin_sets = []
     unmeasured = 0
     for rpt in pin_reports:
         pins, missing = parse_pin_slews(rpt.read_text(encoding="utf-8", errors="ignore"))
         unmeasured += missing
+        corner_pins = [row["pin"] for row in pins
+                       if row["pin"].split("/", 1)[0] in ceilings]
+        if len(corner_pins) != len(set(corner_pins)):
+            return None
+        corner_pin_sets.append(set(corner_pins))
         for row in pins:
             inst = row["pin"].split("/", 1)[0]
             ceiling = ceilings.get(inst)
@@ -216,12 +225,17 @@ def check_every_pin(ceilings: dict[str, float], run_dir: Path | str) -> dict | N
             prev = worst.get(row["pin"])
             if prev is None or entry["slew_ns"] > prev["slew_ns"]:
                 worst[row["pin"]] = entry
-    if not checked or unmeasured:
+    if (not checked or unmeasured
+            or any(pins != checked for pins in corner_pin_sets)
+            or {pin.split("/", 1)[0] for pin in checked} != set(ceilings)):
         return None
     pins = sorted(worst.values(), key=lambda e: -e["slew_ns"])
     return {
-        "coverage": "every_macro_input_pin_every_corner",
-        "model_validity_verified": not pins,
+        # Matching report pin sets do not prove that the reports omitted no
+        # pin or entire corner. The independent arc audit checks expectations.
+        "coverage": "reported_macro_input_maxima_all_observed_corners",
+        "reported_input_slew_range_verified": not pins,
+        "model_validity_verified": False,
         "macro_ceilings_ns": ceilings,
         "corners_read": len(pin_reports),
         "pins_checked": len(checked),
@@ -327,9 +341,12 @@ def unverified(result: dict | None) -> list[str]:
         "rise/fall slew at every corner, checked against its Liberty arc "
         "axes and explicit PVT mapping"
     )
-    exhaustive = result.get("coverage") == "every_macro_input_pin_every_corner"
-    if result.get("coverage") in ("all_macro_input_edges",
-                                   "every_macro_input_pin_every_corner"):
+    if result.get("coverage") in ("every_macro_input_pin_every_corner",
+                                  "reported_macro_input_maxima_all_observed_corners"):
+        coverage = ("macro input maximum slew was exported at every reported corner; "
+                    "complete rise/fall coverage, per-arc Liberty range and explicit "
+                    "PVT mapping still require qualification")
+    elif result.get("coverage") == "all_macro_input_edges":
         coverage = ("every macro input's rise/fall slew was exported at every corner; "
                     "per-arc Liberty range and explicit PVT mapping still require qualification")
     arcs = result.get("macro_arc_audit")
@@ -341,7 +358,7 @@ def unverified(result: dict | None) -> list[str]:
     if not result["extrapolated_pins"]:
         # Slew coverage can be complete while the macro model's arc/PVT
         # provenance remains unqualified. Preserve that stronger audit.
-        return [] if exhaustive and not arcs else [coverage]
+        return [coverage]
     pins = result["extrapolated_pins"]
     worst = pins[0]
     return [
@@ -353,7 +370,7 @@ def unverified(result: dict | None) -> list[str]:
         f"corner {worst['corner']}) — these delays are off the end of "
         f"the table, not measurements, and signoff needs a "
         f"re-characterised liberty."
-        + ("" if exhaustive and not arcs else f" {coverage}")
+        + f" {coverage}"
     ]
 
 
