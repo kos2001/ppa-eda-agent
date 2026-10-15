@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 import case_retrieval
@@ -84,9 +85,72 @@ def _changed_overrides(previous: dict, current: dict) -> dict:
             if before.get(key) != after.get(key)}
 
 
+_REPAIR_SUFFIX = re.compile(r"-iter\d+$")
+
+
+def _measured(result: dict) -> bool:
+    """A run that produced a verdict or a tool error, not a deferral."""
+    return not result.get("not_evaluated") and bool(result.get("verdict") or result.get("error"))
+
+
+def _parent_ref(result: dict, source: str) -> tuple[str, str] | None:
+    """The run this result was derived from, when the record says so.
+
+    An explicit ``parent`` (``{"source": case file, "tag": tag}``, the
+    source defaulting to this case) wins.  Otherwise the orchestrator's own
+    naming is the record: a repair is ``<parent>-iter<N>`` and a polish
+    trial is ``<winner>-polish-<move>``.  Nothing else is a lineage.
+    """
+    parent = result.get("parent")
+    if isinstance(parent, dict) and parent.get("tag"):
+        return parent.get("source") or source, parent["tag"]
+    tag = str(result.get("tag") or "")
+    if _REPAIR_SUFFIX.search(tag):
+        return source, _REPAIR_SUFFIX.sub("", tag)
+    if "-polish-" in tag:
+        return source, tag.split("-polish-", 1)[0]
+    return None
+
+
+def _bad(state: dict) -> set[str]:
+    return set(state["violations"]) | set(state["unverified"]) | set(state["errors"])
+
+
+def _associate(graph: dict, design: str, basis: str,
+               before: tuple[str, dict], after: tuple[str, dict]) -> None:
+    """Credit a single changed knob with the states it closed or opened.
+
+    Only a one-knob change on the same technology is attributable; a
+    multi-knob step is an interaction this graph cannot split.
+    """
+    (before_run, before_result), (after_run, after_result) = before, after
+    if not (_measured(before_result) and _measured(after_result)):
+        return
+    if any(before_result.get(field) != after_result.get(field) for field in ("pdk", "scl")):
+        return
+    changed = _changed_overrides(before_result, after_result)
+    if len(changed) != 1:
+        return
+    (key, value), = changed.items()
+    before_bad = _bad(result_state(before_result))
+    after_bad = _bad(result_state(after_result))
+    action_id = f"action:{_token([key, value])}"
+    _add_node(graph, action_id, "action", key=key, value=value)
+    _add_edge(graph, action_id, "applied_to", after_run,
+              previous_value=(before_result.get("overrides") or {}).get(key))
+    for relation, signatures in (("associated_with_closure", before_bad - after_bad),
+                                 ("associated_with_regression", after_bad - before_bad)):
+        for signature in sorted(signatures):
+            _add_edge(graph, action_id, relation, f"violation:{signature}",
+                      design=design, basis=basis,
+                      before_run=before_run, after_run=after_run)
+
+
 def build(cases: list[dict]) -> dict:
     graph = {"schema": 1, "nodes": {}, "_edges": {}}
-    histories: dict[tuple[str, str], list[tuple[str, int, int, dict]]] = {}
+    # (source, tag) -> (run id, result, design); the latest record wins.
+    by_tag: dict[tuple[str, str], tuple[str, dict, str]] = {}
+    ordered_runs: list[tuple[str, str, int, str, dict]] = []
 
     for case_index, case in enumerate(cases):
         design = str(case.get("design") or "unknown")
@@ -94,6 +158,7 @@ def build(cases: list[dict]) -> dict:
         _add_node(graph, design_id, "design", name=design,
                   topology=case.get("topology") or {})
         source = case.get("_file") or f"case:{case_index}"
+        image = (case.get("toolchain") or {}).get("openlane_image")
         for iteration_index, iteration in enumerate(case.get("iterations", []) or []):
             for result_index, result in enumerate(iteration.get("results", []) or []):
                 run_id = f"run:{_token([source, iteration_index, result_index])}"
@@ -101,6 +166,7 @@ def build(cases: list[dict]) -> dict:
                 _add_node(graph, run_id, "run", design=design,
                           tag=result.get("tag"), source=source,
                           iteration=iteration_index, result_index=result_index,
+                          pdk=result.get("pdk"), scl=result.get("scl"), image=image,
                           state=state, seconds=result.get("seconds"),
                           area_um2=(result.get("verdict") or {}).get("area_um2"))
                 _add_edge(graph, design_id, "has_run", run_id)
@@ -122,46 +188,45 @@ def build(cases: list[dict]) -> dict:
                     _add_node(graph, stage_id, "stage", name=result["stage"])
                     _add_edge(graph, run_id, "reached_stage", stage_id)
 
-                observed = set(state["violations"]) | set(state["unverified"]) | set(state["errors"])
+                observed = _bad(state)
                 for signature in sorted(observed):
                     violation_id = f"violation:{signature}"
                     _add_node(graph, violation_id, "violation", signature=signature)
                     _add_edge(graph, run_id, "observed", violation_id,
                               count=state["violations"].get(signature))
-                histories.setdefault((design, source), []).append(
-                    (source, iteration_index, result_index, result))
+                if result.get("tag"):
+                    by_tag[(source, str(result["tag"]))] = (run_id, result, design)
+                ordered_runs.append((source, design, iteration_index, run_id, result))
 
-    # A file is one recorded experiment history.  Do not manufacture a
-    # transition between the tail of one case and the head of another merely
-    # because they share a design name.
-    for (design, _source), ordered in histories.items():
-        ordered.sort(key=lambda item: (item[0], item[1], item[2]))
-        for before_item, after_item in zip(ordered, ordered[1:]):
-            before, after = before_item[3], after_item[3]
-            before_run = f"run:{_token(list(before_item[:3]))}"
-            after_run = f"run:{_token(list(after_item[:3]))}"
-            _add_edge(graph, before_run, "followed_by", after_run)
-            changed = _changed_overrides(before, after)
-            if not changed:
-                continue
-            before_state, after_state = result_state(before), result_state(after)
-            before_bad = (set(before_state["violations"]) | set(before_state["unverified"])
-                          | set(before_state["errors"]))
-            after_bad = (set(after_state["violations"]) | set(after_state["unverified"])
-                         | set(after_state["errors"]))
-            for key, value in changed.items():
-                action_id = f"action:{_token([key, value])}"
-                _add_node(graph, action_id, "action", key=key, value=value)
-                _add_edge(graph, action_id, "applied_to", after_run,
-                          previous_value=(before.get("overrides") or {}).get(key))
-                for signature in sorted(before_bad - after_bad):
-                    _add_edge(graph, action_id, "associated_with_closure",
-                              f"violation:{signature}", design=design,
-                              before_run=before_run, after_run=after_run)
-                for signature in sorted(after_bad - before_bad):
-                    _add_edge(graph, action_id, "associated_with_regression",
-                              f"violation:{signature}", design=design,
-                              before_run=before_run, after_run=after_run)
+    # A transition is only what the record says happened: a run derived
+    # from a parent (a repair, a polish trial, or an explicit parent), or a
+    # controlled comparison between siblings of one iteration that differ
+    # in exactly one knob.  Parallel siblings were never run one after the
+    # other, and separate case files are not linked merely because they
+    # share a design name.
+    for source, design, _iteration, run_id, result in ordered_runs:
+        ref = _parent_ref(result, source)
+        parent = by_tag.get(ref) if ref else None
+        if parent is None or parent[0] == run_id:
+            continue
+        parent_run, parent_result, _design = parent
+        _add_edge(graph, parent_run, "followed_by", run_id,
+                  changed=sorted(_changed_overrides(parent_result, result)))
+        _associate(graph, design, "lineage", (parent_run, parent_result), (run_id, result))
+
+    siblings: dict[tuple[str, int], list[tuple[str, dict, str]]] = {}
+    for source, design, iteration_index, run_id, result in ordered_runs:
+        siblings.setdefault((source, iteration_index), []).append((run_id, result, design))
+    for group in siblings.values():
+        for left_index, (left_run, left, design) in enumerate(group):
+            for right_run, right, _design in group[left_index + 1:]:
+                if len(_changed_overrides(left, right)) != 1:
+                    continue
+                _add_edge(graph, left_run, "compared_with", right_run)
+                _associate(graph, design, "controlled_sibling",
+                           (left_run, left), (right_run, right))
+                _associate(graph, design, "controlled_sibling",
+                           (right_run, right), (left_run, left))
 
     graph["edges"] = list(graph.pop("_edges").values())
     validate(graph)
