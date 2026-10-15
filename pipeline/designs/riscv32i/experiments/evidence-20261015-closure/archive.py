@@ -20,6 +20,13 @@ def archive(run):
         required.extend(matches)
     if not all(p.is_file() for p in required):
         raise ValueError("final metrics/configuration missing")
+    provenance = run / "custom_flow_provenance.json"
+    if provenance.is_file():
+        for name, digest in json.loads(provenance.read_text())["sources_sha256"].items():
+            source = run / "flow_sources" / name
+            if source.parent != run / "flow_sources" or hashlib.sha256(source.read_bytes()).hexdigest() != digest:
+                raise ValueError(f"flow source missing or changed: {name}")
+            required.append(source)
     optional_patterns = (
         "custom_flow_provenance.json", "*equivalence*.log",
         "*openroad-stapostpnr/*/checks.rpt",

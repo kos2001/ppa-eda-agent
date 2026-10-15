@@ -63,9 +63,37 @@ delta: other cells and routing also changed. This evidence argues against
 blindly increasing repair rounds. A next bounded hypothesis should preserve
 the critical sinks directly on their existing driver while buffering only
 other load clusters, or independently evaluate stronger branch drivers. Such
-timing-aware bypass is not implemented or measured by this follow-up. Final
+timing-aware bypass is now available as the opt-in `FANOUT_REPAIR_DIRECT_SINKS`
+net-to-input-pin-list mapping. It validates every requested connection before
+mutation, retains those pins directly on the original driver, and reserves
+driver headroom for the remaining buffered branches. Defaults are unchanged.
+Final
 fanout/antenna closure must still be checked; these changes cannot be accepted
 from timing intuition alone.
+
+`experiments/direct-sink-probe-20261015.json` selects the four pins above.
+The OpenROAD/OpenDB probe on the exact pre-repair r1 database verifies 96,548
+original pins and all four direct sinks, with 92 inserted branches and no
+additional buffers on immediate repeat. It never writes the input database.
+Evidence: `reference-db/riscv_direct_sink_probe_20261015.json`, with input and
+implementation hashes. Run `pipeline/check_fanout_direct_sinks.py` using
+`openroad -exit -no_splash -python` in the pinned OpenLane 2.3.10 image.
+Eight focused unit tests pass, including multi-level trees, reserved root
+capacity, repeated rounds, cycles/connectivity checks and invalid-plan rejection.
+This is connectivity evidence only. A separate, validated one-evaluation plan,
+`run_spec_direct_sink_20261015.json`, now measures the option with the exact
+r1 46-net map and constraints. Its two-hour admission budget is separate from
+the original three-run comparison. It is running, not yet a measured success.
+RTL/configuration bytes were compared before running in the unique Linux
+temporary workspace `/tmp/ppa-direct-critical-20261015-wEdW79/riscv32i` to
+reduce Windows filesystem overhead. No PDK models or timing limits changed.
+
+The completed r1 final metrics also confirm Magic DRC, KLayout DRC and LVS
+counts are zero. Synthesis-to-final equivalence proves all 10,224 points;
+this does not prove RTL-to-synthesis. Its 23 remaining fanout violators all have at most 16 logic
+loads excluding diodes. Their drivers are existing cells rather than the
+new `fanout_repair_*` branch drivers. Removing diodes is not justified by
+that observation; the same candidate still has 34 antenna violations.
 
 ## AES residual-net diagnosis
 
@@ -174,6 +202,8 @@ WSL full Python suite: 1365 tests, no failures, six conditional skips. An
 additional 31 targeted tests checked the final measurement-coverage wording
 (one Docker-conditional skip). Actual final-proof Docker controls were run
 separately rather than inferred from the pure suite.
+After the direct-sink option was added, the full suite passed again: 1368
+tests in 229.846 seconds, with the same six conditional skips.
 The earlier full run exposed the schematic symlink error, stale surrogate
 default, monotonic-history assumption and four missing PDK support files.
 The existing `pdk_repair.py --pdk sky130 --apply` restored only empty,

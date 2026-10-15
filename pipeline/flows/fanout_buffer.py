@@ -36,7 +36,31 @@ def buffer_ports(master):
     return inputs[0], outputs[0]
 
 
-def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
+def direct_sink_plan(block, direct_sinks, net_limits, limit):
+    """Resolve every explicit net/pin before mutation; never guess criticality."""
+    if not isinstance(direct_sinks, dict):
+        raise ValueError("direct sinks must map net names to pin lists")
+    result = {}
+    for name, pins in direct_sinks.items():
+        if (not isinstance(name, str) or not isinstance(pins, list)
+                or not pins or any(not isinstance(pin, str) for pin in pins)
+                or len(set(pins)) != len(pins)):
+            raise ValueError("direct sinks require nonempty, unique instance/pin lists")
+        net = block.findNet(name)
+        if net is None:
+            raise ValueError(f"missing direct-sink net: {name}")
+        inputs = {t.getInst().getName() + "/" + t.getMTerm().getName(): t
+                  for t in net.getITerms() if str(t.getIoType()) == "INPUT"}
+        missing = set(pins) - inputs.keys()
+        if missing:
+            raise ValueError(f"direct sinks are not input pins on {name}: {sorted(missing)}")
+        if len(pins) >= net_limits.get(name, limit):
+            raise ValueError(f"direct sinks on {name} leave no room for a buffer branch")
+        result[name] = set(pins)
+    return result
+
+
+def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None, direct_sinks=None):
     import odb
 
     if limit < 2:
@@ -50,6 +74,7 @@ def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
     for name, target in net_limits.items():
         if not block.findNet(name) or isinstance(target, bool) or not isinstance(target, int) or target < 2:
             raise ValueError(f"invalid or missing targeted net: {name}={target}")
+    direct = direct_sink_plan(block, {} if direct_sinks is None else direct_sinks, net_limits, limit)
     # A bounded later pass shares the same DB. Preserve existing buffers and
     # choose the next deterministic name instead of colliding with pass one.
     names = [item.getName() for item in block.getInsts()] + [item.getName() for item in block.getNets()]
@@ -88,8 +113,12 @@ def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
                   "driver": drivers[0].getInst().getName() + "/" + drivers[0].getMTerm().getName(),
                   "original_sinks": len(sinks), "buffer_master": name, "buffers": []}
         record["limit"] = net_limit
-        level = sinks
-        while len(level) > net_limit:
+        retained = direct.get(net.getName(), set())
+        record["direct_sinks"] = sorted(retained)
+        root_capacity = net_limit - len(retained)
+        level = [t for t in sinks
+                 if t.getInst().getName() + "/" + t.getMTerm().getName() not in retained]
+        while len(level) > root_capacity:
             next_level = []
             for group in spatial_groups(level, net_limit, position):
                 serial += 1
@@ -115,7 +144,7 @@ def repair_fanout(db, limit, signal_cell, clock_cell, net_limits=None):
                 record["buffers"].append({"instance": prefix, "net": net_name,
                                           "sink_count": len(group)})
             level = next_level
-        record["remaining_driver_sinks"] = len(level)
+        record["remaining_driver_sinks"] = len(level) + len(retained)
         records.append(record)
     return {"limit": limit, "inserted_buffers": serial - initial_serial,
             "repaired_nets": records, "skipped_nets": skipped,
@@ -134,9 +163,11 @@ def main():
     @click.option("--clock-cell", required=True)
     @click.option("--report", type=click.Path(), required=True)
     @click.option("--net-limits", default="{}")
+    @click.option("--direct-sinks", default="{}")
     @click_odb
-    def run(reader, limit, signal_cell, clock_cell, report, net_limits):
-        result = repair_fanout(reader.db, limit, signal_cell, clock_cell, json.loads(net_limits))
+    def run(reader, limit, signal_cell, clock_cell, report, net_limits, direct_sinks):
+        result = repair_fanout(reader.db, limit, signal_cell, clock_cell,
+                               json.loads(net_limits), json.loads(direct_sinks))
         Path(report).write_text(json.dumps(result, indent=2) + "\n")
         print(f"Inserted {result['inserted_buffers']} fanout buffers in {len(result['repaired_nets'])} nets")
 

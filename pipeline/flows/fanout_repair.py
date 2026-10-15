@@ -78,6 +78,7 @@ def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizin
             Variable("FANOUT_REPAIR_SIGNAL_CELL", str, "Known non-inverting signal buffer master."),
             Variable("FANOUT_REPAIR_CLOCK_CELL", str, "Known non-inverting clock buffer master."),
             Variable("FANOUT_REPAIR_NET_LIMITS", str, "JSON object with tighter physical sink targets for measured capacitance violators. Does not alter SDC.", default="{}"),
+            Variable("FANOUT_REPAIR_DIRECT_SINKS", str, "JSON net-to-input-pin-list mapping. Preserve explicitly measured critical sinks on their original driver; reserve branch headroom. No timing guarantee.", default="{}"),
             Variable("FANOUT_REPAIR_ROUNDS", int, "Bounded buffer/legalize/reroute/antenna passes, 1 through 3. Final checks remain unchanged.", default=1),
         ]
 
@@ -91,6 +92,7 @@ def flow_class(concrete_magic=False, rounds=1, macro_buffers=False, driver_sizin
                 "--clock-cell", self.config["FANOUT_REPAIR_CLOCK_CELL"],
                 "--report", str(Path(self.step_dir) / "fanout_repair.json"),
                 "--net-limits", self.config["FANOUT_REPAIR_NET_LIMITS"],
+                "--direct-sinks", self.config["FANOUT_REPAIR_DIRECT_SINKS"],
             ]
 
     class MacroPinBuffers(OdbpyStep):
