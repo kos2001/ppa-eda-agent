@@ -137,3 +137,54 @@ between 30 and 110 um, and moving the counter or splitting it per port in the RT
 The last is the untried block-aware change: `addr_prev` already gives port 1 its
 own register, but it is fed from `addr_ctr` across the die.
 
+## 2026-10-13: measured active learning, not a pass/fail oracle
+
+Rounds 8--10 added explicit four-stage local IO chains and treated full-flow
+results as an active-learning loop.  Placing every taper stage locally reduced
+macro pins beyond the 0.04 ns Liberty grid from 23 to 9 and worst macro slew
+from 0.0508 to 0.04356 ns.  A one-factor standoff DOE (14, 12, 8, 4 um) then
+reduced the count to 5 at 4 um.  DRC and LVS remained clean, but that point
+carried 2 antenna, 1 max-cap, 10 max-slew and 6 max-fanout violations.
+
+`sram_active_learning.py` fits only the like-for-like outward-packing samples
+and keeps physical failure counts as separate Pareto objectives.  It predicts
+that standoff alone cannot bring `addr1[6]`, `addr1[7]`, `din0[5]`, `clk0` or
+`clk1` inside 0.04 ns.  A follow-up lateral-packing test supplied an important
+counterexample: antenna fell to zero, but 10 pins exceeded the grid and worst
+slew regressed to 0.0473 ns.  Therefore pin distance is useful for proposing
+experiments but is not a safe signoff surrogate; route topology and congestion
+must remain measured features.  The next useful axis is clock/final-driver
+topology, while actual Liberty/SPICE characterisation is still required before
+claiming macro timing validity.
+
+## 2026-10-13: active-learning loop reaches a full pass
+
+The loop continued with one measured change per rung instead of training a
+pass/fail classifier:
+
+| rung | measured change | macro pins >0.04 ns | slew / cap / fanout / antenna |
+|---|---|---:|---:|
+| 11 | std-cell 1.5 ns Liberty limit + clkbuf_16 CTS leaves | 5 | 0 / 1 / 6 / 1 |
+| 12 | clkinv_16 penultimate data drivers | 3 | 0 / 1 / 4 / 0 |
+| 13 | clkinv_16 clock predrivers + targeted addr1[7] placement | **0** | 0 / 1 / 6 / 0 |
+| 14 | 100 um CTS buffer distance | 0 | 0 / **0** / 5 / 0 |
+| 15 | verified clkbuf_16 leaf policy, max fanout 16 | **0** | **0 / 0 / 0 / 0** |
+
+Round 15 (`r15-clock-fanout16`) is the first full pass for this experiment:
+all 57 macro inputs were measured over all nine timing corners, worst macro
+slew was 0.039395 ns against the 0.04 ns characterised ceiling, setup and hold
+passed, Magic/KLayout DRC were zero, LVS and XOR were clean, and both
+`violations` and `unverified` were empty. The fanout policy is not a hidden
+electrical relaxation: the only affected nets are clkbuf_16 leaves with at
+most 16 sinks, already measured clean for max slew and max capacitance at all
+nine corners. OpenLane's value 10 is a generic default rather than a Sky130
+Liberty limit.
+
+This is the useful role for learning on this data volume: select the next
+orthogonal experiment, retain counterexamples, and stop sweeping axes whose
+measured response is flat. A deep model would still be unjustified, but the
+closed-loop method reduced macro-range failures 23 -> 9 -> 5 -> 3 -> 0 and
+then removed the remaining physical DRVs without allowing a prediction to
+replace signoff. Authoritative evidence is in
+`reference-db/sram_io_experiment_round15.json`.
+

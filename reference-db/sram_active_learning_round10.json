@@ -1,0 +1,549 @@
+{
+  "measurements": 6,
+  "regression_measurements": 4,
+  "regression_group": {
+    "placement_packing": "outward"
+  },
+  "ceiling_ns": 0.04,
+  "pin_models": {
+    "u_sram/addr0[0]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 3.223728813559341e-05,
+      "intercept_ns": 0.03875874576271186,
+      "r2": 0.5658169724258337,
+      "predicted_at_zero_ns": 0.03875874576271186,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[1]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 1.2203389830510683e-06,
+      "intercept_ns": 0.039413406779661014,
+      "r2": 0.036488541021525434,
+      "predicted_at_zero_ns": 0.039413406779661014,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[2]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 6.322881355932241e-05,
+      "intercept_ns": 0.03888657627118644,
+      "r2": 0.8498020335184899,
+      "predicted_at_zero_ns": 0.03888657627118644,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[3]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 1.4152542372881161e-05,
+      "intercept_ns": 0.03899105084745763,
+      "r2": 0.7337704365945981,
+      "predicted_at_zero_ns": 0.03899105084745763,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[4]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 3.0593220338978954e-06,
+      "intercept_ns": 0.03935718644067797,
+      "r2": 0.19208892151256918,
+      "predicted_at_zero_ns": 0.03935718644067797,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[5]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 7.118644067794909e-07,
+      "intercept_ns": 0.03936123728813559,
+      "r2": 0.003676623842195137,
+      "predicted_at_zero_ns": 0.03936123728813559,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[6]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 6.299999999999985e-05,
+      "intercept_ns": 0.03887,
+      "r2": 0.9010146327198838,
+      "predicted_at_zero_ns": 0.03887,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr0[7]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 2.511016949152525e-05,
+      "intercept_ns": 0.03910920338983051,
+      "r2": 0.9813226788457772,
+      "predicted_at_zero_ns": 0.03910920338983051,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[0]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 4.372033898305082e-05,
+      "intercept_ns": 0.03889540677966102,
+      "r2": 0.7071753641675576,
+      "predicted_at_zero_ns": 0.03889540677966102,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[1]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 4.746610169491509e-05,
+      "intercept_ns": 0.0389473220338983,
+      "r2": 0.8769158108911939,
+      "predicted_at_zero_ns": 0.0389473220338983,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[2]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 1.6601694915254317e-05,
+      "intercept_ns": 0.03901703389830508,
+      "r2": 0.5465130834401796,
+      "predicted_at_zero_ns": 0.03901703389830508,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[3]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 8.271186440677712e-06,
+      "intercept_ns": 0.03905442372881356,
+      "r2": 0.932610670760312,
+      "predicted_at_zero_ns": 0.03905442372881356,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[4]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 2.926271186440676e-05,
+      "intercept_ns": 0.03905625423728814,
+      "r2": 0.4441081131576434,
+      "predicted_at_zero_ns": 0.03905625423728814,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[5]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0001475593220338984,
+      "intercept_ns": 0.039229186440677966,
+      "r2": 0.8036334447426345,
+      "predicted_at_zero_ns": 0.039229186440677966,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/addr1[6]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0001701016949152547,
+      "intercept_ns": 0.04043103389830508,
+      "r2": 0.9560845598450078,
+      "predicted_at_zero_ns": 0.04043103389830508,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/addr1[7]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.00010873728813559301,
+      "intercept_ns": 0.04183274576271187,
+      "r2": 0.9561999935356792,
+      "predicted_at_zero_ns": 0.04183274576271187,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/clk0": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": -2.0915254237287705e-05,
+      "intercept_ns": 0.043925694915254235,
+      "r2": 0.47735118237796725,
+      "predicted_at_zero_ns": 0.043925694915254235,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/clk1": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 5.168644067796628e-05,
+      "intercept_ns": 0.04217872881355932,
+      "r2": 0.8680027636788368,
+      "predicted_at_zero_ns": 0.04217872881355932,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/csb0": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/csb1": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[0]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 3.07542372881353e-05,
+      "intercept_ns": 0.03882008474576271,
+      "r2": 0.6859962267616333,
+      "predicted_at_zero_ns": 0.03882008474576271,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[10]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[11]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[12]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[13]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[14]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[15]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[16]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[17]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[18]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[19]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[1]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 9.989830508474565e-05,
+      "intercept_ns": 0.038918966101694916,
+      "r2": 0.9653925020978421,
+      "predicted_at_zero_ns": 0.038918966101694916,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[20]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[21]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[22]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[23]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[24]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[25]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[26]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[27]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[28]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[29]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[2]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 2.4830508474575817e-05,
+      "intercept_ns": 0.038761610169491534,
+      "r2": 0.6367465720606709,
+      "predicted_at_zero_ns": 0.038761610169491534,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[30]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[31]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[3]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.00010384745762711824,
+      "intercept_ns": 0.03924194915254238,
+      "r2": 0.8553797516449667,
+      "predicted_at_zero_ns": 0.03924194915254238,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[4]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 1.2999999999999947e-05,
+      "intercept_ns": 0.039089,
+      "r2": 0.23699284576806046,
+      "predicted_at_zero_ns": 0.039089,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[5]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 9.674576271186443e-05,
+      "intercept_ns": 0.04027291525423729,
+      "r2": 0.9862037924088257,
+      "predicted_at_zero_ns": 0.04027291525423729,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[6]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 9.37203389830509e-05,
+      "intercept_ns": 0.039172406779661016,
+      "r2": 0.9861426939261823,
+      "predicted_at_zero_ns": 0.039172406779661016,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[7]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 2.553389830508482e-05,
+      "intercept_ns": 0.039013677966101695,
+      "r2": 0.47321207173943636,
+      "predicted_at_zero_ns": 0.039013677966101695,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/din0[8]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/din0[9]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/web0": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 3.601694915254605e-06,
+      "intercept_ns": 0.03947803389830508,
+      "r2": 0.6991186750322904,
+      "predicted_at_zero_ns": 0.03947803389830508,
+      "standoff_alone_reaches_ceiling": true
+    },
+    "u_sram/wmask0[0]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/wmask0[1]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/wmask0[2]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    },
+    "u_sram/wmask0[3]": {
+      "supported": true,
+      "n": 4,
+      "slope_ns_per_um": 0.0,
+      "intercept_ns": 0.0,
+      "r2": 1.0,
+      "predicted_at_zero_ns": 0.0,
+      "standoff_alone_reaches_ceiling": false
+    }
+  },
+  "pareto": [
+    {
+      "name": "r8-local-chain",
+      "macro_pins_over_ceiling": 9,
+      "max_slew": 10,
+      "max_fanout": 5,
+      "max_cap": 0,
+      "antenna": 0
+    },
+    {
+      "name": "r9-local-s4.0",
+      "macro_pins_over_ceiling": 5,
+      "max_slew": 10,
+      "max_fanout": 6,
+      "max_cap": 1,
+      "antenna": 2
+    },
+    {
+      "name": "r9-local-s8.0",
+      "macro_pins_over_ceiling": 7,
+      "max_slew": 10,
+      "max_fanout": 6,
+      "max_cap": 1,
+      "antenna": 1
+    }
+  ]
+}

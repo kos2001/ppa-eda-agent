@@ -20,6 +20,38 @@ def concrete_cell_script(script):
     return script.replace(anchor, anchor + "    read_pdk_gds\n")
 
 
+# The signoff STA's max-slew table lists only pins that exceed a limit, and the
+# limit a macro pin carries is whatever its liberty happened to say: addr0,
+# addr1 and wmask0 have one, din0, web0 and the clocks have none. So "no
+# violation reported" said nothing about those pins. This asks OpenSTA for the
+# slew at EVERY input pin of every macro instance, at every corner, which is the
+# only evidence that can say the whole interface sits inside the range the
+# macro's liberty was characterised over.
+MACRO_SLEW_REPORT = "macro_pin_slews.rpt"
+
+
+def macro_pin_slew_script(script, instances):
+    anchor = "sta::set_cmd_corner $corner" + chr(10)
+    if script.count(anchor) != 1:
+        raise ValueError("OpenLane corner.tcl changed; review where the corner is set")
+    if not instances:
+        return script
+    names = " ".join(sorted(instances))
+    block = f"""
+puts "%OL_CREATE_REPORT {MACRO_SLEW_REPORT}"
+puts "corner [$corner name]"
+foreach macro_instance {{{names}}} {{
+    foreach macro_pin [get_pins $macro_instance/*] {{
+        if {{ [get_property $macro_pin direction] == "input" }} {{
+            puts "MACRO_PIN [get_property $macro_pin full_name] [get_property $macro_pin slew_max]"
+        }}
+    }}
+}}
+puts "%OL_END_REPORT"
+"""
+    return script.replace(anchor, anchor + block)
+
+
 def flow_class():
     from openlane.flows import Flow
     from openlane.steps import Magic
@@ -49,11 +81,31 @@ def flow_class():
             (Path(self.step_dir) / "geometry_scope.json").write_text(json.dumps(scope, indent=2) + "\n")
             return views, metrics
 
+    from openlane.steps import OpenROAD
+
+    class MacroPinSlewSTA(OpenROAD.STAPostPNR):
+        """Post-PnR STA that also reports the slew at every macro input pin."""
+
+        def get_script_path(self):
+            original = Path(super().get_script_path()).read_text()
+            instances = [inst for macro in (self.config.get("MACROS") or {}).values()
+                         for inst in (macro.instances or {})]
+            target = Path(self.step_dir) / "corner_macro_slews.tcl"
+            if not target.exists():       # one file shared by the per-corner processes
+                target.write_text(macro_pin_slew_script(original, instances))
+            return str(target)
+
     classic = Flow.factory.get("Classic")
 
+    def swap(step):
+        if step.id == "Magic.DRC":
+            return ConcreteCellDRC
+        if step.id == "OpenROAD.STAPostPNR":
+            return MacroPinSlewSTA
+        return step
+
     class MacroSignoff(classic):
-        Steps = [ConcreteCellDRC if step.id == "Magic.DRC" else step
-                 for step in classic.Steps]
+        Steps = [swap(step) for step in classic.Steps]
 
     return MacroSignoff
 
