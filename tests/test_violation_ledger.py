@@ -85,10 +85,16 @@ class ParseTests(unittest.TestCase):
         # a count, and must not be summed into anything.
         seen = False
         for p in self.data["parses"]:
+            # Preserve every non-count diagnostic, including a proof that
+            # could not run. New diagnostic text must not become a fake count
+            # or disappear merely because it is not slack/utilization/IR.
+            self.assertEqual(
+                [v for v in p["other"] if not COUNTED.match(v)],
+                [v for v in p["violations"] if not COUNTED.match(v)])
             for o in p["other"]:
                 seen = True
                 self.assertFalse(COUNTED.match(o) and any(lbl in o for lbl in SIGNOFF_LABELS), o)
-                self.assertTrue(o.startswith(("worst", "utilization", "IR drop")), o)
+                self.assertIn(o, p["violations"])
         self.assertTrue(seen, "the store has no measurement-type violation to test against")
 
     def test_an_absent_kind_is_absent_not_zero(self):
@@ -121,16 +127,15 @@ class LedgerTests(unittest.TestCase):
                     any(kind in r["counts"] or kind in r["unverifiedKinds"] for r in d["runs"]),
                     (design, kind))
 
-    def test_aes_setup_went_from_481_to_0(self):
-        # The fact the page was built to show. If the store's aes
-        # history changes this will need updating — that is fine, it is
-        # a claim about real runs, not a fixture.
+    def test_aes_history_retains_setup_improvement_without_assuming_latest_is_clean(self):
+        # Diagnostic candidates can improve setup while later candidates
+        # regress. The ledger must retain both rather than assume monotonic closure.
         aes = self.designs.get("aes")
         if not aes or len(aes["runs"]) < 2:
             self.skipTest("aes has fewer than two recorded runs")
         setups = [r["counts"].get("setup", 0) for r in aes["runs"]]
         self.assertEqual(setups[0], 481, setups)
-        self.assertEqual(setups[-1], 0, setups)
+        self.assertIn(0, setups[1:], setups)
         self.assertGreaterEqual(aes["max"], max(setups))
 
 

@@ -13,7 +13,7 @@ import json
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import case_retrieval
 import closed_loop_search
@@ -94,10 +94,14 @@ def run_loop(design_dir: Path, run_spec: dict, cases: list[dict], *,
             "parent_case": parent.get("_file"),
             "executed": False,
             "iterations": [],
-            "winner": existing_winner,
-            "stop_reason": "winner_found",
+            "winner": None,
+            "historical_winner": existing_winner,
+            "stop_reason": "historical_pass_requires_revalidation",
             "next_candidates": [],
-            "why": "a previously measured candidate already passes signoff",
+            "why": "historical pass is evidence, but current RTL, technology, "
+                   "toolchain and target compatibility have not been verified; "
+                   "revalidate an explicit candidate with orchestrator before "
+                   "claiming current closure",
             "publish_case": False,
         }
     seed = copy.deepcopy(prior[-1])
@@ -205,6 +209,10 @@ def _wsl_path(path: Path, distro: str | None) -> str:
     consume the backslashes before ``wslpath`` sees them.  Drive mounts have a
     deterministic representation and preserve Unicode path components.
     """
+    windows = PureWindowsPath(str(path))
+    if windows.is_absolute() and len(windows.drive) == 2 and windows.drive[1] == ":":
+        tail = windows.as_posix().split(":", 1)[1].lstrip("/")
+        return f"/mnt/{windows.drive[0].lower()}/{tail}"
     resolved = path.resolve()
     drive = resolved.drive.rstrip(":").lower()
     if drive:

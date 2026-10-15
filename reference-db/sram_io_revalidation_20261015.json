@@ -1,0 +1,38 @@
+[
+ {
+  "name": "r15-clock-fanout16",
+  "seconds": 3.0,
+  "crashed": true,
+  "error": "wx9jl0rrppbw4kgcmgi2n-python3-3.11.9-env/lib/python3.11/site-packages/openlane/config/config.py\", line 820, in __get_pdk_raw\n    raise InvalidConfig(\"PDK configuration\", warnings, errors)\nopenlane.config.config.InvalidConfig: The following errors were encountered: \n\t* The PDK sky130A was not found.\n",
+  "diodes": false,
+  "dont_touch": true,
+  "placed": true,
+  "clock_drivers": true,
+  "placement_standoff_um": 4.0,
+  "placement_packing": "outward",
+  "lateral_pins": [
+   "addr1[7]"
+  ],
+  "corners_read": 0,
+  "ceiling_ns": 0.04,
+  "macro_pins_measured": 0,
+  "macro_pins_over_ceiling": 0,
+  "worst_macro_slew_ns": null,
+  "macro_pin_detail": {},
+  "max_slew": null,
+  "max_fanout": null,
+  "max_cap": null,
+  "antenna": null,
+  "drc_magic": null,
+  "drc_klayout": null,
+  "lvs": null,
+  "setup_ws": null,
+  "hold_ws": null,
+  "wirelength": null,
+  "instance_area": null,
+  "diode_cells": null,
+  "passed": null,
+  "violations": [],
+  "unverified": []
+ }
+]
