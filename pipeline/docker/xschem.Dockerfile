@@ -21,7 +21,8 @@
 # pinned by its Debian version rather than by "whatever apt returns".
 #
 # Build (pipeline/custom_bridge.py does this for you on first use):
-#   docker build -f pipeline/docker/xschem.Dockerfile -t ppa-eda/xschem:3.4.4 .
+#   docker build -t ppa-eda/xschem:3.4.4 - < pipeline/docker/xschem.Dockerfile
+# No repository build context is needed; do not send the PDK or experiment data.
 #
 # Run: mount this repo's pdk/ at /pdk — the PDK's own
 # libs.tech/xschem/xschemrc reads PDK_ROOT and PDK to find the models
