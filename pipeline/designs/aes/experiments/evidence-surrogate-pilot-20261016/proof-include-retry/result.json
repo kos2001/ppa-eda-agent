@@ -1,0 +1,43 @@
+{
+  "design": "aes",
+  "top": "aes_cipher_top",
+  "netlist": "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/runs/surrogate-pilot-20261016-util35/06-yosys-synthesis/aes_cipher_top.nl.v",
+  "liberty": "/home/kos2001/ppa-surrogate-pilot-20261016/proof-include-retry/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+  "scope": "synthesis netlist vs RTL",
+  "reference_sources_sha256": {
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/aes_cipher_top.v": "14363cd4675cb652d30950410b22e1b2e2bc92f574b9e4fe9ef4b4b13d81bce9",
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/timescale.v": "83da01403384540be803d64585475305fb0d03925df28083abd4a71fdbb14994",
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/aes_inv_cipher_top.v": "d3de3da80cfab03cb6789e641e5d058e6b83eca5a388e692c9f3d695b0a5f8d0",
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/aes_inv_sbox.v": "3c9d703a7a219563dd61b1fafac984f314e8a1bf87b0afe97b78888180a29555",
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/aes_key_expand_128.v": "4357eba220d84539a8aae83bc8fc144090b853de9582ba72ab2bc987a4f9f0fb",
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/aes_rcon.v": "3ce1a996f0561f024bd3d0fc20e1f4eff9dc762c93cbe764e485eadf54bd8bab",
+    "/home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/src/aes_sbox.v": "98170f7aa1b39eb2b039c5faa1d11ee677640430ed6b263380ed3c59280b481e"
+  },
+  "staged_reference_sources_sha256": {
+    "/work/rtl/timescale.v": "83da01403384540be803d64585475305fb0d03925df28083abd4a71fdbb14994",
+    "/work/rtl/aes_cipher_top.v": "385c5022bc7b23bfbbb156a4117a4e3c5b6e42d32e3d3bcac4a356ee277a639a",
+    "/work/rtl/aes_inv_cipher_top.v": "b6080bc956823ce4d7028e32d16bcf657bab20b9371a517583e8014393495712",
+    "/work/rtl/aes_inv_sbox.v": "ab0ab943234b466744f285b5c63ba2e0239fd0662eb656a08b6df81c0599914f",
+    "/work/rtl/aes_key_expand_128.v": "203be5b30a1df887cee77313432a853cc2e2956439a5bb3cda12755b91672267",
+    "/work/rtl/aes_rcon.v": "06ed789cbb462e2cbb0f3d5aed1326adfea224d57309ee604066fc57b855c41f",
+    "/work/rtl/aes_sbox.v": "f63eb4559c698776c21b8236a7c1ea0c39bbf01b77cae58794b4fcb1aa4b4caa"
+  },
+  "reference_staging": "literal include closure; directory-relative targets pinned to /work/rtl",
+  "formal_assumptions": [],
+  "normalization": [],
+  "physical_input_only_models": [],
+  "netlist_sha256": "b5f5a083a412e88e7266d8243e4b1237607a578520daaf2a4a0e3282f4881327",
+  "liberty_sha256": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+  "physical_lefs_sha256": {},
+  "log_sha256": "5baface35de5865a0640616400aedfddd7ded0f932e1798a2b9d47efbd95c53d",
+  "equivalent": false,
+  "timed_out": true,
+  "timeout_s": 120.0,
+  "proof_order": "simple_first",
+  "cleanup_error": null,
+  "container_name": "ppa-equiv-b18f89c2d47b4b099614c20c2195c213",
+  "proven_points": null,
+  "unproven_points": null,
+  "vacuous": false,
+  "tail": "ten\\us11.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us12.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us13.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us20.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us21.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us22.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us23.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us30.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us31.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us32.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\nWarning: No SAT model available for cell $flatten\\us33.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).\n\nProof deadline exceeded; equivalence remains unverified.\n"
+}

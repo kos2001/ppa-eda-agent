@@ -166,6 +166,63 @@ def physical_models(netlist: str, liberty: str, lef: str = "") -> tuple[str, lis
     return "\n".join(models) + "\n", names
 
 
+def stage_reference_sources(files: list[Path], source_root: Path, work: Path) -> tuple[list[str], dict, dict]:
+    """Snapshot literal include closure inside one authorized source tree.
+
+    Preserve relative directories; bind each include to its resolved staged
+    file so nested includes and duplicate basenames never depend on Yosys's
+    working directory or search order. Hash both original and staged bytes.
+    Macro-expanded includes and paths outside the tree fail before Docker runs.
+    """
+    root = source_root.resolve()
+    original, staged = {}, {}
+    visited = set()
+
+    def capture(path):
+        path = path.resolve()
+        if not path.is_relative_to(root):
+            raise ValueError(f"RTL include escapes source root: {path}")
+        relative = path.relative_to(root).as_posix()
+        if any(c in relative for c in ('"', '\\', '\n', '\r', '\0')):
+            raise ValueError("unsupported RTL source path")
+        container_path = "/work/rtl/" + relative
+        if path in visited:
+            return container_path
+        visited.add(path)
+        raw = path.read_bytes()
+        text = raw.decode("utf-8")
+        original[str(path)] = hashlib.sha256(raw).hexdigest()
+        # Mask comments but retain offsets; quoted strings are not comments.
+        masked = re.sub(r'"(?:\\.|[^"\\])*"|//[^\n]*|/\*[\s\S]*?\*/',
+                        lambda m: m[0] if m[0].startswith('"') else
+                        ''.join('\n' if c == '\n' else ' ' for c in m[0]), text)
+        replacements = []
+        for directive in re.finditer(r'"(?:\\.|[^"\\])*"|`include\b', masked):
+            if not directive[0].startswith('`include'):
+                continue
+            match = re.match(r'`include[ \t]+"([^"\r\n]+)"', masked[directive.start():])
+            if match is None:
+                raise ValueError(f"RTL include must be a literal relative path: {path}")
+            name = match[1]
+            if name.startswith('/') or '\\' in name or ':' in name or '\0' in name:
+                raise ValueError(f"unsupported RTL include path: {name}")
+            target = capture(path.parent / name)
+            start = directive.start() + match.start(1)
+            end = directive.start() + match.end(1)
+            replacements.append((start, end, target))
+        for start, end, target in reversed(replacements):
+            text = text[:start] + target + text[end:]
+        destination = work / "rtl" / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        encoded = text.encode("utf-8")
+        destination.write_bytes(encoded)
+        staged[container_path] = hashlib.sha256(encoded).hexdigest()
+        return container_path
+
+    arguments = [json.dumps(capture(path)) for path in files]
+    return arguments, original, staged
+
+
 def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
           final_netlist: bool = False, log_path: Path | None = None,
           reference_synthesis: bool = False, timeout_s: float = 600,
@@ -212,10 +269,8 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
                 "\n".join(lef.read_text(encoding="utf-8") for lef in lefs))
             (work / "physical.v").write_text(models, encoding="utf-8")
             physical_command = "read_verilog -overwrite /work/physical.v"
-        rtl_args = []
-        for i, f in enumerate(rtl_files):
-            shutil.copy(f, work / f"rtl{i}.v")
-            rtl_args.append(f"/work/rtl{i}.v")
+        rtl_args, reference_hashes, staged_reference_hashes = stage_reference_sources(
+            rtl_files, reference_netlist.parent if reference_synthesis else design_dir / "src", work)
         (work / "eq.ys").write_text(
             _YS.format(rtl_args=" ".join(rtl_args), top=top,
                        physical_models=physical_command,
@@ -272,7 +327,9 @@ def check(design_dir: Path, run_dir: Path, top: str | None = None, *,
         "scope": ("final routed logic vs synthesis; does not prove RTL-to-synthesis"
                   if reference_synthesis else "final routed logical netlist vs RTL"
                   if final_netlist else "synthesis netlist vs RTL"),
-        "reference_sources_sha256": {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in rtl_files},
+        "reference_sources_sha256": reference_hashes,
+        "staged_reference_sources_sha256": staged_reference_hashes,
+        "reference_staging": "literal include closure; directory-relative targets pinned to /work/rtl",
         "formal_assumptions": (["clk2fflogic global clock and negative hold time for async FF inputs",
                                 "No analog delay, clock skew or metastability model"] if final_netlist or state_first else []),
         "normalization": ["memory_map", "clk2fflogic", "opt_clean", "splitnets"] if final_netlist or state_first else [],
