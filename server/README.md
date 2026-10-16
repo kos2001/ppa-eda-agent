@@ -31,7 +31,9 @@ Core read endpoints:
   symbol hashes, geometric pin/net preview, hierarchy and review notes; no EDA
   execution. Restricted source roots, an 8,000-element cap, no Tcl evaluation.
   This does not produce native ERC/LVS or expand bus expressions.
-- `GET /analog/svg?cell=…`: xschem's native SVG, cached beside the source.
+- `GET /analog/svg?cell=…`: starts a shared background drawing task (HTTP 202).
+  Poll the returned relative `poll` URL until it returns HTTP 200 with native
+  SVG, or an error with a readable `error` and machine-readable `reason`.
   `&view=circuit` caches a separate `.circuit.svg` with analysis/code boxes
   removed from the transient drawing canvas. Default / `view=sheet` returns the
   full sheet. Rendering never saves that canvas or changes the `.sch` source.
@@ -51,17 +53,33 @@ be running and accessible to that distribution's user. The backend converts
 Windows paths with `wslpath`; PDK mounts use the resolved variant directory so
 Windows junctions do not become broken links inside the container.
 
-The renderer builds `ppa-eda/xschem:3.4.4` on first use if it is absent. To prepare
-it before serving requests, run this from the repository root in PowerShell:
+Image preparation is separate from rendering and shared by concurrent requests.
+Tasks report `preparing`, `queued`, and `rendering` before completion; the UI
+shows these phases and offers retry on failure. `POST /analog/renderer/prepare`
+starts preparation alone and returns a polling URL (ready means HTTP 200 JSON).
+Rendering tasks return HTTP 200 SVG instead. Completed tasks expire after ten
+minutes and the server retains at most 128 task records. Drawings are serialized
+and concurrent requests for the same cell/view share a task.
+
+The prepared image is `ppa-eda/xschem:3.4.4-1-r1`. Its base image digest and xschem
+package version (`3.4.4-1`) are fixed in the Dockerfile, with a build-time version
+assertion. Other Debian dependency packages are not snapshot-pinned. To prepare
+the image before serving requests, run this from the repository root:
 
 ```powershell
-Get-Content -Raw pipeline/docker/xschem.Dockerfile | wsl -d Ubuntu --exec docker build -t ppa-eda/xschem:3.4.4 -
-wsl -d Ubuntu --exec docker run --rm ppa-eda/xschem:3.4.4 xschem --version
+python pipeline/schematic_service.py prepare
+wsl -d Ubuntu --exec docker run --rm ppa-eda/xschem:3.4.4-1-r1 xschem --version
 ```
 
 Only the Dockerfile is sent to the builder, with no repository/PDK build context.
 The image is local to the WSL Docker engine; pushing source to GitHub does not
-publish it to a container registry. First-use builds need network access and can
-exceed the HTTP request timeout, so preparing the image is preferable.
+publish it to a container registry. First-use builds need network access. They
+run in a background task with their own deadline rather than blocking an HTTP
+request; individual polling requests return immediately.
 Rendering failures return the renderer's reason rather than attempting to read
 a missing SVG. Source schematics are never rewritten by the drawing operation.
+New output is generated in a temporary directory, checked for renderer failure
+and valid SVG dimensions, and atomically replaces the previous drawing only on
+success. Cache sidecars hash the source, symbol/configuration libraries,
+renderer code, Dockerfile, actual image ID (or local executable), view mode and
+output bytes. Changing inputs during rendering rejects the result for retry.

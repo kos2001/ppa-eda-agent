@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLang } from "../i18n";
 import { LABEL_TYPES, safeSchematicSvg, type SheetInspection, type SheetSelection } from "./schematicModel";
 import "./SchematicViewer.css";
+import { fetchDrawing } from "../api/schematicDrawing";
 
 const STEP = 1.3;
 type Transform = { scale: number; x: number; y: number };
@@ -18,6 +19,8 @@ export default function SchematicViewer({ src, alt, onClose, onFullScreen, expan
   const [t, setT] = useState<Transform>({ scale: 1, x: 0, y: 0 });
   const [paper, setPaper] = useState(true);
   const [status, setStatus] = useState("loading");
+  const [attempt, setAttempt] = useState(0);
+  const busy = ["loading", "preparing", "queued", "rendering"].includes(status);
   const [largeSheet, setLargeSheet] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -65,9 +68,8 @@ export default function SchematicViewer({ src, alt, onClose, onFullScreen, expan
     svgRef.current = null;
     sheetRef.current?.replaceChildren();
     setStatus("loading");
-    fetch(src, { signal: controller.signal }).then(async response => {
-      if (!response.ok) throw new Error(`Drawing unavailable (${response.status})`);
-      const svg = safeSchematicSvg(await response.text());
+    fetchDrawing(new URL(src, window.location.href), controller.signal, setStatus).then(text => {
+      const svg = safeSchematicSvg(text);
       if (controller.signal.aborted || !sheetRef.current) return;
       const vb = svg.viewBox.baseVal;
       const width = vb.width || Number(svg.getAttribute("width")), height = vb.height || Number(svg.getAttribute("height"));
@@ -80,7 +82,7 @@ export default function SchematicViewer({ src, alt, onClose, onFullScreen, expan
       setStatus("ready"); fit();
     }).catch(e => { if (!controller.signal.aborted) setStatus(String(e.message ?? e)); });
     return () => controller.abort();
-  }, [src, alt, fit]);
+  }, [src, alt, fit, attempt]);
   // Change the vector viewport, never scale a composited screenshot of it.
   useEffect(() => {
     const svg = svgRef.current, frame = frameRef.current;
@@ -168,7 +170,14 @@ export default function SchematicViewer({ src, alt, onClose, onFullScreen, expan
         drag.current = null;
       }} onPointerCancel={() => { drag.current = null; }} onDoubleClick={fit}>
       <div ref={sheetRef} className="schview__sheet" />
-      {status !== "ready" && <p className="schview__status" role={status === "loading" ? "status" : "alert"}>{status === "loading" ? say("Reading xschem drawing…", "xschem 회로도를 읽는 중…") : status}</p>}
+      {status !== "ready" && <div className="schview__status" role={busy ? "status" : "alert"}>
+        <p>{status === "preparing" ? say("Preparing drawing tools…", "도면 도구를 준비하는 중…")
+          : status === "queued" ? say("Waiting to render…", "도면 생성 대기 중…")
+          : status === "rendering" ? say("Rendering drawing…", "도면 생성 중…")
+          : status === "loading" ? say("Reading drawing…", "도면을 읽는 중…") : status}</p>
+        {!busy && <button type="button" onPointerDown={e => e.stopPropagation()}
+          onClick={() => setAttempt(value => value + 1)}>{say("Retry", "다시 시도")}</button>}
+      </div>}
       <span className="schview__badge">xschem · {say("source drawing", "원본 회로도")}</span>
     </div>
     <div className="schview__bar">

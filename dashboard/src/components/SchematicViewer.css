@@ -82,6 +82,8 @@
 .schview__drawing text.schview__connected { fill: #ffe76d; text-decoration: underline; }
 .schview__frame:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .schview__status { position: absolute; inset: 40% 0 auto; text-align: center; color: var(--text-dim); font: 11px var(--mono); }
+.schview__status { padding: 0 20px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.schview__status button { padding: 6px 12px; cursor: pointer; }
 .schview__badge { position: absolute; top: 8px; left: 10px; color: #718094; font: 9px var(--mono); background: #ffffffdd; border: 1px solid #cad0d9; border-radius: 2px; padding: 4px 6px; pointer-events: none; }
 .schview:not(.schview--paper) .schview__badge { background: #10151cdd; border-color: #39434d; color: #b3beca; }
 .schview--paper .schview__frame { background: #f6f8fc; }
