@@ -74,7 +74,11 @@ def _harness() -> dict:
 
 
 def _rows() -> list[dict]:
-    """Every recorded candidate, with the time its case was written."""
+    """Every attempted candidate, with the time its case was written.
+
+    A budget-deferred candidate that was never screened was not measured,
+    so it is not coverage (AGENTS.md: never count it as measured).
+    """
     out = []
     for path in sorted(CASES.glob("*.json")):
         stamp = STAMP.search(path.name)
@@ -82,6 +86,8 @@ def _rows() -> list[dict]:
         case = case_store.load_light(path)
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
+                if result.get("not_evaluated") and not result.get("screen_evaluation"):
+                    continue
                 out.append({
                     "at": at,
                     "design": case.get("design"),

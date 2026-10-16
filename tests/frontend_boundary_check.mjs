@@ -41,7 +41,9 @@ const casesDir = process.argv[2];
 const cases = readdirSync(casesDir).filter(name => name.endsWith(".json"))
   .map(name => JSON.parse(readFileSync(path.join(casesDir, name), "utf8")));
 const counts = candidateSummary(cases);
-const total = cases.flatMap(c => c.iterations ?? []).flatMap(i => i.results ?? []).length;
+// Budget-deferred candidates that were never screened are not measured runs.
+const total = cases.flatMap(c => c.iterations ?? []).flatMap(i => i.results ?? [])
+  .filter(r => !r.not_evaluated || r.screen_evaluation).length;
 assert.equal(Object.values(counts).reduce((a, b) => a + b, 0), total);
 assert.ok(counts.clean > 0 && counts.violations > 0 && counts.unknown > 0 && counts.error > 0);
 console.log(JSON.stringify({ counts, total }));
