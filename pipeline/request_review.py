@@ -218,6 +218,26 @@ def attempt_history(design: str, case_filename: str,
 
 
 def cmd_request(args: argparse.Namespace) -> None:
+    if getattr(args, "context_policy", None):
+        import review_context
+        from case_storage import atomic_write
+        if not args.seed_tag or not args.allow_override:
+            raise SystemExit("context-policy requests require --seed-tag and --allow-override")
+        case_file = args.case_file or latest_case(args.design, light=True)[0]
+        config = args.design_config or REPO_ROOT / "pipeline" / "designs" / args.design / "config.json"
+        frozen = review_context.snapshot(case_file, config, args.seed_tag,
+                                         args.allow_override, args.history_limit)
+        if frozen["case"].get("design") != args.design:
+            raise SystemExit("case design does not match --design")
+        context = review_context.capsule(frozen, args.context_policy)
+        out_dir = args.output_dir or REFDB / "reviews"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        stem = f"{Path(case_file).stem}__{args.context_policy}__{review_context.digest(context)[:12]}"
+        out_file = out_dir / f"{stem}__request.md"
+        atomic_write(out_dir / f"{stem}__context.json", review_context.canonical(context) + "\n")
+        atomic_write(out_file, review_context.prompt(context))
+        print(f"review context request written to {out_file}")
+        return
     case_file, case = latest_case(args.design, light=True)
 
     if case.get("winner_tag"):
@@ -423,6 +443,14 @@ def main() -> None:
 
     req = sub.add_parser("request", help="write a review request for the latest OPEN case")
     req.add_argument("--design", required=True)
+    req.add_argument("--context-policy", choices=["full_history", "fresh_evidence", "seed_only"],
+                     help="opt-in evidence capsule; omitted preserves the existing review workflow")
+    req.add_argument("--case-file", type=Path, help="explicit case for an opt-in context request")
+    req.add_argument("--design-config", type=Path, help="baseline config for an opt-in context request")
+    req.add_argument("--seed-tag", help="explicit recorded candidate; never auto-labels a candidate best")
+    req.add_argument("--allow-override", nargs="+", help="only these tuning keys may vary")
+    req.add_argument("--history-limit", type=int, default=12)
+    req.add_argument("--output-dir", type=Path)
     req.set_defaults(func=cmd_request)
 
     app = sub.add_parser("apply", help="apply a subagent's response back into the case")
