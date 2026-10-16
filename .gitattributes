@@ -12,3 +12,12 @@ pipeline/designs/srio_r15_clock_fanout16/** -text -whitespace
 pipeline/designs/srio_r15_clock_fanout16_revalidate_20261015/** -text -whitespace
 reference-db/*20261015.json -text -whitespace
 reference-db/riscv_state_first_bounded_20261015.log -text -whitespace
+# Preserve surrogate pilot evidence and the source bytes recorded by its reports.
+pipeline/designs/aes/experiments/evidence-surrogate-pilot-20261016/** -text -whitespace
+pipeline/designs/aes/experiments/surrogate-cohort-pilot-20261016.json -text -whitespace
+reference-db/cases/aes__2026-10-16.json -text
+reference-db/surrogate*evaluation_20261016.json -text
+pipeline/surrogate.py text eol=crlf
+pipeline/surrogate_dataset.py -text -whitespace
+pipeline/surrogate_benchmark.py -text -whitespace
+pipeline/surrogate_repair_features.py -text -whitespace

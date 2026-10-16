@@ -1,0 +1,52 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "surrogate-pilot-20261016-util35",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "CLOCK_PERIOD": 10,
+        "SYNTH_STRATEGY": "DELAY 0",
+        "FANOUT_REPAIR_LIMIT": 8,
+        "FANOUT_REPAIR_ROUNDS": 1,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FP_CORE_UTIL": 35
+      },
+      "_why": "Fixed repair topology and original 10 ns clock; utilization is the sole varied axis. Higher utilization is hypothesized to reduce core area, with potential timing/routing cost. Measure all hard gates; no signoff success assumed."
+    },
+    {
+      "tag": "surrogate-pilot-20261016-util40",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "CLOCK_PERIOD": 10,
+        "SYNTH_STRATEGY": "DELAY 0",
+        "FANOUT_REPAIR_LIMIT": 8,
+        "FANOUT_REPAIR_ROUNDS": 1,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FP_CORE_UTIL": 40
+      },
+      "_why": "Fixed repair topology and original 10 ns clock; utilization is the sole varied axis. Higher utilization is hypothesized to reduce core area, with potential timing/routing cost. Measure all hard gates; no signoff success assumed."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 1200
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Collect a provenance-complete pilot pair at fixed constraints for offline surrogate evaluation; assess core area, power and setup slack only after all hard gates",
+    "reference": "pipeline/designs/aes/config.json; original CLOCK_PERIOD=10; pilot establishes a new cohort, not compatible with diagnostic 12 ns history"
+  },
+  "_why": "Complex utilization/routing interaction; two-point measurement only. No screening, polish or automatic repair expansion; use --verify-function. This pair is insufficient to train a surrogate."
+}
