@@ -35,7 +35,9 @@ class XschemImageTests(unittest.TestCase):
     @patch.object(bridge.subprocess, "run")
     def test_failed_build_is_not_reported_as_available(self, run, _present, _which):
         run.return_value = subprocess.CompletedProcess([], 1, "", "build failed")
-        self.assertFalse(bridge.ensure_xschem_image())
+        diagnostics = []
+        self.assertFalse(bridge.ensure_xschem_image(diagnostics=diagnostics))
+        self.assertEqual(diagnostics, ["build failed"])
         run.side_effect = subprocess.TimeoutExpired("docker", 42)
         self.assertFalse(bridge.ensure_xschem_image(timeout=42))
 

@@ -32,6 +32,7 @@ __pycache__/
 # deck is kept — see its own header for why it is named that.
 pipeline/analog/*/*.spice
 pipeline/analog/*/*.circuit.svg
+*.svg.cache.json
 !pipeline/analog/*/*_handwritten.spice
 
 # Gate-level schematics generated from a run.'s netlist by
