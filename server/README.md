@@ -41,3 +41,27 @@ Core read endpoints:
 Existing pipeline/run, review, diagnosis, ask, translation and streaming API
 contracts are preserved. The backend never serves `dashboard/dist/`. Local EDA
 execution and case storage stay on this side of the HTTP boundary.
+
+### Windows schematic rendering
+
+When Windows has neither xschem nor Docker on PATH, SVG generation uses Python 3
+and the renderer in the default WSL distribution. Set
+`CUSTOM_BRIDGE_WSL_DISTRO=Ubuntu` to select a distribution explicitly. Docker must
+be running and accessible to that distribution's user. The backend converts
+Windows paths with `wslpath`; PDK mounts use the resolved variant directory so
+Windows junctions do not become broken links inside the container.
+
+The renderer builds `ppa-eda/xschem:3.4.4` on first use if it is absent. To prepare
+it before serving requests, run this from the repository root in PowerShell:
+
+```powershell
+Get-Content -Raw pipeline/docker/xschem.Dockerfile | wsl -d Ubuntu --exec docker build -t ppa-eda/xschem:3.4.4 -
+wsl -d Ubuntu --exec docker run --rm ppa-eda/xschem:3.4.4 xschem --version
+```
+
+Only the Dockerfile is sent to the builder, with no repository/PDK build context.
+The image is local to the WSL Docker engine; pushing source to GitHub does not
+publish it to a container registry. First-use builds need network access and can
+exceed the HTTP request timeout, so preparing the image is preferable.
+Rendering failures return the renderer's reason rather than attempting to read
+a missing SVG. Source schematics are never rewritten by the drawing operation.

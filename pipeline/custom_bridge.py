@@ -354,11 +354,13 @@ def ensure_xschem_image(timeout: int = 900) -> bool:
         return True
     if not XSCHEM_DOCKERFILE.is_file():
         return False
-    argv = ["docker", "build", "-q", "-f", str(XSCHEM_DOCKERFILE),
-            "-t", XSCHEM_IMAGE, str(REPO_ROOT)]
+    # The image needs no repository files. A Dockerfile on stdin gives it an
+    # empty build context, avoiding PDK traversal and Windows reparse points.
+    argv = ["docker", "build", "-q", "-t", XSCHEM_IMAGE, "-"]
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
-                           stdin=subprocess.DEVNULL)
+                           input=XSCHEM_DOCKERFILE.read_text(encoding="utf-8"),
+                           encoding="utf-8")
     except (OSError, subprocess.TimeoutExpired):
         return False
     return r.returncode == 0
@@ -826,6 +828,50 @@ def fit_viewbox(svg: str, margin: float = 0.02) -> str:
                   f'width="{w:.2f}" height="{h:.2f}"', svg, count=1)
 
 
+def _render_schematic_wsl(wsl: str, schematic: Path, pdk: str, out: Path,
+                          timeout: int, circuit_only: bool) -> BridgeResult:
+    """Run the same renderer in WSL, translating paths without a shell."""
+    worker = """
+import json, subprocess, sys
+from pathlib import Path
+def linux_path(value):
+    return subprocess.check_output(['wslpath', '-a', '-u', value], text=True).strip()
+sys.path.insert(0, linux_path(sys.argv[1]))
+import custom_bridge
+custom_bridge.PDK_ROOT = Path(linux_path(sys.argv[7]))
+result = custom_bridge.render_schematic(
+    linux_path(sys.argv[2]), pdk=sys.argv[4], out=linux_path(sys.argv[3]),
+    timeout=int(sys.argv[5]), circuit_only=sys.argv[6] == '1')
+print(json.dumps(result.to_dict()))
+"""
+    argv = [wsl]
+    distro = os.environ.get("CUSTOM_BRIDGE_WSL_DISTRO", "").strip()
+    if distro:
+        argv += ["--distribution", distro]
+    argv += ["--exec", "python3", "-c", worker, str(Path(__file__).parent),
+             str(schematic), str(out), pdk, str(timeout),
+             "1" if circuit_only else "0", str(PDK_ROOT)]
+    try:
+        process = subprocess.run(argv, capture_output=True, text=True,
+                                 encoding="utf-8", errors="replace", timeout=timeout,
+                                 stdin=subprocess.DEVNULL)
+        if process.returncode:
+            raise RuntimeError(process.stderr.strip() or process.stdout.strip()
+                               or f"WSL exited with code {process.returncode}")
+        result = BridgeResult(**json.loads(process.stdout))
+        result.metadata["via"] = "wsl/" + result.metadata.get("via", "unknown")
+        result.metadata["schematic"] = str(schematic)
+        result.metadata["svg"] = str(out) if out.is_file() else None
+        if result.ok and not out.is_file():
+            result.status = ExecutionStatus.ERROR
+            result.errors.append(f"WSL renderer wrote no SVG at {out}")
+        return result
+    except (OSError, subprocess.TimeoutExpired, ValueError, TypeError, RuntimeError) as exc:
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"WSL schematic rendering failed: {exc}"],
+                            metadata={"reason": "wsl_render_failed", "backend": "xschem"})
+
+
 def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                      out: Path | str | None = None,
                      timeout: int = 300, circuit_only: bool = False) -> BridgeResult:
@@ -868,6 +914,10 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
         "if {$review_hidden > 0} {xschem delete}; "
     ) if circuit_only else ""
     exe = resolve("xschem")
+    if not exe and sys.platform == "win32" and not shutil.which("docker"):
+        wsl = shutil.which("wsl.exe")
+        if wsl:
+            return _render_schematic_wsl(wsl, schematic, pdk, out, timeout, circuit_only)
     if exe:
         argv = [exe, "-q", "-x", "--rcfile", str(rcfile),
                 "--command", clean_canvas + f"xschem zoom_full; xschem print svg {out}",
@@ -882,7 +932,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                           "image": XSCHEM_IMAGE})
         mount, inner = design_mount(schematic)
         argv = ["docker", "run", "--rm", *platform_args(),
-                "-v", f"{PDK_ROOT}:/pdk:ro",
+                "-v", f"{(PDK_ROOT / pdk).resolve()}:/pdk/{pdk}:ro",
                 "-v", f"{mount}:/design",
                 "-v", f"{out.parent}:/out",
                 XSCHEM_IMAGE, "xschem", "-q", "-x",

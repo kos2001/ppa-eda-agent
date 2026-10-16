@@ -1321,7 +1321,7 @@ const server = createServer(async (req, res) => {
       const schStat = await stat(sch);
       const svgStat = await stat(svg).catch(() => null);
       if (!svgStat || svgStat.mtimeMs < schStat.mtimeMs) {
-        await execFileAsync(
+        const { stdout } = await execFileAsync(
           "python3",
           ["-c",
            "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
@@ -1329,6 +1329,17 @@ const server = createServer(async (req, res) => {
            "print(json.dumps(r.to_dict()))"],
           { cwd: pipelineDir, timeout: 300_000, maxBuffer: 8 * 1024 * 1024 }
         );
+        const rendered = JSON.parse(stdout);
+        if (rendered.status !== "success") {
+          const reason = rendered.metadata?.reason;
+          res.writeHead(reason === "not_installed" ? 503 : 422,
+            { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            error: rendered.errors?.join("\n") || "Schematic rendering failed",
+            reason: reason ?? "render_failed",
+          }));
+          return;
+        }
       }
       res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml" });
       res.end(await readFile(svg));
