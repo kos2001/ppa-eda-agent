@@ -122,6 +122,11 @@ export function installFetchLogging(): void {
       return res;
     } catch (err) {
       const ms = Math.round(performance.now() - started);
+      const signal = init?.signal ?? (input instanceof Request ? input.signal : undefined);
+      if (signal?.aborted && (err as Error)?.name === "AbortError") {
+        log("info", "backend", `${method} ${shortPath(url)} → cancelled (${ms} ms)`);
+        throw err;
+      }
       // A backend that is not running is the single most common reason
       // a panel sits empty, and fetch reports it as a bare TypeError
       // with no URL in the message. Naming the endpoint here is what
