@@ -249,12 +249,18 @@ class RealRequestTests(unittest.TestCase):
         if not json.loads(earlier.read_text(encoding="utf-8")).get("diagnosis"):
             self.skipTest("the earlier aes case has no recorded review")
 
+        # Read the real store, but write the request to a temporary
+        # directory: a test run must not leave files in reference-db/.
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        out_dir = Path(tmp.name)
         out = subprocess.run(
             [sys.executable, str(ROOT / "pipeline" / "request_review.py"),
-             "request", "--design", "aes"],
+             "request", "--design", "aes", "--output-dir", str(out_dir)],
             capture_output=True, text=True, cwd=ROOT / "pipeline", timeout=120)
         self.assertEqual(out.returncode, 0, out.stderr[-500:])
-        written = ROOT / out.stdout.strip().rsplit(" ", 1)[-1]
+        written = Path(out.stdout.strip().rsplit(" ", 1)[-1])
+        self.assertEqual(written.parent.resolve(), out_dir.resolve())
         body = written.read_text(encoding="utf-8")
         # The line that was false: a design whose previous run was
         # reviewed is not being seen for the first time.

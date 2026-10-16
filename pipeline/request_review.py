@@ -327,8 +327,10 @@ def cmd_request(args: argparse.Namespace) -> None:
         "--rollout <agent>=<path> --rollout <agent>=<path>",
     ]
 
-    out_dir = REFDB / "reviews"
-    out_dir.mkdir(exist_ok=True)
+    # --output-dir lets a caller (the test suite) write outside the real
+    # store; callers that build a bare namespace keep the default.
+    out_dir = getattr(args, "output_dir", None) or REFDB / "reviews"
+    out_dir.mkdir(parents=True, exist_ok=True)
     out_file = out_dir / request_filename(args.design, case, case_file.name)
     # self_improve.scan_design() regenerates this file on *every* scan for
     # any OPEN, unreviewed design — no check for "a request already
@@ -358,7 +360,8 @@ def cmd_request(args: argparse.Namespace) -> None:
     except BaseException:
         os.unlink(tmp_path)
         raise
-    print(f"review request written to {out_file.relative_to(REPO_ROOT)}")
+    shown = out_file.relative_to(REPO_ROOT) if out_file.is_relative_to(REPO_ROOT) else out_file
+    print(f"review request written to {shown}")
 
 
 def cmd_apply(args: argparse.Namespace) -> None:
