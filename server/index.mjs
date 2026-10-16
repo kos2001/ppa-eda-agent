@@ -16,12 +16,55 @@ import { createLineDecoder } from "./stream-lines.mjs";
 import { handleJsonRequest } from "./http-json.mjs";
 import { designExamples } from "./examples.mjs";
 import { artifactInventory, readArtifact } from "./artifacts.mjs";
+import { createSchematicJobs } from "./schematic-jobs.mjs";
 
 const execFileAsync = promisify(execFile);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const pipelineDir = path.resolve(__dirname, "..", "pipeline");
+async function schematicCommand(action, args = []) {
+  const { stdout } = await execFileAsync("python3", ["schematic_service.py", action, ...args],
+    { cwd: pipelineDir, timeout: action === "prepare" ? 990_000 : 360_000, maxBuffer: 8 * 1024 * 1024 });
+  const result = JSON.parse(stdout);
+  if (!["ready", "success"].includes(result.status)) {
+    const error = new Error(result.errors?.join("\n") || "Schematic operation failed");
+    error.reason = result.metadata?.reason;
+    throw error;
+  }
+  return result;
+}
+const schematicJobs = createSchematicJobs({
+  prepare: () => schematicCommand("prepare"),
+  render: async (cell, circuitOnly) => {
+    const result = await schematicCommand("render", ["--cell", cell, ...(circuitOnly ? ["--circuit"] : [])]);
+    const [kind, design, name] = cell.split("/");
+    const directory = kind === "gate" ? path.join(pipelineDir, "designs", design, "sch") : path.join(pipelineDir, "analog", design);
+    return { file: path.join(directory, `${name}${circuitOnly ? ".circuit" : ""}.svg`), sha256: result.svg_sha256 };
+  },
+});
+async function sendSchematicJob(job, res, headers) {
+  const jsonHeaders = { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" };
+  if (!job) {
+    res.writeHead(404, jsonHeaders);
+    res.end(JSON.stringify({ error: "Drawing task expired; retry", reason: "job_expired" }));
+  } else if (job.state === "failed") {
+    res.writeHead(job.reason === "renderer_unavailable" ? 503 : 422, jsonHeaders);
+    res.end(JSON.stringify({ error: job.error, reason: job.reason, state: job.state }));
+  } else if (job.state === "ready" && job.result) {
+    const body = await readFile(job.result.file);
+    if (createHash("sha256").update(body).digest("hex") !== job.result.sha256) {
+      res.writeHead(409, jsonHeaders);
+      res.end(JSON.stringify({ error: "Drawing changed after this task; retry", reason: "drawing_changed" }));
+      return;
+    }
+    res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml", "Cache-Control": "no-store" });
+    res.end(body);
+  } else {
+    res.writeHead(job.state === "ready" ? 200 : 202, { ...jsonHeaders, "Retry-After": "1" });
+    res.end(JSON.stringify({ id: job.id, state: job.state, poll: `render-jobs/${job.id}` }));
+  }
+}
 // Tool availability, keyed by whether the container was asked too. Time
 // based rather than store-keyed like reportCache: what this reports
 // changes when the machine changes, not when a case is written.
@@ -1302,51 +1345,39 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url?.startsWith("/analog/render-jobs/")) {
+    const id = new URL(req.url, "http://localhost").pathname.split("/").pop();
+    try { await sendSchematicJob(schematicJobs.get(id), res, headers); }
+    catch (error) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+  if (req.method === "POST" && req.url === "/analog/renderer/prepare") {
+    try {
+      const job = schematicJobs.start(null, false, true);
+      res.writeHead(202, { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" });
+      res.end(JSON.stringify({ id: job.id, state: job.state, poll: `../render-jobs/${job.id}` }));
+    } catch (error) {
+      res.writeHead(503, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
   if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
     const params = new URL(req.url, "http://localhost").searchParams;
-    const id = params.get("cell") ?? "";
-    const circuitOnly = params.get("view") === "circuit";
-    if (!/^(analog|gate)\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
+    const cell = params.get("cell") ?? "";
+    if (!/^(analog|gate)\/[A-Za-z0-9_][A-Za-z0-9_.-]*\/[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(cell)) {
       res.writeHead(400, { ...headers, "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
       return;
     }
-    const [kind, design, cell] = id.split("/");
-    const dir = kind === "gate"
-      ? path.join(pipelineDir, "designs", design, "sch")
-      : path.join(pipelineDir, "analog", design);
-    const sch = path.join(dir, `${cell}.sch`);
-    const svg = path.join(dir, `${cell}${circuitOnly ? ".circuit" : ""}.svg`);
     try {
-      const schStat = await stat(sch);
-      const svgStat = await stat(svg).catch(() => null);
-      if (!svgStat || svgStat.mtimeMs < schStat.mtimeMs) {
-        const { stdout } = await execFileAsync(
-          "python3",
-          ["-c",
-           "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
-           `r = custom_bridge.render_schematic(${JSON.stringify(sch)}, circuit_only=${circuitOnly ? "True" : "False"}); ` +
-           "print(json.dumps(r.to_dict()))"],
-          { cwd: pipelineDir, timeout: 300_000, maxBuffer: 8 * 1024 * 1024 }
-        );
-        const rendered = JSON.parse(stdout);
-        if (rendered.status !== "success") {
-          const reason = rendered.metadata?.reason;
-          res.writeHead(reason === "not_installed" ? 503 : 422,
-            { ...headers, "Content-Type": "application/json" });
-          res.end(JSON.stringify({
-            error: rendered.errors?.join("\n") || "Schematic rendering failed",
-            reason: reason ?? "render_failed",
-          }));
-          return;
-        }
-      }
-      res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml" });
-      res.end(await readFile(svg));
-    } catch (err) {
-      console.error("[analog svg error]", err);
-      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      await sendSchematicJob(schematicJobs.start(cell, params.get("view") === "circuit"), res, headers);
+    } catch (error) {
+      res.writeHead(503, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
     }
     return;
   }
