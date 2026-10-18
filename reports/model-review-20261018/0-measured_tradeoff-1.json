@@ -1,0 +1,105 @@
+{
+  "http_status": 200,
+  "seconds": 3.6028880840167403,
+  "requested_model": "z-ai/glm-5.3-flash",
+  "task": "measured_tradeoff",
+  "repeat": 1,
+  "request": {
+    "model": "z-ai/glm-5.3-flash",
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are an EDA evidence reviewer. Follow the repository contract below. Treat measured excerpts as evidence and explicitly labelled fixtures as test scenarios. Answer only the requested JSON, or call the supplied read-only function. Never execute tools or claim new physical measurements.\n\n# Repository agent guide\n\nThis repository runs and evaluates real PPA experiments. Treat tool output as\nevidence, not as a prompt to fill gaps with plausible values.\n\n## Start here\n\n- `pipeline/orchestrator.py` owns candidate expansion, bounded repair, scoring,\n  and case creation.\n- `pipeline/run_stage.py` is the OpenLane command boundary.\n- `pipeline/designs/<name>/config.json` describes the design; its\n  `run_spec.json` describes an experiment. Keep those roles separate.\n- `reference-db/cases/` contains measured history. Compare cases only after\n  checking design, PDK, standard-cell library, and toolchain provenance.\n- `.codex/skills/ppa-eda-flow/SKILL.md` is the workflow for planning, running,\n  and reviewing experiments. The specialist prompts live in `.claude/agents/`.\n  Claude Code reads the identical copy in `.claude/skills/ppa-eda-flow/`. Edit\n  the `.codex` source, then replace the copy with\n  `rm -rf .claude/skills/ppa-eda-flow && cp -R .codex/skills/ppa-eda-flow\n  .claude/skills/`; `tests/test_skill_mirror.py` fails when the two differ.\n\n## Evidence rules\n\nPrefer evidence in this order: the current run's metrics and logs, compatible\nmeasured cases, the pinned local tool contract, then official documentation for\nthe installed version. Missing metrics are unknown. Never convert them to zero\nor infer that a stage passed because a later-looking file exists.\n\nOpenLane configuration names are version-specific. This repository uses\nOpenLane 2 conventions in run specs: for example `PL_TARGET_DENSITY_PCT`, while\n`PL_TARGET_DENSITY` is an OpenLane 1 name. A standard-cell-library comparison\nuses candidate `scl`; an override named `STD_CELL_LIBRARY` can be accepted yet\nignored. Keep run tags safe and unique after normalization. Do not submit two\ncandidates with the same overrides, PDK, and SCL.\n\nTreat final Magic DRC, Netgen LVS, every reported timing corner, and requested\nfunctional equivalence as hard gates before comparing PPA. TritonRoute's DRC is\nan intermediate routing signal and does not replace signoff DRC.\n\nFor visual review, use the selected case's recorded source reports and DEF\ngeometry. A step folder or state snapshot proves an artifact exists, not that\nsignoff passed. A geometric cell-footprint map is not congestion or IR-drop\nevidence. Keep missing run files and unknown source compatibility explicit.\n\nFor schematic review, retain native xschem drawings and actual symbol pin\ninterfaces. Geometry previews do not establish ERC/LVS, expand buses, or resolve\nsymbolic sizing. Keep unresolved symbols and implicit power/well attributes\nvisible. Re-drafting a source sheet requires independent native before/after\nnetlist comparison, including ordered terminals and device parameters.\nThe connected CMOS layout may preserve identical existing undriven-well\ndiagnostics only with exit 0, both native files and equal netlists. Record those\ndiagnostics with source/symbol hashes and keep them visible in Review; do not\nclaim ERC clean. Reject new diagnostics or other netlisting failures. Drawing-only\ncode-box removal must never save the transient canvas or feed a simulation.\n\nCandidate `flow` selects a supported flow explicitly. `FanoutRepair` and\n`MacroFanoutRepair` are opt-in SKY130 HD physical experiments: they split\ninternal single-driver nets after antenna insertion and rerun placement,\nrouting and antenna repair without changing the final SDC. A later diode\npass can reintroduce fanout violations; inspect the final reports. They are\nnot covered by the current surrogate. Custom flow sources are snapshotted\nbefore execution and retained with hashes in the run directory.\n\nFor coupled antenna/fanout repair, `FANOUT_REPAIR_ROUNDS` is bounded to 1–3.\nUse headroom on measured nets before expanding a global target: stronger global\nbuffering can create new capacitance, slew and antenna failures. Preserve every\npass's report, use unique instance names across passes, and evaluate the last\nrouted result rather than an intermediate zero count.\n\nDedicated macro input buffers are an opt-in physical experiment. Validate all\nrequested pins and their existing power mappings before rewiring. Only known\nnon-inverting masters, or two known inverters preserving polarity, are allowed.\nVerify original pin connectivity independently. Seed cells outside the macro,\nlegalize and route them, and protect their sizes only after net repair. Library\ntransition lookups must account for different slew thresholds and both edges;\nthey rank candidates but do not replace final extracted STA.\n\nFor SRAM, use final `macro_inputs.csv` / `macro_slew_audit.py` in addition to\nthe violation table. Nonviolating control or clock inputs can exceed the\nLiberty table range. Complete input-edge coverage does not establish PVT or\nper-arc model validity. `characterize_sram.py --prepare-only` validates and\narchives inputs; it produces no measurements or qualified Liberty.\n\nSample a stalled owned SPICE process before changing numerical settings. Model\nparsing and matrix solving are different bottlenecks. An experimental simulator\npatch needs pinned source/build hashes and comparisons with the original model\nselection and PVT device currents. Partial libraries and completed small-device\nprobes cannot qualify the full SRAM.\n\n## Experiment workflow\n\nValidate every edited run spec before a costly tool invocation:\n\n```sh\npython3 pipeline/orchestrator.py \\\n  --design pipeline/designs/<name> \\\n  --run-spec pipeline/designs/<name>/run_spec.json \\\n  --validate-only\n```\n\nDeclare `candidate_budget` for new searches and put the method, objective,\nreference, and randomized seed when applicable under `search`. Give each\ncandidate one testable hypothesis. Change one independent axis at a time unless\nthe hypothesis is specifically about an interaction.\n\nFor new bounded digital searches, also declare `evaluation_budget` with\n`max_evaluations` and/or `max_wall_seconds`. Screening, synthesis exploration,\nrepair and polish share admissions. The deadline stops new evaluations;\nalready-admitted verification completes. Never label a budget-deferred candidate\nas a failed tool run or include it in measured coverage without a real screen.\n\nUse `python3 pipeline/evaluation_archive.py` to inspect measured costs and\ncompatible Pareto groups before proposing a new search. Legacy source provenance\nmust stay unknown. `search.evaluation_order: measured_cost` is optional and only\nuses compatible full-flow timing cohorts with at least three observations. It\ndoes not predict PPA. See `docs/evaluation-harness-20261004.md` for the counting\ncontract. Equivalence to generated RTL does not validate that RTL against a spec;\nkeep independent golden verification and physical/model gates distinct.\n\nFor repeated search rounds or a measured plateau, read\n`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. Refresh proposal\ncontext from selected measured seeds and selectively expose factual history;\nretain the full audit archive, original obligations and remaining shared budget.\nThe feedback, placement, topology and verification roles follow that contract.\nContext resets do not establish an optimum or authorize more evaluations.\n\nWhen a review is worth dispatching more than once, check the independent\nanswers against each other with `pipeline/review_verify.py` before applying one.\nIts resolver settles disagreements, its challenger tries to break shared\npositions, and its adjudicator records unsettled questions instead of choosing\none by omission. Applying a single answer with `request_review.py apply`\nremains valid. See `docs/review-verification-20261005.md`.\n\nUse real tool feedback for correction: locate the first failing stage and its\nexact error, check the current local contract, make the smallest justified\nchange, validate the plan again, then rerun. A run with an ignored option,\ncolliding tag, missing output, or tool failure is an invalid experiment; do not\nstore its result as design evidence.\n\nMeasured driver sizing is opt-in through `FANOUT_REPAIR_DRIVER_CELLS`. Check the\nactual Liberty Boolean functions and every original OpenDB pin connection\nbefore a same-family upsize. Keep final SDC limits unchanged, reload the edited\nDB through normal placement/routing, and inspect final cell masters and all\ncorner reports. A slew/cap improvement can still leave fanout and antenna\nfailures; record those candidates as rejected.\n\nFor macro-model audits, prefer the run's `resolved.json` mapping over the\noriginal design config:\n\n```sh\npython3 pipeline/macro_model_audit.py --design <design> --run-dir <run>\n```\n\nCompare declared PVT and actual per-table related/constrained input axes.\nExpand bus pins and convert Liberty time units. Matching labels\nalone do not qualify measurements. Repeated table/edge extrapolation checks are\nnot physical violation counts. Missing libraries, unknown edges, output-load\ncoverage and unmeasured PVT provenance must remain unverified.\n\nCheck the pinned simulator's batch behavior before adding output-retention\noptimizations. ngspice 46 already extracts `.meas` vectors automatically in\nbatch mode; the recorded nonlinear RC comparison shows no RSS benefit from an\nexplicit `.save` list. Sample the full process to establish its current\nbottleneck instead of assuming waveform retention is responsible.\n\n## Checks\n\nFor closure handoff and specialist routing, read\n`.codex/skills/ppa-eda-flow/references/closure-handoff.md`.\n`pipeline/closure_review.py <manifest.json>` checks declared evidence integrity\nand recommends relevant roles; it neither dispatches agents nor certifies PASS.\n\nFast checks do not require Docker or a PDK:\n\n```sh\npython3 -m unittest discover -s tests -v\ncd dashboard && npm run build\n```\n\nOpenLane, KLayout, PDK, and Docker-backed checks are integration work. Run them\nonly when the task calls for new physical results, and preserve the command,\ntoolchain, inputs, and case output so another agent can audit the result.\n"
+      },
+      {
+        "role": "user",
+        "content": "같은 provenance의 검증 완료 두 결과다. 첫 번째 대비 두 번째의 변화율을 계산하라. JSON에 cell_area_change_pct, power_change_pct, core_area_change_pct, area_power_change_pct(모두 부호 있는 %), uniform_improvement(boolean), summary_ko(짧은 한국어)를 반환하라.\n[{\"tag\": \"ctx17-seed-u35\", \"cell_area_um2\": 290.278, \"core_area_um2\": 480.461, \"activity_power_w\": 0.000124, \"worst_setup_slack_ns\": 6.0943558591300135, \"qualified\": true, \"compatibility_key\": \"3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33\"}, {\"tag\": \"ctx17-full-history-p3-r3\", \"cell_area_um2\": 287.776, \"core_area_um2\": 653.126, \"activity_power_w\": 0.000121, \"worst_setup_slack_ns\": 6.119366075957687, \"qualified\": true, \"compatibility_key\": \"3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33\"}]"
+      }
+    ],
+    "temperature": 0,
+    "max_tokens": 2048,
+    "reasoning": {
+      "effort": "medium"
+    },
+    "usage": {
+      "include": true
+    },
+    "response_format": {
+      "type": "json_object"
+    }
+  },
+  "response": {
+    "id": "gen-1792327023-DPOEQZKjIQ9uuwITIf5s",
+    "object": "chat.completion",
+    "created": 1792327023,
+    "model": "z-ai/glm-5.3-flash",
+    "provider": "DigitalOcean",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "logprobs": null,
+        "finish_reason": "stop",
+        "native_finish_reason": "stop",
+        "message": {
+          "role": "assistant",
+          "content": "{\n  \"cell_area_change_pct\": -0.86,\n  \"power_change_pct\": -2.42,\n  \"core_area_change_pct\": 35.94,\n  \"area_power_change_pct\": -3.28,\n  \"uniform_improvement\": false,\n  \"summary_ko\": \"동일 compatibility_key의 두 실측 결과 비교: 2차 결과는 셀 면적 -0.86%, 전력 -2.42% 개선됐으나 코어 면역 +35.94% 증가해 전 항목 균일 개선은 아님. 면적+전력 합산 변화는 -3.28%. 타이밍 슬랙은 양쪽 모두 양수로 게이트 통과 범위.\"\n}",
+          "refusal": null,
+          "reasoning": "Compute pct changes second vs first.\ncell: (287.776-290.278)/290.278 = -2.502/290.278 ≈ -0.86199 → -0.86\npower: (0.000121-0.000124)/0.000124 = -3/124 = -2.41935% → -2.42\ncore: (653.126-480.461)/480.461 = 172.665/480.461 ≈ 0.35937 → +35.94%\narea_power: sum? \"area_power_change_pct\" — combined? Likely cell_area + power change... ambiguous; interpret as combined metric? Probably sum of cell_area_change_pct and power_change_pct? Or product of (1+a)(1+p)? Use sum: -0.86 + -2.42 = -3.28.\nuniform_improvement: all negative? core positive, so false.",
+          "reasoning_details": [
+            {
+              "type": "reasoning.text",
+              "text": "Compute pct changes second vs first.\ncell: (287.776-290.278)/290.278 = -2.502/290.278 ≈ -0.86199 → -0.86\npower: (0.000121-0.000124)/0.000124 = -3/124 = -2.41935% → -2.42\ncore: (653.126-480.461)/480.461 = 172.665/480.461 ≈ 0.35937 → +35.94%\narea_power: sum? \"area_power_change_pct\" — combined? Likely cell_area + power change... ambiguous; interpret as combined metric? Probably sum of cell_area_change_pct and power_change_pct? Or product of (1+a)(1+p)? Use sum: -0.86 + -2.42 = -3.28.\nuniform_improvement: all negative? core positive, so false.",
+              "format": "unknown",
+              "index": 0
+            }
+          ]
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 2493,
+      "completion_tokens": 391,
+      "total_tokens": 2884,
+      "cost": 0.00049826875,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00049826875,
+        "upstream_inference_prompt_cost": 0.00032720625,
+        "upstream_inference_completions_cost": 0.0001710625
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 210,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  },
+  "grade": {
+    "parsed": true,
+    "checks": {
+      "cell_area_change_pct": true,
+      "power_change_pct": true,
+      "core_area_change_pct": true,
+      "area_power_change_pct": true,
+      "uniform_improvement": true,
+      "korean_summary": true
+    },
+    "actual": {
+      "cell_area_change_pct": -0.86,
+      "power_change_pct": -2.42,
+      "core_area_change_pct": 35.94,
+      "area_power_change_pct": -3.28,
+      "uniform_improvement": false,
+      "summary_ko": "동일 compatibility_key의 두 실측 결과 비교: 2차 결과는 셀 면적 -0.86%, 전력 -2.42% 개선됐으나 코어 면역 +35.94% 증가해 전 항목 균일 개선은 아님. 면적+전력 합산 변화는 -3.28%. 타이밍 슬랙은 양쪽 모두 양수로 게이트 통과 범위."
+    }
+  },
+  "passed": true
+}
