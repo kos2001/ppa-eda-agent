@@ -1,0 +1,18 @@
+{
+  "candidate_budget": 1,
+  "candidate_sources": {
+    "explicit": 1,
+    "sweep": 0,
+    "synthesis_exploration": 0
+  },
+  "evaluation_budget": {
+    "max_evaluations": 1
+  },
+  "evaluation_order": "spec",
+  "max_iterations": 1,
+  "mode": "explicit",
+  "objective": "Minimize cell area times activity-annotated total power among provenance-complete, signoff-clean and equivalence-proven candidates; report core area and worst setup/hold slack separately. Missing activity power excludes ranking, never substitute vectorless power.",
+  "planned_candidates_max": 1,
+  "reference": "context-search-20261017 original 10 ns baseline",
+  "seed": 42
+}

@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "status": "preregistered_before_measurement",
+  "design": "counter4",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "random_seed": 42,
+  "policies": ["full_history", "fresh_evidence", "seed_only"],
+  "repetitions": 3,
+  "rounds": 3,
+  "proposals_per_call": 1,
+  "candidate_budget": 29,
+  "evaluation_budget": {"max_evaluations": 29, "max_wall_seconds": 3600},
+  "model_budget": {"max_calls": 27, "max_total_tokens": 900000, "per_call_timeout_seconds": 240},
+  "initial_seeds": [
+    {"tag": "ctx17-seed-u25", "overrides": {"FP_CORE_UTIL": 25, "SYNTH_STRATEGY": "AREA 0"}, "pdk": "sky130A", "scl": "sky130_fd_sc_hd", "flow": "Classic"},
+    {"tag": "ctx17-seed-u35", "overrides": {"FP_CORE_UTIL": 35, "SYNTH_STRATEGY": "AREA 0"}, "pdk": "sky130A", "scl": "sky130_fd_sc_hd", "flow": "Classic"}
+  ],
+  "allowed_domains": {
+    "FP_CORE_UTIL": [20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
+    "SYNTH_STRATEGY": ["AREA 0", "AREA 1", "AREA 2", "AREA 3", "DELAY 0", "DELAY 1", "DELAY 2", "DELAY 3", "DELAY 4"]
+  },
+  "targets": {"max_core_utilization": 0.75},
+  "fixed_clock_period_ns": 10,
+  "objective": "Minimize cell area times activity-annotated total power among provenance-complete, signoff-clean and equivalence-proven candidates; report core area and worst setup/hold slack separately. Missing activity power excludes ranking, never substitute vectorless power.",
+  "selection": "Retain at most two nondominated measured seeds over area, activity power, core area and setup slack within each arm; one is the lowest objective candidate, the other is the best remaining tradeoff. All arms start with the identical measured seeds. Proposals cite their chosen seed and change one axis.",
+  "visibility": "Every model call is a new tool-disabled Codex session in an empty directory. full_history replays that arm's earlier prompts/responses and measured rows; fresh_evidence exposes measured rows without earlier model responses; seed_only exposes only the selected retained seeds. This is a context-policy ablation, not a continuous-session or causal test of the conditional trigger.",
+  "deduplication": "Freeze model responses before tool execution. Execute each effective override/PDK/SCL/flow signature at most once in this experiment. A repeated configuration receives the retained exact measurement, labelled cache reuse. Each arm is charged one evaluation exposure per proposal, including cache reuse; actual tool executions and costs are reported separately. Independent model repetitions do not provide independent physical repeats.",
+  "gates": ["final Magic DRC", "final KLayout DRC", "Netgen LVS", "all reported setup and hold corners", "all required electrical and antenna limits", "nonvacuous RTL-to-synthesis equivalence", "nonvacuous synthesis-to-final equivalence", "independent counter testbench", "complete compatible evaluation provenance"],
+  "stagnation_observation": "Record whether the best objective improves by more than 0.5 percent over a two-round window. Empty/duplicate proposals are supporting signals. This observation does not alter the preregistered visibility assignments.",
+  "reporting": "Per-policy proposal validity, empty responses, within-arm repeats, unique configurations, cross-arm overlap, input/output/reasoning tokens, wall time, verified success and normalized best-objective trajectory. Report each paired replicate and the range/median; three model repeats on one small design cannot establish general EDA superiority or physical noise significance. No known historical candidate is assigned new provenance.",
+  "source_commit": "7ff350585fc60236bdbdcc1b2821488ee672cc69"
+}

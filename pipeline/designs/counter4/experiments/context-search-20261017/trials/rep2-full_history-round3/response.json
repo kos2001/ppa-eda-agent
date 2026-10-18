@@ -1,0 +1,12 @@
+{
+  "diagnosis": "At utilization 35, AREA 0, AREA 1 and AREA 2 produced identical synthesis and final netlist hashes. All visible runs tie at reported precision: 290.278 µm² cell area × 0.000124 W activity-annotated power = 0.035994472 µm²·W. Both selected seeds report core area 480.461 µm², worst setup slack 6.09436 ns and worst hold slack 0.13776 ns.",
+  "candidates": [
+    {
+      "seed_tag": "ctx17-fresh-evidence-p3-r2",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 3"
+      },
+      "hypothesis": "The untested AREA 3 strategy may reduce cell area times activity-annotated power, although the identical AREA 0–2 mappings suggest another unchanged result is possible. Area, power or timing could worsen; no improvement is measured. Change only SYNTH_STRATEGY from AREA 2 to AREA 3, retaining FP_CORE_UTIL=35, all other seed settings, sky130A, sky130_fd_sc_hd, Classic flow and every original constraint. Rank only after all required gates and complete compatible provenance pass, using activity-annotated power; report core area and worst setup/hold slack separately."
+    }
+  ]
+}
