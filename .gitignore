@@ -22,6 +22,11 @@ __pycache__/
 # that was not applied says nothing about anything.
 .cache/
 
+# Mutable local gateway runtime logs are excluded from the archived model
+# review's hashed evidence inventory. Keep them on the host for diagnosis.
+/reports/model-review-20261018/api-runtime.log
+/reports/model-review-20261018/local-gateway.log
+
 # Playwright MCP scratch output (snapshots, console logs) from driving the
 # dashboard in a browser during development. Never evidence, never source.
 .playwright-mcp/

@@ -1,0 +1,31 @@
+{
+  "design": "counter4",
+  "top": "counter4",
+  "netlist": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pipeline/designs/counter4/runs/ctx17-seed-u25/06-yosys-synthesis/counter4.nl.v",
+  "liberty": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+  "scope": "synthesis netlist vs RTL",
+  "reference_sources_sha256": {
+    "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pipeline/designs/counter4/src/counter4.v": "dec2e97882360811166438d5372fd91a71ac932af9c181f2fb2386eb33561ad5"
+  },
+  "staged_reference_sources_sha256": {
+    "/work/rtl/counter4.v": "dec2e97882360811166438d5372fd91a71ac932af9c181f2fb2386eb33561ad5"
+  },
+  "reference_staging": "literal include closure; directory-relative targets pinned to /work/rtl",
+  "formal_assumptions": [],
+  "normalization": [],
+  "physical_input_only_models": [],
+  "netlist_sha256": "911bb14a244b7708d081990f118a48f4c32e8eeeb37a9673ddb91097c28e89c6",
+  "liberty_sha256": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+  "physical_lefs_sha256": {},
+  "log_sha256": "f0a6e4282c21c87bbed7eae24d34c3e2e853865301dbe0c291d8cfe0a43c1760",
+  "equivalent": true,
+  "timed_out": false,
+  "timeout_s": 120,
+  "proof_order": "simple_first",
+  "cleanup_error": null,
+  "container_name": "ppa-equiv-60312f1c225a4474a6d26ffce0a48b08",
+  "proven_points": 4,
+  "unproven_points": 0,
+  "vacuous": false,
+  "tail": null
+}

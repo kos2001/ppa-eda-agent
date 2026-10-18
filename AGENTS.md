@@ -117,6 +117,13 @@ does not predict PPA. See `docs/evaluation-harness-20261004.md` for the counting
 contract. Equivalence to generated RTL does not validate that RTL against a spec;
 keep independent golden verification and physical/model gates distinct.
 
+For repeated search rounds or a measured plateau, read
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. Refresh proposal
+context from selected measured seeds and selectively expose factual history;
+retain the full audit archive, original obligations and remaining shared budget.
+The feedback, placement, topology and verification roles follow that contract.
+Context resets do not establish an optimum or authorize more evaluations.
+
 When a review is worth dispatching more than once, check the independent
 answers against each other with `pipeline/review_verify.py` before applying one.
 Its resolver settles disagreements, its challenger tries to break shared

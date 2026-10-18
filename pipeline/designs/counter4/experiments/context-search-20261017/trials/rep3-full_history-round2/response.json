@@ -1,0 +1,12 @@
+{
+  "diagnosis": "At utilization 35, AREA 1 reproduced AREA 0's synthesis and final netlists, giving no measured objective improvement: cell area 290.278 µm² and activity-annotated power 124 µW. Both have complete compatible provenance and passing required checks/proofs. Core area is 480.461 µm²; worst setup/hold slack is 6.09436/0.13776 ns.",
+  "candidates": [
+    {
+      "seed_tag": "ctx17-seed-u35",
+      "overrides": {
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "hypothesis": "The untested AREA 2 strategy may produce a different mapping that reduces cell area × activity-annotated total power. It could also reproduce the same netlist, increase power or area, or reduce timing margins. Improvement is unmeasured and requires full qualification. Retain FP_CORE_UTIL=35, all other seed settings, PDK, SCL, flow and original constraints."
+    }
+  ]
+}

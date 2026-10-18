@@ -1,0 +1,56 @@
+{
+  "pid": 57278,
+  "previous_pid": 70725,
+  "command": [
+    "node",
+    "index.mjs"
+  ],
+  "cwd": "server",
+  "pre_restart_states": [
+    [
+      "spm",
+      "idle"
+    ],
+    [
+      "srio_r15_clock_fanout16_revalidate_20261015",
+      "idle"
+    ],
+    [
+      "counter4_tinydie",
+      "idle"
+    ],
+    [
+      "sram_wrapper",
+      "idle"
+    ],
+    [
+      "counter4",
+      "idle"
+    ],
+    [
+      "gcd",
+      "idle"
+    ],
+    [
+      "srio_r15_clock_fanout16",
+      "idle"
+    ],
+    [
+      "sram_wrapper_autoplace",
+      "idle"
+    ],
+    [
+      "riscv32i",
+      "idle"
+    ],
+    [
+      "cdc_twoclock",
+      "idle"
+    ],
+    [
+      "aes",
+      "done"
+    ]
+  ],
+  "gateway_url": "http://127.0.0.1:18700"
+}

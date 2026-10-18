@@ -1,0 +1,49 @@
+{
+  "status": "measured_comparison_complete",
+  "model_calls": 27,
+  "physical_evaluations": 7,
+  "policy_results": {
+    "full_history": {
+      "within_branch_repeats": 0,
+      "usage": {
+        "input_tokens": 258622,
+        "cached_input_tokens": 10368,
+        "output_tokens": 4104,
+        "reasoning_output_tokens": 1875
+      },
+      "final_improvement_pct": {
+        "median": 3.260433991086198,
+        "min": 3.260433991086198,
+        "max": 3.260433991086198
+      }
+    },
+    "fresh_evidence": {
+      "within_branch_repeats": 0,
+      "usage": {
+        "input_tokens": 256587,
+        "cached_input_tokens": 31104,
+        "output_tokens": 5354,
+        "reasoning_output_tokens": 3196
+      },
+      "final_improvement_pct": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 3.260433991086198
+      }
+    },
+    "seed_only": {
+      "within_branch_repeats": 0,
+      "usage": {
+        "input_tokens": 181465,
+        "cached_input_tokens": 20736,
+        "output_tokens": 4502,
+        "reasoning_output_tokens": 2379
+      },
+      "final_improvement_pct": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      }
+    }
+  }
+}

@@ -1,0 +1,694 @@
+r"""Which measurement answers this failure — retrieved, not remembered.
+
+case_retrieval finds prior cases that share a failure signature. That
+tells an agent what happened before. It does not tell it what to *run*,
+and this session measured why that matters: replaying three recorded
+cases through the configured model scored grounded 3/3 and root-cause
+recall 1/10. The answers were not badly reasoned. They were reasoned
+over the only thing available — text someone had already written — when
+every real advance in those cases came from running something new.
+
+The gap is concrete. None of the eight agent definitions in
+.claude/agents/ mentions a single one of this pipeline's tools, so an
+agent asked to take the human-in-the-loop step has no way to learn that
+`report_checks` against a chosen pin exists, let alone that the pin must
+come from the max-slew violator list rather than the timing report.
+
+So this indexes measurements the way case_retrieval indexes cases: keyed
+by the same failure signatures, returning the tool that answers each,
+the question it answers, and the trap that wastes the attempt.
+
+DELIBERATELY HAND-WRITTEN. Every entry names the recorded case where the
+measurement actually settled something, and nothing is here on the
+strength of sounding plausible. That makes it small and auditable rather
+than comprehensive — a retrieval layer that returned confident guidance
+for failures nobody has debugged would be the same mistake as a
+confident ungrounded diagnosis, one level up.
+
+WHAT IT DOES NOT DO. It does not rank by similarity or embed anything.
+Signature overlap is exact-match, for the reason recorded in
+case_retrieval: an error code is already a precise key, and fuzzy
+matching over precise keys only adds ways to be wrong.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+import case_retrieval
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+# Each entry: what it applies to, what to run, what it answers, and what
+# goes wrong. `design` is the case that put it on the record, and it is
+# a field rather than something parsed out of `evidence` — leave-one-out
+# used to read the prose's first word, so an entry whose evidence began
+# with a variable name instead of a design could never be excluded and
+# would have leaked that design's answer back into its own evaluation.
+MEASUREMENTS: list[dict] = [
+    {
+        "id": "slew-path-trace",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090"],
+        "tool": "ppa_sta_path",
+        "cli": "python3 pipeline/sta_path.py --design D --run-dir R --pin P",
+        "answers": "Why one specific pin's slew is what it is — the cell at "
+                   "each stage of the chain and which one adds the most.",
+        "trap": "This is usually NOT the critical path. sram_wrapper had "
+                "+18.57 ns of setup slack on the very path whose slew was 22x "
+                "over its limit, so a pin taken from the timing report shows "
+                "nothing wrong. Take the pin from ppa_sta_report's max-slew "
+                "violator list.",
+        "evidence": "sram_wrapper: found repair_design fixing a slew violation "
+                    "with dlymetal6s2s_1, a delay cell, after five config "
+                    "variables had been tried and all were null.",
+    },
+    {
+        "id": "which-pins-violate",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090", "max_cap_violation"],
+        "tool": "ppa_sta_report",
+        "cli": "python3 pipeline/sta_report.py --design D --tag T",
+        "answers": "Which pins violate max_slew / max_cap / max_fanout, per "
+                   "corner, from the reports the run already wrote.",
+        "trap": "Read it before ppa_sta_path, not after — the path trace needs "
+                "an endpoint, and this is where the endpoint comes from. Also "
+                "read the worst corner: sram_wrapper's worst pin was 0.545 ns "
+                "at nom_tt and 0.880 ns at max_ss.",
+        "evidence": "sram_wrapper: its max-slew violator list is what named "
+                    "addr1[7] and addr0[3], the pins whose path trace then "
+                    "found delay cells inserted as slew repair.",
+    },
+    {
+        "id": "ask-sta-directly",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090", "override_changed_nothing",
+                 "max_cap_violation"],
+        "tool": "ppa_sta_query",
+        "cli": "python3 -c \"import sys;sys.path.insert(0,'pipeline');"
+               "import sta_path;print(sta_path.query(D,R,'report_power')['output'])\"",
+        "answers": "Anything OpenSTA can report about a completed run that no "
+                   "tool here wraps — power by group, check types, a pin's "
+                   "properties, the units the numbers are in.",
+        "trap": "Reach for it when a wrapped tool nearly answers the question "
+                "but not quite. Five config sweeps were run on sram_wrapper "
+                "before anyone asked STA directly, and the direct question "
+                "settled it in one command. Commands that modify are refused, "
+                "so this cannot repair anything — only ask.",
+        "evidence": "sram_wrapper: `report_checks -to u_sram/addr0[3]` showed "
+                    "repair_design fixing a slew violation with delay cells. "
+                    "That query existed in no tool until it was added as one, "
+                    "which is the argument for a general way to ask.",
+    },
+    {
+        "id": "liberty-ceiling",
+        "design": "sram_wrapper",
+        "when": ["RSZ-0090"],
+        "tool": "read the macro's .lib directly",
+        "cli": "grep -o 'index_1(\"[^\"]*\")' <macro>.lib | sort -u",
+        "answers": "Whether a max_transition limit is an electrical "
+                   "requirement or just where characterisation stopped.",
+        "trap": "RSZ-0090 is a feasibility precheck, not a violation report — "
+                "it aborts before doing any work, whether or not a net "
+                "violates. Sweeping placement or repair knobs cannot move it.",
+        "evidence": "sram_wrapper: max_transition 0.04 equals the top of "
+                    "index_1(\"0.00125, 0.005, 0.04\"), and sits on "
+                    "addr0/addr1/wmask0 — inputs — not on dout0/dout1 as this "
+                    "project's own record claimed for several sessions.",
+    },
+    {
+        "id": "macro-power",
+        "design": "sram_wrapper",
+        "when": ["PDN-0231"],
+        "tool": "read PDN_MACRO_CONNECTIONS in config.json",
+        "cli": "python3 -c \"import json;print(json.load(open('config.json'))"
+               "['PDN_MACRO_CONNECTIONS'])\"",
+        "answers": "Whether the macro is actually connected to the power grid.",
+        "trap": "The format is <instance> <vdd_net> <gnd_net> <vdd_pin> "
+                "<gnd_pin> — net before pin. Swapped, it names nets the design "
+                "does not have, connects nothing, and OpenLane only WARNs.",
+        "evidence": "sram_wrapper: carried the macro's pin names in the net "
+                    "slots for the life of the case; the macro had no power "
+                    "connection in the generated PDN.",
+    },
+    {
+        "id": "override-took-effect",
+        "design": "sram_wrapper",
+        "when": ["override_changed_nothing"],
+        "tool": "read resolved.json and the generated SDC",
+        "cli": "grep -n set_driving_cell <run>/*floorplan*/*.sdc",
+        "answers": "Whether a config change reached the tool at all, before "
+                   "concluding anything about what it does.",
+        "trap": "Identical metrics do not prove a knob is inert. Confirm the "
+                "artefact changed, then judge the effect.",
+        "evidence": "SYNTH_CLK_DRIVING_CELL was recorded as 'byte-identical "
+                    "results, so it does not reach the SDC'. It does reach it "
+                    "— the SDC goes from inv_2/Y to clkbuf_16/X. The inference "
+                    "was wrong because the SDC was never opened.",
+    },
+    {
+        "id": "per-net-placement",
+        "design": "sram_wrapper",
+        "when": ["long_net_suspected", "GRT-0097"],
+        "tool": "ppa_odb_query",
+        "cli": "python3 pipeline/odb_query.py --design D --tag T",
+        "answers": "One net's real pin count, HPWL and max span in microns.",
+        "trap": "metrics.json aggregates cannot answer a question about one "
+                "net, and a span that looks long may still be inside what the "
+                "driver can hold — check the driver before moving anything.",
+        "evidence": "sram_wrapper: addr1[7] measured 138.6 um, inside buf_12's "
+                    "reach, which retired 'keep addr drivers within 145 um' as "
+                    "a constraint that was already satisfied.",
+    },
+    {
+        "id": "pdn-does-not-fit",
+        "design": "counter4_tinydie",
+        "when": ["PDN-0185", "pdn-strap-width"],
+        "tool": "ppa_run_stage with a larger DIE_AREA",
+        "cli": "python3 pipeline/run_stage.py --design D --tag T "
+               "--override DIE_AREA=0,0,W,H",
+        "answers": "Whether the core is simply too small for the power straps "
+                   "the PDN wants to place.",
+        "trap": "Reach for FP_CORE_UTIL first and there may be nothing to step "
+                "down — a design using the default utilisation has no override "
+                "to lower, and DIE_AREA is the knob that exists instead.",
+        "evidence": "counter4_tinydie: the 16x16 um candidate cleared Floorplan "
+                    "Init and then hit PDN-0185 with no FP_CORE_UTIL override "
+                    "present; orchestrator.propose_repairs grows DIE_AREA for "
+                    "exactly this signature.",
+    },
+    {
+        "id": "netlist-still-the-rtl",
+        "design": "sram_wrapper",
+        "when": ["equivalence_doubt", "resizer_changed_netlist"],
+        "tool": "ppa_equiv_check",
+        "cli": "python3 pipeline/equiv_check.py --design D --tag T",
+        "answers": "Whether the netlist after resizing and repair still "
+                   "implements the RTL.",
+        "trap": "Do not reach for OpenLane's RUN_EQY instead. It is False by "
+                "default and enabling it aborts inside EQY itself (\"This "
+                "should not happen. Please report this bug.\"), so gating on it "
+                "marks every candidate unverified forever.",
+        "evidence": "sram_wrapper: this proves the same design at 4 points with "
+                    "0 unproven, on the design where EQY crashes.",
+    },
+    {
+        "id": "see-the-layout",
+        "design": "sram_wrapper",
+        "when": ["macro_present", "placement_suspected"],
+        "tool": "ppa_render_layout, and ppa_gate_schematic for the netlist behind it",
+        "cli": "python3 pipeline/render_layout.py --design D --tag T",
+        "answers": "The run's real rendered GDS, for a question about where "
+                   "things physically ended up.",
+        "trap": "An image is not a measurement — use it to form the question, "
+                "then answer it with ppa_odb_query's numbers rather than by "
+                "eye.",
+        "evidence": "arxiv.org/html/2605.06936v3 measured that a layout image "
+                    "improves diagnosis of real post-flow violations over text "
+                    "alone; this pipeline stores the render in reference-db so "
+                    "it survives the run directory being cleaned up.",
+    },
+    {
+        "id": "hs-library-magic-drc",
+        "design": "counter4",
+        "when": ["scl_sky130_fd_sc_hs", "magic_drc_only"],
+        "tool": "compare the two DRC engines before blaming the design",
+        "cli": "grep -c 'um ' <run>/*magic-drc*/reports/drc_violations.magic.rpt",
+        "answers": "Whether a DRC failure is the design's or the library's.",
+        "trap": "Magic and KLayout disagree here, and only one of them is "
+                "wrong. Read both counts and the per-cell ratio before "
+                "changing anything: violations that scale with instance count "
+                "are inside the cells, and no placement or routing change will "
+                "move them.",
+        "evidence": "counter4, cdc_twoclock and spm all reach step 74 on "
+                    "sky130_fd_sc_hs and all fail the same rule, licon.11 "
+                    "(diffusion contact to gate < 0.055um): Magic reports "
+                    "21/48/282 while KLayout reports 0/0/0 and routing DRC is "
+                    "0/0/0. That is 0.60, 0.52 and 0.57 violations per cell "
+                    "instance across three unrelated designs.",
+    },
+    {
+        "id": "unreadable-macro-gds",
+        "design": "sram_wrapper",
+        "when": ["magic_read_failure", "unknown_layer_datatype"],
+        "tool": "look the layers up in all THREE maps, not two, before "
+                "reaching for a knob",
+        "cli": "grep -E '<layer>[[:space:]]+<type>' "
+               "$PDK/libs.tech/magic/sky130A.tech "
+               "$PDK/libs.tech/magic/sky130gds.tech "
+               "$PDK/libs.tech/klayout/tech/sky130A.map",
+        "answers": "Whether the layers Magic cannot read are circuit geometry "
+                   "or mask-prep — which decides whether the read failure "
+                   "matters at all.",
+        "trap": "Two knobs in sequence, and stopping after the first reads as "
+                "proof the abort was right. MAGIC_CAPTURE_ERRORS=false alone "
+                "takes the run to step 66 and reports 2,831,364 DRC "
+                "violations, which looks damning. That count comes from "
+                "GDS-based DRC. MAGIC_DRC_USE_GDS=false — OpenLane's own "
+                "documented workaround for OpenRAM sky130 macros, which runs "
+                "DRC on DEF/LEF so the macro is only an abstract — was never "
+                "tried here, so the 2.8M number was never the test it looked "
+                "like.",
+        "evidence": "sram_wrapper: five layers (22/21, 22/22, 33/42, 33/43, "
+                    "235/0) in the SRAM macro's GDS are in neither sky130A.tech "
+                    "nor KLayout's sky130A.map, which was recorded as 'layers "
+                    "no sky130 tool configuration defines'. They are all in "
+                    "open_pdks' sky130gds.tech, in its cifoutput section: mask "
+                    "ADD/DROP layers (CNTMADD, CFOMDROP, CP1MDROP, CP1MADD) "
+                    "and a cell boundary (BOUND2). None is drawn device or "
+                    "interconnect geometry, so Magic dropping them loses no "
+                    "circuit. Absence from the DRC techfile is by design, not "
+                    "a PDK gap. VLSIDA's openram_testchip taped out with this "
+                    "same macro.",
+    },
+    {
+        "id": "library-blocked-by-a-missing-file",
+        "design": "counter4",
+        "when": ["pnr_excluded_cell_file_invalid", "pdk_load_failure"],
+        "tool": "pdk_repair",
+        "cli": "python3 pipeline/pdk_repair.py --pdk <family>",
+        "answers": "Whether a library is unusable because the PDK omitted a "
+                   "file OpenLane resolves by convention.",
+        "trap": "The error names PNR_EXCLUDED_CELL_FILE, a variable nobody "
+                "set, and passing --override-config for it does not help: the "
+                "path is validated while loading the PDK, before overrides "
+                "apply. There is also no run directory to inspect.",
+        "evidence": "gf180mcu_fd_sc_mcu9t5v0 ships no drc_exclude.cells while "
+                    "its 7-track sibling does, in all four metal-stack "
+                    "variants; sky130_fd_sc_hvl and sky130_osu_sc_t18 have the "
+                    "same gap. Eight libraries across two PDKs were unusable. "
+                    "With the file created the 9-track library completes all "
+                    "78 stages.",
+    },
+    {
+        "id": "new-technology-needs-a-new-floorplan",
+        "design": "counter4_tinydie",
+        "when": ["scl_sky130_fd_sc_hs", "scl_gf180mcu_fd_sc_mcu7t5v0",
+                 "scl_gf180mcu_fd_sc_mcu9t5v0", "GPL-0301",
+                 "PDN-0185", "pdn-strap-width"],
+        "tool": "re-sweep the floorplan rather than reusing the old one",
+        "cli": "python3 pipeline/run_stage.py --design D --tag T "
+               "--override DIE_AREA=0,0,W,H",
+        "answers": "Whether a floorplan that worked for one library is big "
+                   "enough for another.",
+        "trap": "Two of them. A die carried over from the previous technology "
+                "fails without naming the library as the reason — "
+                "GPL-0301 says 'Utilization 122%' and nothing about cells "
+                "being four times larger. And FP_CORE_UTIL is inert when the "
+                "design sets FP_SIZING: absolute, so the obvious override "
+                "changes nothing and the run fails identically; DIE_AREA is "
+                "the knob that exists there.",
+        "evidence": "counter4_tinydie: smallest die that completes is 48um on "
+                    "sky130_fd_sc_hd and 56um on hs, and gf180mcu needs 256um "
+                    "where sky130 needed 8. cdc_twoclock at its fixed 60x60 "
+                    "die hit GPL-0301 at 122% utilisation on both gf180mcu "
+                    "libraries and completed at 128x128 (2627.7 and 3053.8 "
+                    "um2). All four designs now build on both foundries.",
+    },
+    {
+        "id": "a-whole-batch-failed-identically",
+        "design": "counter4",
+        "when": ["every_candidate_failed", "override_changed_nothing"],
+        "tool": "run one candidate by hand before blaming the sweep",
+        "cli": "python3 pipeline/run_stage.py --design D --tag t "
+               "--override 'KEY=VALUE'",
+        "answers": "Whether a batch failed because of what it swept or "
+                   "because of how the runs were named.",
+        "trap": "A batch where *every* run fails and none of the errors "
+                "mentions the sweep is the signature of the harness, not the "
+                "design. Run one candidate directly with the same override: "
+                "if it passes, the override was never the problem and the "
+                "difference is the tag built from it. Failures like these must "
+                "also be deleted from reference-db — left there they read as "
+                "'this design does not build' and move the metrics.",
+        "evidence": "A 171-run batch failed completely because SYNTH_STRATEGY "
+                    "values look like 'DELAY 1' and safe_tag was applied only "
+                    "where sweeps are expanded, never in run_candidate. The "
+                    "rows took completion's win-rate from 0.82 to 0.56 before "
+                    "they were removed. Second occurrence: the first rendered "
+                    "a DIE_AREA list into a tag.",
+    },
+    {
+        "id": "what-is-this-cell",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090"],
+        "tool": "ppa_stdcell_schematic",
+        "cli": "python3 pipeline/stdcell_schematic.py "
+               "--cell sky130_fd_sc_hd__dlymetal6s2s_1 --draw",
+        "answers": "What a cell the tools chose actually is, at transistor "
+                   "level, from the foundry's own CDL — width, length, "
+                   "multiplicity and topology, not just a name in a report.",
+        "trap": "The sequential cells cannot be drawn: flops and latches use "
+                "special_nfet_01v8, a real device with no xschem symbol, and "
+                "the importer drops what it cannot resolve without saying so "
+                "(dfxtp_2 came out with 21 of its 24 transistors). The tool "
+                "refuses those by name. It is also the wrong question for a "
+                "timing failure on its own — read the path first, then ask "
+                "what the cell on it is.",
+        "evidence": "sram_wrapper: repair_design fixed a slew violation by "
+                    "inserting dlymetal6s2s_1, a delay cell, and nothing in "
+                    "this repo could show what that cell was.",
+    },
+    {
+        "id": "characterisation-ceiling-is-a-spice-question",
+        "design": "sram_wrapper",
+        "when": ["RSZ-0090", "max_slew_violation"],
+        "tool": "ppa_render_schematic to see it, ppa_netlist_schematic, then ppa_spice_sim",
+        "cli": "python3 pipeline/custom_bridge.py netlist "
+               "--schematic pipeline/analog/inv/inv_tb.sch && "
+               "python3 pipeline/custom_bridge.py spice "
+               "--netlist pipeline/analog/inv/inv_tb.spice --corner ss",
+        "answers": "What a device actually does outside the range its liberty "
+                   "was characterised over — the only number in this pipeline "
+                   "that does not come from a .lib someone else generated.",
+        "trap": "Start at the schematic, not at a deck. A hand-written netlist "
+                "drops the diffusion parasitics the PDK's symbols attach to every "
+                "device — measured at ~3% on inverter delay with an identical DC "
+                "trip point, so it looks right and is not. Then: ngspice exits 0 "
+                "when the .meas the run existed to take fails, so returncode is "
+                "not a verdict — read the status, where finished-but-incomplete "
+                "is `partial`. And bind the corner through the tool: gf180mcu's "
+                "typical section is named `typical`, not `tt`, and a deck with "
+                "the wrong name simulates different silicon without complaining.",
+        "evidence": "sram_wrapper: the 0.04 ns max_transition ceiling is "
+                    "OpenRAM's default slew_scales [0.25, 1, 8] times sky130's "
+                    "rise_time 0.005 ns — a record of where characterisation "
+                    "stopped, not a limit the macro imposes. Closing it is a "
+                    "SPICE sweep, which this repo had no way to run until "
+                    "2026-09-12; the first one measured a sky130 inverter at "
+                    "tphl 53.3 / 66.3 / 85.5 ps across ff / tt / ss.",
+    },
+    {
+        "id": "which-custom-tools-are-installed",
+        "design": "sram_wrapper",
+        "when": ["magic_read_failure", "unknown_layer_datatype"],
+        "tool": "ppa_custom_status, then ppa_custom_eval",
+        "cli": "python3 pipeline/custom_bridge.py status --docker",
+        "answers": "Which of the open-source custom-design stack (xschem / "
+                   "magic / klayout / ngspice / netgen) this host can actually "
+                   "run, and which Cadence tool each one stands in for — before "
+                   "writing a script for one of them.",
+        "trap": "A directory that looks like an install is not one: "
+                "/Applications/KLayout exists on this host and contains no "
+                "klayout binary at all. Ask for the executable, not the path. "
+                "Magic and KLayout answer here only through the pinned OpenLane "
+                "image, which is what --docker checks and why it is slow.",
+        "evidence": "Measured 2026-09-12: ngspice 46 and netgen 1.5.323 resolve "
+                    "locally; magic, klayout and xschem do not. sram_wrapper's "
+                    "Magic ladder ran inside the OpenLane image throughout, so a "
+                    "Tcl probe written against a local magic fails before it "
+                    "starts.",
+    },
+    {
+        "id": "library-comparison",
+        "design": "counter4_tinydie",
+        "when": ["technology_question"],
+        "tool": "ppa_tech_compare",
+        "cli": "python3 pipeline/tech_compare.py --design D",
+        "answers": "The same design through two or more standard-cell "
+                   "libraries, run for real.",
+        "trap": "Do not compare libraries with --override-config "
+                "STD_CELL_LIBRARY. OpenLane accepts it into resolved.json and "
+                "ignores it, so the netlist keeps the default library's cells "
+                "and the comparison reports a perfectly plausible 0.00% delta. "
+                "The library is chosen by --scl.",
+        "evidence": "run_stage.py's docstring records this as one of two "
+                    "ignored-override false conclusions this project has "
+                    "actually published.",
+    },
+    {
+        "id": "is-this-slew-reachable",
+        "design": "sram_wrapper",
+        "when": ["max_slew_violation", "RSZ-0090", "signoff:max-slew",
+                 "unverified:macro-model"],
+        "tool": "lib_slew_floor.py, then lib_chain.py",
+        "cli": "python3 pipeline/lib_slew_floor.py --lib <corner>.lib "
+               "--cells buf_16 clkinv_16 --load 0.009 && "
+               "python3 pipeline/lib_chain.py --lib <corner>.lib "
+               "--chain clkinv_2 clkinv_4 clkinv_8 clkinv_16 --load 0.009",
+        "answers": "Whether any standard-cell driver can meet a slew limit at "
+                   "all at a given corner, and which taper gets closest - "
+                   "from the liberty's own tables, before a 4-minute run.",
+        "trap": "Three. A buffer is two stages and its output edge is slow: at "
+                "ss_100C into a macro pin (9 fF) buf_16 gives 0.048 ns and "
+                "clkinv_16 gives 0.026, so the last stage that can meet a tight "
+                "limit is an inverter. The macro's liberty measures slew 10-90% "
+                "where the standard cells measure 20-80%, so STA reports the "
+                "same edge 1.333x slower at the macro pin than at the driver "
+                "(0.0588 ns out, 0.0785 ns in, on 28 ohm of wire). And a "
+                "strong last stage still gives a slow edge when what feeds it "
+                "is slow: clkinv_16 is 0.032 ns on a sharp input and 0.059 on a "
+                "0.24 ns one.",
+        "evidence": "sram_wrapper: RSZ-0090's 'best achievable 0.043 ns' is the "
+                    "best BUFFER. With per-port counters and a four-stage "
+                    "inverter taper the address pins came to 0.039-0.050 ns at "
+                    "ss against 0.07-0.12 before, which is the edge of what "
+                    "this library can do (experiments/README.md).",
+    },
+    {
+        "id": "macro-pin-geometry",
+        "design": "sram_wrapper",
+        "when": ["macro_present", "max_slew_violation", "long_net_suspected",
+                 "signoff:max-slew"],
+        "tool": "macro_pins.py, then io_driver_report.py",
+        "cli": "python3 pipeline/macro_pins.py --lef <macro>.lef --origin X Y "
+               "--prefix addr0 addr1",
+        "answers": "Which side of the block every pin is on, where it is in "
+                   "the die, and how far the cell that drives it ended up.",
+        "trap": "Pin NAMES say nothing about sides. The SRAM's addr0[0] is on "
+                "its bottom edge and addr0[1..7] on its left; addr1 is spread "
+                "over the top, right and bottom. An earlier note in this repo "
+                "grouped pins by prefix ('addr0 left, addr1 right') and an "
+                "orientation grid was reasoned from it.",
+        "evidence": "sram_wrapper: the finished run's address drivers sat "
+                    "60-157 um from their pins once the resizer had shrunk them "
+                    "to inv_4; io_driver_report.py prints that distance per pin.",
+    },
+    {
+        "id": "fanout-made-of-diodes",
+        "design": "sram_wrapper",
+        "when": ["signoff:max-fanout", "signoff:antenna"],
+        "tool": "fanout_loads.py",
+        "cli": "python3 pipeline/fanout_loads.py --run-dir <run>",
+        "answers": "What the loads on each over-fanout net are, and what the "
+                   "fanout would be without antenna diodes.",
+        "trap": "Turning the fanout limit up makes the number go away by "
+                "editing the test. Look at the loads first: diode insertion "
+                "(RUN_HEURISTIC_DIODE_INSERTION, GRT antenna repair) runs "
+                "AFTER the resizer's last fanout repair, so every diode it adds "
+                "is a load nothing then fixes. The clock tree is affected too: "
+                "diodes land on clock nets.",
+        "evidence": "sram_wrapper: 486 diodes, 10 of 15 listed violators were "
+                    "within the limit without them (e.g. 17 loads, 9 of them "
+                    "diodes). Turning heuristic insertion off took max-fanout "
+                    "18 -> 5 with antenna violations still 0-1. aes shows the "
+                    "same coupling: antenna 15 -> 8 as fanout went 4 -> 16.",
+    },
+    {
+        "id": "dont-touch-needs-the-nets",
+        "design": "sram_wrapper",
+        "when": ["ODB-0370"],
+        "tool": "RSZ_DONT_TOUCH_RX, on nets as well as instances",
+        "cli": "python3 pipeline/sram_io_experiment.py --round 2",
+        "answers": "Why the post-CTS resizer aborts when a cell was protected "
+                   "from it.",
+        "trap": "ODB-0370 'attempt to disconnect iterm of dont_touch "
+                "instance' is repair_timing trying to put a buffer at the "
+                "protected cell's pin. Protecting only the instances moves the "
+                "problem to the net around them; protect those too. Without any "
+                "protection the resizer undoes the sizing instead: hand-placed "
+                "clkinv_16 pin drivers came back as inv_4 and the address "
+                "slews went back to 0.07-0.10 ns.",
+        "evidence": "sram_wrapper rounds 1-3: instance-only protection crashed "
+                    "in ResizerTimingPostCTS on gen_io_drv_addr1[5].u_a; adding "
+                    "the counters' nets to the regex fixed it; removing "
+                    "protection altogether returned 16 max-slew violations.",
+    },
+    {
+        "id": "timing-trustworthy",
+        "design": "sram_wrapper",
+        "when": ["macro_present", "max_slew_violation"],
+        "tool": "ppa_verify_diagnosis / model_validity",
+        "cli": "python3 pipeline/model_validity.py --design D --run-dir R",
+        "answers": "Whether the STA numbers are measurements or extrapolation "
+                   "off the end of a liberty table.",
+        "trap": "Clean setup and hold prove nothing if the slews sit past the "
+                "model's characterisation ceiling. Judge such a run by the "
+                "model_validity flag, not by WNS.",
+        "evidence": "sram_wrapper reported WNS +9.39 ns with zero violations "
+                    "while its addr pins sat 22x past where the model stops.",
+    },
+]
+
+# Symptoms that are not error codes. Derived from the case rather than
+# asserted, so a case that does not show one does not get its guidance.
+def symptoms(case: dict) -> set[str]:
+    """Signature-like labels for conditions no error code names."""
+    found = set()
+    text = json.dumps(case)
+    if '"macro' in text.lower() or "MACROS" in text:
+        found.add("macro_present")
+    for result in [r for it in case.get("iterations", []) for r in it.get("results", [])]:
+        scl = result.get("scl")
+        if scl and scl != "sky130_fd_sc_hd":
+            found.add(f"scl_{scl}")
+        err = result.get("error") or ""
+        if "Unknown layer/datatype" in err:
+            found.add("unknown_layer_datatype")
+        if "fatal errors while running Magic" in err:
+            found.add("magic_read_failure")
+        if "PNR_EXCLUDED_CELL_FILE" in err and "invalid" in err:
+            found.add("pnr_excluded_cell_file_invalid")
+        if "Errors have occurred while loading the PDK" in err:
+            found.add("pdk_load_failure")
+    # A batch where nothing at all succeeded says something about the
+    # harness. One where some did says something about the design.
+    results = [r for it in case.get("iterations", []) for r in it.get("results", [])]
+    if len(results) > 3 and all(not (r.get("verdict") or {}).get("area_um2")
+                                for r in results):
+        found.add("every_candidate_failed")
+    for iteration in case.get("iterations", []):
+        results = iteration.get("results", [])
+        errors = [r.get("error") or "" for r in results]
+        if any("max slew" in e.lower() or "RSZ-0090" in e for e in errors):
+            found.add("max_slew_violation")
+        # Two candidates with different overrides and identical text is
+        # the shape of a knob that did nothing.
+        seen = {}
+        for r in results:
+            key = (r.get("error") or json.dumps(r.get("verdict") or {}))[:400]
+            if key and key in seen and seen[key] != r.get("overrides"):
+                found.add("override_changed_nothing")
+            seen[key] = r.get("overrides")
+    return found
+
+
+def case_keys(case: dict) -> set[str]:
+    """Everything this case can be matched on: real codes plus symptoms.
+
+    Includes the verdict's own signatures (signoff:max-fanout,
+    unverified:macro-model, ...), not only codes found in error text. Most
+    failing cases in the store never raised a tool error - the flow finished
+    and the gate said no - so keyed on error text alone, a measurement could
+    be offered to a design that crashed and never to one that completed and
+    failed signoff, which is the commoner case.
+    """
+    errors, _tags = _recorded_errors(case)
+    return (case_retrieval.signatures(errors) | symptoms(case)
+            | case_retrieval.case_signatures(case))
+
+
+def _recorded_errors(case: dict) -> tuple[str, set]:
+    errors, tags = [], set()
+    for iteration in case.get("iterations", []):
+        for result in iteration.get("results", []):
+            tags.add(result.get("tag"))
+            if result.get("error"):
+                errors.append(result["error"])
+    tags.discard(None)
+    return "\n".join(errors), tags
+
+
+def retrieve(case: dict, exclude_design: str | None = None) -> list[dict]:
+    """Measurements that apply to this case, most specific first.
+
+    Specificity is how many of an entry's own keys the case matched — an
+    entry that names two conditions and matched both is a better fit
+    than one that names two and matched one.
+
+    `exclude_design` drops entries whose evidence comes from that
+    design. Every entry here is grounded in a case this pipeline
+    actually resolved, which means for that case the entry *is* the
+    answer — handing it back would measure reading comprehension. The
+    same leave-one-out discipline surrogate.py already applies to its
+    own training data, for the same reason.
+    """
+    keys = case_keys(case)
+    hits = []
+    for entry in MEASUREMENTS:
+        if exclude_design and entry["design"] == exclude_design:
+            continue
+        shared = sorted(set(entry["when"]) & keys)
+        if shared:
+            hits.append({**entry, "matched": shared,
+                         "specificity": len(shared) / len(entry["when"])})
+    hits.sort(key=lambda e: (-e["specificity"], -len(e["matched"]), e["id"]))
+    return hits
+
+
+def guidance_block(case: dict, exclude_design: str | None = None) -> str:
+    """The retrieved measurements as markdown for a review request."""
+    hits = retrieve(case, exclude_design)
+    if not hits:
+        # Two different emptinesses, and conflating them would hide the
+        # more interesting one. Nothing matched at all means this shape
+        # of failure is new. Everything matched but came from this same
+        # design means the index has learned only from here and has
+        # nothing to transfer yet — the small-corpus limit surrogate.py
+        # hits too, stated rather than shown as a blank.
+        if exclude_design and retrieve(case):
+            return ("## Measurements that apply\n\n"
+                    f"Every recorded measurement matching this case's failure "
+                    f"signature was learned from {exclude_design} itself, so "
+                    f"none is offered here. The index has no transferable "
+                    f"guidance for this failure yet: it becomes useful the "
+                    f"first time a *different* design hits the same "
+                    f"signature.\n")
+        return ("## Measurements that apply\n\n"
+                "No recorded measurement matches this case's failure "
+                "signature. That is a real answer, not an empty one: nothing "
+                "here has debugged this shape of failure before, so reach for "
+                "a tool deliberately rather than by analogy.\n")
+
+    lines = ["## Measurements that apply (retrieved from what actually worked)",
+             "",
+             f"{len(hits)} of the recorded measurements match this case's "
+             f"failure signature. Each names the trap that wastes the attempt, "
+             f"because in every instance below the trap is what a previous "
+             f"session actually fell into.",
+             ""]
+    for hit in hits:
+        lines += [
+            f"### {hit['tool']}  (matched {', '.join(hit['matched'])})",
+            "",
+            f"- **answers**: {hit['answers']}",
+            f"- **run**: `{hit['cli']}`",
+            f"- **trap**: {hit['trap']}",
+            f"- **on the record**: {hit['evidence']}",
+            "",
+        ]
+    return "\n".join(lines)
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--design", help="latest case for this design")
+    ap.add_argument("--case", type=Path, help="a specific case file")
+    ap.add_argument("--markdown", action="store_true")
+    args = ap.parse_args()
+
+    if args.case:
+        path = args.case
+    elif args.design:
+        hits = sorted((REPO_ROOT / "reference-db" / "cases")
+                      .glob(f"{args.design}__*.json"))
+        if not hits:
+            raise SystemExit(f"no recorded case for {args.design}")
+        path = hits[-1]
+    else:
+        raise SystemExit("--design or --case required")
+
+    case = json.loads(path.read_text(encoding="utf-8"))
+    if args.markdown:
+        print(guidance_block(case))
+    else:
+        print(json.dumps({"case": path.name,
+                          "keys": sorted(case_keys(case)),
+                          "measurements": retrieve(case)}, indent=2))
+
+
+if __name__ == "__main__":
+    main()

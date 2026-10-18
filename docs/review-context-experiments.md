@@ -4,6 +4,13 @@ Inspired by [Scaling Discovery Requires Forgetting](https://arxiv.org/pdf/2610.2
 This is an opt-in context ablation, not a reproduction of its agent teams or a
 demonstration of better EDA results. The default review workflow is unchanged.
 
+The agent decision protocol lives in
+[adaptive-search.md](../.codex/skills/ppa-eda-flow/references/adaptive-search.md).
+It adds conditional refresh guidance, factual handoffs, paired visibility and
+multiple measured seeds. These CLIs do not detect stagnation, dispatch sessions
+or reset them. The protocol's thresholds and multiple-seed selection are local
+experimental choices, not findings established by the cited paper.
+
 Three views share the supplied design baseline, explicit measured seed and
 allowed tuning keys:
 
@@ -11,6 +18,11 @@ allowed tuning keys:
 - `fresh_evidence`: the same measurement rows without review/diagnosis fields.
 - `seed_only`: only the selected candidate's results, with case-level constraints
   and provenance. The seed is user selected, not automatically ranked as best.
+
+All views retain the recorded task objective/reference and budget contract,
+constraints and available candidate input/toolchain provenance, verification
+policy and equivalence results. Missing legacy fields stay missing. Prior
+diagnoses and predictions are not substitutes for measurements.
 
 Original cases remain untouched. The supplied config is not proof of historical
 execution inputs. Prior signatures can reveal repeated configurations, but do
@@ -32,6 +44,13 @@ snapshot and other trial responses inaccessible to that session. This CLI makes
 no API calls and cannot enforce isolation in an external agent; instructions in
 a prompt alone do not provide isolation. Save model/settings/usage alongside the
 responses. Equal trial counts do not imply equal token or monetary costs.
+
+To preserve multiple starting candidates, run `prepare` separately for each
+selected seed with a distinct output directory. Each seed gets all three views
+with the same repetition count. Choose compatible qualified Pareto seeds from
+`python3 pipeline/evaluation_archive.py`, or label failed seeds as diagnostic.
+Keep the global admissions/time ledger across these blocks; preparing another
+block does not authorize another physical run or reset the evaluation budget.
 
 Save each JSON response as `<trial-id>.json` in a separate responses directory:
 

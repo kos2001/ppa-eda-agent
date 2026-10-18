@@ -1,0 +1,12 @@
+{
+  "diagnosis": "Selected seeds tie at 290.278 µm² cell area and 124 µW activity-annotated power. Each reports core area 480.461 µm², worst setup slack 6.09436 ns and worst hold slack 0.13776 ns. AREA 0–2 produced identical synthesis netlists at utilization setting 35, supporting exploration of placement density instead.",
+  "candidates": [
+    {
+      "seed_tag": "ctx17-fresh-evidence-p3-r2",
+      "overrides": {
+        "FP_CORE_UTIL": 40
+      },
+      "hypothesis": "Changing only FP_CORE_UTIL from 35 to 40 may reduce routed capacitance and activity-annotated power, improving cell-area × power. Congestion or added buffers could instead worsen the objective or violate the 0.75 actual-utilization limit. This configuration is unmeasured; retain AREA 2, all other seed settings, PDK, SCL, flow and original constraints, and require every qualification gate before ranking."
+    }
+  ]
+}

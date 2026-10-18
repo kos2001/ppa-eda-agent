@@ -12,6 +12,7 @@ import os
 import pathlib
 import sys
 import unittest
+from unittest.mock import patch
 
 PIPELINE = os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "pipeline")
@@ -189,12 +190,15 @@ class TestScanningDoesNotWrite(unittest.TestCase):
         self._unchanged()
 
     def test_a_read_only_scan_still_says_a_review_is_needed(self):
-        # Not writing must not mean not reporting. The panel's job is to
-        # say which designs are waiting on a human; only the file is
-        # deferred to whoever actually runs the scan.
-        report = self_improve.scan_all()
-        statuses = [d.get("status", "") for d in report["designs"]]
-        self.assertTrue(any("needs review" in s for s in statuses), statuses)
+        # The live store may have no review backlog after new cases land.
+        # Exercise the review state without depending on today's case index.
+        with patch.object(self_improve, "latest_case", return_value=_case()), \
+             patch.object(self_improve, "expected_outcome", return_value=None):
+            row = self_improve.scan_design("fixture")
+        self.assertEqual(row["status"], "OPEN, needs review")
+        self.assertTrue(row["needs_review"])
+        self.assertIsNone(row["review_request_generated"])
+        self._unchanged()
 
     def test_a_read_only_scan_reports_requests_that_already_exist(self):
         # An existing request is a fact about the repo, and reading it is

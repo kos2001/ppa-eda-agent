@@ -1,0 +1,12 @@
+{
+  "diagnosis": "At utilization setting 35, AREA 0/1/2 produced identical netlists and measured PPA: cell area 290.278 µm² and activity-annotated power 124 µW. The selected seeds therefore tie on the objective. Core area is 480.461 µm²; worst setup/hold slack is 6.094356/0.137760 ns. Further synthesis-strategy gains lack evidence; a modest density change remains untested.",
+  "candidates": [
+    {
+      "seed_tag": "ctx17-fresh-evidence-p3-r2",
+      "overrides": {
+        "FP_CORE_UTIL": 40
+      },
+      "hypothesis": "Increasing FP_CORE_UTIL from 35 to 40 may reduce routed capacitance and activity-annotated power while retaining cell area. Power improvement is uncertain: measured wirelength increased from setting 25 to 35, and greater density could worsen routing or hold slack. Retain AREA 2, PDK, SCL, flow and every original constraint. Measure the objective, core area and worst setup/hold slack; rank only after all required gates pass, including final utilization ≤0.75. No candidate PPA is yet measured."
+    }
+  ]
+}

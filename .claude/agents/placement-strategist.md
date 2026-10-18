@@ -35,7 +35,21 @@ Every candidate must state what it tests and the expected metric movement.
 
 ## Candidate generation
 
-Propose 2-4 candidates, each varying one or more of:
+For a repeated search or an assigned context capsule, read
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. In a capsule trial,
+use only its visible seed, evidence and tuning axes; the normal precedent
+lookups below apply outside that isolated trial. Do not retrieve hidden history
+through `topology-analyst` or earlier reviews. Treat prior interpretations as
+hypotheses, not reasons to ban an entire axis.
+
+Propose deltas relative to each assigned seed and name the seed and testable
+hypothesis in the proposal handoff. Keep alternatives with distinct measured
+tradeoffs; do not collapse them to a scalar winner without the stated objective.
+The coordinator performs full-history deduplication after proposals are frozen.
+An empty proposal list is acceptable when no justified novel candidate remains;
+report the evidence limit rather than asserting global optimality.
+
+Within the remaining budget, normally propose 2-4 candidates, each varying one or more of:
 - `FP_CORE_UTIL` — core density target. Known real failure mode from
   precedent: pushing this too high on a small die can make
   `OpenROAD.GeneratePDN` fail outright (insufficient strap width for the
@@ -79,7 +93,9 @@ readable.
 
 Add `candidate_budget` and a `search` object recording `mode`, `objective`,
 `reference`, and a `seed` when randomized. Do not emit duplicate
-override/PDK/SCL configurations. Before handoff, run
+effective override/PDK/SCL/flow configurations. Also declare `evaluation_budget`
+within the coordinator's remaining shared admissions/time; context refresh and
+multiple seeds do not create independent new budgets. Before handoff, run
 `python3 pipeline/orchestrator.py --design <dir> --run-spec <file>
 --validate-only`; fix every collision, malformed sweep, or budget failure.
 
