@@ -1,0 +1,929 @@
+{
+  "status": "completed",
+  "baseline_best_objective": 0.035994472000000007,
+  "policy_summaries": [
+    {
+      "policy": "full_history",
+      "model_calls": 9,
+      "valid_responses": 9,
+      "empty_responses": 0,
+      "within_branch_repeats": 0,
+      "unique_proposed_configurations": 3,
+      "qualified_proposals": 9,
+      "model_wall_seconds": 103.96717316587456,
+      "usage": {
+        "input_tokens": 258622,
+        "cached_input_tokens": 10368,
+        "output_tokens": 4104,
+        "reasoning_output_tokens": 1875
+      },
+      "final_best_by_replicate": [
+        {
+          "id": "rep1-full_history-round3",
+          "policy": "full_history",
+          "replicate": 1,
+          "round": 3,
+          "model": {
+            "wall_seconds": 10.008942582877353,
+            "exit_code": 0,
+            "prompt_sha256": "b246a5b0d82c0ede92db00eaa9ada3187e48765a523f465b77da815db272169e",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 34725,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 382,
+              "reasoning_output_tokens": 142
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-full-history-p1-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-full-history-p3-r3",
+          "cache_reuse": true,
+          "qualification": null,
+          "objective": 0.034820896000000004,
+          "evaluation_exposures": 1,
+          "best_objective": 0.034820896000000004,
+          "best_tag": "ctx17-full-history-p3-r3"
+        },
+        {
+          "id": "rep2-full_history-round3",
+          "policy": "full_history",
+          "replicate": 2,
+          "round": 3,
+          "model": {
+            "wall_seconds": 10.698726083151996,
+            "exit_code": 0,
+            "prompt_sha256": "3c30848d51ecb9870e44d3ee01e3f979f2d7ae710c64348933c19a6e0599ff72",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 34811,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 570,
+              "reasoning_output_tokens": 270
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-full-history-p2-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-full-history-p3-r3",
+          "cache_reuse": true,
+          "qualification": null,
+          "objective": 0.034820896000000004,
+          "evaluation_exposures": 1,
+          "best_objective": 0.034820896000000004,
+          "best_tag": "ctx17-full-history-p3-r3"
+        },
+        {
+          "id": "rep3-full_history-round3",
+          "policy": "full_history",
+          "replicate": 3,
+          "round": 3,
+          "model": {
+            "wall_seconds": 10.596455750055611,
+            "exit_code": 0,
+            "prompt_sha256": "0afd541a3bbf74c7ca1f9cd2fe445890684367a07bfc13287d64351932dd1be2",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 34731,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 392,
+              "reasoning_output_tokens": 152
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-full-history-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-full-history-p3-r3",
+          "cache_reuse": false,
+          "qualification": null,
+          "objective": 0.034820896000000004,
+          "evaluation_exposures": 1,
+          "best_objective": 0.034820896000000004,
+          "best_tag": "ctx17-full-history-p3-r3"
+        }
+      ],
+      "objective_improvement_pct_by_replicate": [
+        3.260433991086198,
+        3.260433991086198,
+        3.260433991086198
+      ],
+      "median_objective_improvement_pct": 3.260433991086198
+    },
+    {
+      "policy": "fresh_evidence",
+      "model_calls": 9,
+      "valid_responses": 9,
+      "empty_responses": 0,
+      "within_branch_repeats": 0,
+      "unique_proposed_configurations": 4,
+      "qualified_proposals": 7,
+      "model_wall_seconds": 134.8238792938646,
+      "usage": {
+        "input_tokens": 256587,
+        "cached_input_tokens": 31104,
+        "output_tokens": 5354,
+        "reasoning_output_tokens": 3196
+      },
+      "final_best_by_replicate": [
+        {
+          "id": "rep1-fresh_evidence-round3",
+          "policy": "fresh_evidence",
+          "replicate": 1,
+          "round": 3,
+          "model": {
+            "wall_seconds": 14.994811083190143,
+            "exit_code": 0,
+            "prompt_sha256": "7458421526bbd4d18e233418dbd4839e606cbf430e527ce1743e23fa35271353",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 34306,
+              "cached_input_tokens": 10368,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 587,
+              "reasoning_output_tokens": 311
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-fresh-evidence-p1-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 40,
+              "SYNTH_STRATEGY": "AREA 2"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-seed-only-p2-r3",
+          "cache_reuse": true,
+          "qualification": "flow_error",
+          "objective": null,
+          "evaluation_exposures": 1,
+          "best_objective": 0.035994472000000007,
+          "best_tag": "ctx17-seed-u25"
+        },
+        {
+          "id": "rep2-fresh_evidence-round3",
+          "policy": "fresh_evidence",
+          "replicate": 2,
+          "round": 3,
+          "model": {
+            "wall_seconds": 18.340921874856576,
+            "exit_code": 0,
+            "prompt_sha256": "7458421526bbd4d18e233418dbd4839e606cbf430e527ce1743e23fa35271353",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 34308,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 770,
+              "reasoning_output_tokens": 516
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-fresh-evidence-p2-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-full-history-p3-r3",
+          "cache_reuse": true,
+          "qualification": null,
+          "objective": 0.034820896000000004,
+          "evaluation_exposures": 1,
+          "best_objective": 0.034820896000000004,
+          "best_tag": "ctx17-full-history-p3-r3"
+        },
+        {
+          "id": "rep3-fresh_evidence-round3",
+          "policy": "fresh_evidence",
+          "replicate": 3,
+          "round": 3,
+          "model": {
+            "wall_seconds": 19.613206708803773,
+            "exit_code": 0,
+            "prompt_sha256": "7458421526bbd4d18e233418dbd4839e606cbf430e527ce1743e23fa35271353",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 34302,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 730,
+              "reasoning_output_tokens": 516
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-fresh-evidence-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 40,
+              "SYNTH_STRATEGY": "AREA 2"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-seed-only-p2-r3",
+          "cache_reuse": true,
+          "qualification": "flow_error",
+          "objective": null,
+          "evaluation_exposures": 1,
+          "best_objective": 0.035994472000000007,
+          "best_tag": "ctx17-seed-u25"
+        }
+      ],
+      "objective_improvement_pct_by_replicate": [
+        0.0,
+        3.260433991086198,
+        0.0
+      ],
+      "median_objective_improvement_pct": 0.0
+    },
+    {
+      "policy": "seed_only",
+      "model_calls": 9,
+      "valid_responses": 9,
+      "empty_responses": 0,
+      "within_branch_repeats": 0,
+      "unique_proposed_configurations": 4,
+      "qualified_proposals": 6,
+      "model_wall_seconds": 120.98373820702545,
+      "usage": {
+        "input_tokens": 181465,
+        "cached_input_tokens": 20736,
+        "output_tokens": 4502,
+        "reasoning_output_tokens": 2379
+      },
+      "final_best_by_replicate": [
+        {
+          "id": "rep1-seed_only-round3",
+          "policy": "seed_only",
+          "replicate": 1,
+          "round": 3,
+          "model": {
+            "wall_seconds": 15.01592699997127,
+            "exit_code": 0,
+            "prompt_sha256": "9b7d109552585a9dc69723f26dce6f2c838b8feb608423d3a38df08592d1df0e",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 22721,
+              "cached_input_tokens": 10368,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 599,
+              "reasoning_output_tokens": 355
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-full-history-p2-r1",
+            "ctx17-seed-u35"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-seed-only-p1-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 2"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-fresh-evidence-p3-r2",
+          "cache_reuse": true,
+          "qualification": null,
+          "objective": 0.035994472000000007,
+          "evaluation_exposures": 1,
+          "best_objective": 0.035994472000000007,
+          "best_tag": "ctx17-seed-u25"
+        },
+        {
+          "id": "rep2-seed_only-round3",
+          "policy": "seed_only",
+          "replicate": 2,
+          "round": 3,
+          "model": {
+            "wall_seconds": 15.886853333096951,
+            "exit_code": 0,
+            "prompt_sha256": "a4148f9043a4564a417764a31fe26d58cff57282991e254357b610e7d817c292",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 22764,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 634,
+              "reasoning_output_tokens": 351
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-seed-only-p2-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 40,
+              "SYNTH_STRATEGY": "AREA 2"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-seed-only-p2-r3",
+          "cache_reuse": false,
+          "qualification": "flow_error",
+          "objective": null,
+          "evaluation_exposures": 1,
+          "best_objective": 0.035994472000000007,
+          "best_tag": "ctx17-seed-u25"
+        },
+        {
+          "id": "rep3-seed_only-round3",
+          "policy": "seed_only",
+          "replicate": 3,
+          "round": 3,
+          "model": {
+            "wall_seconds": 11.582451124908403,
+            "exit_code": 0,
+            "prompt_sha256": "a4148f9043a4564a417764a31fe26d58cff57282991e254357b610e7d817c292",
+            "model": "gpt-6.1-sol",
+            "reasoning_effort": "high",
+            "cost_usd": null,
+            "usage": {
+              "input_tokens": 22768,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 439,
+              "reasoning_output_tokens": 196
+            }
+          },
+          "visible_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "status": "valid",
+          "empty": false,
+          "candidate": {
+            "pdk": "sky130A",
+            "scl": "sky130_fd_sc_hd",
+            "flow": "Classic",
+            "tag": "ctx17-seed-only-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 40,
+              "SYNTH_STRATEGY": "AREA 2"
+            }
+          },
+          "within_branch_repeat": false,
+          "physical_tag": "ctx17-seed-only-p2-r3",
+          "cache_reuse": true,
+          "qualification": "flow_error",
+          "objective": null,
+          "evaluation_exposures": 1,
+          "best_objective": 0.035994472000000007,
+          "best_tag": "ctx17-seed-u25"
+        }
+      ],
+      "objective_improvement_pct_by_replicate": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "median_objective_improvement_pct": 0.0
+    }
+  ],
+  "physical_metrics": [
+    {
+      "tag": "ctx17-seed-u25",
+      "overrides": {
+        "FP_CORE_UTIL": 25,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "area_um2": 290.278,
+      "core_area_um2": 630.605,
+      "activity_power_w": 0.000124,
+      "vectorless_power_w": 9.565059735905379e-05,
+      "worst_setup_slack_ns": 6.087654996853073,
+      "timing_corners": [
+        {
+          "corner": "max_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        }
+      ],
+      "physical_seconds": 78.160122,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33",
+      "violations": [],
+      "unverified": [],
+      "error": null
+    },
+    {
+      "tag": "ctx17-seed-u35",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "area_um2": 290.278,
+      "core_area_um2": 480.461,
+      "activity_power_w": 0.000124,
+      "vectorless_power_w": 9.54962961259298e-05,
+      "worst_setup_slack_ns": 6.0943558591300135,
+      "timing_corners": [
+        {
+          "corner": "max_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        }
+      ],
+      "physical_seconds": 48.458271,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33",
+      "violations": [],
+      "unverified": [],
+      "error": null
+    },
+    {
+      "tag": "ctx17-full-history-p2-r1",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 1"
+      },
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "area_um2": 290.278,
+      "core_area_um2": 480.461,
+      "activity_power_w": 0.000124,
+      "vectorless_power_w": 9.54962961259298e-05,
+      "worst_setup_slack_ns": 6.0943558591300135,
+      "timing_corners": [
+        {
+          "corner": "max_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        }
+      ],
+      "physical_seconds": 48.294247,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33",
+      "violations": [],
+      "unverified": [],
+      "error": null
+    },
+    {
+      "tag": "ctx17-seed-only-p1-r1",
+      "overrides": {
+        "FP_CORE_UTIL": 40,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "qualification": "flow_error",
+      "objective": null,
+      "area_um2": null,
+      "core_area_um2": null,
+      "activity_power_w": null,
+      "vectorless_power_w": null,
+      "worst_setup_slack_ns": null,
+      "timing_corners": null,
+      "physical_seconds": 15.092088,
+      "compatibility_key": null,
+      "violations": null,
+      "unverified": null,
+      "error": "OpenLane run 'ctx17-seed-only-p1-r1' exited 2 — see runs/ctx17-seed-only-p1-r1/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[23:58:04] ERROR    [PDN-0185] Insufficient width (20.7 um) to   openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN ━━━━━━━╸                         19/78 0:00:08\n[23:58:04] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[23:58:04] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[23:58:04] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[23:58:04] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (20.7 um) to                  \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[23:58:04] ERROR    OpenLane will now quit.                      __main__.py:188\n"
+    },
+    {
+      "tag": "ctx17-fresh-evidence-p3-r2",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "area_um2": 290.278,
+      "core_area_um2": 480.461,
+      "activity_power_w": 0.000124,
+      "vectorless_power_w": 9.54962961259298e-05,
+      "worst_setup_slack_ns": 6.0943558591300135,
+      "timing_corners": [
+        {
+          "corner": "max_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        }
+      ],
+      "physical_seconds": 62.836786,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33",
+      "violations": [],
+      "unverified": [],
+      "error": null
+    },
+    {
+      "tag": "ctx17-seed-only-p2-r3",
+      "overrides": {
+        "FP_CORE_UTIL": 40,
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "qualification": "flow_error",
+      "objective": null,
+      "area_um2": null,
+      "core_area_um2": null,
+      "activity_power_w": null,
+      "vectorless_power_w": null,
+      "worst_setup_slack_ns": null,
+      "timing_corners": null,
+      "physical_seconds": 10.346918,
+      "compatibility_key": null,
+      "violations": null,
+      "unverified": null,
+      "error": "OpenLane run 'ctx17-seed-only-p2-r3' exited 2 — see runs/ctx17-seed-only-p2-r3/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[00:02:32] ERROR    [PDN-0185] Insufficient width (20.7 um) to   openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN ━━━━━━━╸                         19/78 0:00:05\n[00:02:32] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[00:02:32] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[00:02:32] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[00:02:32] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (20.7 um) to                  \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[00:02:32] ERROR    OpenLane will now quit.                      __main__.py:188\n"
+    },
+    {
+      "tag": "ctx17-full-history-p3-r3",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 3"
+      },
+      "qualification": null,
+      "objective": 0.034820896000000004,
+      "area_um2": 287.776,
+      "core_area_um2": 653.126,
+      "activity_power_w": 0.000121,
+      "vectorless_power_w": 9.493634570389986e-05,
+      "worst_setup_slack_ns": 6.119366075957687,
+      "timing_corners": [
+        {
+          "corner": "max_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "max_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "min_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ff_n40C_1v95",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_ss_100C_1v60",
+          "setup_wns": 0,
+          "hold_wns": 0
+        },
+        {
+          "corner": "nom_tt_025C_1v80",
+          "setup_wns": 0,
+          "hold_wns": 0
+        }
+      ],
+      "physical_seconds": 50.395914,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33",
+      "violations": [],
+      "unverified": [],
+      "error": null
+    }
+  ],
+  "actual_unique_physical_evaluations": 7,
+  "physical_budget": {
+    "limits": {
+      "max_evaluations": 29,
+      "max_wall_seconds": 3600
+    },
+    "started_evaluations": 7,
+    "elapsed_seconds": 1414.693646,
+    "evaluations": [
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-u25",
+        "started_seconds": 0.09122857474721968,
+        "status": "completed",
+        "seconds": 84.349174
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-u35",
+        "started_seconds": 84.73613607464358,
+        "status": "completed",
+        "seconds": 54.644429
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-full-history-p2-r1",
+        "started_seconds": 859.2120649693534,
+        "status": "completed",
+        "seconds": 53.53339
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-only-p1-r1",
+        "started_seconds": 980.2671145112254,
+        "status": "tool_error",
+        "seconds": 15.152286
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-fresh-evidence-p3-r2",
+        "started_seconds": 1048.9741992612835,
+        "status": "completed",
+        "seconds": 69.298037
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-only-p2-r3",
+        "started_seconds": 1251.5770823862404,
+        "status": "tool_error",
+        "seconds": 10.351647
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-full-history-p3-r3",
+        "started_seconds": 1304.3778118023183,
+        "status": "completed",
+        "seconds": 55.79554
+      }
+    ],
+    "not_evaluated": [],
+    "policy": "stop new admissions; complete admitted verification"
+  },
+  "model_tokens": 710634,
+  "cost_usd": null,
+  "elapsed_seconds": 1414.684186220169,
+  "limitations": [
+    "one small design",
+    "three model repeats",
+    "no independent physical repeats",
+    "prompt-history replay rather than continuous-session resume",
+    "conditional trigger is observational",
+    "shared physical cache and per-arm evaluation exposures differ from actual tool invocations",
+    "ChatGPT subscription billing not exposed; token usage is measured, dollar cost unknown"
+  ]
+}
