@@ -49,6 +49,11 @@ automatic extra rounds. Historical PASS requires current revalidation.
 Budget-deferred candidates have no measured failure; infrastructure failures are
 not training examples of bad designs.
 
+Before stopping solely because repeated proposals have narrowed without
+progress, use [adaptive-search.md](adaptive-search.md) to consider a fresh
+proposal context within the remaining budget. This is a reasoning step, not
+admission of an unsupported physical candidate or permission for extra rounds.
+
 ## Retain evidence before completion
 
 Use a persistent Linux workspace for new Linux-local EDA runs, not /tmp as the
