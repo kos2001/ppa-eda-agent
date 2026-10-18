@@ -1,0 +1,82 @@
+{
+  "profile_config": "/Users/kos2001/.hermes/profiles/ppa-agent/config.yaml",
+  "requested_model": "deepseek/deepseek-v4.1-flash-1017",
+  "model_was_already_selected_at_start": true,
+  "reasoning_effort": "medium",
+  "profile_config_modified_by_this_task": false,
+  "local_env_changes": {
+    "HERMES_GATEWAY_PORT": "18700",
+    "PPA_EDA_GATEWAY_BASE_URL": "http://127.0.0.1:18700"
+  },
+  "gateway_script": "server/hermes-gateway.mjs",
+  "shared_gateway_config_modified": false,
+  "profile_api_key_changed": false,
+  "restart_attempt": "launchctl kickstart -k gui/501/ai.hermes.gateway-ppa-agent; did not resolve upstream routing",
+  "api_restart": {
+    "pid": 57278,
+    "previous_pid": 70725,
+    "command": [
+      "node",
+      "index.mjs"
+    ],
+    "cwd": "server",
+    "pre_restart_states": [
+      [
+        "spm",
+        "idle"
+      ],
+      [
+        "srio_r15_clock_fanout16_revalidate_20261015",
+        "idle"
+      ],
+      [
+        "counter4_tinydie",
+        "idle"
+      ],
+      [
+        "sram_wrapper",
+        "idle"
+      ],
+      [
+        "counter4",
+        "idle"
+      ],
+      [
+        "gcd",
+        "idle"
+      ],
+      [
+        "srio_r15_clock_fanout16",
+        "idle"
+      ],
+      [
+        "sram_wrapper_autoplace",
+        "idle"
+      ],
+      [
+        "riscv32i",
+        "idle"
+      ],
+      [
+        "cdc_twoclock",
+        "idle"
+      ],
+      [
+        "aes",
+        "done"
+      ]
+    ],
+    "gateway_url": "http://127.0.0.1:18700"
+  },
+  "dedicated_gateway": {
+    "pid": 57013,
+    "port": 18700,
+    "profile": "ppa-agent",
+    "command": [
+      "node",
+      "server/hermes-gateway.mjs"
+    ]
+  },
+  "physical_evaluations_started": 0,
+  "autostart_service_installed": false
+}

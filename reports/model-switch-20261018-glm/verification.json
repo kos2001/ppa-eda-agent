@@ -1,0 +1,16 @@
+{
+  "http_status": 200,
+  "seconds": 6.884934186935425,
+  "model": "z-ai/glm-5.3-flash",
+  "provider": "openrouter",
+  "reasoning_effort": "medium",
+  "runtime_session": {
+    "id": "local-4fcda735af52e91206106735b410fd63c387b23048e8ce37d9cab2b5b946ac6c",
+    "model": "z-ai/glm-5.3-flash",
+    "billing_provider": "openrouter",
+    "tool_call_count": 0,
+    "input_tokens": 25819,
+    "output_tokens": 27
+  },
+  "response_sse": "data: {\"choices\":[{\"delta\":{\"content\":\"확인 완료. 모델 연결 정상입니다.\"}}]}\n\ndata: [DONE]\n\n"
+}
