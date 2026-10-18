@@ -13,6 +13,13 @@ environment/evidence failures, read
 specialists or admitting another repair. It defines review routing, graph
 refresh, loop stopping and the read-only evidence handoff check.
 
+For a proposed change to reviewer guidance itself, use the paired, frozen
+same-task probe in `docs/harness2-eda-adaptation.md` and
+`pipeline/harness_probe.py`. Compare the base and changed prompts on the same
+case and evidence view, inspect actual response differences, and retain trial
+hashes before promoting a reusable instruction. Structural novelty is not PPA
+evidence; physical candidates still enter the normal bounded flow.
+
 1. Read `AGENTS.md`, the design's `config.json`, topology, `run_spec.json`, and
    compatible `reference-db/cases/` precedent. Check the recorded PDK, SCL, and
    toolchain before using a precedent as a baseline.
