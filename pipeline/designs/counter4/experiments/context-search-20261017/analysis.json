@@ -1,0 +1,2216 @@
+{
+  "status": "measured_comparison_complete",
+  "protocol_sha256": "f527fa8ca1577c6312155efbe73ae2d2a2487548e231c97cf57245a6e5d364e2",
+  "baseline": {
+    "tag": "ctx17-seed-u35",
+    "overrides": {
+      "FP_CORE_UTIL": 35,
+      "SYNTH_STRATEGY": "AREA 0"
+    },
+    "qualified": true,
+    "qualification_issue": null,
+    "objective_um2_w": 0.035994472000000007,
+    "area_um2": 290.278,
+    "activity_power_w": 0.000124,
+    "power_corner": "ff_n40C_1v95",
+    "core_area_um2": 480.461,
+    "worst_setup_slack_ns": 6.0943558591300135,
+    "worst_setup_wns_ns": 0,
+    "worst_hold_wns_ns": 0,
+    "violations": [],
+    "unverified": [],
+    "tool_error": null,
+    "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+  },
+  "policy_results": {
+    "full_history": {
+      "model_calls": 9,
+      "valid_responses": 9,
+      "empty_responses": 0,
+      "candidate_proposals": 9,
+      "within_branch_repeats": 0,
+      "unique_proposed_configurations": 3,
+      "qualified_proposals": 9,
+      "global_cache_reuses": 7,
+      "model_wall_seconds": 103.96717316587456,
+      "median_call_seconds": 10.698726083151996,
+      "usage": {
+        "input_tokens": 258622,
+        "cached_input_tokens": 10368,
+        "output_tokens": 4104,
+        "reasoning_output_tokens": 1875
+      },
+      "branches": [
+        {
+          "replicate": 1,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            3.260433991086198
+          ],
+          "final_selected": {
+            "tag": "ctx17-full-history-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.034820896000000004,
+            "area_um2": 287.776,
+            "activity_power_w": 0.000121,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 653.126,
+            "worst_setup_slack_ns": 6.119366075957687,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-full-history-p3-r3",
+            "ctx17-fresh-evidence-p3-r2"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": true,
+          "model_usage_known": true
+        },
+        {
+          "replicate": 2,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            3.260433991086198
+          ],
+          "final_selected": {
+            "tag": "ctx17-full-history-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.034820896000000004,
+            "area_um2": 287.776,
+            "activity_power_w": 0.000121,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 653.126,
+            "worst_setup_slack_ns": 6.119366075957687,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-full-history-p3-r3",
+            "ctx17-fresh-evidence-p3-r2"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": true,
+          "model_usage_known": true
+        },
+        {
+          "replicate": 3,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            3.260433991086198
+          ],
+          "final_selected": {
+            "tag": "ctx17-full-history-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.034820896000000004,
+            "area_um2": 287.776,
+            "activity_power_w": 0.000121,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 653.126,
+            "worst_setup_slack_ns": 6.119366075957687,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-full-history-p3-r3",
+            "ctx17-fresh-evidence-p3-r2"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": true,
+          "model_usage_known": true
+        }
+      ],
+      "final_improvement_pct": {
+        "median": 3.260433991086198,
+        "min": 3.260433991086198,
+        "max": 3.260433991086198
+      }
+    },
+    "fresh_evidence": {
+      "model_calls": 9,
+      "valid_responses": 9,
+      "empty_responses": 0,
+      "candidate_proposals": 9,
+      "within_branch_repeats": 0,
+      "unique_proposed_configurations": 4,
+      "qualified_proposals": 7,
+      "global_cache_reuses": 8,
+      "model_wall_seconds": 134.8238792938646,
+      "median_call_seconds": 14.006392792100087,
+      "usage": {
+        "input_tokens": 256587,
+        "cached_input_tokens": 31104,
+        "output_tokens": 5354,
+        "reasoning_output_tokens": 3196
+      },
+      "branches": [
+        {
+          "replicate": 1,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "final_selected": {
+            "tag": "ctx17-fresh-evidence-p3-r2",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 2"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.035994472000000007,
+            "area_um2": 290.278,
+            "activity_power_w": 0.000124,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 480.461,
+            "worst_setup_slack_ns": 6.0943558591300135,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": false,
+          "model_usage_known": true
+        },
+        {
+          "replicate": 2,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            3.260433991086198
+          ],
+          "final_selected": {
+            "tag": "ctx17-full-history-p3-r3",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 3"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.034820896000000004,
+            "area_um2": 287.776,
+            "activity_power_w": 0.000121,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 653.126,
+            "worst_setup_slack_ns": 6.119366075957687,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-full-history-p3-r3",
+            "ctx17-fresh-evidence-p3-r2"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": true,
+          "model_usage_known": true
+        },
+        {
+          "replicate": 3,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "final_selected": {
+            "tag": "ctx17-fresh-evidence-p3-r2",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 2"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.035994472000000007,
+            "area_um2": 290.278,
+            "activity_power_w": 0.000124,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 480.461,
+            "worst_setup_slack_ns": 6.0943558591300135,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": false,
+          "model_usage_known": true
+        }
+      ],
+      "final_improvement_pct": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 3.260433991086198
+      }
+    },
+    "seed_only": {
+      "model_calls": 9,
+      "valid_responses": 9,
+      "empty_responses": 0,
+      "candidate_proposals": 9,
+      "within_branch_repeats": 0,
+      "unique_proposed_configurations": 4,
+      "qualified_proposals": 6,
+      "global_cache_reuses": 7,
+      "model_wall_seconds": 120.98373820702545,
+      "median_call_seconds": 13.453579208115116,
+      "usage": {
+        "input_tokens": 181465,
+        "cached_input_tokens": 20736,
+        "output_tokens": 4502,
+        "reasoning_output_tokens": 2379
+      },
+      "branches": [
+        {
+          "replicate": 1,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "final_selected": {
+            "tag": "ctx17-fresh-evidence-p3-r2",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 2"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.035994472000000007,
+            "area_um2": 290.278,
+            "activity_power_w": 0.000124,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 480.461,
+            "worst_setup_slack_ns": 6.0943558591300135,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": false,
+          "model_usage_known": true
+        },
+        {
+          "replicate": 2,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "final_selected": {
+            "tag": "ctx17-fresh-evidence-p3-r2",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 2"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.035994472000000007,
+            "area_um2": 290.278,
+            "activity_power_w": 0.000124,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 480.461,
+            "worst_setup_slack_ns": 6.0943558591300135,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": false,
+          "model_usage_known": true
+        },
+        {
+          "replicate": 3,
+          "improvement_pct_by_round": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "final_selected": {
+            "tag": "ctx17-fresh-evidence-p3-r2",
+            "overrides": {
+              "FP_CORE_UTIL": 35,
+              "SYNTH_STRATEGY": "AREA 2"
+            },
+            "qualified": true,
+            "qualification_issue": null,
+            "objective_um2_w": 0.035994472000000007,
+            "area_um2": 290.278,
+            "activity_power_w": 0.000124,
+            "power_corner": "ff_n40C_1v95",
+            "core_area_um2": 480.461,
+            "worst_setup_slack_ns": 6.0943558591300135,
+            "worst_setup_wns_ns": 0,
+            "worst_hold_wns_ns": 0,
+            "violations": [],
+            "unverified": [],
+            "tool_error": null,
+            "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+          },
+          "retained_seed_tags": [
+            "ctx17-fresh-evidence-p3-r2",
+            "ctx17-full-history-p2-r1"
+          ],
+          "last_two_rounds_improvement_over_0_5_pct": false,
+          "model_usage_known": true
+        }
+      ],
+      "final_improvement_pct": {
+        "median": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      }
+    }
+  },
+  "paired_comparisons": [
+    {
+      "alternative": "fresh_evidence",
+      "reference": "full_history",
+      "improvement_difference_pp_by_replicate": [
+        -3.260433991086198,
+        0.0,
+        -3.260433991086198
+      ],
+      "median_difference_pp": -3.260433991086198,
+      "range_pp": [
+        -3.260433991086198,
+        0.0
+      ]
+    },
+    {
+      "alternative": "seed_only",
+      "reference": "full_history",
+      "improvement_difference_pp_by_replicate": [
+        -3.260433991086198,
+        -3.260433991086198,
+        -3.260433991086198
+      ],
+      "median_difference_pp": -3.260433991086198,
+      "range_pp": [
+        -3.260433991086198,
+        -3.260433991086198
+      ]
+    }
+  ],
+  "cross_policy_overlap": [
+    {
+      "policies": [
+        "full_history",
+        "fresh_evidence"
+      ],
+      "shared_configurations": 3,
+      "union_configurations": 4,
+      "jaccard": 0.75
+    },
+    {
+      "policies": [
+        "full_history",
+        "seed_only"
+      ],
+      "shared_configurations": 2,
+      "union_configurations": 5,
+      "jaccard": 0.4
+    },
+    {
+      "policies": [
+        "fresh_evidence",
+        "seed_only"
+      ],
+      "shared_configurations": 3,
+      "union_configurations": 5,
+      "jaccard": 0.6
+    }
+  ],
+  "physical_candidates": [
+    {
+      "tag": "ctx17-seed-u25",
+      "overrides": {
+        "FP_CORE_UTIL": 25,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "qualified": true,
+      "qualification_issue": null,
+      "objective_um2_w": 0.035994472000000007,
+      "area_um2": 290.278,
+      "activity_power_w": 0.000124,
+      "power_corner": "ff_n40C_1v95",
+      "core_area_um2": 630.605,
+      "worst_setup_slack_ns": 6.087654996853073,
+      "worst_setup_wns_ns": 0,
+      "worst_hold_wns_ns": 0,
+      "violations": [],
+      "unverified": [],
+      "tool_error": null,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+    },
+    {
+      "tag": "ctx17-seed-u35",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "qualified": true,
+      "qualification_issue": null,
+      "objective_um2_w": 0.035994472000000007,
+      "area_um2": 290.278,
+      "activity_power_w": 0.000124,
+      "power_corner": "ff_n40C_1v95",
+      "core_area_um2": 480.461,
+      "worst_setup_slack_ns": 6.0943558591300135,
+      "worst_setup_wns_ns": 0,
+      "worst_hold_wns_ns": 0,
+      "violations": [],
+      "unverified": [],
+      "tool_error": null,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+    },
+    {
+      "tag": "ctx17-full-history-p2-r1",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 1"
+      },
+      "qualified": true,
+      "qualification_issue": null,
+      "objective_um2_w": 0.035994472000000007,
+      "area_um2": 290.278,
+      "activity_power_w": 0.000124,
+      "power_corner": "ff_n40C_1v95",
+      "core_area_um2": 480.461,
+      "worst_setup_slack_ns": 6.0943558591300135,
+      "worst_setup_wns_ns": 0,
+      "worst_hold_wns_ns": 0,
+      "violations": [],
+      "unverified": [],
+      "tool_error": null,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+    },
+    {
+      "tag": "ctx17-seed-only-p1-r1",
+      "overrides": {
+        "FP_CORE_UTIL": 40,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "qualified": false,
+      "qualification_issue": "flow_error",
+      "objective_um2_w": null,
+      "area_um2": null,
+      "activity_power_w": null,
+      "power_corner": null,
+      "core_area_um2": null,
+      "worst_setup_slack_ns": null,
+      "worst_setup_wns_ns": null,
+      "worst_hold_wns_ns": null,
+      "violations": null,
+      "unverified": null,
+      "tool_error": "OpenLane run 'ctx17-seed-only-p1-r1' exited 2 — see runs/ctx17-seed-only-p1-r1/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[23:58:04] ERROR    [PDN-0185] Insufficient width (20.7 um) to   openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN ━━━━━━━╸                         19/78 0:00:08\n[23:58:04] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[23:58:04] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[23:58:04] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[23:58:04] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (20.7 um) to                  \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[23:58:04] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+      "compatibility_key": null
+    },
+    {
+      "tag": "ctx17-fresh-evidence-p3-r2",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "qualified": true,
+      "qualification_issue": null,
+      "objective_um2_w": 0.035994472000000007,
+      "area_um2": 290.278,
+      "activity_power_w": 0.000124,
+      "power_corner": "ff_n40C_1v95",
+      "core_area_um2": 480.461,
+      "worst_setup_slack_ns": 6.0943558591300135,
+      "worst_setup_wns_ns": 0,
+      "worst_hold_wns_ns": 0,
+      "violations": [],
+      "unverified": [],
+      "tool_error": null,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+    },
+    {
+      "tag": "ctx17-seed-only-p2-r3",
+      "overrides": {
+        "FP_CORE_UTIL": 40,
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "qualified": false,
+      "qualification_issue": "flow_error",
+      "objective_um2_w": null,
+      "area_um2": null,
+      "activity_power_w": null,
+      "power_corner": null,
+      "core_area_um2": null,
+      "worst_setup_slack_ns": null,
+      "worst_setup_wns_ns": null,
+      "worst_hold_wns_ns": null,
+      "violations": null,
+      "unverified": null,
+      "tool_error": "OpenLane run 'ctx17-seed-only-p2-r3' exited 2 — see runs/ctx17-seed-only-p2-r3/ for logs. Tail of output:\nate to: 5%                                             \n[INFO] Setting global connections...                                            \n[00:02:32] ERROR    [PDN-0185] Insufficient width (20.7 um) to   openroad.py:233\n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \nError: pdn_cfg.tcl, 89 PDN-0185                                                 \nClassic - Stage 20 - Generate PDN ━━━━━━━╸                         19/78 0:00:05\n[00:02:32] WARNING  The following warnings were generated by the     flow.py:673\n                    flow:                                                       \n[00:02:32] WARNING  [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not   flow.py:675\n                    defined. Using generic fallback SDC for OpenROAD            \n                    PnR steps.                                                  \n[00:02:32] WARNING  [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is   flow.py:675\n                    not defined. Using generic fallback SDC for                 \n                    OpenROAD PnR steps.                                         \n[00:02:32] ERROR    The following error was encountered while    __main__.py:187\n                    running the flow:                                           \n                    OpenROAD.GeneratePDN failed with the                        \n                    following errors:                                           \n                    [PDN-0185] Insufficient width (20.7 um) to                  \n                    add straps on layer met4 in grid                            \n                    \"stdcell_grid\" with total strap width 4.9 um                \n                    and offset 16.32 um.                                        \n[00:02:32] ERROR    OpenLane will now quit.                      __main__.py:188\n",
+      "compatibility_key": null
+    },
+    {
+      "tag": "ctx17-full-history-p3-r3",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 3"
+      },
+      "qualified": true,
+      "qualification_issue": null,
+      "objective_um2_w": 0.034820896000000004,
+      "area_um2": 287.776,
+      "activity_power_w": 0.000121,
+      "power_corner": "ff_n40C_1v95",
+      "core_area_um2": 653.126,
+      "worst_setup_slack_ns": 6.119366075957687,
+      "worst_setup_wns_ns": 0,
+      "worst_hold_wns_ns": 0,
+      "violations": [],
+      "unverified": [],
+      "tool_error": null,
+      "compatibility_key": "3bc4ed67692cf48dc160b2e950e6558515cb88dd8f67ec91199f02b5e5befa33"
+    }
+  ],
+  "actual_unique_physical_evaluations": 7,
+  "physical_budget": {
+    "limits": {
+      "max_evaluations": 29,
+      "max_wall_seconds": 3600
+    },
+    "started_evaluations": 7,
+    "elapsed_seconds": 1414.684882,
+    "evaluations": [
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-u25",
+        "started_seconds": 0.09122857474721968,
+        "status": "completed",
+        "seconds": 84.349174
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-u35",
+        "started_seconds": 84.73613607464358,
+        "status": "completed",
+        "seconds": 54.644429
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-full-history-p2-r1",
+        "started_seconds": 859.2120649693534,
+        "status": "completed",
+        "seconds": 53.53339
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-only-p1-r1",
+        "started_seconds": 980.2671145112254,
+        "status": "tool_error",
+        "seconds": 15.152286
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-fresh-evidence-p3-r2",
+        "started_seconds": 1048.9741992612835,
+        "status": "completed",
+        "seconds": 69.298037
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-seed-only-p2-r3",
+        "started_seconds": 1251.5770823862404,
+        "status": "tool_error",
+        "seconds": 10.351647
+      },
+      {
+        "kind": "full_flow",
+        "tag": "ctx17-full-history-p3-r3",
+        "started_seconds": 1304.3778118023183,
+        "status": "completed",
+        "seconds": 55.79554
+      }
+    ],
+    "not_evaluated": [],
+    "policy": "stop new admissions; complete admitted verification"
+  },
+  "physical_qualification_issues": {
+    "qualified": 5,
+    "flow_error": 2
+  },
+  "model_calls": 27,
+  "model_tokens": 710634,
+  "model_cost_usd": null,
+  "trials": [
+    {
+      "id": "rep2-full_history-round1",
+      "policy": "full_history",
+      "replicate": 2,
+      "round": 1,
+      "model": {
+        "wall_seconds": 12.595968874869868,
+        "exit_code": 0,
+        "prompt_sha256": "4eb281e3c8a3dc5fa3328b080298392127a504f43e5fd9f9db2c0992c6347891",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22722,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 528,
+          "reasoning_output_tokens": 255
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p2-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": false,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22722,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 528,
+        "reasoning_output_tokens": 255
+      },
+      "prompt_file": "trials/rep2-full_history-round1/prompt.txt",
+      "response_file": "trials/rep2-full_history-round1/response.json",
+      "prompt_bytes": 32620,
+      "prompt_sha256": "7eeecfac9f9122139abc525eaef2173d2dbf7f02c9161deec28b360af64dae76"
+    },
+    {
+      "id": "rep3-full_history-round1",
+      "policy": "full_history",
+      "replicate": 3,
+      "round": 1,
+      "model": {
+        "wall_seconds": 13.779562125215307,
+        "exit_code": 0,
+        "prompt_sha256": "4eb281e3c8a3dc5fa3328b080298392127a504f43e5fd9f9db2c0992c6347891",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22724,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 521,
+          "reasoning_output_tokens": 298
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p3-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22724,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 521,
+        "reasoning_output_tokens": 298
+      },
+      "prompt_file": "trials/rep3-full_history-round1/prompt.txt",
+      "response_file": "trials/rep3-full_history-round1/response.json",
+      "prompt_bytes": 32620,
+      "prompt_sha256": "7eeecfac9f9122139abc525eaef2173d2dbf7f02c9161deec28b360af64dae76"
+    },
+    {
+      "id": "rep3-fresh_evidence-round1",
+      "policy": "fresh_evidence",
+      "replicate": 3,
+      "round": 1,
+      "model": {
+        "wall_seconds": 13.486239833990112,
+        "exit_code": 0,
+        "prompt_sha256": "11ca05f9b683d3def1ec1e20c019071551fd36dd8a0e31b567c39677f8d7e8b3",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22720,
+          "cached_input_tokens": 10368,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 520,
+          "reasoning_output_tokens": 258
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p3-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22720,
+        "cached_input_tokens": 10368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 520,
+        "reasoning_output_tokens": 258
+      },
+      "prompt_file": "trials/rep3-fresh_evidence-round1/prompt.txt",
+      "response_file": "trials/rep3-fresh_evidence-round1/response.json",
+      "prompt_bytes": 32602,
+      "prompt_sha256": "e8042332d95b2de892c5550736d6bbfad850382868a6c5e75eef96ead040e4bc"
+    },
+    {
+      "id": "rep2-fresh_evidence-round1",
+      "policy": "fresh_evidence",
+      "replicate": 2,
+      "round": 1,
+      "model": {
+        "wall_seconds": 13.204430416924879,
+        "exit_code": 0,
+        "prompt_sha256": "11ca05f9b683d3def1ec1e20c019071551fd36dd8a0e31b567c39677f8d7e8b3",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22724,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 538,
+          "reasoning_output_tokens": 300
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p2-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22724,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 538,
+        "reasoning_output_tokens": 300
+      },
+      "prompt_file": "trials/rep2-fresh_evidence-round1/prompt.txt",
+      "response_file": "trials/rep2-fresh_evidence-round1/response.json",
+      "prompt_bytes": 32602,
+      "prompt_sha256": "e8042332d95b2de892c5550736d6bbfad850382868a6c5e75eef96ead040e4bc"
+    },
+    {
+      "id": "rep3-seed_only-round1",
+      "policy": "seed_only",
+      "replicate": 3,
+      "round": 1,
+      "model": {
+        "wall_seconds": 13.453579208115116,
+        "exit_code": 0,
+        "prompt_sha256": "7c3b9a314f7fdb1d0abb6220a9be7a886a90824857b8d26918e41418b97a4715",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16938,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 461,
+          "reasoning_output_tokens": 246
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p3-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 16938,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 461,
+        "reasoning_output_tokens": 246
+      },
+      "prompt_file": "trials/rep3-seed_only-round1/prompt.txt",
+      "response_file": "trials/rep3-seed_only-round1/response.json",
+      "prompt_bytes": 17135,
+      "prompt_sha256": "2bacd3f4d1216218d302b0ea06685a7cff13595cd8d702c9e983b2eda78515e3"
+    },
+    {
+      "id": "rep1-seed_only-round1",
+      "policy": "seed_only",
+      "replicate": 1,
+      "round": 1,
+      "model": {
+        "wall_seconds": 12.43726716702804,
+        "exit_code": 0,
+        "prompt_sha256": "7c3b9a314f7fdb1d0abb6220a9be7a886a90824857b8d26918e41418b97a4715",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16942,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 570,
+          "reasoning_output_tokens": 352
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p1-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 40,
+          "SYNTH_STRATEGY": "AREA 0"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-seed-only-p1-r1",
+      "cache_reuse": false,
+      "qualification": "flow_error",
+      "objective": null,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 16942,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 570,
+        "reasoning_output_tokens": 352
+      },
+      "prompt_file": "trials/rep1-seed_only-round1/prompt.txt",
+      "response_file": "trials/rep1-seed_only-round1/response.json",
+      "prompt_bytes": 17135,
+      "prompt_sha256": "2bacd3f4d1216218d302b0ea06685a7cff13595cd8d702c9e983b2eda78515e3"
+    },
+    {
+      "id": "rep2-seed_only-round1",
+      "policy": "seed_only",
+      "replicate": 2,
+      "round": 1,
+      "model": {
+        "wall_seconds": 12.304573749890551,
+        "exit_code": 0,
+        "prompt_sha256": "7c3b9a314f7fdb1d0abb6220a9be7a886a90824857b8d26918e41418b97a4715",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16940,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 434,
+          "reasoning_output_tokens": 199
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p2-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 16940,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 434,
+        "reasoning_output_tokens": 199
+      },
+      "prompt_file": "trials/rep2-seed_only-round1/prompt.txt",
+      "response_file": "trials/rep2-seed_only-round1/response.json",
+      "prompt_bytes": 17135,
+      "prompt_sha256": "2bacd3f4d1216218d302b0ea06685a7cff13595cd8d702c9e983b2eda78515e3"
+    },
+    {
+      "id": "rep1-full_history-round1",
+      "policy": "full_history",
+      "replicate": 1,
+      "round": 1,
+      "model": {
+        "wall_seconds": 12.565238583134487,
+        "exit_code": 0,
+        "prompt_sha256": "4eb281e3c8a3dc5fa3328b080298392127a504f43e5fd9f9db2c0992c6347891",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22724,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 464,
+          "reasoning_output_tokens": 232
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p1-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22724,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 464,
+        "reasoning_output_tokens": 232
+      },
+      "prompt_file": "trials/rep1-full_history-round1/prompt.txt",
+      "response_file": "trials/rep1-full_history-round1/response.json",
+      "prompt_bytes": 32620,
+      "prompt_sha256": "7eeecfac9f9122139abc525eaef2173d2dbf7f02c9161deec28b360af64dae76"
+    },
+    {
+      "id": "rep1-fresh_evidence-round1",
+      "policy": "fresh_evidence",
+      "replicate": 1,
+      "round": 1,
+      "model": {
+        "wall_seconds": 14.006392792100087,
+        "exit_code": 0,
+        "prompt_sha256": "11ca05f9b683d3def1ec1e20c019071551fd36dd8a0e31b567c39677f8d7e8b3",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22718,
+          "cached_input_tokens": 10368,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 514,
+          "reasoning_output_tokens": 291
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p1-r1",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22718,
+        "cached_input_tokens": 10368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 514,
+        "reasoning_output_tokens": 291
+      },
+      "prompt_file": "trials/rep1-fresh_evidence-round1/prompt.txt",
+      "response_file": "trials/rep1-fresh_evidence-round1/response.json",
+      "prompt_bytes": 32602,
+      "prompt_sha256": "e8042332d95b2de892c5550736d6bbfad850382868a6c5e75eef96ead040e4bc"
+    },
+    {
+      "id": "rep3-fresh_evidence-round2",
+      "policy": "fresh_evidence",
+      "replicate": 3,
+      "round": 2,
+      "model": {
+        "wall_seconds": 13.836507000029087,
+        "exit_code": 0,
+        "prompt_sha256": "6be9d3446a66c1b59aae796d2154a104e0a3f1646b0c4e6cac8f38695746bd49",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 28503,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 552,
+          "reasoning_output_tokens": 328
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p3-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": false,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 28503,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 552,
+        "reasoning_output_tokens": 328
+      },
+      "prompt_file": "trials/rep3-fresh_evidence-round2/prompt.txt",
+      "response_file": "trials/rep3-fresh_evidence-round2/response.json",
+      "prompt_bytes": 48144,
+      "prompt_sha256": "06bf9ccffb0071650b6d68339c7250b43cce261b4812473f15f4d9bea557b8d3"
+    },
+    {
+      "id": "rep1-seed_only-round2",
+      "policy": "seed_only",
+      "replicate": 1,
+      "round": 2,
+      "model": {
+        "wall_seconds": 14.084329207893461,
+        "exit_code": 0,
+        "prompt_sha256": "183102ba1ed661de50060c3745f84711c6793b9d78567daecae124bb2cf1c7c8",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 16944,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 472,
+          "reasoning_output_tokens": 236
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p1-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 1"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p2-r1",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 16944,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 472,
+        "reasoning_output_tokens": 236
+      },
+      "prompt_file": "trials/rep1-seed_only-round2/prompt.txt",
+      "response_file": "trials/rep1-seed_only-round2/response.json",
+      "prompt_bytes": 17135,
+      "prompt_sha256": "a5308783ccec95120966f55730b66e5d6d18b5e5032dd6e4092a0ea8b8b6c5d6"
+    },
+    {
+      "id": "rep2-seed_only-round2",
+      "policy": "seed_only",
+      "replicate": 2,
+      "round": 2,
+      "model": {
+        "wall_seconds": 10.561485707992688,
+        "exit_code": 0,
+        "prompt_sha256": "01ee89f2728f636db7d6967974c4a8b6ced74ee89d9751164e39c7f7befaa660",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22723,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 432,
+          "reasoning_output_tokens": 196
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p2-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22723,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 432,
+        "reasoning_output_tokens": 196
+      },
+      "prompt_file": "trials/rep2-seed_only-round2/prompt.txt",
+      "response_file": "trials/rep2-seed_only-round2/response.json",
+      "prompt_bytes": 32677,
+      "prompt_sha256": "fad7102c005450043254bb7ffef6ca4fc8425ee3546b67b121940e216cdabccc"
+    },
+    {
+      "id": "rep3-full_history-round2",
+      "policy": "full_history",
+      "replicate": 3,
+      "round": 2,
+      "model": {
+        "wall_seconds": 8.983024207875133,
+        "exit_code": 0,
+        "prompt_sha256": "7adfde42528f10dbcc5a4e6505fcea3443351c3be54f5a18f230e96af9aa139b",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 28728,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 354,
+          "reasoning_output_tokens": 141
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p3-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 28728,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 354,
+        "reasoning_output_tokens": 141
+      },
+      "prompt_file": "trials/rep3-full_history-round2/prompt.txt",
+      "response_file": "trials/rep3-full_history-round2/response.json",
+      "prompt_bytes": 49102,
+      "prompt_sha256": "d4407d9cb0d9cf82d63146f2a162c289bfcb4083572ab46981a4a04e59f0d57e"
+    },
+    {
+      "id": "rep1-full_history-round2",
+      "policy": "full_history",
+      "replicate": 1,
+      "round": 2,
+      "model": {
+        "wall_seconds": 14.57272179191932,
+        "exit_code": 0,
+        "prompt_sha256": "fab210504815453cd89b3e14dfd70b6df76db130b3e4db07ace47b1ed2f5899c",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 28708,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 470,
+          "reasoning_output_tokens": 228
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p1-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 28708,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 470,
+        "reasoning_output_tokens": 228
+      },
+      "prompt_file": "trials/rep1-full_history-round2/prompt.txt",
+      "response_file": "trials/rep1-full_history-round2/response.json",
+      "prompt_bytes": 48993,
+      "prompt_sha256": "36064add52f84908570c04906b9511e37a69468775393a4d438018c037e1e6ba"
+    },
+    {
+      "id": "rep2-full_history-round2",
+      "policy": "full_history",
+      "replicate": 2,
+      "round": 2,
+      "model": {
+        "wall_seconds": 10.16653316677548,
+        "exit_code": 0,
+        "prompt_sha256": "d60ab8f819a318b69aeb5bd7b0875d4dc27ee8bc585111f27244d02a72dcea3b",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 28749,
+          "cached_input_tokens": 10368,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 423,
+          "reasoning_output_tokens": 157
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p2-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 28749,
+        "cached_input_tokens": 10368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 423,
+        "reasoning_output_tokens": 157
+      },
+      "prompt_file": "trials/rep2-full_history-round2/prompt.txt",
+      "response_file": "trials/rep2-full_history-round2/response.json",
+      "prompt_bytes": 49179,
+      "prompt_sha256": "af7d3eb6e7d16f3ec814d6b90c33ef945181c79852e77d2ff2d1f55615d17baa"
+    },
+    {
+      "id": "rep2-fresh_evidence-round2",
+      "policy": "fresh_evidence",
+      "replicate": 2,
+      "round": 2,
+      "model": {
+        "wall_seconds": 12.952011541929096,
+        "exit_code": 0,
+        "prompt_sha256": "6be9d3446a66c1b59aae796d2154a104e0a3f1646b0c4e6cac8f38695746bd49",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 28503,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 595,
+          "reasoning_output_tokens": 338
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p2-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 28503,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 595,
+        "reasoning_output_tokens": 338
+      },
+      "prompt_file": "trials/rep2-fresh_evidence-round2/prompt.txt",
+      "response_file": "trials/rep2-fresh_evidence-round2/response.json",
+      "prompt_bytes": 48144,
+      "prompt_sha256": "06bf9ccffb0071650b6d68339c7250b43cce261b4812473f15f4d9bea557b8d3"
+    },
+    {
+      "id": "rep1-fresh_evidence-round2",
+      "policy": "fresh_evidence",
+      "replicate": 1,
+      "round": 2,
+      "model": {
+        "wall_seconds": 14.38935804204084,
+        "exit_code": 0,
+        "prompt_sha256": "6be9d3446a66c1b59aae796d2154a104e0a3f1646b0c4e6cac8f38695746bd49",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 28503,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 548,
+          "reasoning_output_tokens": 338
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p1-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 28503,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 548,
+        "reasoning_output_tokens": 338
+      },
+      "prompt_file": "trials/rep1-fresh_evidence-round2/prompt.txt",
+      "response_file": "trials/rep1-fresh_evidence-round2/response.json",
+      "prompt_bytes": 48144,
+      "prompt_sha256": "06bf9ccffb0071650b6d68339c7250b43cce261b4812473f15f4d9bea557b8d3"
+    },
+    {
+      "id": "rep3-seed_only-round2",
+      "policy": "seed_only",
+      "replicate": 3,
+      "round": 2,
+      "model": {
+        "wall_seconds": 15.657271708128974,
+        "exit_code": 0,
+        "prompt_sha256": "01ee89f2728f636db7d6967974c4a8b6ced74ee89d9751164e39c7f7befaa660",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22725,
+          "cached_input_tokens": 10368,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 461,
+          "reasoning_output_tokens": 248
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p3-r2",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22725,
+        "cached_input_tokens": 10368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 461,
+        "reasoning_output_tokens": 248
+      },
+      "prompt_file": "trials/rep3-seed_only-round2/prompt.txt",
+      "response_file": "trials/rep3-seed_only-round2/response.json",
+      "prompt_bytes": 32677,
+      "prompt_sha256": "fad7102c005450043254bb7ffef6ca4fc8425ee3546b67b121940e216cdabccc"
+    },
+    {
+      "id": "rep1-seed_only-round3",
+      "policy": "seed_only",
+      "replicate": 1,
+      "round": 3,
+      "model": {
+        "wall_seconds": 15.01592699997127,
+        "exit_code": 0,
+        "prompt_sha256": "9b7d109552585a9dc69723f26dce6f2c838b8feb608423d3a38df08592d1df0e",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22721,
+          "cached_input_tokens": 10368,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 599,
+          "reasoning_output_tokens": 355
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-full-history-p2-r1",
+        "ctx17-seed-u35"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p1-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-fresh-evidence-p3-r2",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.035994472000000007,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22721,
+        "cached_input_tokens": 10368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 599,
+        "reasoning_output_tokens": 355
+      },
+      "prompt_file": "trials/rep1-seed_only-round3/prompt.txt",
+      "response_file": "trials/rep1-seed_only-round3/response.json",
+      "prompt_bytes": 32677,
+      "prompt_sha256": "87f0d7f4f7969c4d1a77e78dd49fbe03927aeafebdf75f4eeec4710c3e48579a"
+    },
+    {
+      "id": "rep2-seed_only-round3",
+      "policy": "seed_only",
+      "replicate": 2,
+      "round": 3,
+      "model": {
+        "wall_seconds": 15.886853333096951,
+        "exit_code": 0,
+        "prompt_sha256": "a4148f9043a4564a417764a31fe26d58cff57282991e254357b610e7d817c292",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22764,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 634,
+          "reasoning_output_tokens": 351
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p2-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 40,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-seed-only-p2-r3",
+      "cache_reuse": false,
+      "qualification": "flow_error",
+      "objective": null,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22764,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 634,
+        "reasoning_output_tokens": 351
+      },
+      "prompt_file": "trials/rep2-seed_only-round3/prompt.txt",
+      "response_file": "trials/rep2-seed_only-round3/response.json",
+      "prompt_bytes": 32786,
+      "prompt_sha256": "dd820acdd593eb6a8bf97c4f6028698955711dfb6cf9027cd4c679647f1d4876"
+    },
+    {
+      "id": "rep3-fresh_evidence-round3",
+      "policy": "fresh_evidence",
+      "replicate": 3,
+      "round": 3,
+      "model": {
+        "wall_seconds": 19.613206708803773,
+        "exit_code": 0,
+        "prompt_sha256": "7458421526bbd4d18e233418dbd4839e606cbf430e527ce1743e23fa35271353",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 34302,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 730,
+          "reasoning_output_tokens": 516
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p3-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 40,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-seed-only-p2-r3",
+      "cache_reuse": true,
+      "qualification": "flow_error",
+      "objective": null,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 34302,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 730,
+        "reasoning_output_tokens": 516
+      },
+      "prompt_file": "trials/rep3-fresh_evidence-round3/prompt.txt",
+      "response_file": "trials/rep3-fresh_evidence-round3/response.json",
+      "prompt_bytes": 63687,
+      "prompt_sha256": "cacb55bf78ade1f1f96bb6335f8f55089b0a363caad7dbc9130f784fe5c8ffe0"
+    },
+    {
+      "id": "rep3-seed_only-round3",
+      "policy": "seed_only",
+      "replicate": 3,
+      "round": 3,
+      "model": {
+        "wall_seconds": 11.582451124908403,
+        "exit_code": 0,
+        "prompt_sha256": "a4148f9043a4564a417764a31fe26d58cff57282991e254357b610e7d817c292",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 22768,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 439,
+          "reasoning_output_tokens": 196
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-seed-only-p3-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 40,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-seed-only-p2-r3",
+      "cache_reuse": true,
+      "qualification": "flow_error",
+      "objective": null,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 22768,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 439,
+        "reasoning_output_tokens": 196
+      },
+      "prompt_file": "trials/rep3-seed_only-round3/prompt.txt",
+      "response_file": "trials/rep3-seed_only-round3/response.json",
+      "prompt_bytes": 32786,
+      "prompt_sha256": "dd820acdd593eb6a8bf97c4f6028698955711dfb6cf9027cd4c679647f1d4876"
+    },
+    {
+      "id": "rep3-full_history-round3",
+      "policy": "full_history",
+      "replicate": 3,
+      "round": 3,
+      "model": {
+        "wall_seconds": 10.596455750055611,
+        "exit_code": 0,
+        "prompt_sha256": "0afd541a3bbf74c7ca1f9cd2fe445890684367a07bfc13287d64351932dd1be2",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 34731,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 392,
+          "reasoning_output_tokens": 152
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p3-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 3"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p3-r3",
+      "cache_reuse": false,
+      "qualification": null,
+      "objective": 0.034820896000000004,
+      "evaluation_exposures": 1,
+      "best_objective": 0.034820896000000004,
+      "best_tag": "ctx17-full-history-p3-r3",
+      "raw_usage": {
+        "input_tokens": 34731,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 392,
+        "reasoning_output_tokens": 152
+      },
+      "prompt_file": "trials/rep3-full_history-round3/prompt.txt",
+      "response_file": "trials/rep3-full_history-round3/response.json",
+      "prompt_bytes": 65475,
+      "prompt_sha256": "3e49164e7f15a24dd79981aba43e349303ace9c70f3d17db1cdbf57fa0528f8f"
+    },
+    {
+      "id": "rep1-fresh_evidence-round3",
+      "policy": "fresh_evidence",
+      "replicate": 1,
+      "round": 3,
+      "model": {
+        "wall_seconds": 14.994811083190143,
+        "exit_code": 0,
+        "prompt_sha256": "7458421526bbd4d18e233418dbd4839e606cbf430e527ce1743e23fa35271353",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 34306,
+          "cached_input_tokens": 10368,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 587,
+          "reasoning_output_tokens": 311
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p1-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 40,
+          "SYNTH_STRATEGY": "AREA 2"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-seed-only-p2-r3",
+      "cache_reuse": true,
+      "qualification": "flow_error",
+      "objective": null,
+      "evaluation_exposures": 1,
+      "best_objective": 0.035994472000000007,
+      "best_tag": "ctx17-seed-u25",
+      "raw_usage": {
+        "input_tokens": 34306,
+        "cached_input_tokens": 10368,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 587,
+        "reasoning_output_tokens": 311
+      },
+      "prompt_file": "trials/rep1-fresh_evidence-round3/prompt.txt",
+      "response_file": "trials/rep1-fresh_evidence-round3/response.json",
+      "prompt_bytes": 63687,
+      "prompt_sha256": "cacb55bf78ade1f1f96bb6335f8f55089b0a363caad7dbc9130f784fe5c8ffe0"
+    },
+    {
+      "id": "rep2-fresh_evidence-round3",
+      "policy": "fresh_evidence",
+      "replicate": 2,
+      "round": 3,
+      "model": {
+        "wall_seconds": 18.340921874856576,
+        "exit_code": 0,
+        "prompt_sha256": "7458421526bbd4d18e233418dbd4839e606cbf430e527ce1743e23fa35271353",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 34308,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 770,
+          "reasoning_output_tokens": 516
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-fresh-evidence-p2-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 3"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p3-r3",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.034820896000000004,
+      "evaluation_exposures": 1,
+      "best_objective": 0.034820896000000004,
+      "best_tag": "ctx17-full-history-p3-r3",
+      "raw_usage": {
+        "input_tokens": 34308,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 770,
+        "reasoning_output_tokens": 516
+      },
+      "prompt_file": "trials/rep2-fresh_evidence-round3/prompt.txt",
+      "response_file": "trials/rep2-fresh_evidence-round3/response.json",
+      "prompt_bytes": 63687,
+      "prompt_sha256": "cacb55bf78ade1f1f96bb6335f8f55089b0a363caad7dbc9130f784fe5c8ffe0"
+    },
+    {
+      "id": "rep1-full_history-round3",
+      "policy": "full_history",
+      "replicate": 1,
+      "round": 3,
+      "model": {
+        "wall_seconds": 10.008942582877353,
+        "exit_code": 0,
+        "prompt_sha256": "b246a5b0d82c0ede92db00eaa9ada3187e48765a523f465b77da815db272169e",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 34725,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 382,
+          "reasoning_output_tokens": 142
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p1-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 3"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p3-r3",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.034820896000000004,
+      "evaluation_exposures": 1,
+      "best_objective": 0.034820896000000004,
+      "best_tag": "ctx17-full-history-p3-r3",
+      "raw_usage": {
+        "input_tokens": 34725,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 382,
+        "reasoning_output_tokens": 142
+      },
+      "prompt_file": "trials/rep1-full_history-round3/prompt.txt",
+      "response_file": "trials/rep1-full_history-round3/response.json",
+      "prompt_bytes": 65360,
+      "prompt_sha256": "17164d7179eee0e96840225fc4598684a945e137122089ff0cfb2d7082340915"
+    },
+    {
+      "id": "rep2-full_history-round3",
+      "policy": "full_history",
+      "replicate": 2,
+      "round": 3,
+      "model": {
+        "wall_seconds": 10.698726083151996,
+        "exit_code": 0,
+        "prompt_sha256": "3c30848d51ecb9870e44d3ee01e3f979f2d7ae710c64348933c19a6e0599ff72",
+        "model": "gpt-6.1-sol",
+        "reasoning_effort": "high",
+        "cost_usd": null,
+        "usage": {
+          "input_tokens": 34811,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 570,
+          "reasoning_output_tokens": 270
+        }
+      },
+      "visible_seed_tags": [
+        "ctx17-fresh-evidence-p3-r2",
+        "ctx17-full-history-p2-r1"
+      ],
+      "status": "valid",
+      "empty": false,
+      "candidate": {
+        "pdk": "sky130A",
+        "scl": "sky130_fd_sc_hd",
+        "flow": "Classic",
+        "tag": "ctx17-full-history-p2-r3",
+        "overrides": {
+          "FP_CORE_UTIL": 35,
+          "SYNTH_STRATEGY": "AREA 3"
+        }
+      },
+      "within_branch_repeat": false,
+      "physical_tag": "ctx17-full-history-p3-r3",
+      "cache_reuse": true,
+      "qualification": null,
+      "objective": 0.034820896000000004,
+      "evaluation_exposures": 1,
+      "best_objective": 0.034820896000000004,
+      "best_tag": "ctx17-full-history-p3-r3",
+      "raw_usage": {
+        "input_tokens": 34811,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 570,
+        "reasoning_output_tokens": 270
+      },
+      "prompt_file": "trials/rep2-full_history-round3/prompt.txt",
+      "response_file": "trials/rep2-full_history-round3/response.json",
+      "prompt_bytes": 65729,
+      "prompt_sha256": "ed70895c6af565e89413b00882854590e8f1f519de4e89a7b51346620add1756"
+    }
+  ],
+  "interpretation_limits": [
+    "one 4-bit design and three model repetitions per policy",
+    "three feedback rounds; no causal test of adaptive stagnation triggers",
+    "shared measured physical cache, not independent physical repetitions",
+    "OpenSTA activity power rounded to three significant figures; no silicon power or physical noise estimate",
+    "model generation seed and dollar billing unavailable; seed 42 randomizes schedule only",
+    "policy tool costs cannot be compared from actual cached wall time",
+    "model wall time includes provider latency/cache effects and fixed CLI overhead"
+  ]
+}

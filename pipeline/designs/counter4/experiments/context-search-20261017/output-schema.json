@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "properties": {
+    "diagnosis": {
+      "type": "string"
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "seed_tag": {
+            "type": "string"
+          },
+          "overrides": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "FP_CORE_UTIL": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "FP_CORE_UTIL"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "SYNTH_STRATEGY": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "SYNTH_STRATEGY"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "hypothesis": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "seed_tag",
+          "overrides",
+          "hypothesis"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "diagnosis",
+    "candidates"
+  ],
+  "additionalProperties": false
+}

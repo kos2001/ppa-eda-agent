@@ -57,6 +57,51 @@ class ReviewContextTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 context.validate_allowed([key])
 
+    def test_refresh_retains_task_budget_and_verification_evidence(self):
+        snap = frozen(self.inputs)
+        contract = {"mode": "explicit", "objective": "minimize area after all gates",
+                    "reference": "fixed 10 ns baseline", "candidate_budget": 2,
+                    "evaluation_budget": {"max_evaluations": 2}, "max_iterations": 1}
+        snap["case"]["search_plan"] = {**contract, "recommendation": "PLAN_SECRET"}
+        snap["case"]["evaluation_budget"] = {"started_evaluations": 1,
+                                              "limits": {"max_evaluations": 2}}
+        evidence = {
+            "evaluation_provenance": {"complete": True, "compatibility_key": "recorded-key",
+                                      "context": {"flow": "FanoutRepair", "inputs": {
+                                          "complete": True, "config_sha256": "historical-hash"},
+                                          "verification_policy": {
+                                              "rtl_netlist_equivalence_requested": True}}},
+            "evaluation_inputs": {"complete": True, "config_sha256": "historical-hash"},
+            "verification_requested": True,
+            "equivalence": {"equivalent": False, "vacuous": False,
+                            "diagnosis": "PROOF_SECRET"},
+            "seconds": 12.5,
+        }
+        snap["seed"].update(evidence)
+        snap["case"]["iterations"][0]["results"][0].update(evidence)
+        for policy in context.POLICIES:
+            with self.subTest(policy=policy):
+                view = context.capsule(snap, policy)
+                self.assertEqual(view["current"]["search_contract"], contract)
+                self.assertEqual(view["current"]["evaluation_budget"]["started_evaluations"], 1)
+                seed = context.results(view["current"])[0]
+                self.assertEqual(seed["evaluation_provenance"], evidence["evaluation_provenance"])
+                self.assertEqual(seed["evaluation_inputs"], evidence["evaluation_inputs"])
+                self.assertTrue(seed["verification_requested"])
+                self.assertIs(seed["equivalence"]["equivalent"], False)
+                self.assertEqual(seed["seconds"], 12.5)
+                self.assertNotIn("SECRET", context.canonical(view["current"]))
+
+    def test_refresh_does_not_invent_legacy_provenance_or_obligations(self):
+        for policy in context.POLICIES:
+            with self.subTest(policy=policy):
+                view = context.capsule(frozen(self.inputs), policy)
+                seed = context.results(view["current"])[0]
+                self.assertNotIn("evaluation_provenance", seed)
+                self.assertNotIn("equivalence", seed)
+                self.assertNotIn("verification_requested", seed)
+                self.assertNotIn("search_contract", view["current"])
+
     def test_hidden_duplicate_and_visible_citations(self):
         inputs = self.inputs
         proposal = {"diagnosis": "test", "candidates": [{"tag": "next", "overrides": {"FP_CORE_UTIL": 40},

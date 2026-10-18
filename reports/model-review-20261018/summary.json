@@ -1,0 +1,126 @@
+{
+  "z-ai/glm-5.3-flash": {
+    "calls": 12,
+    "http_success": 12,
+    "passed_tasks": 10,
+    "passed_checks": 54,
+    "total_checks": 56,
+    "median_seconds": 1.905925395898521,
+    "min_seconds": 0.8159862910397351,
+    "max_seconds": 3.6028880840167403,
+    "prompt_tokens": 28688,
+    "completion_tokens": 2578,
+    "reasoning_tokens": 431,
+    "reported_cost_usd": 0.003992012750000001,
+    "usage_reported_calls": 12,
+    "returned_models": [
+      "z-ai/glm-5.3-flash"
+    ],
+    "per_task": {
+      "measured_tradeoff": {
+        "passes": 2,
+        "seconds": [
+          2.6534733339212835,
+          3.6028880840167403
+        ]
+      },
+      "missing_signoff": {
+        "passes": 2,
+        "seconds": [
+          2.433765208115801,
+          2.232995874946937
+        ]
+      },
+      "first_failure": {
+        "passes": 0,
+        "seconds": [
+          1.64359979191795,
+          1.664910291787237
+        ]
+      },
+      "local_contract": {
+        "passes": 2,
+        "seconds": [
+          2.3601456249598414,
+          2.146940500009805
+        ]
+      },
+      "provenance_and_models": {
+        "passes": 2,
+        "seconds": [
+          1.4203032918740064,
+          1.547087750164792
+        ]
+      },
+      "report_tool_selection": {
+        "passes": 2,
+        "seconds": [
+          0.9630419998429716,
+          0.8159862910397351
+        ]
+      }
+    }
+  },
+  "deepseek/deepseek-v4.1-flash-1017": {
+    "calls": 12,
+    "http_success": 12,
+    "passed_tasks": 9,
+    "passed_checks": 48,
+    "total_checks": 51,
+    "median_seconds": 1.7564613335998729,
+    "min_seconds": 0.9990324170794338,
+    "max_seconds": 12.222691624891013,
+    "prompt_tokens": 30028,
+    "completion_tokens": 6520,
+    "reasoning_tokens": 3871,
+    "reported_cost_usd": 0.004615167999999999,
+    "usage_reported_calls": 12,
+    "returned_models": [
+      "deepseek/deepseek-v4.1-flash-1017"
+    ],
+    "per_task": {
+      "measured_tradeoff": {
+        "passes": 1,
+        "seconds": [
+          12.222691624891013,
+          11.24225674988702
+        ]
+      },
+      "missing_signoff": {
+        "passes": 2,
+        "seconds": [
+          1.2430297080427408,
+          1.7678503750357777
+        ]
+      },
+      "first_failure": {
+        "passes": 0,
+        "seconds": [
+          1.2829805410001427,
+          1.4855483751744032
+        ]
+      },
+      "local_contract": {
+        "passes": 2,
+        "seconds": [
+          2.364806666970253,
+          2.5537353751715273
+        ]
+      },
+      "provenance_and_models": {
+        "passes": 2,
+        "seconds": [
+          1.745072292163968,
+          2.9731002498883754
+        ]
+      },
+      "report_tool_selection": {
+        "passes": 2,
+        "seconds": [
+          1.0724010420963168,
+          0.9990324170794338
+        ]
+      }
+    }
+  }
+}

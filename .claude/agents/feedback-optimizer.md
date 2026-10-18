@@ -65,6 +65,22 @@ For tool failures, use this correction loop:
 
 ## Writing the outcome
 
+Before declaring a repeated search exhausted, read
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. Own the round decision:
+compare measured progress over a declared compatible window, distinguish a
+plateau from missing evidence or tool failure, and record whether to continue,
+refresh proposal context, repair the environment or stop at the shared budget.
+Shrinking edits, empty proposals and measured usage trends are supporting
+signals, not proof of an optimum. A refresh preserves all original obligations.
+
+Select a small set of compatible measured Pareto seeds when available, or label
+failed seeds as diagnostic. Hand `placement-strategist` seed identities, original
+targets, remaining budget and a bounded factual memo without prior diagnoses.
+For a context experiment, pair `seed_only` and `fresh_evidence` sessions on each
+same seed; keep complete history privately for deduplication and later review.
+Do not claim an existing session has forgotten its context or dispatch extra
+workers/runs without authorization. Record round notes separately from cases.
+
 When you diagnose a failure mode the mechanical auto-repair couldn't
 handle, add a short human-readable `diagnosis` field to the relevant
 `reference-db/cases/<...>.json` file (alongside its existing
