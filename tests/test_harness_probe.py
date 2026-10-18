@@ -51,9 +51,19 @@ class HarnessProbeTests(unittest.TestCase):
                                                   score=score_path, responses=responses,
                                                   output=output))
         self.assertIn("Do not interpret structural", output.read_text())
+        self.assertIn("CLOCK_PERIOD", output.read_text())
+        self.assertIn("allowed_overrides", output.read_text())
+        altered = json.loads(score_path.read_text())
+        altered["trials"][0]["counts"] = {"novel_signatures": 99}
+        score_path.write_text(json.dumps(altered))
+        with self.assertRaisesRegex(ValueError, "score or response changed"):
+            harness_probe.compose(argparse.Namespace(experiment=self.experiment,
+                                                      score=score_path, responses=responses,
+                                                      output=self.root / "compose-tampered.txt"))
+        score_path.write_text(json.dumps(report))
         first_response = responses / (manifest["trials"][0]["id"] + ".json")
         first_response.write_text('{"diagnosis":"changed","candidates":[]}')
-        with self.assertRaisesRegex(ValueError, "response changed"):
+        with self.assertRaisesRegex(ValueError, "score or response changed"):
             harness_probe.compose(argparse.Namespace(experiment=self.experiment,
                                                       score=score_path, responses=responses,
                                                       output=self.root / "compose-again.txt"))
@@ -74,6 +84,14 @@ class HarnessProbeTests(unittest.TestCase):
             harness_probe.compose(argparse.Namespace(experiment=self.experiment,
                                                       score=score_path, responses=responses,
                                                       output=self.root / "compose.txt"))
+
+    def test_guidance_names_are_safe_filenames(self):
+        for name in ("../escape", "bad-name", "x" * 41):
+            with self.subTest(name=name):
+                path = self.root / "guidance.json"
+                path.write_text(json.dumps({name: "text"}))
+                with self.assertRaisesRegex(ValueError, "guidance names"):
+                    harness_probe.prepare(self.args)
 
 
 if __name__ == "__main__":
