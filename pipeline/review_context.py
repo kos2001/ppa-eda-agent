@@ -12,9 +12,15 @@ PROTECTED = {"CLOCK_PERIOD", "CLOCK_PORT", "IO_DELAY_CONSTRAINT", "PNR_SDC_FILE"
              "SIGNOFF_SDC_FILE", "SDC_FILE", "PDK", "STD_CELL_LIBRARY"}
 RESULT_FIELDS = ("tag", "overrides", "pdk", "scl", "flow", "stage", "error", "verdict",
                  "metrics", "run_dir", "timings", "run_cost", "not_evaluated",
-                 "budget_exhausted", "evaluation_fidelity", "screen_evaluation")
+                 "budget_exhausted", "evaluation_fidelity", "screen_evaluation",
+                 "evaluation_provenance", "evaluation_inputs", "equivalence",
+                 "verification_requested", "clocks", "step_coverage", "seconds", "stage_costs")
 CASE_FIELDS = ("design", "date", "outcome", "stop_reason", "toolchain", "constraints",
                "expected_outcome", "evaluation_budget")
+# The task and spending contract must survive even a seed-only refresh. Do not
+# carry arbitrary search-plan commentary into the evidence-only views.
+SEARCH_FIELDS = ("mode", "objective", "reference", "seed", "candidate_budget",
+                 "evaluation_budget", "max_iterations")
 # Strip commentary even when nested inside an otherwise factual object.
 NARRATIVE_FIELDS = {"diagnosis", "human_in_the_loop", "reviews", "review", "hypothesis",
                     "rationale", "recommendation", "recommendations", "graph_evidence",
@@ -50,9 +56,13 @@ def results(case):
 
 
 def factual_case(case):
-    return {**facts({k: case[k] for k in CASE_FIELDS if k in case}),
-            "iterations": [{"results": [facts({k: r[k] for k in RESULT_FIELDS if k in r})
-                                        for r in results(case)]}]}
+    value = {**facts({k: case[k] for k in CASE_FIELDS if k in case}),
+             "iterations": [{"results": [facts({k: r[k] for k in RESULT_FIELDS if k in r})
+                                         for r in results(case)]}]}
+    plan = case.get("search_plan") or {}
+    if plan:
+        value["search_contract"] = facts({k: plan[k] for k in SEARCH_FIELDS if k in plan})
+    return value
 
 
 def validate_allowed(keys):

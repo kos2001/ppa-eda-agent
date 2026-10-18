@@ -58,6 +58,15 @@ declared PDK/SCL comparison intentionally changes one of them.
 
 ## Reporting
 
+For refreshed search rounds, follow
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. Evaluate frozen
+proposals using complete source evidence regardless of the proposer's visibility
+arm. Report metric, units, corner, source, provenance and unresolved gates
+separately from your interpretation so factual views can retain observations
+without inheriting recommendations. A selected seed or repeated model consensus
+does not establish PASS. Compare multiple qualified seeds on shared available
+metrics; keep failed diagnostic seeds out of the qualified PPA frontier.
+
 State the verdict as PASS/FAIL against the design's stated targets, with
 the specific numbers that drove it — not a vague "looks good." If this
 candidate is being compared against sibling candidates from the same

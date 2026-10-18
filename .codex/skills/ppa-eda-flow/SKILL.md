@@ -13,6 +13,11 @@ environment/evidence failures, read
 specialists or admitting another repair. It defines review routing, graph
 refresh, loop stopping and the read-only evidence handoff check.
 
+For repeated search rounds, shrinking proposals or a measured plateau, read
+[references/adaptive-search.md](references/adaptive-search.md). It defines
+conditional context refresh, factual memory, paired history visibility and
+multiple measured seeds without resetting evidence or evaluation budgets.
+
 For a proposed change to reviewer guidance itself, use the paired, frozen
 same-task probe in `docs/harness2-eda-adaptation.md` and
 `pipeline/harness_probe.py`. Compare the base and changed prompts on the same
