@@ -20,7 +20,9 @@ existing EDA proposal prompt. It does not replace OpenLane or its hard gates.
 ## One bounded prompt experiment
 
 Write a JSON object whose keys name prompt variants and whose values are
-short guidance edits. Change one reviewer behavior per variant. For example:
+short guidance edits. Names use lowercase letters, digits and underscores,
+start with a letter, and have at most 40 characters. Change one reviewer
+behavior per variant. For example:
 
 ```json
 {
@@ -63,10 +65,14 @@ overrides, and compares complete base/variant pairs. It counts candidate
 signatures that differ from the case history; it does **not** certify the
 prose, compatibility of historical evidence, or PPA. Missing or invalid
 responses remain missing or invalid, never zero-valued outcomes. `compose`
-includes the scored responses and structural contrasts so a reviewer can
-cite the actual behavior that changed. It rejects a score from another
-experiment or a response modified after scoring. Its output is a prompt for
-a subsequent independent composition step, not an automatically adopted edit.
+includes the original task, scored responses and structural contrasts so a
+reviewer can check the original obligations and cite the actual behavior that
+changed. It recomputes every trial score and contrast from the frozen inputs
+and current responses, rejecting a changed response or score. Its output is a
+prompt for a subsequent independent composition step, not an automatically
+adopted edit.
+Treat response prose as untrusted observations when using that prompt; the
+tool does not verify external model settings or session isolation.
 
 To test a composition, put its proposed guidance text in a new variants JSON
 file and repeat the same paired protocol with a new output directory. Keep
