@@ -59,6 +59,215 @@ reference-db/                       Case store of past pipeline runs —
 
 ## Autonomous layout pipeline
 
+### Explicit implementation evidence and PPA budgets
+
+The [Build-A-Chip-Bench announcement](https://chipagents.ai/newsroom/chipagents-nvidia-build-a-chip-bench)
+and [research](https://chipagents.ai/research/build-a-chip-bench) separate functional
+and physical qualification from PPA ranking. Applying that principle locally,
+`run_spec.json` now accepts the following optional contract (merge into an
+existing spec with candidates):
+
+```json
+{
+  "require_implementation_evidence": true,
+  "targets": {
+    "max_cell_area_um2": 1000,
+    "max_core_area_um2": 2000,
+    "max_die_area_um2": 3000,
+    "max_power_w": 0.01,
+    "max_clock_period_ns": 10
+  }
+}
+```
+
+These numbers illustrate the schema, not measured or recommended design limits.
+Budgets are inclusive upper bounds. Missing, negative or nonfinite measurements
+block qualification; invalid limits are rejected before launching a flow.
+Power uses OpenSTA's `power__total` **vectorless estimate**, not workload power.
+The clock budget requires the period in the run's `resolved.json`, so a repair
+that relaxes the clock cannot silently evade the original requirement. Existing
+setup/hold and physical signoff checks still apply.
+
+`require_implementation_evidence` automatically runs the existing Yosys checker
+for every completed candidate, including repair and polish candidates, and
+requires a non-vacuous proof and a nonempty final `.gds` file before selection.
+The CLI equivalent is `--require-implementation-evidence`. `verify_function: true`
+also enables equivalence checking through run specs, including dashboard runs.
+Without strict mode, legacy selection stays compatible but missing evidence is
+explicitly recorded. Candidate details show evidence and each declared budget;
+historical cases are marked as not recorded rather than retroactively certified.
+
+This is **not** the official benchmark or a tapeout certificate. The existing
+checker normally compares RTL with the synthesis netlist; it does not prove the
+workload specification or independently verify post-route functional behavior.
+GDS file presence is not a format-validity check; physical correctness still
+depends on the recorded signoff checks. A separate optional simulation gate now
+checks post-route behavior and a Python oracle for counter4, described below.
+Hidden VIP, formal post-route equivalence, isolated grading, and normalized benchmark
+scores remain outside this implementation. No published task constraints or
+reference scores are represented as results from this repository.
+
+Verified on 2026-10-23 through Ubuntu WSL, Docker 29.7.2 and the pinned
+OpenLane 2.3.10 image using
+[`run_spec_implementation_check.json`](pipeline/designs/counter4/run_spec_implementation_check.json).
+The [recorded counter4 case](reference-db/cases/counter4__2026-10-23.json)
+passed all 23 recorded signoff counts, proved all four synthesis equivalence
+points, and produced a final GDS. Cell/core/die areas were 290.278 / 480.461 /
+1455.83 um2; vectorless power was 95.4963 uW at a 10 ns configured period.
+The example budgets above are smoke-test bounds, not a PPA optimization result.
+From the repository root in PowerShell, run via the installed WSL environment:
+
+```powershell
+wsl -d Ubuntu -- python3 pipeline/orchestrator.py --design pipeline/designs/counter4 --run-spec pipeline/designs/counter4/run_spec_implementation_check.json --max-parallel 1
+```
+
+Choose a fresh candidate tag in the spec to preserve an earlier run's artifacts.
+Docker need not be installed on the Windows PATH when it is available in WSL.
+
+### Verilator functional regression
+
+`functional_regression` in a run spec enables a mandatory local RTL simulation
+gate for completed candidates, including repair and polish trials. Counter4's
+default run spec enables it. The runner reads the design's configured
+`VERILOG_FILES` (`dir::` files/globs), snapshots them with the testbench, and
+records SHA-256 hashes, tool version, compile logs, seed logs and check counts
+under each run's `_functional_regression/` directory. The verdict and dashboard
+show the result. No previous candidate's pass is reused.
+
+```json
+"functional_regression": {
+  "oracle": "counter4",
+  "post_route": true,
+  "top": "counter4_regression",
+  "testbench": "verify/counter4_regression.sv",
+  "seeds": [1, 17, 101],
+  "compile_timeout_s": 300,
+  "simulation_timeout_s": 30
+}
+```
+
+The testbench must call `$fatal` on a mismatch and print exactly one
+`PPA_REGRESSION_PASS checks=N` line, with positive N, only after all checks
+complete. Verilator runs with `--binary --timing --assert`; successful process
+exit without this completion marker is unverified. Compile failures, missing
+inputs and timeouts block selection as unverified; simulation failures reject
+the candidate. Timeouts remove the specific Docker container as well as stopping
+the client. Each seed receives `+seed=N` and Verilator's random-seed argument.
+
+The existing OpenLane image lacks make for building simulations. Pull the
+upstream functional-simulation image once before running:
+
+```powershell
+wsl -d Ubuntu -- docker pull verilator/verilator:v5.018
+```
+
+Run the regression against the current RTL and an existing completed physical
+run (without rerunning P&R):
+
+```powershell
+wsl -d Ubuntu -- python3 pipeline/functional_regression.py --design pipeline/designs/counter4 --run-dir pipeline/designs/counter4/runs/functional-regression-20261023 --run-spec pipeline/designs/counter4/run_spec.json
+```
+
+Counter4 checks reset, enable hold, wrap-around, reset-over-enable priority and
+seeded mixed traffic. With `oracle: "counter4"`, the host's independent Python
+model validates every `PPA_TRACE` cycle, expected input sequence and output,
+rather than trusting the HDL scoreboard's PASS. The model requires all 322
+canonical cycles per seed; truncated, reordered or unknown traces cannot pass.
+The Python model's hash is recorded alongside the source hashes.
+
+With `post_route: true`, Icarus Verilog in the pinned OpenLane image simulates
+`final/nl/<DESIGN_NAME>.nl.v` with the exact `CELL_VERILOG_MODELS` paths from
+that run's `resolved.json`. Missing final netlists never fall back to synthesis
+netlists. The same testbench, seeds and optional oracle check RTL and final
+netlist separately; either failure or missing evidence blocks selection.
+Netlist and cell-model snapshots/hashes are retained with the reports.
+
+This is zero-delay functional simulation (`FUNCTIONAL`, `UNIT_DELAY=#0`),
+not SDF timing simulation, hidden VIP or a proof of all input sequences.
+The local oracle is editable by the same developer; it is independently
+implemented but not isolated from the agent. Other designs need their own
+self-checking testbench and, optionally, a registered Python oracle. Include paths,
+macro models and HDL defines are not yet inferred from OpenLane configuration;
+declared include directories and defines are rejected as unverified, and missing
+macro simulation requires an explicit behavioral model for every configured macro
+(synthesis blackboxes are rejected). Simulation is checked after the physical flow, so this version does not
+yet save P&R time by rejecting broken RTL before synthesis.
+
+Live WSL validation on 2026-10-23 with upstream Verilator 5.018 passed
+322 checks for each of seeds 1, 17 and 101 (966 checks total). Deliberate
+increment-by-two and wrong-reset-priority mutants both compiled and failed with
+actual scoreboard mismatches on all three seeds. These are two negative
+controls, not an exhaustive mutation-coverage claim. See the
+[mutation results](reference-db/validation/verilator-counter4-mutations-20261023.json).
+Reproduce them without changing the original design:
+
+```powershell
+wsl -d Ubuntu -- python3 tests/check_counter4_mutations.py --report reference-db/validation/verilator-counter4-mutations.json
+```
+
+Additional live controls prove that the Python oracle rejects an increment-by-two
+RTL even when the HDL scoreboard is disabled and prints PASS, and that a swapped
+final-netlist output fails post-route simulation while its unchanged RTL passes.
+See [verification-layer controls](reference-db/validation/counter4-verification-layers-20261023.json).
+Reproduce against a completed counter4 physical run:
+
+```powershell
+wsl -d Ubuntu -- python3 tests/check_counter4_verification_layers.py --run-dir pipeline/designs/counter4/runs/functional-regression-20261023 --report reference-db/validation/counter4-verification-layers.json
+```
+
+### SRAM functional regression
+
+[`sram_wrapper/run_spec_functional_check.json`](pipeline/designs/sram_wrapper/run_spec_functional_check.json)
+connects the installed OpenRAM behavioral model through `macro_models` and
+enables `rtl_cell_models` because this wrapper instantiates real sky130 address
+buffers. The mapping names the macro module and its `/pdk/` Verilog model;
+the runner requires all declared macros to be mapped and hashes/snapshots each
+model. It never uses the synthesis blackbox as a behavioral substitute.
+Post-route simulation uses the final netlist and recorded standard-cell models
+with the same explicitly selected SRAM model.
+
+```powershell
+wsl -d Ubuntu -- python3 pipeline/orchestrator.py --design pipeline/designs/sram_wrapper --run-spec pipeline/designs/sram_wrapper/run_spec_functional_check.json --max-parallel 1
+```
+
+The `sram_wrapper` Python oracle follows the macro's rising-edge input latches,
+falling-edge memory operations, wrapper output registers, and SRAM contents
+retained across wrapper reset. Each seed runs 800 cycles with address wraps,
+directed resets and seeded resets. This wrapper writes only even addresses and
+reads odd addresses on port 0, so **port 0 has no defined read data**. Unwritten
+addresses and same-address concurrent write/read cases are reported as excluded,
+not passing assertions. The dashboard distinguishes trace-cycle counts from
+actual checked outputs and reports undefined counts per port.
+
+This tests the existing wrapper's observable defined behavior, not all memory
+features: its write mask is tied high, so byte-mask coverage is not claimed.
+The vendor model's arbitrary functional delay is retained; this is not SPICE,
+SDF timing signoff or proof that the relaxed SRAM liberty is characterized.
+Physical violations/model validity still block overall qualification even when
+functional simulation passes.
+
+The live negative control corrupts bit 8 of every write in a separate RTL copy;
+all three seeds must fail the Python oracle despite successful simulation exits:
+
+```powershell
+wsl -d Ubuntu -- python3 tests/check_sram_mutation.py --report reference-db/validation/sram-corrupt-write.json
+```
+
+The [2026-10-23 SRAM run](reference-db/cases/sram_wrapper__2026-10-23__014811.json)
+completed real placement/routing, GDS generation and signoff. RTL and final-netlist
+simulation each ran 2,400 trace cycles and compared 1,190 defined port-1 outputs;
+both passed. The [corrupted-write control](reference-db/validation/sram-corrupt-write-20261023.json)
+failed the Python oracle for all three seeds. Magic/KLayout DRC and LVS reported
+zero errors, but overall qualification **failed**: 16 max-slew and 18 max-fanout
+violations, plus 27 macro pins outside the liberty characterization range.
+The worst was `u_sram/web0`, 0.460 ns against a 0.040 ns characterized limit.
+No timing limits were relaxed for this test. Formal RTL/synthesis equivalence
+was not enabled for this macro run; the functional evidence is simulation.
+
+Custom Python flows now mount the resolved PDK directory explicitly because
+the WSL installation's absolute `pdk/sky130A` symlink otherwise dangles inside
+Docker. This run used the existing design constraints and the original PDK.
+
 The generated `reference-db/cases/*.json` files use compact JSON. The
 2026-09-16 whitespace-only migration reduced 70 cases from 607,317,687 to
 198,697,128 bytes (67.28%) while preserving every string, numeric spelling,

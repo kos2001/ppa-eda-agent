@@ -86,7 +86,29 @@ export interface SignoffCheck {
   count: number | null;
 }
 
+export interface FunctionalRegression {
+    status: string;
+    scope: string;
+    reason?: string;
+    version?: string;
+    oracle?: { name: string; sha256: string };
+    rtl_status?: string;
+    post_route?: FunctionalRegression;
+    runs: { seed: number; status: string; checks: number; timed_out: boolean;
+      oracle?: { status: string; reason?: string; cycle?: number; checks?: number;
+        trace_cycles?: number; checked_by_port?: number[]; undefined_by_port?: number[] } | null }[];
+}
+
 export interface CandidateVerdict {
+  functional_regression?: FunctionalRegression;
+  target_checks?: { target: string; actual: number | null; limit: number; unit: string; status: string }[];
+  implementation_evidence?: {
+    required: boolean;
+    qualified: boolean;
+    checks: { name: string; status: string }[];
+    gds_files: string[];
+    scope: string;
+  };
   passed: boolean;
   violations: string[];
   // Optional: cases written before these were recorded have none.

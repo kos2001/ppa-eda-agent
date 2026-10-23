@@ -721,6 +721,56 @@ function CandidateRow({
               <span className="tab__meta-label">{t("candidate_layout_error")}</span>
             )}
             {v && <QualityLine verdict={v} />}
+            {v && (
+              <div className="pipeline__provenance">
+                <span className="tab__meta-label">Implementation evidence</span>
+                {v.functional_regression && (
+                  <div>
+                    <p>Functional regression: {v.functional_regression.status}</p>
+                    <p>{v.functional_regression.scope}</p>
+                    {v.functional_regression.oracle && <p>Independent Python oracle: {v.functional_regression.oracle.name}</p>}
+                    {v.functional_regression.reason && <p>{v.functional_regression.reason}</p>}
+                    {v.functional_regression.runs.map(run => (
+                      <p key={run.seed}>RTL seed {run.seed}: {run.status} · {run.checks} {run.oracle?.trace_cycles ? "trace cycles" : "checks"}
+                        {run.oracle ? ` · oracle ${run.oracle.status}${run.oracle.checks != null ? ` (${run.oracle.checks} checked outputs)` : ""}` : ""}
+                        {run.oracle?.undefined_by_port ? ` · undefined outputs excluded: ${run.oracle.undefined_by_port.join(" / ")}` : ""}
+                        {run.timed_out ? " · timeout" : ""}</p>
+                    ))}
+                    {v.functional_regression.post_route && <div>
+                      <p>Post-route (Icarus): {v.functional_regression.post_route.status}</p>
+                      {v.functional_regression.post_route.reason && <p>{v.functional_regression.post_route.reason}</p>}
+                      {v.functional_regression.post_route.runs.map(run => (
+                        <p key={run.seed}>Seed {run.seed}: {run.status} · {run.checks} {run.oracle?.trace_cycles ? "trace cycles" : "checks"}
+                          {run.oracle ? ` · oracle ${run.oracle.status}${run.oracle.checks != null ? ` (${run.oracle.checks} checked outputs)` : ""}` : ""}
+                          {run.oracle?.undefined_by_port ? ` · undefined outputs excluded: ${run.oracle.undefined_by_port.join(" / ")}` : ""}
+                          {run.timed_out ? " · timeout" : ""}</p>
+                      ))}
+                    </div>}
+                  </div>
+                )}
+                {v.implementation_evidence ? (
+                  <>
+                    <p>{v.implementation_evidence.required ? "Required for selection" : "Informational"}
+                      {" · "}{v.implementation_evidence.qualified ? "Local checks passed" : "Local checks incomplete or failed"}</p>
+                    {v.implementation_evidence.checks.map(check => (
+                      <p key={check.name}>{check.name}: {check.status}</p>
+                    ))}
+                    <p>{v.implementation_evidence.scope}</p>
+                  </>
+                ) : <p>Not recorded for this run.</p>}
+                {!!v.target_checks?.length && (
+                  <table className="pipeline__table">
+                    <thead><tr><th>Budget</th><th>Measured</th><th>Limit</th><th>Status</th></tr></thead>
+                    <tbody>{v.target_checks.map(check => (
+                      <tr key={check.target}>
+                        <td>{check.target}</td><td>{check.actual ?? "unverified"} {check.unit}</td>
+                        <td>≤ {check.limit} {check.unit}</td><td>{check.status}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                )}
+              </div>
+            )}
             {candidate.repair && (
               <p className="pipeline__provenance">
                 <span className="tab__meta-label">why this candidate exists</span>
