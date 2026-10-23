@@ -76,6 +76,7 @@ def signatures(text: str) -> set[str]:
 # counted, in the vocabulary score() writes; the matcher is a substring
 # of the label so a reworded label around the same noun still matches.
 _SIGNOFF_KINDS = (
+    ("Functional regression failed", "verification:functional-regression"),
     ("setup timing violation", "signoff:setup"),
     ("worst setup WNS", "signoff:setup"),
     ("hold timing violation", "signoff:hold"),
@@ -120,6 +121,8 @@ def signoff_signatures(verdict: dict | None) -> set[str]:
 # prefix keeps "a DRC check that found errors" and "a DRC check that did not
 # run" apart: they call for different next steps.
 _UNVERIFIED_KINDS = (
+    ("functional regression incomplete", "unverified:functional-regression"),
+    ("Functional regression incomplete", "unverified:functional-regression"),
     ("clock domain", "unverified:cdc-unconstrained"),
     ("extrapolated beyond", "unverified:macro-model"),
     ("macro timing model", "unverified:macro-model"),

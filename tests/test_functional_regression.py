@@ -12,6 +12,15 @@ import orchestrator
 
 
 class FunctionalRegressionTests(unittest.TestCase):
+    def test_failed_and_incomplete_regression_have_distinct_retrieval_signatures(self):
+        import case_retrieval
+        failed = case_retrieval.signoff_signatures({"violations": ["Functional regression failed"]})
+        for message in ("Functional regression incomplete", "Verilator functional regression incomplete"):
+            incomplete = case_retrieval.unverified_signatures({"unverified": [message]})
+            self.assertEqual(incomplete, {"unverified:functional-regression"})
+            self.assertTrue(failed.isdisjoint(incomplete))
+        self.assertEqual(failed, {"verification:functional-regression"})
+
     def test_status_aggregation_requires_evidence_and_preserves_failure(self):
         for states, expected in [([], "unverified"), (["passed"], "passed"),
                                  (["passed", "unverified"], "unverified"),
