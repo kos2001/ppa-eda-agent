@@ -1,0 +1,61 @@
+###SIM###
+VCD info: dumpfile dump.vcd opened for output.
+gcd(13604, 24193) expected 1, got 1 after 52 cycles (ok )
+gcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )
+gcd(54793, 33307) expected 1, got 1 after 54 cycles (ok )
+gcd(60003, 7) expected 1, got 1 after 8582 cycles (ok )
+gcd(22115, 31501) expected 1, got 1 after 71 cycles (ok )
+gcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )
+gcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )
+gcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )
+gcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )
+gcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )
+gcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )
+gcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )
+gcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )
+gcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )
+gcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )
+gcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )
+gcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )
+gcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )
+gcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )
+gcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )
+gcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )
+gcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )
+gcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )
+gcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )
+gcd_tb: 0 error(s)
+/work/tb.v:104: $finish called at 2863173250 (1ps)
+###SIM_END###
+OpenSTA 2.6.0 GITDIR-NOT Copyright (c) 2024, Parallax Software, Inc.
+License GPLv3: GNU GPL version 3 <http://gnu.org/licenses/gpl.html>
+
+This is free software, and you are free to change and redistribute it
+under certain conditions; type `show_copying' for details. 
+This program comes with ABSOLUTELY NO WARRANTY; for details type `show_warranty'.
+###VECTORLESS###
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             2.36e-03   7.06e-04   1.72e-08   3.07e-03  20.4%
+Combinational          3.85e-03   5.18e-03   6.81e-08   9.02e-03  59.9%
+Clock                  2.07e-03   9.09e-04   5.32e-08   2.97e-03  19.7%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  8.28e-03   6.79e-03   1.38e-07   1.51e-02 100.0%
+                          54.9%      45.1%       0.0%
+###ANNOTATE###
+Annotated 1593 pin activities.
+###ANNOTATED###
+Group                  Internal  Switching    Leakage      Total
+                          Power      Power      Power      Power (Watts)
+----------------------------------------------------------------
+Sequential             1.94e-03   8.32e-05   1.73e-08   2.02e-03  32.6%
+Combinational          4.71e-04   7.24e-04   6.70e-08   1.20e-03  19.3%
+Clock                  2.07e-03   9.09e-04   5.32e-08   2.97e-03  48.0%
+Macro                  0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+Pad                    0.00e+00   0.00e+00   0.00e+00   0.00e+00   0.0%
+----------------------------------------------------------------
+Total                  4.47e-03   1.72e-03   1.37e-07   6.19e-03 100.0%
+                          72.3%      27.7%       0.0%
