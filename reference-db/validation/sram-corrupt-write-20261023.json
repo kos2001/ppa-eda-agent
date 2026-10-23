@@ -1,0 +1,95 @@
+{
+  "detected": true,
+  "mutation": "write data bit 8 stuck high",
+  "result": {
+    "status": "failed",
+    "stage": "rtl",
+    "scope": "RTL simulation against local testbench",
+    "image": "verilator/verilator:v5.018",
+    "sources": [
+      {
+        "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/src/sram_wrapper.v",
+        "snapshot": "src/sram_wrapper.v",
+        "sha256": "1cbb88b337705a38238e0bf071096c37d335e52afb19d4a31a21a51b18fc2775"
+      },
+      {
+        "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v",
+        "snapshot": "input1.v",
+        "sha256": "88eaee9f0c480065545479143bfef1e3186a5d97e4a7f79b8c57ad57637cdfeb"
+      },
+      {
+        "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+        "snapshot": "input2.v",
+        "sha256": "7d4b1441d06b0f2b9662befa675a0484d77149e04eb42a5f1fa2d4cfded7b2ce"
+      },
+      {
+        "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+        "snapshot": "input3.v",
+        "sha256": "fbf3b406a2ee7b47e4d28ab3f2ebf80e2a755a316fe8fb1f4b1873f71b563f3b"
+      },
+      {
+        "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/verify/sram_wrapper_regression.sv",
+        "snapshot": "verify/sram_wrapper_regression.sv",
+        "sha256": "40c9936762ef3978b010d3019f02a93701dd8dd248f5e3af48f74fda9d06c8b5"
+      }
+    ],
+    "runs": [
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/run/_functional_regression/c1ef94f081d142be904651143b2b5c4c/seed-1.log",
+        "seed": 1,
+        "status": "failed",
+        "checks": 800,
+        "oracle": {
+          "status": "failed",
+          "cycle": 4,
+          "port": 1,
+          "expected": 0,
+          "observed": "00000100"
+        }
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/run/_functional_regression/c1ef94f081d142be904651143b2b5c4c/seed-17.log",
+        "seed": 17,
+        "status": "failed",
+        "checks": 800,
+        "oracle": {
+          "status": "failed",
+          "cycle": 4,
+          "port": 1,
+          "expected": 0,
+          "observed": "00000100"
+        }
+      },
+      {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/run/_functional_regression/c1ef94f081d142be904651143b2b5c4c/seed-101.log",
+        "seed": 101,
+        "status": "failed",
+        "checks": 800,
+        "oracle": {
+          "status": "failed",
+          "cycle": 4,
+          "port": 1,
+          "expected": 0,
+          "observed": "00000100"
+        }
+      }
+    ],
+    "artifact_dir": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/run/_functional_regression/c1ef94f081d142be904651143b2b5c4c",
+    "oracle": {
+      "name": "sram_wrapper",
+      "sha256": "62db4b9c3f38dae64a4a35dd637995bdf66b4af76ffc51d4506743ba2915b570"
+    },
+    "version": "Verilator 5.018 2023-10-30 rev v5.018",
+    "compile": {
+      "returncode": 0,
+      "timed_out": false,
+      "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/sram-corrupt-write/run/_functional_regression/c1ef94f081d142be904651143b2b5c4c/compile.log"
+    }
+  }
+}

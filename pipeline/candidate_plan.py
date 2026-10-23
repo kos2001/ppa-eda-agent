@@ -242,6 +242,9 @@ def validate_run_plan(run_spec: dict, max_iterations: int) -> dict:
     if not isinstance(run_spec.get("targets", {}), dict):
         raise ValueError("run_spec 'targets' must be an object")
 
+    import implementation_contract
+    implementation_contract.validate_spec(run_spec)
+
     limits = evaluation_budget.validate_limits(run_spec.get("evaluation_budget"))
     explicit = run_spec.get("candidates", [])
     if not isinstance(explicit, list):

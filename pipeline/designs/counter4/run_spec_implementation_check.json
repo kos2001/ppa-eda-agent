@@ -1,0 +1,44 @@
+{
+  "design_name": "counter4",
+  "require_implementation_evidence": true,
+  "functional_regression": {
+    "oracle": "counter4",
+    "post_route": true,
+    "top": "counter4_regression",
+    "testbench": "verify/counter4_regression.sv",
+    "seeds": [
+      1,
+      17,
+      101
+    ],
+    "compile_timeout_s": 300,
+    "simulation_timeout_s": 30
+  },
+  "targets": {
+    "max_core_utilization": 0.75,
+    "max_cell_area_um2": 1000,
+    "max_core_area_um2": 2000,
+    "max_die_area_um2": 3000,
+    "max_power_w": 0.01,
+    "max_clock_period_ns": 10
+  },
+  "candidates": [
+    {
+      "tag": "functional-regression-20261023",
+      "overrides": {
+        "FP_CORE_UTIL": 35
+      }
+    }
+  ],
+  "max_iterations": 1,
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1
+  },
+  "search": {
+    "mode": "verification",
+    "objective": "Check functional regression and independent physical signoff gates",
+    "reference": "reference-db/validation",
+    "seed": 1
+  }
+}

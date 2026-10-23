@@ -3,6 +3,7 @@
 Pure functions over a metrics mapping and run_spec targets; no tool is invoked
 and no file is read. Split out of orchestrator.py, which re-exports these names.
 """
+import implementation_contract
 
 # The signoff checks a verdict is built from, paired with the label used
 # both when the count is nonzero ("3 KLayout DRC error(s)") and when the
@@ -269,7 +270,7 @@ def score(metrics: dict, targets: dict) -> dict:
                     f"> target {max_ir_pct}%"
                 )
 
-    return {
+    verdict = {
         # An unverified check blocks a pass as firmly as a failed one:
         # "we did not look" is not evidence of clean silicon. Kept as a
         # separate field so the console can say which it was.
@@ -298,3 +299,6 @@ def score(metrics: dict, targets: dict) -> dict:
         "power": power,
         "power_domain": power_domain,
     }
+    implementation_contract.apply_targets(
+        verdict, implementation_contract.target_checks(metrics, targets))
+    return verdict
