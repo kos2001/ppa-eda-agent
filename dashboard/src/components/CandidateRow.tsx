@@ -4,6 +4,7 @@ import { useLang } from "../i18n";
 import SignoffStrip from "./SignoffStrip";
 import { ViolationChips } from "./ClosureLedger";
 import LayoutView from "./LayoutView";
+import ImplementationEvidence from "./ImplementationEvidence";
 import {
   DataPointers,
   PowerSummary,
@@ -157,6 +158,7 @@ function CandidateRowImpl({
               <span className="tab__meta-label">{t("candidate_layout_error")}</span>
             )}
             {v && <QualityLine verdict={v} />}
+            {v && <ImplementationEvidence verdict={v} />}
             {candidate.repair && (
               <p className="pipeline__provenance">
                 <span className="tab__meta-label">why this candidate exists</span>
