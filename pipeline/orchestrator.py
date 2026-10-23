@@ -33,6 +33,8 @@ import def_layout
 import design_rules
 import equiv_check
 import gf180_drc
+import functional_regression
+import implementation_contract
 import live_events
 import magic_abstract_drc
 import netlist_graph
@@ -499,7 +501,7 @@ def score(metrics: dict, targets: dict) -> dict:
                     f"> target {max_ir_pct}%"
                 )
 
-    return {
+    verdict = {
         # An unverified check blocks a pass as firmly as a failed one:
         # "we did not look" is not evidence of clean silicon. Kept as a
         # separate field so the console can say which it was.
@@ -528,6 +530,9 @@ def score(metrics: dict, targets: dict) -> dict:
         "power": power,
         "power_domain": power_domain,
     }
+    implementation_contract.apply_targets(
+        verdict, implementation_contract.target_checks(metrics, targets))
+    return verdict
 
 
 def override_value(v) -> str:
@@ -825,7 +830,18 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
     if annotated:
         verdict["power_activity"] = annotated
 
-    equiv = verify_function(design_dir, run_dir, verdict) if verify_fn else None
+    targets = run_spec.get("targets", {})
+    if "max_clock_period_ns" in targets:
+        implementation_contract.apply_targets(verdict, [implementation_contract.check_limit(
+            "max_clock_period_ns", period if period_source == "resolved.json" else None,
+            targets["max_clock_period_ns"], "ns")])
+    required = run_spec.get("require_implementation_evidence", False)
+    if "functional_regression" in run_spec:
+        functional_regression.apply(verdict, functional_regression.check(
+            design_dir, run_dir, run_spec["functional_regression"]))
+    equiv = verify_function(design_dir, run_dir, verdict) if (
+        verify_fn or run_spec.get("verify_function") or required) else None
+    implementation_contract.attach_evidence(verdict, run_dir, equiv, required)
     layout = def_layout.layout_summary(run_dir, extra_lef_paths(design_dir))
     # The gate-level circuit itself. Yosys wrote this during
     # synthesis and the pipeline recorded only its path, into runs/,
@@ -858,6 +874,7 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
 def run_candidate(design_dir: Path, run_spec: dict, cand: dict,
                    verify_fn: bool = False) -> dict:
     """Runs and scores one independent candidate."""
+    implementation_contract.validate_spec(run_spec)
     # Sanitised here, not only where sweeps are expanded. safe_tag was
     # applied at expand time and nowhere else, so a caller that builds
     # its own candidates — collect.py does — could hand in a tag with a
@@ -1686,6 +1703,7 @@ def orchestrate(design_dir: Path, run_spec: dict, max_iterations: int,
     `screen` runs each candidate to SCREEN_STEP first and only pays for
     the full flow on survivors (see screen_candidates()).
     """
+    implementation_contract.validate_spec(run_spec)
     explored_candidates, exploration = expand_synthesis_exploration(design_dir, run_spec)
     candidates = (run_spec.get("candidates", []) + expand_sweeps(run_spec)
                   + explored_candidates)
@@ -1799,6 +1817,8 @@ def main():
                      help="prove each candidate's netlist is functionally "
                           "equivalent to the RTL (Yosys SAT equivalence, ~1s per "
                           "candidate); a mismatch fails the candidate outright")
+    ap.add_argument("--require-implementation-evidence", action="store_true",
+                    help="require non-vacuous RTL/synthesis equivalence and a final GDS artifact")
     ap.add_argument("--polish", action="store_true",
                      help="after a candidate passes, try the measured P&R moves "
                           "(pnr_polish.MOVES) on it and keep those that make it "
@@ -1810,6 +1830,8 @@ def main():
     args = ap.parse_args()
 
     run_spec = json.loads(args.run_spec.read_text(encoding="utf-8"))
+    if args.require_implementation_evidence:
+        run_spec["require_implementation_evidence"] = True
     design_name = run_spec.get("design_name", args.design.name)
     max_iterations = args.max_iterations or run_spec.get("max_iterations", 3)
     if args.polish and not run_spec.get("polish"):
