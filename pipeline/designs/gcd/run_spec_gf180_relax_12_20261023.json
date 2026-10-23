@@ -1,0 +1,31 @@
+{
+  "design_name": "gcd",
+  "targets": {
+    "max_clock_period_ns": 12,
+    "max_core_utilization": 0.75
+  },
+  "max_iterations": 1,
+  "candidates": [
+    {
+      "pdk": "gf180mcuD",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 2",
+        "FP_CORE_UTIL": 38,
+        "MAX_FANOUT_CONSTRAINT": 12,
+        "CLOCK_PERIOD": 12.0
+      },
+      "tag": "gf180-20261023-relax-clk12-util38",
+      "scl": "gf180mcu_fd_sc_mcu7t5v0"
+    }
+  ],
+  "search": {
+    "objective": "Find the shortest passing period among 11.5, 12 and 13.2 ns at fixed utilization 38 percent",
+    "mode": "explicit",
+    "reference": "reference-db/gcd_clock_comparison_20261023.json"
+  },
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1,
+    "max_wall_seconds": 900
+  }
+}
