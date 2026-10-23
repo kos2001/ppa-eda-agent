@@ -1,0 +1,217 @@
+{
+  "lying_scoreboard": {
+    "detected": true,
+    "result": {
+      "status": "failed",
+      "stage": "rtl",
+      "scope": "RTL simulation against local testbench",
+      "image": "verilator/verilator:v5.018",
+      "sources": [
+        {
+          "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/design/src/counter4.v",
+          "snapshot": "src/counter4.v",
+          "sha256": "5c0df77a197ebbfbbf505263f6aec2ce2c457f547747d7e32b84d265572b027d"
+        },
+        {
+          "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/design/verify/counter4_regression.sv",
+          "snapshot": "verify/counter4_regression.sv",
+          "sha256": "0aa364b4b4e9721d4a8a3db863b415cc97e5ac8a390890f670ee7d384e5c85a0"
+        }
+      ],
+      "runs": [
+        {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/run/_functional_regression/223fe72c4f4f4ea4ab69e14f23b17de4/seed-1.log",
+          "seed": 1,
+          "status": "failed",
+          "checks": 322,
+          "oracle": {
+            "status": "failed",
+            "cycle": 1,
+            "expected": 1,
+            "observed": 2
+          }
+        },
+        {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/run/_functional_regression/223fe72c4f4f4ea4ab69e14f23b17de4/seed-17.log",
+          "seed": 17,
+          "status": "failed",
+          "checks": 322,
+          "oracle": {
+            "status": "failed",
+            "cycle": 1,
+            "expected": 1,
+            "observed": 2
+          }
+        },
+        {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/run/_functional_regression/223fe72c4f4f4ea4ab69e14f23b17de4/seed-101.log",
+          "seed": 101,
+          "status": "failed",
+          "checks": 322,
+          "oracle": {
+            "status": "failed",
+            "cycle": 1,
+            "expected": 1,
+            "observed": 2
+          }
+        }
+      ],
+      "artifact_dir": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/run/_functional_regression/223fe72c4f4f4ea4ab69e14f23b17de4",
+      "oracle": {
+        "name": "counter4",
+        "sha256": "a2cae70b6abe345b86a515238a23647780eb78e89f3c7a9136e4a6306bcb366c"
+      },
+      "version": "Verilator 5.018 2023-10-30 rev v5.018",
+      "compile": {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/lying_scoreboard/run/_functional_regression/223fe72c4f4f4ea4ab69e14f23b17de4/compile.log"
+      }
+    }
+  },
+  "wrong_final_output": {
+    "detected": true,
+    "result": {
+      "status": "failed",
+      "stage": "rtl",
+      "scope": "RTL and post-route netlist functional simulation; no SDF",
+      "image": "verilator/verilator:v5.018",
+      "sources": [
+        {
+          "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/design/src/counter4.v",
+          "snapshot": "src/counter4.v",
+          "sha256": "dec2e97882360811166438d5372fd91a71ac932af9c181f2fb2386eb33561ad5"
+        },
+        {
+          "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/design/verify/counter4_regression.sv",
+          "snapshot": "verify/counter4_regression.sv",
+          "sha256": "91bbf2d5d764c4e84ae3e8bae06ac827f20b369c4fa571a8f5d70d5e062d91ad"
+        }
+      ],
+      "runs": [
+        {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/951f87e8669c48df84482eb4214e12a8/seed-1.log",
+          "seed": 1,
+          "status": "passed",
+          "checks": 322,
+          "oracle": {
+            "status": "passed",
+            "checks": 322
+          }
+        },
+        {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/951f87e8669c48df84482eb4214e12a8/seed-17.log",
+          "seed": 17,
+          "status": "passed",
+          "checks": 322,
+          "oracle": {
+            "status": "passed",
+            "checks": 322
+          }
+        },
+        {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/951f87e8669c48df84482eb4214e12a8/seed-101.log",
+          "seed": 101,
+          "status": "passed",
+          "checks": 322,
+          "oracle": {
+            "status": "passed",
+            "checks": 322
+          }
+        }
+      ],
+      "artifact_dir": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/951f87e8669c48df84482eb4214e12a8",
+      "oracle": {
+        "name": "counter4",
+        "sha256": "a2cae70b6abe345b86a515238a23647780eb78e89f3c7a9136e4a6306bcb366c"
+      },
+      "version": "Verilator 5.018 2023-10-30 rev v5.018",
+      "compile": {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/951f87e8669c48df84482eb4214e12a8/compile.log"
+      },
+      "rtl_status": "passed",
+      "post_route": {
+        "status": "failed",
+        "stage": "post_route",
+        "scope": "Post-route netlist functional simulation (no SDF)",
+        "image": "ghcr.io/efabless/openlane2:2.3.10",
+        "sources": [
+          {
+            "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/final/nl/counter4.nl.v",
+            "snapshot": "input0.v",
+            "sha256": "de021d052744649483016dab6829770d7f40917a4291d8c4b53611e1066aea0b"
+          },
+          {
+            "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v",
+            "snapshot": "input1.v",
+            "sha256": "7d4b1441d06b0f2b9662befa675a0484d77149e04eb42a5f1fa2d4cfded7b2ce"
+          },
+          {
+            "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v",
+            "snapshot": "input2.v",
+            "sha256": "fbf3b406a2ee7b47e4d28ab3f2ebf80e2a755a316fe8fb1f4b1873f71b563f3b"
+          },
+          {
+            "path": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/design/verify/counter4_regression.sv",
+            "snapshot": "input3.v",
+            "sha256": "91bbf2d5d764c4e84ae3e8bae06ac827f20b369c4fa571a8f5d70d5e062d91ad"
+          }
+        ],
+        "runs": [
+          {
+            "returncode": 1,
+            "timed_out": false,
+            "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/842e64afa0154a3cbc2f61fa61b3aeb5/seed-1.log",
+            "seed": 1,
+            "status": "failed",
+            "checks": 0,
+            "oracle": null
+          },
+          {
+            "returncode": 1,
+            "timed_out": false,
+            "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/842e64afa0154a3cbc2f61fa61b3aeb5/seed-17.log",
+            "seed": 17,
+            "status": "failed",
+            "checks": 0,
+            "oracle": null
+          },
+          {
+            "returncode": 1,
+            "timed_out": false,
+            "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/842e64afa0154a3cbc2f61fa61b3aeb5/seed-101.log",
+            "seed": 101,
+            "status": "failed",
+            "checks": 0,
+            "oracle": null
+          }
+        ],
+        "artifact_dir": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/842e64afa0154a3cbc2f61fa61b3aeb5",
+        "oracle": {
+          "name": "counter4",
+          "sha256": "a2cae70b6abe345b86a515238a23647780eb78e89f3c7a9136e4a6306bcb366c"
+        },
+        "version": "Icarus Verilog version 12.0 (stable) ()",
+        "compile": {
+          "returncode": 0,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verification-layers/wrong_final_output/run/_functional_regression/842e64afa0154a3cbc2f61fa61b3aeb5/compile.log"
+        }
+      }
+    }
+  }
+}

@@ -43,6 +43,9 @@ if TOOLCHAIN_PROFILE not in TOOLCHAIN_PROFILES:
     raise ValueError(f"Unknown PPA_EDA_TOOLCHAIN {TOOLCHAIN_PROFILE!r}; "
                      f"choose from {', '.join(TOOLCHAIN_PROFILES)}")
 OPENLANE_IMAGE = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["image"]
+# The OpenLane image has lint-only Verilator but no make/C++ build toolchain.
+# Functional simulation uses the upstream executable image at the same release.
+VERILATOR_IMAGE = "verilator/verilator:v5.018"
 
 # Where that image comes from, recorded alongside results so a case can
 # be attributed to a toolchain rather than to "whatever was installed".

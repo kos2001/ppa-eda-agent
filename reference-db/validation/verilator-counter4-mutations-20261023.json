@@ -1,0 +1,104 @@
+{
+  "increment_by_two": {
+    "detected": true,
+    "result": {
+      "status": "failed",
+      "scope": "RTL simulation against local testbench",
+      "image": "verilator/verilator:v5.018",
+      "sources": [
+        {
+          "path": "src/counter4.v",
+          "sha256": "5c0df77a197ebbfbbf505263f6aec2ce2c457f547747d7e32b84d265572b027d"
+        },
+        {
+          "path": "verify/counter4_regression.sv",
+          "sha256": "594a78871dff749737fc8d397eebcb0d9894c149bc2dc59840ab4782cb2d87da"
+        }
+      ],
+      "runs": [
+        {
+          "returncode": 139,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/increment_by_two/run/_functional_regression/bdff1d4f813949d9a663e79985887da1/seed-1.log",
+          "seed": 1,
+          "status": "failed",
+          "checks": 0
+        },
+        {
+          "returncode": 139,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/increment_by_two/run/_functional_regression/bdff1d4f813949d9a663e79985887da1/seed-17.log",
+          "seed": 17,
+          "status": "failed",
+          "checks": 0
+        },
+        {
+          "returncode": 139,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/increment_by_two/run/_functional_regression/bdff1d4f813949d9a663e79985887da1/seed-101.log",
+          "seed": 101,
+          "status": "failed",
+          "checks": 0
+        }
+      ],
+      "artifact_dir": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/increment_by_two/run/_functional_regression/bdff1d4f813949d9a663e79985887da1",
+      "version": "Verilator 5.018 2023-10-30 rev v5.018",
+      "compile": {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/increment_by_two/run/_functional_regression/bdff1d4f813949d9a663e79985887da1/compile.log"
+      }
+    }
+  },
+  "wrong_reset_priority": {
+    "detected": true,
+    "result": {
+      "status": "failed",
+      "scope": "RTL simulation against local testbench",
+      "image": "verilator/verilator:v5.018",
+      "sources": [
+        {
+          "path": "src/counter4.v",
+          "sha256": "e5fbddaafdb8d9fa221fe5b52263ea5199d3e94838aa1d421e4edd712c93185e"
+        },
+        {
+          "path": "verify/counter4_regression.sv",
+          "sha256": "594a78871dff749737fc8d397eebcb0d9894c149bc2dc59840ab4782cb2d87da"
+        }
+      ],
+      "runs": [
+        {
+          "returncode": 139,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/wrong_reset_priority/run/_functional_regression/caa434e73b094dcca9b72e24d181a91f/seed-1.log",
+          "seed": 1,
+          "status": "failed",
+          "checks": 0
+        },
+        {
+          "returncode": 139,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/wrong_reset_priority/run/_functional_regression/caa434e73b094dcca9b72e24d181a91f/seed-17.log",
+          "seed": 17,
+          "status": "failed",
+          "checks": 0
+        },
+        {
+          "returncode": 139,
+          "timed_out": false,
+          "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/wrong_reset_priority/run/_functional_regression/caa434e73b094dcca9b72e24d181a91f/seed-101.log",
+          "seed": 101,
+          "status": "failed",
+          "checks": 0
+        }
+      ],
+      "artifact_dir": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/wrong_reset_priority/run/_functional_regression/caa434e73b094dcca9b72e24d181a91f",
+      "version": "Verilator 5.018 2023-10-30 rev v5.018",
+      "compile": {
+        "returncode": 0,
+        "timed_out": false,
+        "log": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.cache/verilator-mutants/wrong_reset_priority/run/_functional_regression/caa434e73b094dcca9b72e24d181a91f/compile.log"
+      }
+    }
+  }
+}

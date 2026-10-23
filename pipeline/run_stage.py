@@ -131,6 +131,11 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
             shutil.copy2(source, flow_source / source.name)
     extra_mounts = (["-v", f"{flow_source}:/flows:ro"]
                     if custom_script else [])
+    # Custom Python flows bypass the OpenLane CLI's Volare resolution. A host
+    # absolute PDK symlink is dangling inside Docker; mount its real target.
+    selected_pdk = PDK_ROOT / (pdk or "sky130A")
+    if custom_script and selected_pdk.is_dir():
+        extra_mounts += ["-v", f"{selected_pdk.resolve()}:/pdk/{pdk or 'sky130A'}:ro"]
     entrypoint = (["python3", f"/flows/{custom_script}"]
                   if custom_script else ["openlane"])
     if selected_flow == "MacroFanoutRepair":
