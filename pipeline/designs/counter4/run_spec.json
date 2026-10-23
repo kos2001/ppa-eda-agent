@@ -1,5 +1,12 @@
 {
   "design_name": "counter4",
+  "functional_regression": {
+    "oracle": "counter4",
+    "post_route": true,
+    "top": "counter4_regression",
+    "testbench": "verify/counter4_regression.sv",
+    "seeds": [1, 17, 101]
+  },
   "targets": {
     "max_core_utilization": 0.75
   },
