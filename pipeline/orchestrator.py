@@ -311,6 +311,8 @@ def score_run_dir(design_dir: Path, run_dir: Path, run_spec: dict, cand: dict,
             klayout_drc = {"error": f"{type(e).__name__}: {e}"}
             print(f"  (gf180mcu KLayout DRC not run for {tag}: {e})", file=sys.stderr)
     verdict = score(metrics, run_spec.get("targets", {}))
+    from tool_contract_audit import audit_run, attach
+    attach(verdict, audit_run(run_dir))
     if klayout_drc is not None:
         verdict["klayout_drc"] = klayout_drc
     # Clock-domain coverage needs the run's logs, which score() never

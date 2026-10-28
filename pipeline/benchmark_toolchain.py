@@ -17,7 +17,7 @@ import subprocess
 import time
 
 from run_stage import PDK_ROOT, run_stage
-from toolchain import OPENLANE_IMAGE, platform_args, toolchain_info
+from toolchain import OPENLANE_IMAGE, FLOW_MODULE, platform_args, toolchain_info
 
 
 def sha256(path):
@@ -49,8 +49,8 @@ def inspect_tools():
     probe = subprocess.run(
         ["docker", "run", "--rm", "--pull=never", *platform_args(),
          OPENLANE_IMAGE, "python3", "-c",
-         "import json,platform,subprocess,openlane; "
-         "print(json.dumps({'openlane':openlane.__version__, "
+         f"import json,platform,subprocess,{FLOW_MODULE} as flow; "
+         "print(json.dumps({'openlane':flow.__version__, "
          "'openroad':subprocess.check_output(['openroad','-version'],text=True).strip(), "
          "'arch':platform.machine()}))"],
         capture_output=True, text=True, check=True, timeout=60)

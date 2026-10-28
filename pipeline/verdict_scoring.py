@@ -104,8 +104,9 @@ def score(metrics: dict, targets: dict) -> dict:
     docs/superpowers/specs/2026-08-21-autonomous-layout-agent-design.md
     for why we trust metrics.json rather than re-deriving PPA ourselves.
     """
+    from tool_contract_audit import metric_issues, timing_minimum
     violations = []
-    unverified = []
+    unverified = metric_issues(metrics, [key for key, _ in SIGNOFF_METRICS])
 
     # Signoff gates OpenLane computes and this verdict was ignoring.
     #
@@ -180,11 +181,8 @@ def score(metrics: dict, targets: dict) -> dict:
     # per clock — see ieda_metrics.py) carries only the design-level
     # key, which OpenLane also emits. Read it when the corners are
     # absent; never let it override them when they are present.
-    if setup_wns_keys:
-        worst_wns = min(metrics[k] for k in setup_wns_keys)
-    else:
-        worst_wns = metrics.get("timing__setup__wns", 0)
-    if worst_wns < 0:
+    worst_wns = timing_minimum(metrics, "setup")
+    if worst_wns is not None and worst_wns < 0:
         violations.append(f"worst setup WNS {worst_wns} (timing violation)")
 
     # Hold. This was recorded per corner and displayed on the dashboard
@@ -195,11 +193,8 @@ def score(metrics: dict, targets: dict) -> dict:
     # fixed after fabrication, which makes this the worst thing the
     # verdict could have been silent about.
     hold_wns_keys = [k for k in metrics if k.startswith("timing__hold__wns__corner:")]
-    if hold_wns_keys:
-        worst_hold = min(metrics[k] for k in hold_wns_keys)
-    else:
-        worst_hold = metrics.get("timing__hold__wns", 0)
-    if worst_hold < 0:
+    worst_hold = timing_minimum(metrics, "hold")
+    if worst_hold is not None and worst_hold < 0:
         violations.append(f"worst hold WNS {worst_hold} (hold violation)")
 
     # Every real timing corner OpenLane actually analyzed (typically 9:
@@ -281,9 +276,10 @@ def score(metrics: dict, targets: dict) -> dict:
         # Which tool's numbers these are. OpenLane's metrics.json has no
         # such key; a second source (ieda_metrics.py) sets it.
         "metrics_source": metrics.get("metrics__source", "OpenLane metrics.json"),
-        "area_um2": metrics.get("design__instance__area"),
+        "area_um2": metrics.get("design__instance__area__stdcell", metrics.get("design__instance__area")),
+        "raw_instance_area_um2": metrics.get("design__instance__area"),
         "utilization": util,
-        "worst_setup_wns": worst_wns,
+        "worst_setup_wns": min(0, worst_wns) if worst_wns is not None else None,
         # What placement and routing actually produced, recorded beside
         # the pass/fail. worst_setup_wns above is OpenSTA's *negative*
         # slack, clipped at 0, so it is 0 for every passing candidate and

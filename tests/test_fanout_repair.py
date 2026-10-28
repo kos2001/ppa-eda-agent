@@ -39,6 +39,7 @@ class PhysicalFanoutTests(unittest.TestCase):
                 return proc
 
             with patch.object(run_stage.subprocess, "Popen", side_effect=started), \
+                    patch.object(run_stage, "verify_runtime_toolchain", return_value={"image_id": "sha256:verified"}), \
                     patch.object(run_stage, "claim_run_dir"):
                 run_stage.run_stage(design, "probe", None, [], flow="FanoutRepair")
             provenance = json.loads((run / "custom_flow_provenance.json").read_text())
@@ -74,6 +75,7 @@ class PhysicalFanoutTests(unittest.TestCase):
             proc = Mock(stdout=io.StringIO(""))
             proc.wait.return_value = 0
             with patch.object(run_stage.subprocess, "Popen", return_value=proc) as popen, \
+                    patch.object(run_stage, "verify_runtime_toolchain", return_value={"image_id": "sha256:verified"}), \
                     patch.object(run_stage, "claim_run_dir"):
                 run_stage.run_stage(design, "probe", None, [], flow="MacroFanoutRepair")
             command = popen.call_args.args[0]
