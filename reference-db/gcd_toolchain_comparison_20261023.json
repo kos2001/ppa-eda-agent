@@ -1,0 +1,767 @@
+{
+  "comparison": "OpenLane 2.3.10 vs LibreLane 3.0.16; bundled tools and flow both change",
+  "area_definition": "Compare design__instance__area__stdcell. New OpenROAD includes filler area in design__instance__area; do not directly compare the raw totals.",
+  "default_promotion": "Neither corrected stable nor tested LibreLane configuration closes 13.2 ns at 5% derating. Do not promote an unqualified configuration.",
+  "constraints": {
+    "pdk": "gf180mcuD",
+    "scl": "gf180mcu_fd_sc_mcu7t5v0",
+    "clock_period_ns": 13.2,
+    "core_util_percent": 38,
+    "synthesis_strategy": "DELAY 2",
+    "max_fanout": 12,
+    "time_derating_percent": 5,
+    "historical_exception": "stable original row effectively used 0%"
+  },
+  "rows": [
+    {
+      "profile": "stable",
+      "case": "reference-db/cases/gcd__2026-10-23.json",
+      "tag": "gf180-upgrade-stable-13p2-20261023",
+      "tools": {
+        "image_id": "sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e",
+        "repo_digests": [
+          "ghcr.io/efabless/openlane2@sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e"
+        ],
+        "versions": {
+          "openlane": "2.3.10",
+          "openroad": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+          "arch": "x86_64"
+        }
+      },
+      "passed": true,
+      "error": null,
+      "violations": [],
+      "unverified": [],
+      "core_area_um2": 20389,
+      "cell_area_um2": 12104.3,
+      "raw_total_instance_area_um2": 12104.3,
+      "worst_setup_slack_ns": 0.26788261256357276,
+      "worst_hold_slack_ns": 0.2858824369262853,
+      "vectorless_power_w": 0.012951841577887535,
+      "activity_power_w": 0.00535,
+      "power_error": null,
+      "power_corner": "ff_n40C_5v50",
+      "signoff_checks": [
+        {
+          "key": "magic__drc_error__count",
+          "label": "Magic DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "klayout__drc_error__count",
+          "label": "KLayout DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_error__count",
+          "label": "LVS error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__instance_unmapped__count",
+          "label": "unmapped instance(s) after synthesis",
+          "count": 0
+        },
+        {
+          "key": "design__xor_difference__count",
+          "label": "XOR difference(s) between tool GDS outputs",
+          "count": 0
+        },
+        {
+          "key": "magic__illegal_overlap__count",
+          "label": "illegal layout overlap(s) (Magic)",
+          "count": 0
+        },
+        {
+          "key": "route__drc_errors",
+          "label": "routing DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_device_difference__count",
+          "label": "LVS device difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_net_difference__count",
+          "label": "LVS net difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_property_fail__count",
+          "label": "LVS property failure(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_device__count",
+          "label": "LVS unmatched device(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_net__count",
+          "label": "LVS unmatched net(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_pin__count",
+          "label": "LVS unmatched pin(s)",
+          "count": 0
+        },
+        {
+          "key": "design__disconnected_pin__count",
+          "label": "disconnected pin(s)",
+          "count": 0
+        },
+        {
+          "key": "timing__setup_vio__count",
+          "label": "setup timing violation(s)",
+          "count": 0
+        },
+        {
+          "key": "timing__hold_vio__count",
+          "label": "hold timing violation(s)",
+          "count": 0
+        },
+        {
+          "key": "route__antenna_violation__count",
+          "label": "routing antenna violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__power_grid_violation__count",
+          "label": "power-grid violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_slew_violation__count",
+          "label": "max-slew (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_cap_violation__count",
+          "label": "max-capacitance (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_fanout_violation__count",
+          "label": "max-fanout (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "synthesis__check_error__count",
+          "label": "synthesis check error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lint_error__count",
+          "label": "RTL lint error(s)",
+          "count": 0
+        }
+      ],
+      "effective_derate_percent": 0,
+      "qualification": "Historical PASS used 0% effective derating; not qualified at 5%."
+    },
+    {
+      "profile": "librelane-cli2",
+      "case": "reference-db/cases/gcd__2026-10-23__081517.json",
+      "tag": "gf180-upgrade-librelane-cli2-13p2-20261023",
+      "tools": {
+        "image_id": "sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302",
+        "repo_digests": [
+          "ghcr.io/librelane/librelane@sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302"
+        ],
+        "versions": {
+          "openlane": "3.0.16",
+          "openroad": "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0",
+          "arch": "x86_64"
+        }
+      },
+      "passed": false,
+      "error": null,
+      "violations": [
+        "107 setup timing violation(s)",
+        "39 max-slew (DRV) violation(s)",
+        "worst setup WNS -1.5403501132816095 (timing violation)"
+      ],
+      "unverified": [],
+      "core_area_um2": 17763.6,
+      "cell_area_um2": 10187.9,
+      "raw_total_instance_area_um2": 17763.6,
+      "worst_setup_slack_ns": -1.5403501132816095,
+      "worst_hold_slack_ns": 0.33942433158188245,
+      "vectorless_power_w": 0.009244413115084171,
+      "activity_power_w": 0.00491,
+      "power_error": null,
+      "power_corner": "ff_n40C_5v50",
+      "signoff_checks": [
+        {
+          "key": "magic__drc_error__count",
+          "label": "Magic DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "klayout__drc_error__count",
+          "label": "KLayout DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_error__count",
+          "label": "LVS error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__instance_unmapped__count",
+          "label": "unmapped instance(s) after synthesis",
+          "count": 0
+        },
+        {
+          "key": "design__xor_difference__count",
+          "label": "XOR difference(s) between tool GDS outputs",
+          "count": 0
+        },
+        {
+          "key": "magic__illegal_overlap__count",
+          "label": "illegal layout overlap(s) (Magic)",
+          "count": 0
+        },
+        {
+          "key": "route__drc_errors",
+          "label": "routing DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_device_difference__count",
+          "label": "LVS device difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_net_difference__count",
+          "label": "LVS net difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_property_fail__count",
+          "label": "LVS property failure(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_device__count",
+          "label": "LVS unmatched device(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_net__count",
+          "label": "LVS unmatched net(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_pin__count",
+          "label": "LVS unmatched pin(s)",
+          "count": 0
+        },
+        {
+          "key": "design__disconnected_pin__count",
+          "label": "disconnected pin(s)",
+          "count": 0
+        },
+        {
+          "key": "timing__setup_vio__count",
+          "label": "setup timing violation(s)",
+          "count": 107
+        },
+        {
+          "key": "timing__hold_vio__count",
+          "label": "hold timing violation(s)",
+          "count": 0
+        },
+        {
+          "key": "route__antenna_violation__count",
+          "label": "routing antenna violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__power_grid_violation__count",
+          "label": "power-grid violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_slew_violation__count",
+          "label": "max-slew (DRV) violation(s)",
+          "count": 39
+        },
+        {
+          "key": "design__max_cap_violation__count",
+          "label": "max-capacitance (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_fanout_violation__count",
+          "label": "max-fanout (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "synthesis__check_error__count",
+          "label": "synthesis check error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lint_error__count",
+          "label": "RTL lint error(s)",
+          "count": 0
+        }
+      ],
+      "effective_derate_percent": 5,
+      "qualification": "Measured with 5% effective derating; consult hard gates."
+    },
+    {
+      "profile": "stable-derate5",
+      "case": "reference-db/cases/gcd__2026-10-23__084145.json",
+      "tag": "gf180-upgrade-stable-derate5-13p2-20261023",
+      "tools": {
+        "image_id": "sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e",
+        "repo_digests": [
+          "ghcr.io/efabless/openlane2@sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e"
+        ],
+        "versions": {
+          "openlane": "2.3.10",
+          "openroad": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+          "arch": "x86_64"
+        }
+      },
+      "passed": false,
+      "error": null,
+      "violations": [
+        "4 setup timing violation(s)",
+        "worst setup WNS -0.3881401976352471 (timing violation)"
+      ],
+      "unverified": [],
+      "cell_area_um2": 12110.9,
+      "core_area_um2": 20389,
+      "raw_total_instance_area_um2": 12110.9,
+      "worst_setup_slack_ns": -0.3881401976352471,
+      "worst_hold_slack_ns": 0.2564237783577336,
+      "activity_power_w": 0.00535,
+      "power_corner": "ff_n40C_5v50",
+      "signoff_checks": [
+        {
+          "key": "magic__drc_error__count",
+          "label": "Magic DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "klayout__drc_error__count",
+          "label": "KLayout DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_error__count",
+          "label": "LVS error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__instance_unmapped__count",
+          "label": "unmapped instance(s) after synthesis",
+          "count": 0
+        },
+        {
+          "key": "design__xor_difference__count",
+          "label": "XOR difference(s) between tool GDS outputs",
+          "count": 0
+        },
+        {
+          "key": "magic__illegal_overlap__count",
+          "label": "illegal layout overlap(s) (Magic)",
+          "count": 0
+        },
+        {
+          "key": "route__drc_errors",
+          "label": "routing DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_device_difference__count",
+          "label": "LVS device difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_net_difference__count",
+          "label": "LVS net difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_property_fail__count",
+          "label": "LVS property failure(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_device__count",
+          "label": "LVS unmatched device(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_net__count",
+          "label": "LVS unmatched net(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_pin__count",
+          "label": "LVS unmatched pin(s)",
+          "count": 0
+        },
+        {
+          "key": "design__disconnected_pin__count",
+          "label": "disconnected pin(s)",
+          "count": 0
+        },
+        {
+          "key": "timing__setup_vio__count",
+          "label": "setup timing violation(s)",
+          "count": 4
+        },
+        {
+          "key": "timing__hold_vio__count",
+          "label": "hold timing violation(s)",
+          "count": 0
+        },
+        {
+          "key": "route__antenna_violation__count",
+          "label": "routing antenna violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__power_grid_violation__count",
+          "label": "power-grid violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_slew_violation__count",
+          "label": "max-slew (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_cap_violation__count",
+          "label": "max-capacitance (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_fanout_violation__count",
+          "label": "max-fanout (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "synthesis__check_error__count",
+          "label": "synthesis check error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lint_error__count",
+          "label": "RTL lint error(s)",
+          "count": 0
+        }
+      ],
+      "effective_derate_percent": 5,
+      "qualification": "Measured with 5% effective derating; consult hard gates."
+    },
+    {
+      "profile": "librelane-cts25",
+      "case": "reference-db/cases/gcd__2026-10-23__084205.json",
+      "tag": "gf180-upgrade-librelane-cts25-13p2-20261023",
+      "tools": {
+        "image_id": "sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302",
+        "repo_digests": [
+          "ghcr.io/librelane/librelane@sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302"
+        ],
+        "versions": {
+          "openlane": "3.0.16",
+          "openroad": "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0",
+          "arch": "x86_64"
+        }
+      },
+      "passed": false,
+      "error": null,
+      "violations": [
+        "107 setup timing violation(s)",
+        "39 max-slew (DRV) violation(s)",
+        "worst setup WNS -1.5403501132816095 (timing violation)"
+      ],
+      "unverified": [],
+      "cell_area_um2": 10187.9,
+      "core_area_um2": 17763.6,
+      "raw_total_instance_area_um2": 17763.6,
+      "worst_setup_slack_ns": -1.5403501132816095,
+      "worst_hold_slack_ns": 0.33942433158188245,
+      "activity_power_w": 0.00491,
+      "power_corner": "ff_n40C_5v50",
+      "signoff_checks": [
+        {
+          "key": "magic__drc_error__count",
+          "label": "Magic DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "klayout__drc_error__count",
+          "label": "KLayout DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_error__count",
+          "label": "LVS error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__instance_unmapped__count",
+          "label": "unmapped instance(s) after synthesis",
+          "count": 0
+        },
+        {
+          "key": "design__xor_difference__count",
+          "label": "XOR difference(s) between tool GDS outputs",
+          "count": 0
+        },
+        {
+          "key": "magic__illegal_overlap__count",
+          "label": "illegal layout overlap(s) (Magic)",
+          "count": 0
+        },
+        {
+          "key": "route__drc_errors",
+          "label": "routing DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_device_difference__count",
+          "label": "LVS device difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_net_difference__count",
+          "label": "LVS net difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_property_fail__count",
+          "label": "LVS property failure(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_device__count",
+          "label": "LVS unmatched device(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_net__count",
+          "label": "LVS unmatched net(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_pin__count",
+          "label": "LVS unmatched pin(s)",
+          "count": 0
+        },
+        {
+          "key": "design__disconnected_pin__count",
+          "label": "disconnected pin(s)",
+          "count": 0
+        },
+        {
+          "key": "timing__setup_vio__count",
+          "label": "setup timing violation(s)",
+          "count": 107
+        },
+        {
+          "key": "timing__hold_vio__count",
+          "label": "hold timing violation(s)",
+          "count": 0
+        },
+        {
+          "key": "route__antenna_violation__count",
+          "label": "routing antenna violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__power_grid_violation__count",
+          "label": "power-grid violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_slew_violation__count",
+          "label": "max-slew (DRV) violation(s)",
+          "count": 39
+        },
+        {
+          "key": "design__max_cap_violation__count",
+          "label": "max-capacitance (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_fanout_violation__count",
+          "label": "max-fanout (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "synthesis__check_error__count",
+          "label": "synthesis check error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lint_error__count",
+          "label": "RTL lint error(s)",
+          "count": 0
+        }
+      ],
+      "effective_derate_percent": 5,
+      "qualification": "Measured with 5% effective derating; consult hard gates."
+    },
+    {
+      "profile": "librelane-cts25-postgrt",
+      "case": "reference-db/cases/gcd__2026-10-23__084421.json",
+      "tag": "gf180-upgrade-librelane-cts25-postgrt-13p2-20261023",
+      "tools": {
+        "image_id": "sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302",
+        "repo_digests": [
+          "ghcr.io/librelane/librelane@sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302"
+        ],
+        "versions": {
+          "openlane": "3.0.16",
+          "openroad": "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0",
+          "arch": "x86_64"
+        }
+      },
+      "passed": false,
+      "error": null,
+      "violations": [
+        "80 setup timing violation(s)",
+        "39 max-slew (DRV) violation(s)",
+        "worst setup WNS -1.358069251051298 (timing violation)"
+      ],
+      "unverified": [],
+      "cell_area_um2": 10214.3,
+      "core_area_um2": 17763.6,
+      "raw_total_instance_area_um2": 17763.6,
+      "worst_setup_slack_ns": -1.358069251051298,
+      "worst_hold_slack_ns": 0.33946990623833223,
+      "activity_power_w": 0.00491,
+      "power_corner": "ff_n40C_5v50",
+      "signoff_checks": [
+        {
+          "key": "magic__drc_error__count",
+          "label": "Magic DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "klayout__drc_error__count",
+          "label": "KLayout DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_error__count",
+          "label": "LVS error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__instance_unmapped__count",
+          "label": "unmapped instance(s) after synthesis",
+          "count": 0
+        },
+        {
+          "key": "design__xor_difference__count",
+          "label": "XOR difference(s) between tool GDS outputs",
+          "count": 0
+        },
+        {
+          "key": "magic__illegal_overlap__count",
+          "label": "illegal layout overlap(s) (Magic)",
+          "count": 0
+        },
+        {
+          "key": "route__drc_errors",
+          "label": "routing DRC error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_device_difference__count",
+          "label": "LVS device difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_net_difference__count",
+          "label": "LVS net difference(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_property_fail__count",
+          "label": "LVS property failure(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_device__count",
+          "label": "LVS unmatched device(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_net__count",
+          "label": "LVS unmatched net(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lvs_unmatched_pin__count",
+          "label": "LVS unmatched pin(s)",
+          "count": 0
+        },
+        {
+          "key": "design__disconnected_pin__count",
+          "label": "disconnected pin(s)",
+          "count": 0
+        },
+        {
+          "key": "timing__setup_vio__count",
+          "label": "setup timing violation(s)",
+          "count": 80
+        },
+        {
+          "key": "timing__hold_vio__count",
+          "label": "hold timing violation(s)",
+          "count": 0
+        },
+        {
+          "key": "route__antenna_violation__count",
+          "label": "routing antenna violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__power_grid_violation__count",
+          "label": "power-grid violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_slew_violation__count",
+          "label": "max-slew (DRV) violation(s)",
+          "count": 39
+        },
+        {
+          "key": "design__max_cap_violation__count",
+          "label": "max-capacitance (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "design__max_fanout_violation__count",
+          "label": "max-fanout (DRV) violation(s)",
+          "count": 0
+        },
+        {
+          "key": "synthesis__check_error__count",
+          "label": "synthesis check error(s)",
+          "count": 0
+        },
+        {
+          "key": "design__lint_error__count",
+          "label": "RTL lint error(s)",
+          "count": 0
+        }
+      ],
+      "effective_derate_percent": 5,
+      "qualification": "Measured with 5% effective derating; consult hard gates."
+    }
+  ],
+  "comparison_correction": "Old OpenLane base.sdc divides TIME_DERATING_CONSTRAINT by integer 100. Integer 5 applied 0%; float 5.0 applies 5%. LibreLane divides by 100.0. Original PASS is not evidence for the intended 5% derated target."
+}

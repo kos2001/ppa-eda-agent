@@ -1,0 +1,122 @@
+{
+  "errors": [],
+  "unverified": [],
+  "checks": [
+    {
+      "name": "clock period",
+      "expected": 13.2,
+      "observed": [
+        13.2
+      ]
+    },
+    {
+      "name": "early derating",
+      "expected": 0.95,
+      "observed": [
+        0.95
+      ]
+    },
+    {
+      "name": "late derating",
+      "expected": 1.05,
+      "observed": [
+        1.05
+      ]
+    },
+    {
+      "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+      "expected": 0.25,
+      "observed": [
+        0.25
+      ]
+    },
+    {
+      "name": "CLOCK_TRANSITION_CONSTRAINT",
+      "expected": 0.15,
+      "observed": [
+        0.15
+      ]
+    },
+    {
+      "name": "MAX_TRANSITION_CONSTRAINT",
+      "expected": 3,
+      "observed": [
+        3.0
+      ]
+    },
+    {
+      "name": "MAX_FANOUT_CONSTRAINT",
+      "expected": 12,
+      "observed": [
+        12.0
+      ]
+    },
+    {
+      "name": "set_input_delay",
+      "expected": 2.64,
+      "observed": [
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64
+      ]
+    },
+    {
+      "name": "set_output_delay",
+      "expected": 2.64,
+      "observed": [
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64,
+        2.64
+      ]
+    }
+  ],
+  "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+  "verified": true
+}

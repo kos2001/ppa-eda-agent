@@ -67,6 +67,21 @@ class TestSingleSourceOfTruth(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Unknown PPA_EDA_TOOLCHAIN", result.stderr)
 
+    def test_librelane_selects_matching_cli_module_and_provenance(self):
+        result = subprocess.run(
+            [sys.executable, "-c", "import json,toolchain,run_stage; "
+             "assert run_stage.FLOW_COMMAND == 'librelane'; "
+             "assert run_stage.IMAGE == toolchain.OPENLANE_IMAGE; "
+             "print(json.dumps(toolchain.toolchain_info()))"],
+            env=dict(os.environ, PYTHONPATH=str(PIPELINE), PPA_EDA_TOOLCHAIN="librelane"),
+            capture_output=True, text=True, check=True)
+        info = json.loads(result.stdout)
+        self.assertEqual(info["flow_module"], "librelane")
+        self.assertEqual(info["openlane_upstream"], "github.com/librelane/librelane")
+        self.assertIn("3.0.16", info["openlane_image"])
+        self.assertEqual(info["expected_openroad_revision"],
+                         "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -29,7 +29,8 @@ def check_limit(name, actual, limit, unit):
 
 
 def target_checks(metrics, targets):
-    return [check_limit(name, metrics.get(key), targets[name], unit)
+    return [check_limit(name, metrics.get("design__instance__area__stdcell", metrics.get(key))
+                        if name == "max_cell_area_um2" else metrics.get(key), targets[name], unit)
             for name, (key, unit) in TARGETS.items() if name in targets]
 
 

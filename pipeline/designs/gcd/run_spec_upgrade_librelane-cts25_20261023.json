@@ -1,0 +1,34 @@
+{
+  "design_name": "gcd",
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1,
+    "max_wall_seconds": 1800
+  },
+  "max_iterations": 1,
+  "targets": {
+    "max_core_utilization": 0.75,
+    "max_clock_period_ns": 13.2
+  },
+  "search": {
+    "mode": "explicit",
+    "objective": "Paired toolchain comparison at fixed GF180 13.2 ns constraints",
+    "reference": "gcd__2026-10-23__074108"
+  },
+  "candidates": [
+    {
+      "tag": "gf180-upgrade-librelane-cts25-13p2-20261023",
+      "pdk": "gf180mcuD",
+      "scl": "gf180mcu_fd_sc_mcu7t5v0",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 2",
+        "CLOCK_PERIOD": 13.2,
+        "MAX_FANOUT_CONSTRAINT": 12,
+        "FP_CORE_UTIL": 38,
+        "TIME_DERATING_CONSTRAINT": 5.0,
+        "CTS_SINK_CLUSTERING_SIZE": 25,
+        "CTS_SINK_CLUSTERING_MAX_DIAMETER": 50
+      }
+    }
+  ]
+}
