@@ -1,0 +1,100 @@
+[
+  {
+    "path": "scripts/base.sdc",
+    "sha256": "34c8f331c366db51a78ed8a0d2a7bbac3b6c1cfe0277a04c6aca9ba4948e7f78",
+    "matches": [
+      {
+        "line": 19,
+        "text": "set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_DELAY_CONSTRAINT) / 100]"
+      },
+      {
+        "line": 20,
+        "text": "set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_DELAY_CONSTRAINT) / 100]"
+      },
+      {
+        "line": 48,
+        "text": "set ::env(SYNTH_CLK_DRIVING_CELL) $::env(SYNTH_DRIVING_CELL)"
+      },
+      {
+        "line": 52,
+        "text": "-lib_cell [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 0] \\"
+      },
+      {
+        "line": 53,
+        "text": "-pin [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 1] \\"
+      }
+    ]
+  },
+  {
+    "path": "scripts/openroad/common/io.tcl",
+    "sha256": "b70a8733a2a26a0909be220d8320d78e22a13cb418a862c1ef08a70da2985fe4",
+    "matches": [
+      {
+        "line": 125,
+        "text": "if { [env_var_used $::env(_SDC_IN) SYNTH_DRIVING_CELL_PIN] == 1 } {"
+      },
+      {
+        "line": 126,
+        "text": "set synth_driving_cell_bk $::env(SYNTH_DRIVING_CELL)"
+      },
+      {
+        "line": 127,
+        "text": "set ::env(SYNTH_DRIVING_CELL_PIN) [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 1]"
+      },
+      {
+        "line": 128,
+        "text": "set ::env(SYNTH_DRIVING_CELL) [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 0]"
+      },
+      {
+        "line": 157,
+        "text": "if { [info exists ::env(SYNTH_DRIVING_CELL_PIN)] } {"
+      },
+      {
+        "line": 158,
+        "text": "unset ::env(SYNTH_DRIVING_CELL_PIN)"
+      },
+      {
+        "line": 159,
+        "text": "set ::env(SYNTH_DRIVING_CELL) $synth_driving_cell_bk"
+      }
+    ]
+  },
+  {
+    "path": "scripts/openroad/common/pad_cfg.tcl",
+    "sha256": "ca1968e4f794241e6317f7d66ee6a8f7b2c7bf80203b0f5557196e593df5a295",
+    "matches": [
+      {
+        "line": 130,
+        "text": "set space_between_pads_min_filler [expr round(floor($space_between_pads / $pad_site_width) * $pad_site_width * 1000) / 1000]"
+      },
+      {
+        "line": 134,
+        "text": "set space_side [expr round(($space_for_fill - $space_between_pads_min_filler * ([llength $::env($side)] - 1)) / 2 * 1000) / 1000]"
+      },
+      {
+        "line": 136,
+        "text": "if { $space_side != round(floor($space_side / $pad_site_width) * $pad_site_width * 1000) / 1000 } {"
+      }
+    ]
+  },
+  {
+    "path": "scripts/openroad/cts.tcl",
+    "sha256": "436f4f89f290f14cc2c982907af79a8a79f9f56b64e9bfe83ff63636ce6608d5",
+    "matches": [
+      {
+        "line": 86,
+        "text": "lappend arg_list -delay_buffer_derate [expr $::env(CTS_DELAY_BUFFER_DERATE_PCT) / 100]"
+      }
+    ]
+  },
+  {
+    "path": "scripts/pyosys/synthesize.py",
+    "sha256": "d6e6131b26579ffcb875bb53ad566a834f769f37addbf90480c5ac271d94b02d",
+    "matches": [
+      {
+        "line": 281,
+        "text": "print(f\"set_driving_cell {config['SYNTH_DRIVING_CELL'].split('/')[0]}\", file=f)"
+      }
+    ]
+  }
+]

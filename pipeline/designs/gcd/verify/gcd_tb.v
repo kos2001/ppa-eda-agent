@@ -14,6 +14,7 @@
 // activity a fixed toggle rate cannot guess.
 `timescale 1ns/1ps
 module gcd_tb;
+  parameter real CLOCK_PERIOD_NS = 10.0;
   reg         clk;
   reg         reset;
   reg  [31:0] req_msg;
@@ -34,7 +35,7 @@ module gcd_tb;
     .resp_val(resp_val)
   );
 
-  always #5 clk = ~clk;
+  always #(CLOCK_PERIOD_NS / 2.0) clk = ~clk;
 
   function [15:0] euclid;
     input [15:0] a;
@@ -99,6 +100,7 @@ module gcd_tb;
     end
 
     $display("gcd_tb: %0d error(s)", errors);
+    if (errors != 0) $fatal(1, "GCD functional mismatch");
     $finish;
   end
 endmodule

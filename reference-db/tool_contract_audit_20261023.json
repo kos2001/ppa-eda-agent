@@ -1,0 +1,4813 @@
+{
+  "scope": "Available raw run directories only; counts include separate checkouts. No historical case verdicts are overwritten. Passing these checks is not signoff.",
+  "summary": {
+    "runs": 25,
+    "errors": 22,
+    "derating_mismatch": 21,
+    "missing_synthesis_driver": 22,
+    "contract_checks_passed": 3
+  },
+  "runs": [
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/aes/runs/graph-r1-1-design_repair_max_cap_pct",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/aes/runs/graph-r1-1-fp_core_util",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/aes/runs/graph-r1-1-max_fanout_constraint",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/aes/runs/graph-r1-1-synth_strategy",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 3.0,
+          "observed": [
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/counter4/runs/functional-regression-20261023",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 0.75,
+          "observed": [
+            0.75
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/counter4/runs/implementation-check-20261023",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 0.75,
+          "observed": [
+            0.75
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk10",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util30",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util38",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util45",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util50",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.0,
+          "observed": [
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-clk13p2",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-relax-clk11p5-util38",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 11.5,
+          "observed": [
+            11.5
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.3,
+          "observed": [
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.3,
+          "observed": [
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3,
+            2.3
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-relax-clk12-util38",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.4,
+          "observed": [
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.4,
+          "observed": [
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4,
+            2.4
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/gcd/runs/gf180-20261023-relax-clk13p2-util38",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/riscv32i/runs/graph-r1-1-design_repair_max_cap_pct",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 23.6,
+          "observed": [
+            23.6
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 16,
+          "observed": [
+            16.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 4.72,
+          "observed": [
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 4.72,
+          "observed": [
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/riscv32i/runs/graph-r1-1-fp_core_util",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 23.6,
+          "observed": [
+            23.6
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 16,
+          "observed": [
+            16.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 4.72,
+          "observed": [
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 4.72,
+          "observed": [
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/riscv32i/runs/graph-r1-1-max_fanout_constraint",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library.",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 23.6,
+          "observed": [
+            23.6
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 1.5,
+          "observed": [
+            1.5
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 4.72,
+          "observed": [
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 4.72,
+          "observed": [
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72,
+            4.72
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "workspace",
+      "run": "pipeline/designs/sram_wrapper/runs/sram-functional-20261023",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (sky130_fd_sc_hd__inv_2/Y) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 20,
+          "observed": [
+            20.0
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 0.75,
+          "observed": [
+            0.75
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 10,
+          "observed": [
+            10.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 4.0,
+          "observed": [
+            4.0
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 4.0,
+          "observed": [
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "upgrade-worktree",
+      "run": "pipeline/designs/gcd/runs/gf180-upgrade-librelane-cli2-13p2-20261023",
+      "errors": [],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            0.95
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.05
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": true
+    },
+    {
+      "checkout": "upgrade-worktree",
+      "run": "pipeline/designs/gcd/runs/gf180-upgrade-librelane-cts25-13p2-20261023",
+      "errors": [],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            0.95
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.05
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": true
+    },
+    {
+      "checkout": "upgrade-worktree",
+      "run": "pipeline/designs/gcd/runs/gf180-upgrade-librelane-cts25-postgrt-13p2-20261023",
+      "errors": [],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            0.95
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.05
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": true
+    },
+    {
+      "checkout": "upgrade-worktree",
+      "run": "pipeline/designs/gcd/runs/gf180-upgrade-stable-13p2-20261023",
+      "errors": [
+        "early derating: expected 0.95, emitted [1.0]",
+        "late derating: expected 1.05, emitted [1.0]",
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.0
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    },
+    {
+      "checkout": "upgrade-worktree",
+      "run": "pipeline/designs/gcd/runs/gf180-upgrade-stable-derate5-13p2-20261023",
+      "errors": [
+        "synthesis input driver was not applied: ABC: Cannot find the default PI driving cell (gf180mcu_fd_sc_mcu7t5v0__inv_1/ZN) in the library."
+      ],
+      "unverified": [],
+      "checks": [
+        {
+          "name": "clock period",
+          "expected": 13.2,
+          "observed": [
+            13.2
+          ]
+        },
+        {
+          "name": "early derating",
+          "expected": 0.95,
+          "observed": [
+            0.95
+          ]
+        },
+        {
+          "name": "late derating",
+          "expected": 1.05,
+          "observed": [
+            1.05
+          ]
+        },
+        {
+          "name": "CLOCK_UNCERTAINTY_CONSTRAINT",
+          "expected": 0.25,
+          "observed": [
+            0.25
+          ]
+        },
+        {
+          "name": "CLOCK_TRANSITION_CONSTRAINT",
+          "expected": 0.15,
+          "observed": [
+            0.15
+          ]
+        },
+        {
+          "name": "MAX_TRANSITION_CONSTRAINT",
+          "expected": 3,
+          "observed": [
+            3.0
+          ]
+        },
+        {
+          "name": "MAX_FANOUT_CONSTRAINT",
+          "expected": 12,
+          "observed": [
+            12.0
+          ]
+        },
+        {
+          "name": "set_input_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        },
+        {
+          "name": "set_output_delay",
+          "expected": 2.64,
+          "observed": [
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64,
+            2.64
+          ]
+        }
+      ],
+      "scope": "Scalar default-SDC constraints, requested timing corners, synthesis driver diagnostics; custom SDC intent is not interpreted.",
+      "verified": false
+    }
+  ]
+}
