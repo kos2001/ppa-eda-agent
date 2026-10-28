@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Single source of truth for the EDA toolchain this pipeline runs.
+
+Why this module exists. The image was hardcoded independently in four
+modules (`run_stage`, `render_layout`, `odb_query`, `equiv_check`).
+Changing the pinned version meant editing four files, and missing one
+would not fail loudly — it would run part of the pipeline on a different
+OpenLane build while recording every result into the same reference-db
+as if the numbers were comparable. For a project whose entire value is
+that its measurements are real and comparable, two silently different
+toolchains is a correctness hazard, not untidiness.
+
+On the upstream rename. OpenLane 2 now lives at
+github.com/chipfoundry/openlane2 — the same repository as the former
+github.com/efabless/openlane2 (identical repo id 589378383; GitHub
+redirects the old path). The published container is still under the
+efabless namespace, and `ghcr.io/chipfoundry/openlane2` does not exist,
+so the image reference below is deliberately NOT "modernised" to match
+the new org name. Verified rather than assumed: the chipfoundry image
+name returns not-found, the efabless one resolves.
+
+2.3.10 remains the stable default for existing custom OpenLane flows.
+PPA_EDA_TOOLCHAIN=librelane selects LibreLane 3.0.16 and its bundled
+OpenROAD dcf36133 (2026-02-17), not the latest OpenROAD master commit.
+PPA_EDA_TOOLCHAIN=openlane-dev retains the older 3.0.0.dev21 profile.
+The selection applies to
+all pipeline clients and is recorded with results; it does not upgrade
+historical OpenDB files or qualify a development build for signoff.
+"""
+
+import os
+import platform
+
+TOOLCHAIN_PROFILES = {
+    "stable": {
+        "image": "ghcr.io/efabless/openlane2:2.3.10",
+        "openroad_revision": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+    },
+    "openlane-dev": {
+        "image": "ghcr.io/efabless/openlane2:3.0.0.dev21",
+        "openroad_revision": "87af90f72f3f9be1fdfa1d886f0dd8d8b8f34694",
+    },
+    "librelane": {
+        "image": "ghcr.io/librelane/librelane:3.0.16",
+        "openroad_revision": "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0",
+        "module": "librelane",
+        "upstream": "github.com/librelane/librelane",
+    },
+}
+TOOLCHAIN_PROFILE = os.environ.get("PPA_EDA_TOOLCHAIN", "stable").strip()
+if TOOLCHAIN_PROFILE not in TOOLCHAIN_PROFILES:
+    raise ValueError(f"Unknown PPA_EDA_TOOLCHAIN {TOOLCHAIN_PROFILE!r}; "
+                     f"choose from {', '.join(TOOLCHAIN_PROFILES)}")
+OPENLANE_IMAGE = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["image"]
+FLOW_MODULE = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE].get("module", "openlane")
+FLOW_COMMAND = FLOW_MODULE
+# The OpenLane image has lint-only Verilator but no make/C++ build toolchain.
+# Functional simulation uses the upstream executable image at the same release.
+VERILATOR_IMAGE = "verilator/verilator:v5.018"
+
+# Where that image comes from, recorded alongside results so a case can
+# be attributed to a toolchain rather than to "whatever was installed".
+OPENLANE_UPSTREAM = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE].get(
+    "upstream", "github.com/chipfoundry/openlane2")
+
+
+# Which architecture the container runs under.
+#
+# This pipeline forced `--platform linux/amd64` from its first commit,
+# which on an arm64 host means every OpenLane run has been emulating
+# x86. The image is multi-arch and both OpenLane and OpenROAD run
+# natively: measured on counter4, 68 s emulated against 28 s native, and
+# 278 of 279 metrics identical — the exception being
+# power__leakage__total differing in its tenth significant figure, which
+# is floating-point summation noise on a 0.5 nW number.
+#
+# Overridable because the choice is a real one: an x86 host is native
+# either way, and a future tool in the image might be x86-only.
+DOCKER_PLATFORM = os.environ.get("PPA_EDA_DOCKER_PLATFORM", "").strip()
+
+
+def platform_args() -> list[str]:
+    """`docker run` platform flag, or nothing to let Docker pick native."""
+    return ["--platform", DOCKER_PLATFORM] if DOCKER_PLATFORM else []
+
+
+def host_info() -> dict:
+    """The machine a result was produced on.
+
+    Borrowed from freerouting's benchmark table
+    (github.com/freerouting/freerouting, docs/benchmarks.md), which
+    states its CPU, RAM and OS above the numbers. This store recorded the
+    OpenLane image and nothing about the machine, so two cases from
+    different hosts — or from emulated and native runs of the same image
+    — were compared as though identical, and any wall-clock figure taken
+    from one had no stated environment at all.
+
+    Deliberately no hostname or user: what makes results comparable is
+    the architecture and core count, not who ran them.
+    """
+    return {
+        "arch": platform.machine(),
+        "system": platform.system(),
+        "cpu_count": os.cpu_count(),
+        # "" means Docker chose; anything else was forced by us.
+        "docker_platform": DOCKER_PLATFORM or "native",
+    }
+
+
+def toolchain_info() -> dict:
+    """Provenance for a reference-db case. Cheap and constant — the
+    point is that a stored result carries the version that produced it,
+    so two cases can be compared knowingly rather than hopefully."""
+    return {
+        "openlane_image": OPENLANE_IMAGE,
+        "openlane_upstream": OPENLANE_UPSTREAM,
+        "profile": TOOLCHAIN_PROFILE,
+        "flow_module": FLOW_MODULE,
+        "expected_openroad_revision": TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["openroad_revision"],
+        "host": host_info(),
+    }
+
+
+# The Classic flow's declared step list, asked of the image itself.
+#
+# Needed because a run's directory listing shows what *executed*, and
+# the interesting question is what was declared and did not. Cached for
+# the process: it costs a container start, and it cannot change while
+# the pinned image does not.
+_CLASSIC_STEPS: list[str] | None = None
+
+
+def classic_steps() -> list[str]:
+    """Step ids in OpenLane's Classic flow, or [] if they can't be read.
+
+    Non-fatal by design: this feeds a reporting field, and a case that
+    cost real OpenLane time must not be lost because Docker was busy.
+    """
+    global _CLASSIC_STEPS
+    if _CLASSIC_STEPS is not None:
+        return _CLASSIC_STEPS
+    import subprocess
+    try:
+        out = subprocess.run(
+            ["docker", "run", "--rm", *platform_args(), OPENLANE_IMAGE, "python3", "-c",
+             f"from {FLOW_MODULE}.flows import Flow\n"
+             "print('\\n'.join(s.id for s in Flow.factory.get('Classic').Steps))"],
+            capture_output=True, text=True, encoding="utf-8", timeout=300,
+        )
+        _CLASSIC_STEPS = ([l.strip() for l in out.stdout.splitlines() if l.strip()]
+                          if out.returncode == 0 else [])
+    except Exception:  # noqa: BLE001 - reporting field, not a gate
+        _CLASSIC_STEPS = []
+    return _CLASSIC_STEPS

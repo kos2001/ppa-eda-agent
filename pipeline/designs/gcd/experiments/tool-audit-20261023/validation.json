@@ -1,0 +1,27 @@
+{
+  "initial_full_suite": {
+    "tests": 1536,
+    "failures": 7,
+    "errors": 7,
+    "skipped": 30
+  },
+  "corrections": [
+    "Mock new runtime tool verification boundary in 5 existing flow tests.",
+    "Connect installed PDKs into the isolated worktree; no PDK contents modified.",
+    "Expect decimal CLOCK_PERIOD and verified immutable image ID in command tests."
+  ],
+  "focused_rerun": {
+    "tests": 167,
+    "failures": 0,
+    "errors": 0
+  },
+  "integration": {
+    "tag": "gf180-upgrade-librelane-audit-13p2-20261023",
+    "tool_contract_verified": true,
+    "physical_pass": false,
+    "setup_slack_ns": -1.5403501132816095,
+    "setup_violations": 107,
+    "slew_violations": 39
+  },
+  "qualification": "Full suite initially failed; all failed modules and changed modules passed the focused rerun. This does not claim a second full-suite pass or physical timing closure."
+}

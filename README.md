@@ -142,6 +142,116 @@ reference-db/                       Case store of past pipeline runs —
 
 ## Autonomous layout pipeline
 
+### LibreLane / OpenROAD upgrade comparison
+
+`PPA_EDA_TOOLCHAIN=librelane` selects the installed, pinned
+`ghcr.io/librelane/librelane:3.0.16` image and OpenROAD `dcf36133` (2026-02-17).
+This is the latest LibreLane release verified on 2026-10-23, not the latest
+OpenROAD master. `PPA_EDA_TOOLCHAIN=stable` retains OpenLane 2.3.10.
+The LibreLane profile uses its own CLI and Python module and retains the
+installed PDK with `--manual-pdk`. Existing custom OpenLane Python flows
+require the stable profile; they are rejected explicitly under LibreLane.
+
+The paired GF180 GCD comparison at 13.2 ns / utilization 38 is recorded in
+`reference-db/gcd_toolchain_comparison_20261023.json`, with evidence under
+`pipeline/designs/gcd/experiments/toolchain-upgrade-20261023/`.
+The original stable PASS requires correction: OpenLane 2.3.10 divides the
+integer derating value `5` by integer `100`, applying 0% instead of 5%.
+LibreLane uses floating-point division. GCD now explicitly sets
+`TIME_DERATING_CONSTRAINT: 5.0`; preserve the decimal and verify the generated
+SDC contains early 0.95 / late 1.05. `resolved.json` alone is insufficient:
+its serializer can display 5 even when the Tcl environment correctly has 5.0.
+
+Three additional full-flow evaluations kept 13.2 ns, utilization 38, the
+installed GF180 PDK, fanout 12 and all physical gates unchanged:
+
+| Configuration | Actual derating | Worst setup (ns) | Setup violations | Slew violations | Cell area (um2) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Historical stable | 0% | +0.268 | 0 | 0 | 12104.3 |
+| Corrected stable | 5% | -0.388 | 4 | 0 | 12110.9 |
+| LibreLane, CTS cluster size/diameter 25/50 | 5% | -1.540 | 107 | 39 | 10187.9 |
+| LibreLane, same CTS plus post-GRT timing repair | 5% | -1.358 | 80 | 39 | 10214.3 |
+
+Explicit CTS 25/50 reproduced the original LibreLane result. Post-GRT timing
+repair improved setup but did not close it or repair slew, so neither tuning
+option was promoted to the base config. Recorded DRC/LVS and hold checks pass;
+these are not overall timing passes. Workload power is 5.35 mW for corrected
+stable and 4.91 mW for the tested LibreLane variants at ff/-40C/5.5V.
+
+At synthesis, stable/new cell areas are 7957.6/6780.9728 um2. Pre-PnR worst
+setup at 5% is -1.975/-1.820 ns; the final ordering reverses after physical
+implementation. This compares bundled synthesis, STA and physical flows,
+not OpenROAD alone. Functional equivalence was not requested or established.
+Case provenance reports an unresolved host PDK path; retained resolved configs,
+tool identities, stage states and final SDCs document this manual comparison.
+The stable profile remains the default, but no tested profile is qualified
+for 13.2 ns with the intended 5% margin. Historical raw cases remain unchanged;
+the derived comparison marks their effective derating explicitly.
+
+Compare `design__instance__area__stdcell`, not raw `design__instance__area`:
+the newer OpenROAD total includes filler area. Historical raw case totals
+remain unmodified; the comparison explicitly records both definitions.
+
+
+### Tool-contract audit (2026-10-23)
+
+The source and artifact audit covers the installed OpenLane 2.3.10 and
+LibreLane 3.0.16 flow scripts, available raw runs, CLI input conversion,
+final SDC, timing-corner coverage, and metric scoring. It does not certify
+OpenROAD/Yosys/OpenSTA algorithms or all PDK/device models.
+
+`reference-db/tool_contract_audit_20261023.json` records all 25 available
+run directories across the workspace and upgrade worktree. There are 21
+derating mismatches and 22 missing synthesis input-driver diagnostics;
+these overlap. Three runs pass these contract checks, which is not a
+physical signoff PASS. Original historical case verdicts are preserved;
+consult the audit before reusing them as qualified references.
+
+Confirmed findings and protections:
+
+- Old default-SDC derating performs integer division. Explicit integer
+  clock/percentage inputs are now formatted as decimals at the CLI boundary.
+  Inherited defaults are not guessed; a final-SDC mismatch blocks PASS.
+- Old Yosys/ABC receives `cell/pin` as the driving-cell name and emits
+  `Cannot find the default PI driving cell`. The actual log confirms the
+  driver was ignored. Such a result now fails the input-contract gate,
+  including the corrected-derating stable comparison. LibreLane strips the
+  pin name. The old installed image itself has not been patched.
+- Both base SDC versions can truncate I/O delay when all operands are
+  integers (13 * 20 / 100 = 2, versus the intended 2.6 ns). The new optional
+  CTS delay-buffer percentage also uses `/ 100`. A Tcl probe reproduces the
+  arithmetic; CTS was disabled for the GCD comparisons, so this is a latent
+  option issue, not an observed GCD cause. Explicit values are normalized.
+- Scoring uses standard-cell area when available, retains raw instance area,
+  and uses the same definition for the cell-area budget. Invalid numeric
+  slack/counts and negative WS cannot hide behind zero aggregate WNS.
+- Final scalar constraints and every requested setup/hold corner are checked
+  before PASS. Missing artifacts and custom SDC intent remain unverified.
+- Launch verifies the installed OpenROAD revision, runs the inspected image
+  ID, archives runtime identity, and rejects ignored design-config keys as
+  well as ignored CLI overrides.
+
+Remaining boundaries: the default activity-power helper on main is SKY130
+specific; the GCD comparison explicitly used its archived GF180 evaluator.
+Automatic PDK provenance has unresolved host-path coverage in these cases.
+Arbitrary custom SDC semantics, analog/model characterization, pad-ring
+arithmetic, and tool-internal algorithms need separate validation. No new
+13.2 ns / 5% timing closure or universally bug-free toolchain is claimed.
+
+Validation: the initial 1536-test suite exposed five mock-boundary errors
+and nine PDK-path failures/errors. After correcting mocks and connecting the
+installed PDK in this worktree, all 167 tests in affected/failed modules pass.
+A fresh LibreLane full flow passes the new tool-contract audit and correctly
+remains FAIL with 107 setup and 39 slew violations. See the archived
+`tool-audit-20261023/validation.json`; no second full-suite pass is claimed.
+
+Re-audit retained runs without changing history:
+
+```sh
+python3 pipeline/tool_contract_audit.py pipeline/designs/gcd/runs/<tag>
+python3 -m unittest discover -s tests -p test_tool_contract_audit.py
+```
+
 ### Explicit implementation evidence and PPA budgets
 
 The [Build-A-Chip-Bench announcement](https://chipagents.ai/newsroom/chipagents-nvidia-build-a-chip-bench)
