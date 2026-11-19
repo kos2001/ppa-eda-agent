@@ -1,0 +1,581 @@
+{
+  "design": "riscv32i",
+  "protocol": {
+    "max_area_ratio": 16,
+    "baseline_cell_area_um2": 86045,
+    "required_features": [],
+    "normalized_to_mips": 44.95857444654292,
+    "ipc": "geometric mean over held-out workloads only"
+  },
+  "overall": {
+    "runs": 7,
+    "passing": 7,
+    "pass_rate": 1.0,
+    "mean_score": 0.9579229733154896,
+    "best_score": 1.0
+  },
+  "by_group": {
+    "None": {
+      "runs": 7,
+      "passing": 7,
+      "pass_rate": 1.0,
+      "mean_score": 0.9579229733154896,
+      "best_score": 1.0
+    }
+  },
+  "runs": [
+    {
+      "tag": "iter3-area3-clk23p6-slew1p5-fanout16",
+      "group": null,
+      "throughput_mips": 44.95857444654292,
+      "zero_reason": null,
+      "area_ratio": 1.0927874949154512,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 44.95857444654292,
+      "fmax_source": "post_route_sta",
+      "score": 1.0
+    },
+    {
+      "tag": "graph-r1-1-design_repair_max_cap_pct",
+      "group": null,
+      "throughput_mips": 43.78428453211323,
+      "zero_reason": null,
+      "area_ratio": 1.094242547504213,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 43.78428453211323,
+      "fmax_source": "post_route_sta",
+      "score": 0.9738806239102187
+    },
+    {
+      "tag": "graph-r1-1-fp_core_util",
+      "group": null,
+      "throughput_mips": 43.347380371963254,
+      "zero_reason": null,
+      "area_ratio": 1.085183334301819,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 43.347380371963254,
+      "fmax_source": "post_route_sta",
+      "score": 0.9641626965620224
+    },
+    {
+      "tag": "iter2-area3-clk23p6-postgrt",
+      "group": null,
+      "throughput_mips": 43.309956295540886,
+      "zero_reason": null,
+      "area_ratio": 1.1146865012493463,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 43.309956295540886,
+      "fmax_source": "post_route_sta",
+      "score": 0.9633302841271738
+    },
+    {
+      "tag": "iter3-area3-clk23p6-slew1p5",
+      "group": null,
+      "throughput_mips": 43.305168732854675,
+      "zero_reason": null,
+      "area_ratio": 1.1139601371375443,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 43.305168732854675,
+      "fmax_source": "post_route_sta",
+      "score": 0.9632237958155414
+    },
+    {
+      "tag": "graph-r1-1-max_fanout_constraint",
+      "group": null,
+      "throughput_mips": 43.17389282731991,
+      "zero_reason": null,
+      "area_ratio": 1.0948526933581266,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 43.17389282731991,
+      "fmax_source": "post_route_sta",
+      "score": 0.9603038654763165
+    },
+    {
+      "tag": "iter2-area0-clk23p6-postgrt",
+      "group": null,
+      "throughput_mips": 39.58870196267244,
+      "zero_reason": null,
+      "area_ratio": 1.0,
+      "ipc_geomean_held_out": 1.0,
+      "ipc_by_workload": {
+        "bubble24": 1.0,
+        "mul16": 1.0,
+        "popcount32": 1.0,
+        "checksum96": 1.0
+      },
+      "fmax_mhz": 39.58870196267244,
+      "fmax_source": "post_route_sta",
+      "score": 0.8805595473171548
+    }
+  ],
+  "scope": "Throughput from recorded simulation cycle counts and STA; not hidden-VIP grading.",
+  "evidence": {
+    "design": "riscv32i",
+    "max_area_ratio": 16,
+    "baseline": {
+      "cell_area_um2": 86045,
+      "run": "/home/kos2001/claude_work/ppa-eda-agent/pipeline/designs/riscv32i/runs/iter2-area0-clk23p6-postgrt"
+    },
+    "required_features": [],
+    "runs": [
+      {
+        "tag": "iter2-area0-clk23p6-postgrt",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 86045,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": -1.6597319544066917
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      },
+      {
+        "tag": "iter2-area3-clk23p6-postgrt",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 95913.2,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": 0.5106208933543047
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      },
+      {
+        "tag": "iter3-area3-clk23p6-slew1p5",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 95850.7,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": 0.5080682685038934
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      },
+      {
+        "tag": "iter3-area3-clk23p6-slew1p5-fanout16",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 94028.9,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": 1.357301864874974
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      },
+      {
+        "tag": "graph-r1-1-design_repair_max_cap_pct",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 94154.1,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": 0.7607550360550489
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      },
+      {
+        "tag": "graph-r1-1-fp_core_util",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 93374.6,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": 0.5305551703698341
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      },
+      {
+        "tag": "graph-r1-1-max_fanout_constraint",
+        "group": null,
+        "functional": "passed",
+        "cell_area_um2": 94206.6,
+        "fmax": {
+          "source": "post_route_sta",
+          "clock_period_ns": 23.6,
+          "setup_ws_ns": 0.43785420972713046
+        },
+        "features": {},
+        "workloads": {
+          "sum64": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 984,
+            "cycles": 984
+          },
+          "fib40": {
+            "held_out": false,
+            "passed": true,
+            "instructions": 867,
+            "cycles": 867
+          },
+          "bubble24": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 6137,
+            "cycles": 6137
+          },
+          "mul16": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3863,
+            "cycles": 3863
+          },
+          "popcount32": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 15740,
+            "cycles": 15740
+          },
+          "checksum96": {
+            "held_out": true,
+            "passed": true,
+            "instructions": 3201,
+            "cycles": 3201
+          }
+        }
+      }
+    ],
+    "provenance": [
+      {
+        "run": "/home/kos2001/claude_work/ppa-eda-agent/pipeline/designs/riscv32i/runs/iter2-area0-clk23p6-postgrt",
+        "staged_sha256": {
+          "resolved.json": "c711bde177b86457b38d9d8c037f712a985b47a1dad063818d94b1a3ea07b7aa",
+          "final/metrics.json": "c0aa52b2a36ba5ffae56dae8a1e5664663af041d660bfb5aab06ab1708342685",
+          "final/nl/riscv.nl.v": "e4b336ec23ca6a0f81956870debe84a535759a9380ea7c80f6f81160a7e2860c"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/iter2-area0-clk23p6-postgrt/_functional_regression/948d9113519e469f906d30655fe52193"
+      },
+      {
+        "run": "/home/kos2001/claude_work/ppa-eda-agent/pipeline/designs/riscv32i/runs/iter2-area3-clk23p6-postgrt",
+        "staged_sha256": {
+          "resolved.json": "e898a7916edcc99e11c84ac8970fd57eeb05403f6b9290ea0691f4b3e7a3582d",
+          "final/metrics.json": "96f2cd33a0f205703c858261cb931162407a8f3b1e6a97bbd97d5e7bfce9b45c",
+          "final/nl/riscv.nl.v": "75a4fc0d56bd58c4d9ce6c60825f2050ed4ddde1680a96cb15b923bdf5207cbe"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/iter2-area3-clk23p6-postgrt/_functional_regression/53d13fe7a9be48109a021da96e67b575"
+      },
+      {
+        "run": "/home/kos2001/claude_work/ppa-eda-agent/pipeline/designs/riscv32i/runs/iter3-area3-clk23p6-slew1p5",
+        "staged_sha256": {
+          "resolved.json": "88a87ea966444cfeb7d6708e81a31ed41653f808336df4ed344d77ab3cb965aa",
+          "final/metrics.json": "84c767d001ff04580be866f578d8578876095a166338a12219eae96527f3bd4a",
+          "final/nl/riscv.nl.v": "699d4f384e0ee683eb462987981eeceec2d9a568c9f285553aa442f7a1575f16"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/iter3-area3-clk23p6-slew1p5/_functional_regression/21eb901038204fb18d946bb5b91ccfa6"
+      },
+      {
+        "run": "/home/kos2001/claude_work/ppa-eda-agent/pipeline/designs/riscv32i/runs/iter3-area3-clk23p6-slew1p5-fanout16",
+        "staged_sha256": {
+          "resolved.json": "65e686de0303f89d8c245727142f728755896efd24398feb4ae15cb1f9b51e15",
+          "final/metrics.json": "656f16ce78afefa3aea402ccc5f1718aa1ff8b50e4a52a84cd84391866023f9c",
+          "final/nl/riscv.nl.v": "1eee4969c0ed8ce34dae3f6da24216bd69861672de538b7b2d3aa4934b9e797a"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/iter3-area3-clk23p6-slew1p5-fanout16/_functional_regression/f6daad3df9f74a61aecb30b7d77fbbca"
+      },
+      {
+        "run": "pipeline/designs/riscv32i/runs/graph-r1-1-design_repair_max_cap_pct",
+        "staged_sha256": {
+          "resolved.json": "cf8d91778474e0727f46e0454f4785abd0f4bbc27ca10ace1f76a827785fc015",
+          "final/metrics.json": "2f82d572f79a4c515b567c2198d55a7e6d59417410ab9fe85f28f828c2b1b725",
+          "final/nl/riscv.nl.v": "df49a0054f7596229e9b494d576c29c1ba15779178c18d779bef9aad7bffa738"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/graph-r1-1-design_repair_max_cap_pct/_functional_regression/e61d9629de05448389e6d6cb21fe1737"
+      },
+      {
+        "run": "pipeline/designs/riscv32i/runs/graph-r1-1-fp_core_util",
+        "staged_sha256": {
+          "resolved.json": "9c6e0b100d5abe82a75098898f9b8656b7245e276b85bf30fb8fc2460094c18e",
+          "final/metrics.json": "3b9fea4988ab18b66427015f52ae57d4b8964a4d363f6cb9bf730e0aa9809d45",
+          "final/nl/riscv.nl.v": "78642ae9283e836ba6babe45c2a26508bea33ed4e55464292ca34ee629c88abd"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/graph-r1-1-fp_core_util/_functional_regression/467bae367811446c9de4b65ea450b868"
+      },
+      {
+        "run": "pipeline/designs/riscv32i/runs/graph-r1-1-max_fanout_constraint",
+        "staged_sha256": {
+          "resolved.json": "b7e4f2d98b3ad4e4c0590bd9008d92a4b9513b2fb8ad4c66d7d85020bbc561dc",
+          "final/metrics.json": "06510defae181d764ea08c9fd7ce3b1a477d4c752dd87acfc77ae127dc36eac6",
+          "final/nl/riscv.nl.v": "039791d554d09d67a25451b94b5fbf6efb6d93e0bb05a011b45fa3b578d69ff6"
+        },
+        "regression_status": "passed",
+        "artifact_dir": "/tmp/riscv32i-throughput-stage/graph-r1-1-max_fanout_constraint/_functional_regression/5784b2550e1d4a839f618b0c07eb8f0f"
+      }
+    ]
+  }
+}

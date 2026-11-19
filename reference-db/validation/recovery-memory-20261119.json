@@ -1,0 +1,241 @@
+{
+  "all_transitions": {
+    "observations": 507,
+    "designs": 8,
+    "single_change_only": false,
+    "k": 8.0,
+    "brier": {
+      "hierarchical": 0.2413,
+      "flat_laplace": 0.2373,
+      "base_rate": 0.2924
+    },
+    "auc": {
+      "hierarchical": 0.640278176998499,
+      "flat_laplace": 0.6067915429082431,
+      "current_heuristic": 0.4173613107214717
+    },
+    "beats_baselines": false,
+    "verdict": "hierarchical estimate does NOT beat the baselines; treat as unsupported"
+  },
+  "single_change_only": {
+    "observations": 326,
+    "designs": 8,
+    "single_change_only": true,
+    "k": 8.0,
+    "brier": {
+      "hierarchical": 0.2293,
+      "flat_laplace": 0.2276,
+      "base_rate": 0.2502
+    },
+    "auc": {
+      "hierarchical": 0.6541842700465156,
+      "flat_laplace": 0.6517518030128452,
+      "current_heuristic": 0.5510391328468399
+    },
+    "beats_baselines": false,
+    "verdict": "hierarchical estimate does NOT beat the baselines; treat as unsupported"
+  },
+  "k_sensitivity_brier": {
+    "1": 0.2426,
+    "2": 0.2392,
+    "4": 0.2392,
+    "8": 0.2413,
+    "16": 0.2436,
+    "32": 0.2451
+  },
+  "retuned_k_nested": {
+    "brier": 0.2403,
+    "auc": 0.6538117594455622,
+    "k_by_held_out_design": {
+      "aes": 8.0,
+      "cdc_twoclock": 2.0,
+      "counter4": 4.0,
+      "counter4_tinydie": 2.0,
+      "gcd": 4.0,
+      "riscv32i": 2.0,
+      "spm": 4.0,
+      "sram_wrapper": 8.0
+    }
+  },
+  "hierarchy_comparison": {
+    "this module: e > e,k > e,k,v; prior 0.5": {
+      "brier": 0.2413,
+      "auc": 0.64
+    },
+    "this module + empirical global level": {
+      "brier": 0.2667,
+      "auc": 0.466
+    },
+    "ChipMEM repo: global > k > e,k > e,stage,k": {
+      "brier": 0.2568,
+      "auc": 0.579
+    },
+    "ChipMEM order with value: global > k > e,k > e,k,v": {
+      "brier": 0.2615,
+      "auc": 0.565
+    }
+  },
+  "skills": {
+    "DO": [
+      {
+        "when": "PDN-0185",
+        "set": {
+          "SYNTH_STRATEGY": "AREA 0"
+        },
+        "p_close": 0.741,
+        "verified_closures": 3,
+        "source_cases": 3,
+        "observations": 3
+      },
+      {
+        "when": "pdn-strap-width",
+        "set": {
+          "SYNTH_STRATEGY": "AREA 0"
+        },
+        "p_close": 0.741,
+        "verified_closures": 3,
+        "source_cases": 3,
+        "observations": 3
+      },
+      {
+        "when": "PDN-0185",
+        "set": {
+          "DIE_AREA": [
+            0,
+            0,
+            64,
+            64
+          ]
+        },
+        "p_close": 0.67,
+        "verified_closures": 4,
+        "source_cases": 4,
+        "observations": 4
+      },
+      {
+        "when": "pdn-strap-width",
+        "set": {
+          "DIE_AREA": [
+            0,
+            0,
+            64,
+            64
+          ]
+        },
+        "p_close": 0.67,
+        "verified_closures": 4,
+        "source_cases": 4,
+        "observations": 4
+      },
+      {
+        "when": "PDN-0185",
+        "set": {
+          "FP_CORE_UTIL": 35
+        },
+        "p_close": 0.553,
+        "verified_closures": 3,
+        "source_cases": 3,
+        "observations": 3
+      },
+      {
+        "when": "pdn-strap-width",
+        "set": {
+          "FP_CORE_UTIL": 35
+        },
+        "p_close": 0.553,
+        "verified_closures": 3,
+        "source_cases": 3,
+        "observations": 3
+      }
+    ],
+    "AVOID": [
+      {
+        "set": {
+          "GRT_RESIZER_HOLD_MAX_BUFFER_PCT": 100
+        },
+        "p_regress": 0.736,
+        "regressions": 3,
+        "observations": 3
+      },
+      {
+        "set": {
+          "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.4
+        },
+        "p_regress": 0.736,
+        "regressions": 3,
+        "observations": 3
+      },
+      {
+        "set": {
+          "PL_RESIZER_HOLD_MAX_BUFFER_PCT": 100
+        },
+        "p_regress": 0.736,
+        "regressions": 3,
+        "observations": 3
+      },
+      {
+        "set": {
+          "PL_RESIZER_HOLD_SLACK_MARGIN": 0.4
+        },
+        "p_regress": 0.736,
+        "regressions": 3,
+        "observations": 3
+      },
+      {
+        "set": {
+          "RUN_HEURISTIC_DIODE_INSERTION": true
+        },
+        "p_regress": 0.736,
+        "regressions": 3,
+        "observations": 3
+      },
+      {
+        "set": {
+          "DIE_AREA": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "p_regress": 0.623,
+        "regressions": 8,
+        "observations": 8
+      },
+      {
+        "set": {
+          "MAX_FANOUT_CONSTRAINT": 16
+        },
+        "p_regress": 0.587,
+        "regressions": 6,
+        "observations": 10
+      },
+      {
+        "set": {
+          "FP_CORE_UTIL": null
+        },
+        "p_regress": 0.572,
+        "regressions": 12,
+        "observations": 18
+      },
+      {
+        "set": {
+          "FP_CORE_UTIL": 25
+        },
+        "p_regress": 0.555,
+        "regressions": 11,
+        "observations": 17
+      },
+      {
+        "set": {
+          "PNR_EXCLUDED_CELL_FILE": "/design/pnr/gf180_9t_exclude.cells"
+        },
+        "p_regress": 0.506,
+        "regressions": 12,
+        "observations": 22
+      }
+    ],
+    "gate": "DO needs verified closures (next run passed the full verdict) from >= 3 distinct recorded cases",
+    "scope": "Associations from recorded transitions, not causal rules."
+  }
+}

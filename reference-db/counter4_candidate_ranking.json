@@ -1,0 +1,216 @@
+{
+  "design": "counter4",
+  "source": "pipeline\\designs\\counter4\\run_spec.json",
+  "policy": {
+    "exploitation": "lower equal-weight normalized predicted area/power",
+    "exploration": "prediction refused or larger nearest-neighbour distance",
+    "safety": "advisory only; pass/fail is not predicted and real EDA remains the gate"
+  },
+  "ranked": [
+    {
+      "candidate": {
+        "tag": "sweep-util-35",
+        "overrides": {
+          "FP_CORE_UTIL": 35
+        }
+      },
+      "prediction": {
+        "area_um2": {
+          "value": 290.278,
+          "refused": false,
+          "neighbours": [
+            {
+              "FP_CORE_UTIL": 35
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        },
+        "power_w": {
+          "value": 9.54962961259298e-05,
+          "refused": false,
+          "neighbours": [
+            {
+              "FP_CORE_UTIL": 35
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        }
+      },
+      "recorded_repeat": true,
+      "novelty": null,
+      "mode": "exploit",
+      "predicted": {
+        "area_um2": 290.278,
+        "power_w": 9.54962961259298e-05
+      },
+      "ppa_score": 0.0,
+      "rank": 1
+    },
+    {
+      "candidate": {
+        "tag": "sweep-util-45",
+        "overrides": {
+          "FP_CORE_UTIL": 45
+        }
+      },
+      "prediction": {
+        "area_um2": {
+          "value": 290.278,
+          "refused": false,
+          "neighbours": [
+            {
+              "PL_TARGET_DENSITY_PCT": 60
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        },
+        "power_w": {
+          "value": 9.551689436193556e-05,
+          "refused": false,
+          "neighbours": [
+            {
+              "PL_TARGET_DENSITY_PCT": 60
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        }
+      },
+      "recorded_repeat": true,
+      "novelty": null,
+      "mode": "exploit",
+      "predicted": {
+        "area_um2": 290.278,
+        "power_w": 9.551689436193556e-05
+      },
+      "ppa_score": 0.06674682887725751,
+      "rank": 2
+    },
+    {
+      "candidate": {
+        "tag": "sweep-util-55",
+        "overrides": {
+          "FP_CORE_UTIL": 55
+        }
+      },
+      "prediction": {
+        "area_um2": {
+          "value": 290.278,
+          "refused": false,
+          "neighbours": [
+            {
+              "PL_TARGET_DENSITY_PCT": 60
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        },
+        "power_w": {
+          "value": 9.551689436193556e-05,
+          "refused": false,
+          "neighbours": [
+            {
+              "PL_TARGET_DENSITY_PCT": 60
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        }
+      },
+      "recorded_repeat": true,
+      "novelty": null,
+      "mode": "exploit",
+      "predicted": {
+        "area_um2": 290.278,
+        "power_w": 9.551689436193556e-05
+      },
+      "ppa_score": 0.06674682887725751,
+      "rank": 3
+    },
+    {
+      "candidate": {
+        "tag": "sweep-util-65",
+        "overrides": {
+          "FP_CORE_UTIL": 65
+        }
+      },
+      "prediction": {
+        "area_um2": {
+          "value": 290.278,
+          "refused": false,
+          "neighbours": [
+            {
+              "PL_TARGET_DENSITY_PCT": 60
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        },
+        "power_w": {
+          "value": 9.551689436193556e-05,
+          "refused": false,
+          "neighbours": [
+            {
+              "PL_TARGET_DENSITY_PCT": 60
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        }
+      },
+      "recorded_repeat": true,
+      "novelty": null,
+      "mode": "exploit",
+      "predicted": {
+        "area_um2": 290.278,
+        "power_w": 9.551689436193556e-05
+      },
+      "ppa_score": 0.06674682887725751,
+      "rank": 4
+    },
+    {
+      "candidate": {
+        "tag": "sweep-util-25",
+        "overrides": {
+          "FP_CORE_UTIL": 25
+        }
+      },
+      "prediction": {
+        "area_um2": {
+          "value": 290.278,
+          "refused": false,
+          "neighbours": [
+            {
+              "FP_CORE_UTIL": 25
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        },
+        "power_w": {
+          "value": 9.565059735905379e-05,
+          "refused": false,
+          "neighbours": [
+            {
+              "FP_CORE_UTIL": 25
+            }
+          ],
+          "exact_match": true,
+          "n_samples": 89
+        }
+      },
+      "recorded_repeat": true,
+      "novelty": null,
+      "mode": "exploit",
+      "predicted": {
+        "area_um2": 290.278,
+        "power_w": 9.565059735905379e-05
+      },
+      "ppa_score": 0.5,
+      "rank": 5
+    }
+  ]
+}

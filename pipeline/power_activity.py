@@ -79,14 +79,35 @@ class PowerActivityError(RuntimeError):
     pass
 
 
-def find_pdk_root() -> Path:
-    versions = PDK_ROOT / "volare" / "sky130" / "versions"
+def find_pdk_root(pdk: str = "sky130A") -> Path:
+    if (PDK_ROOT / pdk / "libs.ref").is_dir():
+        return (PDK_ROOT / pdk).resolve().parent
+    family = "gf180mcu" if pdk.startswith("gf180mcu") else "sky130"
+    versions = PDK_ROOT / "volare" / family / "versions"
     if not versions.is_dir():
         raise PowerActivityError(f"no PDK at {versions}")
     for v in sorted(versions.iterdir()):
-        if (v / "sky130A").is_dir():
+        if (v / pdk).is_dir():
             return v
-    raise PowerActivityError(f"no sky130A under {versions}")
+    raise PowerActivityError(f"no {pdk} under {versions}")
+
+
+def run_technology(run_dir: Path, scl: str | None, corner: str | None) -> tuple:
+    """Use the actual run's technology, never a SKY130 model for GF180 cells."""
+    resolved = run_dir / "resolved.json"
+    cfg = json.loads(resolved.read_text(encoding="utf-8")) if resolved.exists() else {}
+    pdk = cfg.get("PDK", "sky130A")
+    scl = scl or cfg.get("STD_CELL_LIBRARY", "sky130_fd_sc_hd")
+    if corner is None:
+        candidates = [c.removeprefix("max_") for c in cfg.get("STA_CORNERS", [])
+                      if c.startswith("max_ff_")]
+        if cfg and len(candidates) != 1:
+            raise PowerActivityError("cannot select an unambiguous fast/max power corner")
+        corner = candidates[0] if candidates else POWER_CORNER
+    for value in (pdk, scl, corner):
+        if not re.fullmatch(r"[A-Za-z0-9_]+", value):
+            raise PowerActivityError(f"invalid technology identifier: {value!r}")
+    return pdk, scl, corner, cfg
 
 
 def find_testbench(design_dir: Path) -> Path | None:
@@ -175,17 +196,18 @@ def parse_power(text: str) -> dict:
 
 _SCRIPT = r"""
 set -e
-cd /tmp
-iverilog -g2012 -DFUNCTIONAL -DUNIT_DELAY=#1 -o sim.vvp \
-  /pdkv/sky130A/libs.ref/{scl}/verilog/primitives.v \
-  /pdkv/sky130A/libs.ref/{scl}/verilog/{scl}.v \
-  /work/netlist.v /work/tb.v > /tmp/compile.log 2>&1 || {{
-    echo "###COMPILE_FAILED###"; tail -20 /tmp/compile.log; exit 0; }}
+cd /work
+iverilog -g2012 -DFUNCTIONAL -DUNIT_DELAY=#1 {tb_parameter} -o sim.vvp \
+  /pdkv/{pdk}/libs.ref/{scl}/verilog/primitives.v \
+  /pdkv/{pdk}/libs.ref/{scl}/verilog/{scl}.v \
+  /work/netlist.v /work/tb.v > compile.log 2>&1 || {{
+    echo "###COMPILE_FAILED###"; tail -20 compile.log; exit 1; }}
 echo "###SIM###"
-vvp sim.vvp 2>&1 | tail -40
+vvp sim.vvp > simulation.log 2>&1 || {{ cat simulation.log; exit 1; }}
+tail -40 simulation.log
 echo "###SIM_END###"
 cat > sta.tcl <<'TCL'
-read_liberty /pdkv/sky130A/libs.ref/{scl}/lib/{scl}__{corner}.lib
+read_liberty /pdkv/{pdk}/libs.ref/{scl}/lib/{scl}__{corner}.lib
 read_verilog /work/netlist.v
 link_design {top}
 {spef_cmd}
@@ -193,7 +215,7 @@ link_design {top}
 puts "###VECTORLESS###"
 report_power
 puts "###ANNOTATE###"
-read_vcd -scope {scope} /tmp/dump.vcd
+read_vcd -scope {scope} /work/dump.vcd
 puts "###ANNOTATED###"
 report_power
 exit
@@ -204,8 +226,8 @@ sta -no_init -exit sta.tcl 2>&1
 
 def measure(design_dir: Path | str, run_dir: Path | str,
             clock_port: str = "clk", clock_period: float = 10.0,
-            scl: str = "sky130_fd_sc_hd",
-            corner: str = POWER_CORNER) -> dict | None:
+            scl: str | None = None,
+            corner: str | None = None) -> dict | None:
     """Simulate the netlist and report power both ways, or None.
 
     None when the design has no testbench — the honest answer, since a
@@ -216,6 +238,9 @@ def measure(design_dir: Path | str, run_dir: Path | str,
     tb = find_testbench(design_dir)
     if tb is None:
         return None
+
+    pdk, scl, corner, cfg = run_technology(run_dir, scl, corner)
+    clock_period = float(cfg.get("CLOCK_PERIOD", clock_period))
 
     netlist = find_netlist(run_dir)
     top = netlist.name.replace(".nl.v", "")
@@ -239,7 +264,9 @@ def measure(design_dir: Path | str, run_dir: Path | str,
         (work / "constraints.sdc").write_bytes(sdc.read_bytes())
 
     script = _SCRIPT.format(
-        scl=scl, top=top, corner=corner,
+        scl=scl, top=top, corner=corner, pdk=pdk,
+        tb_parameter=(f"-P{tb.stem}.CLOCK_PERIOD_NS={clock_period}"
+                      if "parameter real CLOCK_PERIOD_NS" in tb.read_text() else ""),
         spef_cmd=("read_spef /work/parasitics.spef" if spef is not None
                   else 'puts "###NO_SPEF###"'),
         sdc_cmd=("read_sdc /work/constraints.sdc" if sdc is not None else
@@ -251,12 +278,13 @@ def measure(design_dir: Path | str, run_dir: Path | str,
     )
     cmd = [
         "docker", "run", "--rm", *platform_args(),
-        "-v", f"{find_pdk_root()}:/pdkv",
+        "-v", f"{find_pdk_root(pdk)}:/pdkv:ro",
         "-v", f"{work}:/work",
         IMAGE, "sh", "-c", script,
     ]
     print(f"$ docker run … {top} power activity", file=sys.stderr)
-    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
+    (work / "run.sh").write_text(script, encoding="utf-8")
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", timeout=600)
     out = proc.stdout
     # Retain the actual simulation/power transcript, including failed probes.
     # A compact parsed total alone cannot be independently checked later.
@@ -268,6 +296,8 @@ def measure(design_dir: Path | str, run_dir: Path | str,
     if "###COMPILE_FAILED###" in out:
         return {"error": "gate-level simulation did not compile",
                 "detail": out.split("###COMPILE_FAILED###", 1)[1][:800]}
+    if proc.returncode or re.search(r"(?:^|\n)Error:", out):
+        return {"error": "activity simulation or STA failed", "detail": (out + proc.stderr)[-2000:]}
 
     # Bounded at both ends. Splitting only on the next marker let
     # OpenSTA's own warnings — it emits one per fill cell, which have no
@@ -285,12 +315,26 @@ def measure(design_dir: Path | str, run_dir: Path | str,
     ) if "###ANNOTATED###" in out else {}
 
     pins = _ANNOTATED.search(out)
+    if not pins or int(pins.group(1)) == 0 or "total" not in annotated:
+        return {"error": "missing activity annotation or power report", "detail": out[-2000:]}
+
+    def source_path(path: Path) -> str:
+        try:
+            return path.relative_to(REPO_ROOT).as_posix()
+        except ValueError:
+            return str(path)
+
     return {
-        "testbench": tb.relative_to(REPO_ROOT).as_posix(),
-        "netlist": netlist.relative_to(REPO_ROOT).as_posix(),
+        "testbench": source_path(tb),
+        "netlist": source_path(netlist),
+        "pdk": pdk,
+        "scl": scl,
+        "clock_period_ns": clock_period,
+        "simulation_model": "functional cell models; no SDF; not timing qualification",
+        "testbench_clock_parameterized": "parameter real CLOCK_PERIOD_NS" in tb.read_text(),
         "annotated_pins": int(pins.group(1)) if pins else 0,
-        "parasitics": spef.relative_to(REPO_ROOT).as_posix() if spef else None,
-        "constraints": sdc.relative_to(REPO_ROOT).as_posix() if sdc else "bare clock",
+        "parasitics": source_path(spef) if spef else None,
+        "constraints": source_path(sdc) if sdc else "bare clock",
         # Recorded because it is the difference between a number that
         # can be compared with score()'s and one that cannot.
         "corner": corner,
@@ -334,6 +378,8 @@ def main() -> None:
             f"{args.design.name} has no testbench under verify/ — "
             f"activity-annotated power needs a real workload to measure")
     print(json.dumps(got, indent=2))
+    if got.get("error"):
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
