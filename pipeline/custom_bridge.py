@@ -498,8 +498,18 @@ def status(docker: bool = False) -> BridgeResult:
         execution_time=round(time.time() - started, 3),
         metadata={"backends": report, "available": have, "missing": missing,
                   "pdks": sorted(p.name for p in PDK_ROOT.glob("*")
-                                 if (p / "libs.tech").is_dir())},
+                                 if _is_pdk(p))},
     )
+
+
+def _is_pdk(path: Path) -> bool:
+    """A PDK link made inside WSL points at a Linux path; Windows raises
+    WinError 1920 on stat instead of answering False. Unreadable here
+    means not usable here, not a failed status report."""
+    try:
+        return (path / "libs.tech").is_dir()
+    except OSError:
+        return False
 
 
 def evaluate(backend: str, code: str, timeout: int = 120) -> BridgeResult:

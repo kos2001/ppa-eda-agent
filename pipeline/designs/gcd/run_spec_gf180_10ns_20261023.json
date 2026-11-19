@@ -1,0 +1,16 @@
+{
+  "design_name": "gcd",
+  "targets": {"max_core_utilization": 0.75},
+  "candidate_budget": 2,
+  "evaluation_budget": {"max_evaluations": 2, "max_wall_seconds": 1800},
+  "search": {
+    "mode": "explicit",
+    "objective": "Revalidate 13.2 ns and test the original 10 ns target with otherwise identical GF180 constraints",
+    "reference": "gcd__2026-09-10__035620"
+  },
+  "max_iterations": 1,
+  "candidates": [
+    {"tag": "gf180-20261023-clk13p2", "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu7t5v0", "overrides": {"SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 13.2, "MAX_FANOUT_CONSTRAINT": 12}},
+    {"tag": "gf180-20261023-clk10", "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu7t5v0", "overrides": {"SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 10.0, "MAX_FANOUT_CONSTRAINT": 12}}
+  ]
+}

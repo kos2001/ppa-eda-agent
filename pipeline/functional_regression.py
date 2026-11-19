@@ -100,6 +100,24 @@ def classify(result, output):
     return "passed", int(markers[0])
 
 
+PERF_RE = re.compile(r"^PPA_PERF workload=([A-Za-z0-9_.-]+) instructions=([0-9]+) cycles=([0-9]+)\s*$", re.M)
+
+
+def perf_counters(output):
+    """Retired-instruction / cycle counts the testbench printed per workload.
+
+    Optional and only read from runs that passed: throughput_score.py turns
+    them into IPC.  Duplicate workload names in one log are rejected rather
+    than guessed between.
+    """
+    perf = {}
+    for name, instructions, cycles in PERF_RE.findall(output):
+        if name in perf:
+            raise ValueError(f"duplicate PPA_PERF workload {name}")
+        perf[name] = {"instructions": int(instructions), "cycles": int(cycles)}
+    return perf
+
+
 def macro_sources(config, spec):
     declared = set((config.get("MACROS") or {}).keys())
     selected = spec.get("macro_models", {})
@@ -218,7 +236,14 @@ def _check_stage(design_dir, run_dir, spec, stage):
                 if spec.get("oracle") and status == "passed":
                     oracle = functional_oracles.ORACLES[spec["oracle"]](output, checks, seed)
                     status = oracle["status"]
-                record["runs"].append({**result, "seed": seed, "status": status, "checks": checks, "oracle": oracle})
+                perf = None
+                if status == "passed":
+                    try:
+                        perf = perf_counters(output) or None
+                    except ValueError as exc:
+                        status, perf = "unverified", {"error": str(exc)}
+                record["runs"].append({**result, "seed": seed, "status": status, "checks": checks,
+                                       "oracle": oracle, "perf": perf})
             states = [r["status"] for r in record["runs"]]
             record["status"] = combined_status(states)
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as exc:

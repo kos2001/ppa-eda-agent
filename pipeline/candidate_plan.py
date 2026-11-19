@@ -124,6 +124,21 @@ def expand_sweeps(run_spec: dict) -> list[dict]:
                 "tag": tag,
                 "overrides": {**base_overrides, param: value},
             })
+    if run_spec.get("design_of_experiments"):
+        # Space-filling batch (batch_design.py): spread a fixed run budget
+        # across the declared ranges, away from configurations already run.
+        import batch_design
+        recorded = []
+        design = run_spec.get("design_name")
+        if design:
+            try:
+                import surrogate
+                recorded = [r["overrides"] or {} for r in surrogate.cached_dataset()
+                            if r["design"] == design]
+            except (OSError, ValueError, KeyError):
+                recorded = []
+        recorded += [c["overrides"] for c in expanded]
+        expanded += batch_design.expand(run_spec, recorded, safe_tag)
     return expanded
 
 

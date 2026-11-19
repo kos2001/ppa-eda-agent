@@ -1,0 +1,18 @@
+{
+  "design_name": "gcd",
+  "targets": {"max_core_utilization": 0.75, "max_clock_period_ns": 10},
+  "candidate_budget": 4,
+  "evaluation_budget": {"max_evaluations": 4, "max_wall_seconds": 3600},
+  "search": {
+    "mode": "explicit",
+    "objective": "Compare core utilization 30, 38, 45 and 50 percent at a fixed GF180 10 ns target; vary only FP_CORE_UTIL",
+    "reference": "gf180-20261023-clk10"
+  },
+  "max_iterations": 1,
+  "candidates": [
+    {"tag": "gf180-20261023-clk10-util30", "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu7t5v0", "overrides": {"SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 10.0, "MAX_FANOUT_CONSTRAINT": 12, "FP_CORE_UTIL": 30}},
+    {"tag": "gf180-20261023-clk10-util38", "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu7t5v0", "overrides": {"SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 10.0, "MAX_FANOUT_CONSTRAINT": 12, "FP_CORE_UTIL": 38}},
+    {"tag": "gf180-20261023-clk10-util45", "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu7t5v0", "overrides": {"SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 10.0, "MAX_FANOUT_CONSTRAINT": 12, "FP_CORE_UTIL": 45}},
+    {"tag": "gf180-20261023-clk10-util50", "pdk": "gf180mcuD", "scl": "gf180mcu_fd_sc_mcu7t5v0", "overrides": {"SYNTH_STRATEGY": "DELAY 2", "CLOCK_PERIOD": 10.0, "MAX_FANOUT_CONSTRAINT": 12, "FP_CORE_UTIL": 50}}
+  ]
+}

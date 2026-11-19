@@ -28,10 +28,41 @@ def check_limit(name, actual, limit, unit):
             "status": "unverified" if not valid else "passed" if actual <= limit else "failed"}
 
 
+def cell_area(metrics):
+    return metrics.get("design__instance__area__stdcell", metrics.get("design__instance__area"))
+
+
+def area_ratio_check(metrics, targets):
+    """Relative area cap against a measured baseline (OpenAI's RISC-V eval
+    zeroes designs above 16x the original core's area).  Unlike the absolute
+    limits, this keeps a rewrite from buying throughput with unbounded area
+    when no absolute budget has been agreed yet."""
+    ratio = targets["max_area_ratio_vs_baseline"]
+    baseline = targets.get("baseline_cell_area_um2")
+    if not finite(ratio) or ratio <= 0:
+        raise ValueError("max_area_ratio_vs_baseline must be a finite positive number (x)")
+    if not finite(baseline) or baseline <= 0:
+        raise ValueError("max_area_ratio_vs_baseline requires a measured "
+                         "baseline_cell_area_um2 > 0")
+    actual = cell_area(metrics)
+    measured = finite(actual) and actual >= 0
+    return {"target": "max_area_ratio_vs_baseline",
+            "actual": actual / baseline if measured else None,
+            "limit": ratio, "unit": "x baseline cell area",
+            "baseline_cell_area_um2": baseline,
+            "status": "unverified" if not measured
+            else "passed" if actual <= ratio * baseline else "failed"}
+
+
 def target_checks(metrics, targets):
-    return [check_limit(name, metrics.get("design__instance__area__stdcell", metrics.get(key))
-                        if name == "max_cell_area_um2" else metrics.get(key), targets[name], unit)
-            for name, (key, unit) in TARGETS.items() if name in targets]
+    checks = [check_limit(name, cell_area(metrics)
+                          if name == "max_cell_area_um2" else metrics.get(key), targets[name], unit)
+              for name, (key, unit) in TARGETS.items() if name in targets]
+    if "max_area_ratio_vs_baseline" in targets:
+        checks.append(area_ratio_check(metrics, targets))
+    elif "baseline_cell_area_um2" in targets:
+        raise ValueError("baseline_cell_area_um2 is only used with max_area_ratio_vs_baseline")
+    return checks
 
 
 def validate_spec(spec):

@@ -1,0 +1,17 @@
+{
+  "design": "riscv32i",
+  "purpose": "Throughput evidence (IPC x post-route Fmax) for throughput_score.py; workloads from pipeline/riscv_workloads.py",
+  "functional_regression": {
+    "post_route": true,
+    "top": "riscv_perf_tb",
+    "testbench": "verify/riscv_perf_tb.sv",
+    "seeds": [1, 17, 101],
+    "compile_timeout_s": 600,
+    "simulation_timeout_s": 300
+  },
+  "throughput": {
+    "held_out_workloads": ["bubble24", "mul16", "popcount32", "checksum96"],
+    "visible_workloads": ["sum64", "fib40"],
+    "max_area_ratio": 16
+  }
+}
