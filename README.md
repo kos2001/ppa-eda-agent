@@ -59,6 +59,116 @@ reference-db/                       Case store of past pipeline runs —
 
 ## Autonomous layout pipeline
 
+### LibreLane / OpenROAD upgrade comparison
+
+`PPA_EDA_TOOLCHAIN=librelane` selects the installed, pinned
+`ghcr.io/librelane/librelane:3.0.16` image and OpenROAD `dcf36133` (2026-02-17).
+This is the latest LibreLane release verified on 2026-10-23, not the latest
+OpenROAD master. `PPA_EDA_TOOLCHAIN=stable` retains OpenLane 2.3.10.
+The LibreLane profile uses its own CLI and Python module and retains the
+installed PDK with `--manual-pdk`. Existing custom OpenLane Python flows
+require the stable profile; they are rejected explicitly under LibreLane.
+
+The paired GF180 GCD comparison at 13.2 ns / utilization 38 is recorded in
+`reference-db/gcd_toolchain_comparison_20261023.json`, with evidence under
+`pipeline/designs/gcd/experiments/toolchain-upgrade-20261023/`.
+The original stable PASS requires correction: OpenLane 2.3.10 divides the
+integer derating value `5` by integer `100`, applying 0% instead of 5%.
+LibreLane uses floating-point division. GCD now explicitly sets
+`TIME_DERATING_CONSTRAINT: 5.0`; preserve the decimal and verify the generated
+SDC contains early 0.95 / late 1.05. `resolved.json` alone is insufficient:
+its serializer can display 5 even when the Tcl environment correctly has 5.0.
+
+Three additional full-flow evaluations kept 13.2 ns, utilization 38, the
+installed GF180 PDK, fanout 12 and all physical gates unchanged:
+
+| Configuration | Actual derating | Worst setup (ns) | Setup violations | Slew violations | Cell area (um2) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Historical stable | 0% | +0.268 | 0 | 0 | 12104.3 |
+| Corrected stable | 5% | -0.388 | 4 | 0 | 12110.9 |
+| LibreLane, CTS cluster size/diameter 25/50 | 5% | -1.540 | 107 | 39 | 10187.9 |
+| LibreLane, same CTS plus post-GRT timing repair | 5% | -1.358 | 80 | 39 | 10214.3 |
+
+Explicit CTS 25/50 reproduced the original LibreLane result. Post-GRT timing
+repair improved setup but did not close it or repair slew, so neither tuning
+option was promoted to the base config. Recorded DRC/LVS and hold checks pass;
+these are not overall timing passes. Workload power is 5.35 mW for corrected
+stable and 4.91 mW for the tested LibreLane variants at ff/-40C/5.5V.
+
+At synthesis, stable/new cell areas are 7957.6/6780.9728 um2. Pre-PnR worst
+setup at 5% is -1.975/-1.820 ns; the final ordering reverses after physical
+implementation. This compares bundled synthesis, STA and physical flows,
+not OpenROAD alone. Functional equivalence was not requested or established.
+Case provenance reports an unresolved host PDK path; retained resolved configs,
+tool identities, stage states and final SDCs document this manual comparison.
+The stable profile remains the default, but no tested profile is qualified
+for 13.2 ns with the intended 5% margin. Historical raw cases remain unchanged;
+the derived comparison marks their effective derating explicitly.
+
+Compare `design__instance__area__stdcell`, not raw `design__instance__area`:
+the newer OpenROAD total includes filler area. Historical raw case totals
+remain unmodified; the comparison explicitly records both definitions.
+
+
+### Tool-contract audit (2026-10-23)
+
+The source and artifact audit covers the installed OpenLane 2.3.10 and
+LibreLane 3.0.16 flow scripts, available raw runs, CLI input conversion,
+final SDC, timing-corner coverage, and metric scoring. It does not certify
+OpenROAD/Yosys/OpenSTA algorithms or all PDK/device models.
+
+`reference-db/tool_contract_audit_20261023.json` records all 25 available
+run directories across the workspace and upgrade worktree. There are 21
+derating mismatches and 22 missing synthesis input-driver diagnostics;
+these overlap. Three runs pass these contract checks, which is not a
+physical signoff PASS. Original historical case verdicts are preserved;
+consult the audit before reusing them as qualified references.
+
+Confirmed findings and protections:
+
+- Old default-SDC derating performs integer division. Explicit integer
+  clock/percentage inputs are now formatted as decimals at the CLI boundary.
+  Inherited defaults are not guessed; a final-SDC mismatch blocks PASS.
+- Old Yosys/ABC receives `cell/pin` as the driving-cell name and emits
+  `Cannot find the default PI driving cell`. The actual log confirms the
+  driver was ignored. Such a result now fails the input-contract gate,
+  including the corrected-derating stable comparison. LibreLane strips the
+  pin name. The old installed image itself has not been patched.
+- Both base SDC versions can truncate I/O delay when all operands are
+  integers (13 * 20 / 100 = 2, versus the intended 2.6 ns). The new optional
+  CTS delay-buffer percentage also uses `/ 100`. A Tcl probe reproduces the
+  arithmetic; CTS was disabled for the GCD comparisons, so this is a latent
+  option issue, not an observed GCD cause. Explicit values are normalized.
+- Scoring uses standard-cell area when available, retains raw instance area,
+  and uses the same definition for the cell-area budget. Invalid numeric
+  slack/counts and negative WS cannot hide behind zero aggregate WNS.
+- Final scalar constraints and every requested setup/hold corner are checked
+  before PASS. Missing artifacts and custom SDC intent remain unverified.
+- Launch verifies the installed OpenROAD revision, runs the inspected image
+  ID, archives runtime identity, and rejects ignored design-config keys as
+  well as ignored CLI overrides.
+
+Remaining boundaries: the default activity-power helper on main is SKY130
+specific; the GCD comparison explicitly used its archived GF180 evaluator.
+Automatic PDK provenance has unresolved host-path coverage in these cases.
+Arbitrary custom SDC semantics, analog/model characterization, pad-ring
+arithmetic, and tool-internal algorithms need separate validation. No new
+13.2 ns / 5% timing closure or universally bug-free toolchain is claimed.
+
+Validation: the initial 1536-test suite exposed five mock-boundary errors
+and nine PDK-path failures/errors. After correcting mocks and connecting the
+installed PDK in this worktree, all 167 tests in affected/failed modules pass.
+A fresh LibreLane full flow passes the new tool-contract audit and correctly
+remains FAIL with 107 setup and 39 slew violations. See the archived
+`tool-audit-20261023/validation.json`; no second full-suite pass is claimed.
+
+Re-audit retained runs without changing history:
+
+```sh
+python3 pipeline/tool_contract_audit.py pipeline/designs/gcd/runs/<tag>
+python3 -m unittest discover -s tests -p test_tool_contract_audit.py
+```
+
 ### Explicit implementation evidence and PPA budgets
 
 The [Build-A-Chip-Bench announcement](https://chipagents.ai/newsroom/chipagents-nvidia-build-a-chip-bench)
@@ -363,6 +473,273 @@ regenerates from. The module reports the ceiling, its source, how far
 past it a run sits and the grid that would cover it; it does not run
 OpenRAM, since regeneration is a SPICE sweep of hours producing a new
 GDS/LEF/lib set that has to be verified before anything trusts it.
+
+### Throughput scoring for RTL variants
+
+[`throughput_score.py`](pipeline/throughput_score.py) scores microarchitecture
+rewrites the way OpenAI's
+[Advancing chip design with OpenAI models](https://openai.com/index/advancing-chip-design-with-our-models/)
+(2026-11-18) scored its RISC-V RTL-optimization task. Knob candidates are judged
+at a fixed `CLOCK_PERIOD`, so cycles per instruction never change. That breaks
+down for RTL rewrites. A 2-cycle multiplier made 1-cycle, or a re-staged
+pipeline, trades cycles for cycle time. Area alone can't rank such changes, and
+neither can slack. Instructions per second can.
+
+- **Zero score** if the functional check did not pass, a required feature is
+  absent, any workload failed, no held-out workload was measured, Fmax is
+  missing, or cell area exceeds `max_area_ratio` × the measured baseline
+  (default 16×, as in the article).
+- **Throughput** is the geometric mean of IPC over **held-out** workloads only,
+  multiplied by Fmax. Workloads visible to the optimizer never count.
+- **Normalization**: the best throughput observed under the same constraints
+  scores 1.0. Pass `reference_best_mips` to keep scores comparable across
+  batches. Means **include zero-scored runs**, overall and per `group` (for
+  example, per agent budget or strategy). A strategy that is fast when it works
+  but often breaks the design therefore can't look better than it is.
+
+The scorer departs from the article in two places. Both follow the article's
+own limitations section:
+
+- **Fmax comes from post-route STA**: `1000 / (CLOCK_PERIOD − timing__setup__ws)`.
+  The article used a Yosys estimate. Pre-layout estimates are accepted only when
+  labelled `pre_layout_estimate`, and the report's scope then says so.
+- **`required_features` blocks feature dropping.** Leaving out performance
+  counters or extra instructions is the article's explanation for why cores
+  written from a spec out-scored rewrites of the existing cores.
+
+To produce the counts, a testbench prints one line per workload:
+`PPA_PERF workload=<name> instructions=<N> cycles=<M>`.
+`functional_regression.py` records these counters (only from passing seeds) as
+`perf` on each seed run. `run_from_artifacts()` turns a regression result plus
+`metrics.json` into one evidence run, summing counts across seeds. A held-out
+workload that was never measured scores zero; it is never imputed.
+
+```powershell
+python pipeline/throughput_score.py evidence.json --report throughput.json
+```
+
+The same relative cap is available as a run-spec gate in
+`implementation_contract`:
+`"targets": {"max_area_ratio_vs_baseline": 16, "baseline_cell_area_um2": <measured>}`.
+A ratio without a measured baseline is rejected.
+
+#### Measured: riscv32i (2026-11-19)
+
+[`riscv_workloads.py`](pipeline/riscv_workloads.py) supplies the workloads. It
+holds a two-pass RV32I assembler and an ISA simulator written from the spec,
+independently of the RTL. It generates
+[`verify/riscv_perf_tb.sv`](pipeline/designs/riscv32i/verify/riscv_perf_tb.sv).
+That bench drives the synthesized `riscv` block directly and `$fatal`s on any
+memory-signature mismatch. For each workload it prints
+`PPA_PERF` with the ISA simulator's architectural instruction count and the
+cycles the RTL took. There are six workloads:
+
+- **Visible:** `sum64` and `fib40`.
+- **Held out:** `bubble24`, `mul16`, `popcount32` and `checksum96`.
+
+Each runs on seeds 1, 17 and 101, which gives 116 signature checks per seed.
+
+[`throughput_from_runs.py`](pipeline/throughput_from_runs.py) reran the RTL
+(Verilator 5.018) and each run's own post-route netlist (Icarus 12) on seven
+completed sky130 runs. All runs are `CLOCK_PERIOD` 23.6 ns. Read-only run
+directories are copied with SHA-256 hashes first. The post-route cycle counts
+must equal the RTL counts. Report:
+[`riscv32i-throughput-20261119.json`](reference-db/validation/riscv32i-throughput-20261119.json).
+
+| run | held-out IPC | post-route Fmax | MIPS | area vs AREA-0 | score |
+|---|---|---|---|---|---|
+| iter3-area3-clk23p6-slew1p5-fanout16 | 1.000 | 44.96 MHz | 44.96 | 1.093× | 1.000 |
+| graph-r1-1-design_repair_max_cap_pct | 1.000 | 43.78 MHz | 43.78 | 1.094× | 0.974 |
+| graph-r1-1-fp_core_util | 1.000 | 43.35 MHz | 43.35 | 1.085× | 0.964 |
+| iter2-area3-clk23p6-postgrt | 1.000 | 43.31 MHz | 43.31 | 1.115× | 0.963 |
+| iter3-area3-clk23p6-slew1p5 | 1.000 | 43.31 MHz | 43.31 | 1.114× | 0.963 |
+| graph-r1-1-max_fanout_constraint | 1.000 | 43.17 MHz | 43.17 | 1.095× | 0.960 |
+| iter2-area0-clk23p6-postgrt | 1.000 | 39.59 MHz | 39.59 | 1.000× | 0.881 |
+
+7/7 runs pass, and the mean score is 0.958 with zeros included. The IPC is
+exactly 1 because this is a single-cycle core. That is a measured result, not
+an assumption: every workload's RTL cycle count equals its ISS instruction
+count, on RTL and on all seven netlists. So for these knob-only variants the
+ranking is purely post-route Fmax. The AREA-0 run is the smallest. It is also
+the slowest: it misses 23.6 ns by 1.66 ns, which gives 25.26 ns achieved. The
+area-ratio gate does not bind here (the largest run is 1.115×). An RTL rewrite
+that changes CPI is the case this scorer is built for, and none has been
+measured yet. The baseline is the AREA-0 run, which the report records; it is
+not an "original core" from upstream.
+
+Negative controls, RTL only, all three seeds:
+
+- An AND→OR ALU mutant fails on `mul16`.
+- An inverted-SLT mutant fails on `checksum96`.
+
+Both fail with real signature mismatches. The workloads exercise only the RV32I
+subset the assembler emits (ALU and immediates, `lw`/`sw`, `beq`/`bne`/`blt`/
+`bge`, `lui`, `jal`). This is not a compliance suite. For example, an OR→XOR
+mutant would survive `checksum96`, because its two shifted operands never
+overlap. Held-out means the counts are left out of the optimizer's feedback. It
+is not isolation from the agent: the bench is local and editable.
+
+Regenerate the bench and remeasure (WSL):
+
+```powershell
+python pipeline/riscv_workloads.py --out pipeline/designs/riscv32i/verify/riscv_perf_tb.sv
+wsl -d Ubuntu -- python3 pipeline/throughput_from_runs.py --design pipeline/designs/riscv32i --run-spec pipeline/designs/riscv32i/run_spec_throughput.json --baseline-run <AREA-0 run> --stage-dir /tmp/riscv32i-throughput-stage --report reference-db/validation/riscv32i-throughput.json <run dirs...>
+```
+
+### What other open-source chip agents contribute (2026-11-19 survey)
+
+Projects checked, and what (if anything) this repository adopts from each:
+
+| Project | What it is | Adopted here |
+|---|---|---|
+| [ORFS-agent](https://arxiv.org/html/2506.08332v3) (UCSD ABKGroup, v3 2026; [code](https://github.com/ABKGroup/ORFS-Agent/tree/journal-todaes-handoff)) | An LLM that tunes up to 12 ORFS knobs. It runs K=25 parallel runs per iteration, and its tools include a GP surrogate with a Matérn kernel and Expected Improvement, a Latin hypercube sampler, and diversity selectors (EntropySelect/GraphSelect). It reports +1.0% WL, +1.3% ECP and +2.6% co-optimization over OR-AutoTuner, with 40% fewer iterations. Objectives are normalized to the default-flow baseline and aggregated as a geometric mean over designs. Area and power must stay within ±2–4% of baseline. | **The batch step**, as `batch_design.py`: a Latin hypercube pool, then greedy maximin selection of K points away from configurations already recorded. **Not** the GP + EI step: `surrogate.py` measured that the store can't yet support a fitted model. The relative constraint is covered by `max_area_ratio_vs_baseline`. |
+| [OpenROAD AutoTuner](https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/tree/master/tools/AutoTuner) | Ray Tune plus hyperopt/Optuna Bayesian search over ORFS parameters. It is ORFS-agent's baseline. | Already cited in `expand_sweeps`, which borrows its declarative sweep shape. Space-filling seeding is now available through `design_of_experiments`. |
+| [ORAssistant](https://arxiv.org/abs/2410.03845) | A RAG assistant over OpenROAD documentation. | Not adopted. Retrieval here is grounded in measured cases (`case_retrieval.py`), not in docs. |
+| [MCP4EDA](https://www.arxiv.org/abs/2507.19570) | An MCP server for Yosys, Icarus, OpenLane and KLayout, with synthesis tuning driven by backend data. The authors report 15–30% timing and 10–20% area improvement over default synthesis. | Already covered: `pipeline/mcp_server.py` exposes the flow over MCP, and `SynthesisExploration` screening feeds backend-measured results. |
+| [AuDoPEDA](https://arxiv.org/abs/2601.06268), Helix, [GR-Evolve](https://arxiv.org/html/2604.22234v1) | Coding agents that edit OpenROAD's C++ (placer, router) and re-evaluate QoR. AuDoPEDA reports up to 5.9% less routed wirelength. | Out of scope. This repository treats the tools as fixed evaluators and changes only design inputs. |
+| [ChipAgents](https://www.hpcwire.com/off-the-wire/chipagents-expands-full-stack-agentic-ai-across-digital-and-analog-chip-design) | A commercial front-end platform (RTL, verification, debug). It reports 155/156 on VerilogEval-Human (vendor figure). No code is public. | Nothing to adopt. Its verification-first emphasis matches the functional gates already here. |
+
+`design_of_experiments` in a run spec adds a fixed-size, space-filling batch to
+the candidates. `expand_sweeps` expands it, so every caller gets it, including
+`rank_candidates.py`:
+
+```json
+"design_of_experiments": {
+  "space": {"FP_CORE_UTIL": {"low": 30, "high": 60, "type": "int"},
+            "CLOCK_PERIOD": {"low": 18.0, "high": 26.0, "type": "float", "digits": 1},
+            "SYNTH_STRATEGY": {"values": ["AREA 0", "AREA 3", "DELAY 1"]}},
+  "batch": 6, "pool": 200, "seed": 7, "tag_prefix": "doe"
+}
+```
+
+Dry expansion against the real store for riscv32i (8 recorded configurations)
+proposed six candidates. Each is at least 0.897 (normalized distance) from
+every recorded configuration, and their minimum pairwise spacing is 0.872.
+None of the six has been run through OpenLane yet. Whether space-filling beats
+the sweep on regret is the question `search_strategy.py` measures; it can only
+answer it once these runs are recorded.
+
+### Statistical recovery memory (after ChipMEM)
+
+[`recovery_memory.py`](pipeline/recovery_memory.py) applies the statistical
+memory from
+[ChipMEM: Verification-Grounded Memory for EDA Agents](https://arxiv.org/abs/2609.27067)
+(AlRabah et al., 2026; [code](https://github.com/aalrabah/ChipMEM)) to this
+store's repair history. ChipMEM ranks recovery actions for an error class with
+nested Beta-binomial estimates. It starts from Beta(1,1), and each level shrinks
+toward its parent: `p_j = (s_j + K·p_{j-1}) / (s_j + f_j + K)`, with `K = 8`.
+Here the levels are:
+
+1. the violation signature;
+2. the signature and the override key;
+3. the signature, the override key and its value.
+
+One observation is one recorded transition: a knob changed between two
+consecutive measured runs, and a signature present before either closed or
+persisted. A second hierarchy, over key and then key/value, estimates the
+regression risk. `closed_loop_search.plan()` now attaches a `recovery_estimate`
+to each candidate and ranks candidates by `P(close any current violation) −
+P(regress)`. Generating candidates still requires closure evidence, repeats
+are still refused, and proposals stay one knob at a time. Called without a
+memory, `propose()` behaves as before.
+
+**Held-out test.** Each of the 8 designs was held out in turn and its
+transitions were predicted from the other designs:
+[`recovery-memory-20261119.json`](reference-db/validation/recovery-memory-20261119.json).
+
+| | Brier (all 507) | AUC (all 507) | Brier (326 single-knob) | AUC (326 single-knob) |
+|---|---|---|---|---|
+| hierarchical, K=8 | 0.241 | **0.640** | 0.229 | **0.654** |
+| flat Laplace per (sig, key, value) | **0.237** | 0.607 | **0.228** | 0.652 |
+| global base rate | 0.292 | — | 0.250 | — |
+| previous score `closures − 2·regressions` | — | 0.417 | — | 0.551 |
+
+The previous count score ranked held-out closures *worse than chance* (AUC
+0.417) when every transition was included. The shrunken posterior ranks them
+at 0.640. That ranking is what `propose()` uses, so the change was adopted for
+ranking. On calibration (Brier), flat Laplace is marginally better (by
+0.001–0.004). The report therefore states that the hierarchy does not beat
+every baseline, and no claim of better-calibrated probabilities is made. K is
+insensitive here: Brier ranges from 0.239 to 0.245 over K = 1…32. K was left at
+ChipMEM's 8 and was not tuned on this test set.
+
+**Procedural memory**, ChipMEM's DO/AVOID skills, comes from
+`recovery_memory.skills()`. It follows ChipMEM's write gate, which stores a
+skill only after a verified pass. Here a DO rule needs ≥3 closures whose *next*
+run passed the full verdict. A closure that only traded one violation for
+another does not count. An AVOID rule needs ≥3 observed regressions and a
+shrunken regression probability above 0.5. From the current store this gives 6
+DO rules and 10 AVOID rules. Examples:
+
+- DO: `PDN-0185 → DIE_AREA [0,0,64,64]`, p=0.67 over 4 verified closures.
+- AVOID: `GRT_RESIZER_HOLD_MAX_BUFFER_PCT=100`, p_regress=0.74.
+
+Rules name signatures and knobs, never a design.
+
+**Checked against the ChipMEM repository**
+([aalrabah/ChipMEM](https://github.com/aalrabah/ChipMEM), MIT, read
+2026-11-19). Its `chipmem/statistical/model.py` differs from the paper summary
+this module was first written from, so each difference was measured with the
+same leave-one-design-out protocol (`compare_hierarchies()`):
+
+| hierarchy | Brier | AUC |
+|---|---|---|
+| this module: signature → +key → +value, prior 0.5 | **0.241** | **0.640** |
+| this module plus the repository's empirical global level | 0.267 | 0.466 |
+| repository order: global → key → signature+key → signature+stage+key | 0.257 | 0.579 |
+| repository order with value in place of stage | 0.262 | 0.565 |
+
+The repository's ordering generalizes over the action first, and it does worse
+on this store. So does its global level: a global closure rate learned from
+other designs misleads on the held-out one. The hierarchy here is therefore
+unchanged. Three things were ported from the repository:
+
+- **`retune_k()`** is its `retune_parent_strength`: hold out every 5th
+  *training* observation and keep the K from its grid (1…64) with the best
+  held-out log-likelihood. With K chosen inside each training fold, held-out
+  Brier is 0.240 and AUC is 0.654 (fixed K=8: 0.241 and 0.640). The chosen K
+  was 2, 4 or 8 depending on the fold. `plan()` now uses it.
+- **One skill per source.** `learning.py` appends at most one skill per source
+  task. A DO rule here now needs verified closures from ≥3 *distinct recorded
+  cases*, so three closures inside one case can't mint a rule. The current 6
+  DO rules all still qualify.
+- **`NUDGE_THRESHOLD = 0.20`.** A candidate whose `p_close_any` is below 20%
+  carries a `nudge` advisory. This is ChipMEM's rule of speaking up only when
+  history says the move rarely works.
+
+Limits:
+
+- These are associations, not causes (see `experiment_graph.py`). For example,
+  `SYNTH_STRATEGY AREA 0` "closing" PDN-0185 reflects which runs happened to
+  follow each other.
+- Transitions that changed several knobs credit every changed key. The
+  single-knob row above is the unconfounded subset.
+- ChipMEM's embedding-based retrieval of skill text is not adopted. Here,
+  retrieval keys are exact signatures from tool output, and `case_retrieval.py`
+  already grounds precedent in them.
+
+### Service speed (2026-11-19)
+
+Measured on the live server and store (97 cases, 442 distinct configurations).
+The outputs are byte-identical before and after. The whole `scan_all()`
+result, `evaluate()` and `best_k()` for every target were dumped and compared
+with `cmp`.
+
+| path | before | after | change |
+|---|---|---|---|
+| `self_improve.scan_all()` | 3.2–4.0 s | 1.2 s | features computed once per evaluation; one neighbour pass per target shared by all k |
+| `surrogate.evaluate` + `best_k`, 3 targets | 2.5–3.4 s | 0.45 s | same |
+| `GET /self-improve`, cold | 3.7 s | 1.3 s | follows from the above |
+| `GET /analog/stdcells`, repeat query | 0.25–0.27 s | 0.035 s | cached per query; invalidated when a cell signoff case is written |
+| `GET /reference-db`, first request after start | 2.0 s | 0.05 s | store list warmed in the background at startup |
+
+`surrogate.evaluate()` used to call `predict()` once per leave-one-out fold.
+Each call re-featurized the whole design and recounted the libraries. `best_k`
+repeated all of it for five values of k, although a fold's neighbour order does
+not depend on k. `loo_folds()` now does the distance pass once per target.
+
+Warm requests were already 2–60 ms and are unchanged. The LLM-backed routes
+(`/ask`, `/diagnose`, `/review/*`) were not measured or changed.
 
 ### Placement and routing decisions
 

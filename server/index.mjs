@@ -273,6 +273,29 @@ async function storeKey() {
   return `${count}:${newest}`;
 }
 
+// The standard-cell listing costs a Python start plus a parse of the
+// library CDL (~0.25 s) on every keystroke of the search box, and its
+// answer only changes when a cell's signoff case is written. Keyed by
+// that directory's file count and newest mtime, per query.
+const stdcellListCache = new Map(); // q -> {key, body}
+
+async function stdcellStoreKey() {
+  const dir = path.join(refDbDir, "stdcells");
+  let newest = 0;
+  let count = 0;
+  try {
+    for (const name of await readdir(dir)) {
+      if (!name.endsWith(".json")) continue;
+      const { mtimeMs } = await stat(path.join(dir, name));
+      if (mtimeMs > newest) newest = mtimeMs;
+      count += 1;
+    }
+  } catch {
+    return "none"; // no signoff store yet: the listing has no verdicts to go stale
+  }
+  return `${count}:${newest}`;
+}
+
 async function cachedReport(route, produce) {
   const key = await storeKey();
   const hit = reportCache.get(route);
@@ -1288,6 +1311,13 @@ const server = createServer(async (req, res) => {
       return;
     }
     try {
+      const cellKey = await stdcellStoreKey();
+      const cellHit = stdcellListCache.get(q);
+      if (cellHit && cellHit.key === cellKey) {
+        res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+        res.end(cellHit.body);
+        return;
+      }
       const { stdout } = await execFileAsync(
         "python3",
         ["-c",
@@ -1305,6 +1335,8 @@ const server = createServer(async (req, res) => {
          q],
         { cwd: pipelineDir, timeout: 120_000, maxBuffer: 32 * 1024 * 1024 }
       );
+      if (stdcellListCache.size >= 200) stdcellListCache.clear();
+      stdcellListCache.set(q, { key: cellKey, body: stdout });
       res.writeHead(200, { ...headers, "Content-Type": "application/json" });
       res.end(stdout);
     } catch (err) {
@@ -1648,4 +1680,8 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`ppa-eda-agent server listening on http://127.0.0.1:${PORT}`);
+  // Warm the store list in the background so the dashboard's first load
+  // does not pay the cold read of every case file (2 s measured). A
+  // failure here is harmless: the first request simply does the work.
+  loadReferenceDb().catch(() => {});
 });

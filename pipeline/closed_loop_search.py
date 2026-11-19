@@ -15,6 +15,8 @@ from pathlib import Path
 import case_retrieval
 import experiment_graph
 
+import recovery_memory
+
 STOP_REASONS = ("winner_found", "plateau", "actions_exhausted", "candidates_proposed")
 
 
@@ -33,7 +35,7 @@ def plateau(results: list[dict], width: int = 3) -> bool:
     return len(states) == 1 and len(configs) == width
 
 
-def propose(case: dict, graph: dict, limit: int = 4) -> dict:
+def propose(case: dict, graph: dict, limit: int = 4, memory=None) -> dict:
     results = _results(case)
     if not results:
         return {"stop_reason": "actions_exhausted", "candidates": [],
@@ -83,7 +85,24 @@ def propose(case: dict, graph: dict, limit: int = 4) -> dict:
             "score": score,
             "advisory_only": True,
         })
-    candidates.sort(key=lambda c: (-c["score"], c["evidence"]["regressions"], c["tag"]))
+    if memory is not None:
+        # ChipMEM-style statistical memory (recovery_memory.py): rank by the
+        # shrunken posterior that the change closes a current violation net
+        # of regression risk.  Held-out by design it ranks closures with AUC
+        # 0.64 vs 0.42 for the raw count score (README, 2026-11-19).
+        for c in candidates:
+            c["recovery_estimate"] = memory.estimate(
+                current_bad, c["action"]["key"], c["action"]["value"])
+            # ChipMEM's nudge rule (NUDGE_THRESHOLD = 0.20): speak up only
+            # when history says the move rarely works.
+            if c["recovery_estimate"]["p_close_any"] < recovery_memory.NUDGE_THRESHOLD:
+                c["nudge"] = ("historically closes a current violation less than "
+                              f"{round(100 * recovery_memory.NUDGE_THRESHOLD)}% of the time; "
+                              "consider a different knob")
+        candidates.sort(key=lambda c: (-c["recovery_estimate"]["net"], -c["score"],
+                                       c["evidence"]["regressions"], c["tag"]))
+    else:
+        candidates.sort(key=lambda c: (-c["score"], c["evidence"]["regressions"], c["tag"]))
     candidates = candidates[:limit]
     if candidates:
         return {"stop_reason": "candidates_proposed", "candidates": candidates,
@@ -105,7 +124,9 @@ def plan(design: str, refdb: Path | str = case_retrieval.REFDB,
     target = sorted(matches, key=lambda case: (case.get("date", ""),
                                                 case.get("_file", "")))[-1]
     graph = experiment_graph.build(cases)
-    answer = propose(target, graph, limit)
+    observed = recovery_memory.observations(cases)
+    memory = recovery_memory.RecoveryMemory(observed, recovery_memory.retune_k(observed))
+    answer = propose(target, graph, limit, memory)
     answer.update({
         "design": design,
         "case": target.get("_file"),
