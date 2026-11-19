@@ -1,0 +1,27 @@
+[
+  {
+    "step": "06-yosys-synthesis",
+    "metrics": {
+      "design__instance__area": 6780.9728
+    }
+  },
+  {
+    "step": "12-openroad-staprepnr",
+    "metrics": {
+      "design__instance__area": 6780.9728,
+      "design__max_slew_violation__count": 173,
+      "timing__hold__ws": 0.313441004245604,
+      "timing__setup__ws": -1.8203492561894103
+    }
+  },
+  {
+    "step": "56-openroad-stapostpnr",
+    "metrics": {
+      "design__instance__area": 17763.6,
+      "design__max_slew_violation__count": 39,
+      "timing__hold__ws": 0.33946990623833223,
+      "timing__setup__ws": -1.358069251051298,
+      "design__instance__area__stdcell": 10214.3
+    }
+  }
+]

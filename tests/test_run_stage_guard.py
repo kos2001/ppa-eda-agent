@@ -14,6 +14,9 @@ we did not pass, would be turned off within a day.
 import unittest
 from pathlib import Path
 import sys
+import json
+import tempfile
+from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
@@ -101,6 +104,40 @@ class GuardStaysQuietTests(unittest.TestCase):
     def test_substring_of_our_key_does_not_count(self):
         log = "An unknown key 'RE_BUFFER' was provided."
         reject_ignored_overrides(["RE_BUFFER_CELL=x"], log, "t")
+
+
+class LibreLaneCommandTests(unittest.TestCase):
+    def test_cli_switch_preserves_the_installed_pdk_and_constraints(self):
+        with tempfile.TemporaryDirectory() as directory:
+            design = Path(directory)
+            (design / "config.json").write_text(json.dumps({"DESIGN_NAME": "gcd"}))
+            process = MagicMock(stdout=[])
+            process.wait.return_value = 0
+            with patch.object(run_stage, "FLOW_COMMAND", "librelane"), \
+                 patch.object(run_stage, "FLOW_MODULE", "librelane"), \
+                 patch.object(run_stage.subprocess, "Popen", return_value=process) as popen, \
+                 patch.object(run_stage, "verify_runtime_toolchain", return_value={"image_id": "sha256:verified"}), \
+                 patch.object(run_stage, "claim_run_dir"):
+                run_stage.run_stage(design, "new", None, ["CLOCK_PERIOD=13.2", "SYNTH_STRATEGY=DELAY 2"],
+                                    pdk="gf180mcuD", scl="gf180mcu_fd_sc_mcu7t5v0")
+            command = popen.call_args.args[0]
+            self.assertIn("librelane", command)
+            self.assertIn("sha256:verified", command)
+            self.assertNotIn("openlane", command)
+            self.assertIn("--manual-pdk", command)
+            self.assertIn("CLOCK_PERIOD=13.2", command)
+            self.assertIn('SYNTH_STRATEGY=DELAY 2', command)
+            self.assertEqual(command[command.index("--pdk") + 1], "gf180mcuD")
+
+    def test_openlane_custom_flow_is_rejected_before_launch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            design = Path(directory)
+            (design / "config.json").write_text(json.dumps({"DESIGN_NAME": "gcd"}))
+            with patch.object(run_stage, "FLOW_MODULE", "librelane"), \
+                 patch.object(run_stage.subprocess, "Popen") as popen:
+                with self.assertRaisesRegex(ValueError, "requires the OpenLane API"):
+                    run_stage.run_stage(design, "new", None, [], flow="MacroSignoff")
+                popen.assert_not_called()
 
 
 if __name__ == "__main__":
