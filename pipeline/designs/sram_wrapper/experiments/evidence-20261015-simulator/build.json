@@ -1,0 +1,35 @@
+{
+  "scope": "Experimental Linux host simulator reproduction; not a qualified SRAM model",
+  "release": "ngspice 46",
+  "release_url": "https://downloads.sourceforge.net/project/ngspice/ng-spice-rework/old-releases/46/ngspice-46.tar.gz",
+  "release_sha256": "a0d1699af1940b06649276dcd6ff5a566c8c0cad01b2f7b5e99dedbb4d64c19b",
+  "source_checks": "All eight original_source_sha256 entries in characterization/ngspice-bin-index/build-20261004.json matched before patching",
+  "patch_bytes_sha256": "608093d85e4ed39fb5d3c36727365118323a6e5b990af1691cfeea338a0be464",
+  "patch_lf_normalized_sha256": "1edebd83b170d588bfb55f7301a90ba7fb28bc867cf8c44f88e79efa4108aafc",
+  "patch_note": "Checkout has CRLF; patch strips trailing CRs. Normalized hash matches the earlier patch.",
+  "platform": "Ubuntu WSL Linux x86_64",
+  "compiler": "gcc Ubuntu 13.3.0-6ubuntu2~24.04.1 13.3.0",
+  "configure_flags": ["--without-x", "--disable-xspice", "--enable-klu", "--disable-openmp", "--with-readline=no"],
+  "build_parallelism": 4,
+  "original_binary_sha256": "65f316052a3a2b30ae1f9069edc8e7cae402e84d998e82b16fdcbdbc025542e2",
+  "indexed_binary_sha256": "8ffa1057b285a56cb976c3c641daae1254546f33caaa0d056f98c8f348b2060a",
+  "make_check": {
+    "original_exit_code": 0,
+    "indexed_exit_code": 0,
+    "note": "Both suites print differences against historical device references; exit 0 is not a claim that every reference number matched. Full logs retained."
+  },
+  "comparisons": {
+    "synthetic": "synthetic/result.json: five model-bin cases matched",
+    "sky130": "sky130-linux/sky130-result.json: two MOS devices at SS/TT/FF matched",
+    "ntfs_attempt": "sky130/: indexed SS exceeded 60 seconds while using the Windows PDK; incomplete attempt, not comparison success"
+  },
+  "linux_model_snapshot": {
+    "path": "/tmp/ppa-spice-pdk-20261015",
+    "copied_directories": ["sky130A/libs.tech/ngspice", "sky130A/libs.ref/sky130_fd_pr/spice"],
+    "files_compared": 856,
+    "sha256_mismatches": 0
+  },
+  "openram_revision": "b2b069ce119d1488cbe6883b2240bceb5c7ce29a",
+  "openram_sram_cells_revision": "dd64256961317205343a3fd446908b42bafba388",
+  "macro_characterization": "prepare-only completed with indexed ngspice 46; no new SRAM transient measurements or Liberty generated"
+}

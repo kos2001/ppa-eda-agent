@@ -1,0 +1,68 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261011-m75-keep1-min6-hul-margin75-keep1-min6",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 1,
+        "DIODE_TRIM_MIN_DIODES": 6
+      },
+      "_why": "One axis from the MIN 6 / keep 2 run: DIODE_TRIM_KEEP 1 (was 2). Predicts fanout 0 and the clock capacitance still clear, `_19764_` unchanged, antenna count moved only by the changed netlist (the flow is deterministic, so any difference is caused by this input). Falsified if a failure other than `_19764_` appears."
+    },
+    {
+      "tag": "aes-coupling-20261011-m75-keep2-min4-hul-margin75-keep2-min4",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_MARGIN": 75,
+        "DIODE_TRIM_KEEP": 2,
+        "DIODE_TRIM_MIN_DIODES": 4
+      },
+      "_why": "One axis from the MIN 6 / keep 2 run: DIODE_TRIM_MIN_DIODES 4 (was 6), reaching nets with 4 or 5 diodes. Predicts no new fanout or capacitance failure and `_19764_` unchanged. Falsified if a failure other than `_19764_` appears."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Fill the two untested neighbours of the MIN 6 / keep 2 run (keep 1, MIN 4) and see whether the failing set stays at _19764_ only",
+    "reference": "aes-coupling-20261010-m75-min6-hul-margin75-keep2-min6 (3 antenna, 0 fanout, slew and cap on _19764_ only; reproduced byte-identical by the 2026-10-11 repeat)"
+  },
+  "_why": "Untested neighbours listed in the README after the MIN 6 and repeat runs. Diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so it does not qualify the original target."
+}

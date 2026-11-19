@@ -1,0 +1,35 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-closure-20261004-cap-v2",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\":8,\"_09030_\":8}"
+      },
+      "flow": "FanoutRepair"
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Add targeted load splitting to the two extracted capacitance violators, keeping all other repair settings and SDC constraints fixed",
+    "reference": "aes-closure-20261004-repair; baseline post-PnR checks name fanout1321/X (0.283483 pF / 0.2) and _17745_/Y (0.134 pF / 0.132761)"
+  },
+  "_why": "Test one additional physical axis: lower only the sink target on two measured capacitance-violating data nets to 8. Validate remaining routed capacitance, timing, fanout and antenna; a sink-count target alone is not capacitance signoff."
+}

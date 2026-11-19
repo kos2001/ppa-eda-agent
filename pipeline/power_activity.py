@@ -286,7 +286,12 @@ def measure(design_dir: Path | str, run_dir: Path | str,
     (work / "run.sh").write_text(script, encoding="utf-8")
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", timeout=600)
     out = proc.stdout
-    (work / "tool.log").write_text(out + proc.stderr, encoding="utf-8")
+    # Retain the actual simulation/power transcript, including failed probes.
+    # A compact parsed total alone cannot be independently checked later.
+    (work / "measurement.sh").write_text(script, encoding="utf-8")
+    (work / "command.json").write_text(json.dumps(cmd, indent=2) + "\n", encoding="utf-8")
+    (work / "stdout.log").write_text(out, encoding="utf-8")
+    (work / "stderr.log").write_text(proc.stderr, encoding="utf-8")
 
     if "###COMPILE_FAILED###" in out:
         return {"error": "gate-level simulation did not compile",

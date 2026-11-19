@@ -1,0 +1,34 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-closure-20261004-repair",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50
+      },
+      "flow": "FanoutRepair"
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Test the interaction between targeted post-antenna buffering and rerouting/antenna repair; preserve the baseline SDC and all final checks",
+    "reference": "reference-db/cases/aes__2026-09-10__055204.json:iter8-io25-fanout16"
+  },
+  "_why": "Baseline OpenDB identifies two clock drivers over 16 sinks and two data drivers at 17 because antenna repair added a diode to a 16-load net. Split only internal single-driver nets above the same limit, legalize, reroute and repair antenna again. Extra antenna iterations and margin are part of this physical repair interaction, not changes to signoff limits."
+}

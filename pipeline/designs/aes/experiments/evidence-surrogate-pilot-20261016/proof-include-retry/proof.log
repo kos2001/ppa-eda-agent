@@ -1,0 +1,1705 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2024  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.46 (git sha1 e97731b9dda91fa5fa53ed87df7c34163ba59a41, clang++ 17.0.6 -fPIC -O3)
+Loaded SDC plugin
+
+-- Executing script file `/work/eq.ys' --
+
+1. Executing Verilog-2005 frontend: /work/rtl/aes_cipher_top.v
+Parsing Verilog input from `/work/rtl/aes_cipher_top.v' to AST representation.
+Generating RTLIL representation for module `\aes_cipher_top'.
+Successfully finished Verilog frontend.
+
+2. Executing Verilog-2005 frontend: /work/rtl/aes_inv_cipher_top.v
+Parsing Verilog input from `/work/rtl/aes_inv_cipher_top.v' to AST representation.
+Generating RTLIL representation for module `\aes_inv_cipher_top'.
+Successfully finished Verilog frontend.
+
+3. Executing Verilog-2005 frontend: /work/rtl/aes_inv_sbox.v
+Parsing Verilog input from `/work/rtl/aes_inv_sbox.v' to AST representation.
+Generating RTLIL representation for module `\aes_inv_sbox'.
+Note: Assuming pure combinatorial block at /work/rtl/aes_inv_sbox.v:64.1-322.9 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Successfully finished Verilog frontend.
+
+4. Executing Verilog-2005 frontend: /work/rtl/aes_key_expand_128.v
+Parsing Verilog input from `/work/rtl/aes_key_expand_128.v' to AST representation.
+Generating RTLIL representation for module `\aes_key_expand_128'.
+Warning: Replacing memory \w with list of registers. See /work/rtl/aes_key_expand_128.v:82
+Successfully finished Verilog frontend.
+
+5. Executing Verilog-2005 frontend: /work/rtl/aes_rcon.v
+Parsing Verilog input from `/work/rtl/aes_rcon.v' to AST representation.
+Generating RTLIL representation for module `\aes_rcon'.
+Successfully finished Verilog frontend.
+
+6. Executing Verilog-2005 frontend: /work/rtl/aes_sbox.v
+Parsing Verilog input from `/work/rtl/aes_sbox.v' to AST representation.
+Generating RTLIL representation for module `\aes_sbox'.
+Note: Assuming pure combinatorial block at /work/rtl/aes_sbox.v:64.1-322.9 in
+compliance with IEC 62142(E):2005 / IEEE Std. 1364.1(E):2002. Recommending
+use of @* instead of @(...) for better match of synthesis and simulation.
+Successfully finished Verilog frontend.
+
+7. Executing Verilog-2005 frontend: /work/rtl/timescale.v
+Parsing Verilog input from `/work/rtl/timescale.v' to AST representation.
+Successfully finished Verilog frontend.
+
+8. Executing PREP pass.
+
+8.1. Executing HIERARCHY pass (managing design hierarchy).
+
+8.1.1. Analyzing design hierarchy..
+Top module:  \aes_cipher_top
+Used module:     \aes_sbox
+Used module:     \aes_key_expand_128
+Used module:         \aes_rcon
+
+8.1.2. Analyzing design hierarchy..
+Top module:  \aes_cipher_top
+Used module:     \aes_sbox
+Used module:     \aes_key_expand_128
+Used module:         \aes_rcon
+Removing unused module `\aes_inv_sbox'.
+Removing unused module `\aes_inv_cipher_top'.
+Removed 2 unused modules.
+
+8.2. Executing PROC pass (convert processes to netlists).
+
+8.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+8.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed 1 dead cases from process $proc$/work/rtl/aes_sbox.v:64$2052 in module aes_sbox.
+Marked 1 switch rules as full_case in process $proc$/work/rtl/aes_rcon.v:81$2051 in module aes_rcon.
+Marked 2 switch rules as full_case in process $proc$/work/rtl/aes_rcon.v:76$2044 in module aes_rcon.
+Marked 2 switch rules as full_case in process $proc$/work/rtl/aes_cipher_top.v:112$41 in module aes_cipher_top.
+Removed a total of 1 dead cases.
+
+8.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 2 redundant assignments.
+Promoted 141 assignments to connections.
+
+8.2.4. Executing PROC_INIT pass (extract init attributes).
+
+8.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+8.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 2 switches.
+<suppressed ~6 debug messages>
+
+8.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:85$2036'.
+Creating decoders for process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:84$2030'.
+Creating decoders for process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:83$2025'.
+Creating decoders for process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:82$2021'.
+Creating decoders for process `\aes_sbox.$proc$/work/rtl/aes_sbox.v:64$2052'.
+     1/1: $1\d[7:0]
+Creating decoders for process `\aes_rcon.$proc$/work/rtl/aes_rcon.v:81$2051'.
+     1/1: $0\rcnt[3:0]
+Creating decoders for process `\aes_rcon.$proc$/work/rtl/aes_rcon.v:76$2044'.
+     1/4: $2\frcon$func$/work/rtl/aes_rcon.v:78$2043.$result[31:0]$2049
+     2/4: $0\out[31:0]
+     3/4: $1\frcon$func$/work/rtl/aes_rcon.v:78$2043.i[3:0]$2048
+     4/4: $1\frcon$func$/work/rtl/aes_rcon.v:78$2043.$result[31:0]$2047
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:207$147'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:206$145'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:205$143'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:204$141'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:203$139'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:202$137'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:201$135'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:200$133'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:199$131'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:198$129'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:197$127'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:196$125'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:195$123'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:194$121'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:193$119'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:192$117'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:143$98'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:142$95'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:141$92'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:140$89'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:139$86'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:138$83'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:137$80'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:136$77'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:135$74'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:134$71'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:133$68'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:132$65'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:131$62'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:130$59'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:129$56'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:128$53'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:121$52'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:120$51'.
+     1/1: $0\text_in_r[127:0]
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:119$45'.
+Creating decoders for process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:112$41'.
+     1/1: $0\dcnt[3:0]
+
+8.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\aes_sbox.\d' from process `\aes_sbox.$proc$/work/rtl/aes_sbox.v:64$2052'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:169$4.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:169$32.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:169$32.s0' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:169$32.s1' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:169$32.s2' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:169$32.s3' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$33.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$33.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$34.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$34.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$35.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$35.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$36.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$36.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$37.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$37.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$38.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$38.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$39.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$39.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$40.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$40.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:168$3.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:168$23.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:168$23.s0' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:168$23.s1' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:168$23.s2' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:168$23.s3' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$24.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$24.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$25.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$25.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$26.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$26.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$27.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$27.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$28.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$28.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$29.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$29.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$30.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$30.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$31.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$31.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:167$2.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:167$14.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:167$14.s0' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:167$14.s1' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:167$14.s2' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:167$14.s3' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$15.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$15.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$16.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$16.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$17.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$17.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$18.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$18.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$19.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$19.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$20.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$20.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$21.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$21.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$22.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$22.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:166$1.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:166$5.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:166$5.s0' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:166$5.s1' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:166$5.s2' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\mix_col$func$/work/rtl/aes_cipher_top.v:166$5.s3' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$6.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$6.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$7.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:218$7.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$8.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$8.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$9.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:219$9.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$10.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$10.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$11.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:220$11.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$12.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$12.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$13.$result' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+No latch inferred for signal `\aes_cipher_top.\xtime$func$/work/rtl/aes_cipher_top.v:221$13.b' from process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+
+8.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\aes_key_expand_128.\w[3]' using process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:85$2036'.
+  created $dff cell `$procdff$2088' with positive edge clock.
+Creating register for signal `\aes_key_expand_128.\w[2]' using process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:84$2030'.
+  created $dff cell `$procdff$2089' with positive edge clock.
+Creating register for signal `\aes_key_expand_128.\w[1]' using process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:83$2025'.
+  created $dff cell `$procdff$2090' with positive edge clock.
+Creating register for signal `\aes_key_expand_128.\w[0]' using process `\aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:82$2021'.
+  created $dff cell `$procdff$2091' with positive edge clock.
+Creating register for signal `\aes_rcon.\rcnt' using process `\aes_rcon.$proc$/work/rtl/aes_rcon.v:81$2051'.
+  created $dff cell `$procdff$2092' with positive edge clock.
+Creating register for signal `\aes_rcon.\out' using process `\aes_rcon.$proc$/work/rtl/aes_rcon.v:76$2044'.
+  created $dff cell `$procdff$2093' with positive edge clock.
+Creating register for signal `\aes_rcon.\frcon$func$/work/rtl/aes_rcon.v:78$2043.$result' using process `\aes_rcon.$proc$/work/rtl/aes_rcon.v:76$2044'.
+  created $dff cell `$procdff$2094' with positive edge clock.
+Creating register for signal `\aes_rcon.\frcon$func$/work/rtl/aes_rcon.v:78$2043.i' using process `\aes_rcon.$proc$/work/rtl/aes_rcon.v:76$2044'.
+  created $dff cell `$procdff$2095' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [7:0]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:207$147'.
+  created $dff cell `$procdff$2096' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [39:32]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:206$145'.
+  created $dff cell `$procdff$2097' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [71:64]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:205$143'.
+  created $dff cell `$procdff$2098' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [103:96]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:204$141'.
+  created $dff cell `$procdff$2099' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [15:8]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:203$139'.
+  created $dff cell `$procdff$2100' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [47:40]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:202$137'.
+  created $dff cell `$procdff$2101' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [79:72]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:201$135'.
+  created $dff cell `$procdff$2102' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [111:104]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:200$133'.
+  created $dff cell `$procdff$2103' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [23:16]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:199$131'.
+  created $dff cell `$procdff$2104' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [55:48]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:198$129'.
+  created $dff cell `$procdff$2105' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [87:80]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:197$127'.
+  created $dff cell `$procdff$2106' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [119:112]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:196$125'.
+  created $dff cell `$procdff$2107' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [31:24]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:195$123'.
+  created $dff cell `$procdff$2108' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [63:56]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:194$121'.
+  created $dff cell `$procdff$2109' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [95:88]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:193$119'.
+  created $dff cell `$procdff$2110' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_out [127:120]' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:192$117'.
+  created $dff cell `$procdff$2111' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa00' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:143$98'.
+  created $dff cell `$procdff$2112' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa10' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:142$95'.
+  created $dff cell `$procdff$2113' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa20' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:141$92'.
+  created $dff cell `$procdff$2114' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa30' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:140$89'.
+  created $dff cell `$procdff$2115' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa01' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:139$86'.
+  created $dff cell `$procdff$2116' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa11' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:138$83'.
+  created $dff cell `$procdff$2117' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa21' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:137$80'.
+  created $dff cell `$procdff$2118' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa31' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:136$77'.
+  created $dff cell `$procdff$2119' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa02' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:135$74'.
+  created $dff cell `$procdff$2120' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa12' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:134$71'.
+  created $dff cell `$procdff$2121' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa22' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:133$68'.
+  created $dff cell `$procdff$2122' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa32' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:132$65'.
+  created $dff cell `$procdff$2123' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa03' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:131$62'.
+  created $dff cell `$procdff$2124' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa13' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:130$59'.
+  created $dff cell `$procdff$2125' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa23' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:129$56'.
+  created $dff cell `$procdff$2126' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\sa33' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:128$53'.
+  created $dff cell `$procdff$2127' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\ld_r' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:121$52'.
+  created $dff cell `$procdff$2128' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\text_in_r' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:120$51'.
+  created $dff cell `$procdff$2129' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\done' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:119$45'.
+  created $dff cell `$procdff$2130' with positive edge clock.
+Creating register for signal `\aes_cipher_top.\dcnt' using process `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:112$41'.
+  created $dff cell `$procdff$2131' with positive edge clock.
+
+8.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+8.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:85$2036'.
+Removing empty process `aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:84$2030'.
+Removing empty process `aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:83$2025'.
+Removing empty process `aes_key_expand_128.$proc$/work/rtl/aes_key_expand_128.v:82$2021'.
+Found and cleaned up 1 empty switch in `\aes_sbox.$proc$/work/rtl/aes_sbox.v:64$2052'.
+Removing empty process `aes_sbox.$proc$/work/rtl/aes_sbox.v:64$2052'.
+Found and cleaned up 1 empty switch in `\aes_rcon.$proc$/work/rtl/aes_rcon.v:81$2051'.
+Removing empty process `aes_rcon.$proc$/work/rtl/aes_rcon.v:81$2051'.
+Found and cleaned up 2 empty switches in `\aes_rcon.$proc$/work/rtl/aes_rcon.v:76$2044'.
+Removing empty process `aes_rcon.$proc$/work/rtl/aes_rcon.v:76$2044'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$314'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$259'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$204'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:0$149'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:207$147'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:206$145'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:205$143'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:204$141'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:203$139'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:202$137'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:201$135'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:200$133'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:199$131'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:198$129'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:197$127'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:196$125'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:195$123'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:194$121'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:193$119'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:192$117'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:143$98'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:142$95'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:141$92'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:140$89'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:139$86'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:138$83'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:137$80'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:136$77'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:135$74'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:134$71'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:133$68'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:132$65'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:131$62'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:130$59'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:129$56'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:128$53'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:121$52'.
+Found and cleaned up 1 empty switch in `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:120$51'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:120$51'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:119$45'.
+Found and cleaned up 3 empty switches in `\aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:112$41'.
+Removing empty process `aes_cipher_top.$proc$/work/rtl/aes_cipher_top.v:112$41'.
+Cleaned up 8 empty switches.
+
+8.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_key_expand_128.
+Optimizing module aes_sbox.
+Optimizing module aes_rcon.
+Optimizing module aes_cipher_top.
+<suppressed ~33 debug messages>
+
+8.3. Executing FLATTEN pass (flatten design).
+Deleting now unused module aes_key_expand_128.
+Deleting now unused module aes_sbox.
+Deleting now unused module aes_rcon.
+<suppressed ~22 debug messages>
+
+8.4. Executing FUTURE pass.
+
+8.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+Removed 5 unused cells and 330 unused wires.
+<suppressed ~23 debug messages>
+
+8.7. Executing CHECK pass (checking for obvious problems).
+Checking module aes_cipher_top...
+Found and reported 0 problems.
+
+8.8. Executing OPT pass (performing simple optimizations).
+
+8.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+8.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+<suppressed ~48 debug messages>
+Removed a total of 16 cells.
+
+8.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \aes_cipher_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+    dead port 1/2 on $mux $flatten\u0.\r0.$procmux$2067.
+Removed 1 multiplexer ports.
+<suppressed ~24 debug messages>
+
+8.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \aes_cipher_top.
+Performed a total of 0 changes.
+
+8.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+Removed a total of 0 cells.
+
+8.8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+Removed 0 unused cells and 17 unused wires.
+<suppressed ~1 debug messages>
+
+8.8.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+8.8.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+8.8.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \aes_cipher_top..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~24 debug messages>
+
+8.8.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \aes_cipher_top.
+Performed a total of 0 changes.
+
+8.8.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+Removed a total of 0 cells.
+
+8.8.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+
+8.8.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+8.8.14. Finished OPT passes. (There is nothing left to do.)
+
+8.9. Executing WREDUCE pass (reducing word size of cells).
+Removed top 28 address bits (of 32) from memory init port aes_cipher_top.$flatten\u0.\r0.$auto$mem.cc:328:emit$2060 ($flatten\u0.\r0.$auto$proc_rom.cc:155:do_switch$2058).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\u0.\u0.$auto$mem.cc:328:emit$2056 ($flatten\u0.\u0.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\u0.\u1.$auto$mem.cc:328:emit$2056 ($flatten\u0.\u1.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\u0.\u2.$auto$mem.cc:328:emit$2056 ($flatten\u0.\u2.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\u0.\u3.$auto$mem.cc:328:emit$2056 ($flatten\u0.\u3.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us00.$auto$mem.cc:328:emit$2056 ($flatten\us00.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us01.$auto$mem.cc:328:emit$2056 ($flatten\us01.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us02.$auto$mem.cc:328:emit$2056 ($flatten\us02.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us03.$auto$mem.cc:328:emit$2056 ($flatten\us03.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us10.$auto$mem.cc:328:emit$2056 ($flatten\us10.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us11.$auto$mem.cc:328:emit$2056 ($flatten\us11.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us12.$auto$mem.cc:328:emit$2056 ($flatten\us12.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us13.$auto$mem.cc:328:emit$2056 ($flatten\us13.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us20.$auto$mem.cc:328:emit$2056 ($flatten\us20.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us21.$auto$mem.cc:328:emit$2056 ($flatten\us21.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us22.$auto$mem.cc:328:emit$2056 ($flatten\us22.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us23.$auto$mem.cc:328:emit$2056 ($flatten\us23.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us30.$auto$mem.cc:328:emit$2056 ($flatten\us30.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us31.$auto$mem.cc:328:emit$2056 ($flatten\us31.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us32.$auto$mem.cc:328:emit$2056 ($flatten\us32.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 24 address bits (of 32) from memory init port aes_cipher_top.$flatten\us33.$auto$mem.cc:328:emit$2056 ($flatten\us33.$auto$proc_rom.cc:155:do_switch$2054).
+Removed top 3 bits (of 4) from port B of cell aes_cipher_top.$sub$/work/rtl/aes_cipher_top.v:117$44 ($sub).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$173 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$175 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$183 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$191 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$228 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$230 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$238 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$246 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$283 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$285 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$293 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$301 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$338 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$340 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$348 ($xor).
+Removed top 3 bits (of 8) from port B of cell aes_cipher_top.$xor$/work/rtl/aes_cipher_top.v:226$356 ($xor).
+Removed top 3 bits (of 4) from port B of cell aes_cipher_top.$flatten\u0.\r0.$add$/work/rtl/aes_rcon.v:80$2050 ($add).
+
+8.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+
+8.11. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+8.12. Executing OPT pass (performing simple optimizations).
+
+8.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+8.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+Removed a total of 0 cells.
+
+8.12.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+
+8.12.4. Finished fast OPT passes.
+
+8.13. Printing statistics.
+
+=== aes_cipher_top ===
+
+   Number of wires:                345
+   Number of wire bits:           4207
+   Number of public wires:         201
+   Number of public wire bits:    2517
+   Number of ports:                  7
+   Number of port bits:            388
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                261
+     $add                            1
+     $and                            2
+     $dff                           42
+     $logic_not                      2
+     $mem_v2                        21
+     $mux                           26
+     $reduce_or                      2
+     $scopeinfo                     22
+     $sub                            1
+     $xor                          142
+
+8.14. Executing CHECK pass (checking for obvious problems).
+Checking module aes_cipher_top...
+Found and reported 0 problems.
+
+9. Executing Liberty frontend: /work/cells.lib
+Ignoring cell sky130_fd_sc_hd__dlclkp_1 with missing function on output GCLK.
+Ignoring cell sky130_fd_sc_hd__dlclkp_2 with missing function on output GCLK.
+Ignoring cell sky130_fd_sc_hd__dlclkp_4 with missing function on output GCLK.
+Ignoring cell sky130_fd_sc_hd__sdlclkp_1 with missing function on output GCLK.
+Ignoring cell sky130_fd_sc_hd__sdlclkp_2 with missing function on output GCLK.
+Ignoring cell sky130_fd_sc_hd__sdlclkp_4 with missing function on output GCLK.
+Imported 422 cell types from liberty file.
+
+10. Executing Verilog-2005 frontend: /work/gate.v
+Parsing Verilog input from `/work/gate.v' to AST representation.
+Generating RTLIL representation for module `\aes_cipher_top'.
+Successfully finished Verilog frontend.
+
+11. Executing PREP pass.
+
+11.1. Executing HIERARCHY pass (managing design hierarchy).
+
+11.1.1. Analyzing design hierarchy..
+Top module:  \aes_cipher_top
+Used module:     \sky130_fd_sc_hd__dfxtp_2
+Used module:     \sky130_fd_sc_hd__and4b_2
+Used module:     \sky130_fd_sc_hd__a21oi_2
+Used module:     \sky130_fd_sc_hd__or4b_2
+Used module:     \sky130_fd_sc_hd__or4_2
+Used module:     \sky130_fd_sc_hd__or3_2
+Used module:     \sky130_fd_sc_hd__a31o_2
+Used module:     \sky130_fd_sc_hd__nand4_2
+Used module:     \sky130_fd_sc_hd__nand3_2
+Used module:     \sky130_fd_sc_hd__nor2_2
+Used module:     \sky130_fd_sc_hd__o21ai_2
+Used module:     \sky130_fd_sc_hd__o211a_2
+Used module:     \sky130_fd_sc_hd__and3b_2
+Used module:     \sky130_fd_sc_hd__o21a_2
+Used module:     \sky130_fd_sc_hd__o311a_2
+Used module:     \sky130_fd_sc_hd__a21o_2
+Used module:     \sky130_fd_sc_hd__nand2_2
+Used module:     \sky130_fd_sc_hd__mux2_1
+Used module:     \sky130_fd_sc_hd__xor2_2
+Used module:     \sky130_fd_sc_hd__a22oi_2
+Used module:     \sky130_fd_sc_hd__a31oi_2
+Used module:     \sky130_fd_sc_hd__o211ai_2
+Used module:     \sky130_fd_sc_hd__o2bb2ai_2
+Used module:     \sky130_fd_sc_hd__o221ai_2
+Used module:     \sky130_fd_sc_hd__a22o_2
+Used module:     \sky130_fd_sc_hd__o32a_2
+Used module:     \sky130_fd_sc_hd__o22a_2
+Used module:     \sky130_fd_sc_hd__a41o_2
+Used module:     \sky130_fd_sc_hd__o22ai_2
+Used module:     \sky130_fd_sc_hd__o2111ai_2
+Used module:     \sky130_fd_sc_hd__o31ai_2
+Used module:     \sky130_fd_sc_hd__a221o_2
+Used module:     \sky130_fd_sc_hd__and4_2
+Used module:     \sky130_fd_sc_hd__a221oi_2
+Used module:     \sky130_fd_sc_hd__nand3b_2
+Used module:     \sky130_fd_sc_hd__o31a_2
+Used module:     \sky130_fd_sc_hd__a311o_2
+Used module:     \sky130_fd_sc_hd__o2111a_2
+Used module:     \sky130_fd_sc_hd__a211oi_2
+Used module:     \sky130_fd_sc_hd__and3_2
+Used module:     \sky130_fd_sc_hd__a32oi_2
+Used module:     \sky130_fd_sc_hd__a211o_2
+Used module:     \sky130_fd_sc_hd__a2bb2oi_2
+Used module:     \sky130_fd_sc_hd__a41oi_2
+Used module:     \sky130_fd_sc_hd__o32ai_2
+Used module:     \sky130_fd_sc_hd__o221a_2
+Used module:     \sky130_fd_sc_hd__o311ai_2
+Used module:     \sky130_fd_sc_hd__a32o_2
+Used module:     \sky130_fd_sc_hd__a311oi_2
+Used module:     \sky130_fd_sc_hd__o2bb2a_2
+Used module:     \sky130_fd_sc_hd__nand2b_2
+Used module:     \sky130_fd_sc_hd__or2_2
+Used module:     \sky130_fd_sc_hd__xnor2_2
+Used module:     \sky130_fd_sc_hd__o21bai_2
+Used module:     \sky130_fd_sc_hd__o21ba_2
+Used module:     \sky130_fd_sc_hd__and2_2
+Used module:     \sky130_fd_sc_hd__and2b_2
+Used module:     \sky130_fd_sc_hd__nor3_2
+Used module:     \sky130_fd_sc_hd__a21boi_2
+Used module:     \sky130_fd_sc_hd__nand4b_2
+Used module:     \sky130_fd_sc_hd__o41a_2
+Used module:     \sky130_fd_sc_hd__a2bb2o_2
+Used module:     \sky130_fd_sc_hd__inv_2
+Used module:     \sky130_fd_sc_hd__a21bo_2
+Used module:     \sky130_fd_sc_hd__a2111oi_2
+Used module:     \sky130_fd_sc_hd__nor3b_2
+Used module:     \sky130_fd_sc_hd__or3b_2
+Used module:     \sky130_fd_sc_hd__a2111o_2
+Used module:     \sky130_fd_sc_hd__mux4_2
+
+11.1.2. Analyzing design hierarchy..
+Top module:  \aes_cipher_top
+Used module:     \sky130_fd_sc_hd__dfxtp_2
+Used module:     \sky130_fd_sc_hd__and4b_2
+Used module:     \sky130_fd_sc_hd__a21oi_2
+Used module:     \sky130_fd_sc_hd__or4b_2
+Used module:     \sky130_fd_sc_hd__or4_2
+Used module:     \sky130_fd_sc_hd__or3_2
+Used module:     \sky130_fd_sc_hd__a31o_2
+Used module:     \sky130_fd_sc_hd__nand4_2
+Used module:     \sky130_fd_sc_hd__nand3_2
+Used module:     \sky130_fd_sc_hd__nor2_2
+Used module:     \sky130_fd_sc_hd__o21ai_2
+Used module:     \sky130_fd_sc_hd__o211a_2
+Used module:     \sky130_fd_sc_hd__and3b_2
+Used module:     \sky130_fd_sc_hd__o21a_2
+Used module:     \sky130_fd_sc_hd__o311a_2
+Used module:     \sky130_fd_sc_hd__a21o_2
+Used module:     \sky130_fd_sc_hd__nand2_2
+Used module:     \sky130_fd_sc_hd__mux2_1
+Used module:     \sky130_fd_sc_hd__xor2_2
+Used module:     \sky130_fd_sc_hd__a22oi_2
+Used module:     \sky130_fd_sc_hd__a31oi_2
+Used module:     \sky130_fd_sc_hd__o211ai_2
+Used module:     \sky130_fd_sc_hd__o2bb2ai_2
+Used module:     \sky130_fd_sc_hd__o221ai_2
+Used module:     \sky130_fd_sc_hd__a22o_2
+Used module:     \sky130_fd_sc_hd__o32a_2
+Used module:     \sky130_fd_sc_hd__o22a_2
+Used module:     \sky130_fd_sc_hd__a41o_2
+Used module:     \sky130_fd_sc_hd__o22ai_2
+Used module:     \sky130_fd_sc_hd__o2111ai_2
+Used module:     \sky130_fd_sc_hd__o31ai_2
+Used module:     \sky130_fd_sc_hd__a221o_2
+Used module:     \sky130_fd_sc_hd__and4_2
+Used module:     \sky130_fd_sc_hd__a221oi_2
+Used module:     \sky130_fd_sc_hd__nand3b_2
+Used module:     \sky130_fd_sc_hd__o31a_2
+Used module:     \sky130_fd_sc_hd__a311o_2
+Used module:     \sky130_fd_sc_hd__o2111a_2
+Used module:     \sky130_fd_sc_hd__a211oi_2
+Used module:     \sky130_fd_sc_hd__and3_2
+Used module:     \sky130_fd_sc_hd__a32oi_2
+Used module:     \sky130_fd_sc_hd__a211o_2
+Used module:     \sky130_fd_sc_hd__a2bb2oi_2
+Used module:     \sky130_fd_sc_hd__a41oi_2
+Used module:     \sky130_fd_sc_hd__o32ai_2
+Used module:     \sky130_fd_sc_hd__o221a_2
+Used module:     \sky130_fd_sc_hd__o311ai_2
+Used module:     \sky130_fd_sc_hd__a32o_2
+Used module:     \sky130_fd_sc_hd__a311oi_2
+Used module:     \sky130_fd_sc_hd__o2bb2a_2
+Used module:     \sky130_fd_sc_hd__nand2b_2
+Used module:     \sky130_fd_sc_hd__or2_2
+Used module:     \sky130_fd_sc_hd__xnor2_2
+Used module:     \sky130_fd_sc_hd__o21bai_2
+Used module:     \sky130_fd_sc_hd__o21ba_2
+Used module:     \sky130_fd_sc_hd__and2_2
+Used module:     \sky130_fd_sc_hd__and2b_2
+Used module:     \sky130_fd_sc_hd__nor3_2
+Used module:     \sky130_fd_sc_hd__a21boi_2
+Used module:     \sky130_fd_sc_hd__nand4b_2
+Used module:     \sky130_fd_sc_hd__o41a_2
+Used module:     \sky130_fd_sc_hd__a2bb2o_2
+Used module:     \sky130_fd_sc_hd__inv_2
+Used module:     \sky130_fd_sc_hd__a21bo_2
+Used module:     \sky130_fd_sc_hd__a2111oi_2
+Used module:     \sky130_fd_sc_hd__nor3b_2
+Used module:     \sky130_fd_sc_hd__or3b_2
+Used module:     \sky130_fd_sc_hd__a2111o_2
+Used module:     \sky130_fd_sc_hd__mux4_2
+Removing unused module `\sky130_fd_sc_hd__xor3_4'.
+Removing unused module `\sky130_fd_sc_hd__xor3_2'.
+Removing unused module `\sky130_fd_sc_hd__xor3_1'.
+Removing unused module `\sky130_fd_sc_hd__xor2_4'.
+Removing unused module `\sky130_fd_sc_hd__xor2_1'.
+Removing unused module `\sky130_fd_sc_hd__xnor3_4'.
+Removing unused module `\sky130_fd_sc_hd__xnor3_2'.
+Removing unused module `\sky130_fd_sc_hd__xnor3_1'.
+Removing unused module `\sky130_fd_sc_hd__xnor2_4'.
+Removing unused module `\sky130_fd_sc_hd__xnor2_1'.
+Removing unused module `\sky130_fd_sc_hd__sedfxtp_4'.
+Removing unused module `\sky130_fd_sc_hd__sedfxtp_2'.
+Removing unused module `\sky130_fd_sc_hd__sedfxtp_1'.
+Removing unused module `\sky130_fd_sc_hd__sedfxbp_2'.
+Removing unused module `\sky130_fd_sc_hd__sedfxbp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfxtp_4'.
+Removing unused module `\sky130_fd_sc_hd__sdfxtp_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfxtp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfxbp_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfxbp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfstp_4'.
+Removing unused module `\sky130_fd_sc_hd__sdfstp_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfstp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfsbp_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfsbp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfrtp_4'.
+Removing unused module `\sky130_fd_sc_hd__sdfrtp_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfrtp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfrtn_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfrbp_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfrbp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfbbp_1'.
+Removing unused module `\sky130_fd_sc_hd__sdfbbn_2'.
+Removing unused module `\sky130_fd_sc_hd__sdfbbn_1'.
+Removing unused module `\sky130_fd_sc_hd__probec_p_8'.
+Removing unused module `\sky130_fd_sc_hd__probe_p_8'.
+Removing unused module `\sky130_fd_sc_hd__or4bb_4'.
+Removing unused module `\sky130_fd_sc_hd__or4bb_2'.
+Removing unused module `\sky130_fd_sc_hd__or4bb_1'.
+Removing unused module `\sky130_fd_sc_hd__or4b_4'.
+Removing unused module `\sky130_fd_sc_hd__or4b_1'.
+Removing unused module `\sky130_fd_sc_hd__or4_4'.
+Removing unused module `\sky130_fd_sc_hd__or4_1'.
+Removing unused module `\sky130_fd_sc_hd__or3b_4'.
+Removing unused module `\sky130_fd_sc_hd__or3b_1'.
+Removing unused module `\sky130_fd_sc_hd__or3_4'.
+Removing unused module `\sky130_fd_sc_hd__or3_1'.
+Removing unused module `\sky130_fd_sc_hd__or2b_4'.
+Removing unused module `\sky130_fd_sc_hd__or2b_2'.
+Removing unused module `\sky130_fd_sc_hd__or2b_1'.
+Removing unused module `\sky130_fd_sc_hd__or2_4'.
+Removing unused module `\sky130_fd_sc_hd__or2_1'.
+Removing unused module `\sky130_fd_sc_hd__or2_0'.
+Removing unused module `\sky130_fd_sc_hd__o41ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o41ai_2'.
+Removing unused module `\sky130_fd_sc_hd__o41ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o41a_4'.
+Removing unused module `\sky130_fd_sc_hd__o41a_1'.
+Removing unused module `\sky130_fd_sc_hd__o32ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o32ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o32a_4'.
+Removing unused module `\sky130_fd_sc_hd__o32a_1'.
+Removing unused module `\sky130_fd_sc_hd__o31ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o31ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o31a_4'.
+Removing unused module `\sky130_fd_sc_hd__o31a_1'.
+Removing unused module `\sky130_fd_sc_hd__o311ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o311ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o311ai_0'.
+Removing unused module `\sky130_fd_sc_hd__o311a_4'.
+Removing unused module `\sky130_fd_sc_hd__o311a_1'.
+Removing unused module `\sky130_fd_sc_hd__o2bb2ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o2bb2ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o2bb2a_4'.
+Removing unused module `\sky130_fd_sc_hd__o2bb2a_1'.
+Removing unused module `\sky130_fd_sc_hd__o22ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o22ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o22a_4'.
+Removing unused module `\sky130_fd_sc_hd__o22a_1'.
+Removing unused module `\sky130_fd_sc_hd__o221ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o221ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o221a_4'.
+Removing unused module `\sky130_fd_sc_hd__o221a_1'.
+Removing unused module `\sky130_fd_sc_hd__o21bai_4'.
+Removing unused module `\sky130_fd_sc_hd__o21bai_1'.
+Removing unused module `\sky130_fd_sc_hd__o21ba_4'.
+Removing unused module `\sky130_fd_sc_hd__o21ba_1'.
+Removing unused module `\sky130_fd_sc_hd__o21ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o21ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o21ai_0'.
+Removing unused module `\sky130_fd_sc_hd__o21a_4'.
+Removing unused module `\sky130_fd_sc_hd__o21a_1'.
+Removing unused module `\sky130_fd_sc_hd__o211ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o211ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o211a_4'.
+Removing unused module `\sky130_fd_sc_hd__o211a_1'.
+Removing unused module `\sky130_fd_sc_hd__o2111ai_4'.
+Removing unused module `\sky130_fd_sc_hd__o2111ai_1'.
+Removing unused module `\sky130_fd_sc_hd__o2111a_4'.
+Removing unused module `\sky130_fd_sc_hd__o2111a_1'.
+Removing unused module `\sky130_fd_sc_hd__nor4bb_4'.
+Removing unused module `\sky130_fd_sc_hd__nor4bb_2'.
+Removing unused module `\sky130_fd_sc_hd__nor4bb_1'.
+Removing unused module `\sky130_fd_sc_hd__nor4b_4'.
+Removing unused module `\sky130_fd_sc_hd__nor4b_2'.
+Removing unused module `\sky130_fd_sc_hd__nor4b_1'.
+Removing unused module `\sky130_fd_sc_hd__nor4_4'.
+Removing unused module `\sky130_fd_sc_hd__nor4_2'.
+Removing unused module `\sky130_fd_sc_hd__nor4_1'.
+Removing unused module `\sky130_fd_sc_hd__nor3b_4'.
+Removing unused module `\sky130_fd_sc_hd__nor3b_1'.
+Removing unused module `\sky130_fd_sc_hd__nor3_4'.
+Removing unused module `\sky130_fd_sc_hd__nor3_1'.
+Removing unused module `\sky130_fd_sc_hd__nor2b_4'.
+Removing unused module `\sky130_fd_sc_hd__nor2b_2'.
+Removing unused module `\sky130_fd_sc_hd__nor2b_1'.
+Removing unused module `\sky130_fd_sc_hd__nor2_8'.
+Removing unused module `\sky130_fd_sc_hd__nor2_4'.
+Removing unused module `\sky130_fd_sc_hd__nor2_1'.
+Removing unused module `\sky130_fd_sc_hd__nand4bb_4'.
+Removing unused module `\sky130_fd_sc_hd__nand4bb_2'.
+Removing unused module `\sky130_fd_sc_hd__nand4bb_1'.
+Removing unused module `\sky130_fd_sc_hd__nand4b_4'.
+Removing unused module `\sky130_fd_sc_hd__nand4b_1'.
+Removing unused module `\sky130_fd_sc_hd__nand4_4'.
+Removing unused module `\sky130_fd_sc_hd__nand4_1'.
+Removing unused module `\sky130_fd_sc_hd__nand3b_4'.
+Removing unused module `\sky130_fd_sc_hd__nand3b_1'.
+Removing unused module `\sky130_fd_sc_hd__nand3_4'.
+Removing unused module `\sky130_fd_sc_hd__nand3_1'.
+Removing unused module `\sky130_fd_sc_hd__nand2b_4'.
+Removing unused module `\sky130_fd_sc_hd__nand2b_1'.
+Removing unused module `\sky130_fd_sc_hd__nand2_8'.
+Removing unused module `\sky130_fd_sc_hd__nand2_4'.
+Removing unused module `\sky130_fd_sc_hd__nand2_1'.
+Removing unused module `\sky130_fd_sc_hd__mux4_4'.
+Removing unused module `\sky130_fd_sc_hd__mux4_1'.
+Removing unused module `\sky130_fd_sc_hd__mux2i_4'.
+Removing unused module `\sky130_fd_sc_hd__mux2i_2'.
+Removing unused module `\sky130_fd_sc_hd__mux2i_1'.
+Removing unused module `\sky130_fd_sc_hd__mux2_8'.
+Removing unused module `\sky130_fd_sc_hd__mux2_4'.
+Removing unused module `\sky130_fd_sc_hd__mux2_2'.
+Removing unused module `\sky130_fd_sc_hd__maj3_4'.
+Removing unused module `\sky130_fd_sc_hd__maj3_2'.
+Removing unused module `\sky130_fd_sc_hd__maj3_1'.
+Removing unused module `\sky130_fd_sc_hd__macro_sparecell'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_2'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_2'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_isobufsrckapwr_16'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_isobufsrc_8'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_isobufsrc_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_isobufsrc_2'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_isobufsrc_16'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_isobufsrc_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_inputisolatch_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_inputiso1p_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_inputiso1n_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_inputiso0p_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_inputiso0n_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_decapkapwr_8'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_decapkapwr_6'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_decapkapwr_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_decapkapwr_3'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_decapkapwr_12'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkinvkapwr_8'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkinvkapwr_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkinvkapwr_2'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkinvkapwr_16'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkinvkapwr_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkbufkapwr_8'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkbufkapwr_4'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkbufkapwr_2'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkbufkapwr_16'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_clkbufkapwr_1'.
+Removing unused module `\sky130_fd_sc_hd__lpflow_bleeder_1'.
+Removing unused module `\sky130_fd_sc_hd__inv_8'.
+Removing unused module `\sky130_fd_sc_hd__inv_6'.
+Removing unused module `\sky130_fd_sc_hd__inv_4'.
+Removing unused module `\sky130_fd_sc_hd__inv_16'.
+Removing unused module `\sky130_fd_sc_hd__inv_12'.
+Removing unused module `\sky130_fd_sc_hd__inv_1'.
+Removing unused module `\sky130_fd_sc_hd__ha_4'.
+Removing unused module `\sky130_fd_sc_hd__ha_2'.
+Removing unused module `\sky130_fd_sc_hd__ha_1'.
+Removing unused module `\sky130_fd_sc_hd__fahcon_1'.
+Removing unused module `\sky130_fd_sc_hd__fahcin_1'.
+Removing unused module `\sky130_fd_sc_hd__fah_1'.
+Removing unused module `\sky130_fd_sc_hd__fa_4'.
+Removing unused module `\sky130_fd_sc_hd__fa_2'.
+Removing unused module `\sky130_fd_sc_hd__fa_1'.
+Removing unused module `\sky130_fd_sc_hd__einvp_8'.
+Removing unused module `\sky130_fd_sc_hd__einvp_4'.
+Removing unused module `\sky130_fd_sc_hd__einvp_2'.
+Removing unused module `\sky130_fd_sc_hd__einvp_1'.
+Removing unused module `\sky130_fd_sc_hd__einvn_8'.
+Removing unused module `\sky130_fd_sc_hd__einvn_4'.
+Removing unused module `\sky130_fd_sc_hd__einvn_2'.
+Removing unused module `\sky130_fd_sc_hd__einvn_1'.
+Removing unused module `\sky130_fd_sc_hd__einvn_0'.
+Removing unused module `\sky130_fd_sc_hd__edfxtp_1'.
+Removing unused module `\sky130_fd_sc_hd__edfxbp_1'.
+Removing unused module `\sky130_fd_sc_hd__ebufn_8'.
+Removing unused module `\sky130_fd_sc_hd__ebufn_4'.
+Removing unused module `\sky130_fd_sc_hd__ebufn_2'.
+Removing unused module `\sky130_fd_sc_hd__ebufn_1'.
+Removing unused module `\sky130_fd_sc_hd__dlymetal6s6s_1'.
+Removing unused module `\sky130_fd_sc_hd__dlymetal6s4s_1'.
+Removing unused module `\sky130_fd_sc_hd__dlymetal6s2s_1'.
+Removing unused module `\sky130_fd_sc_hd__dlygate4sd3_1'.
+Removing unused module `\sky130_fd_sc_hd__dlygate4sd2_1'.
+Removing unused module `\sky130_fd_sc_hd__dlygate4sd1_1'.
+Removing unused module `\sky130_fd_sc_hd__dlxtp_1'.
+Removing unused module `\sky130_fd_sc_hd__dlxtn_4'.
+Removing unused module `\sky130_fd_sc_hd__dlxtn_2'.
+Removing unused module `\sky130_fd_sc_hd__dlxtn_1'.
+Removing unused module `\sky130_fd_sc_hd__dlxbp_1'.
+Removing unused module `\sky130_fd_sc_hd__dlxbn_2'.
+Removing unused module `\sky130_fd_sc_hd__dlxbn_1'.
+Removing unused module `\sky130_fd_sc_hd__dlrtp_4'.
+Removing unused module `\sky130_fd_sc_hd__dlrtp_2'.
+Removing unused module `\sky130_fd_sc_hd__dlrtp_1'.
+Removing unused module `\sky130_fd_sc_hd__dlrtn_4'.
+Removing unused module `\sky130_fd_sc_hd__dlrtn_2'.
+Removing unused module `\sky130_fd_sc_hd__dlrtn_1'.
+Removing unused module `\sky130_fd_sc_hd__dlrbp_2'.
+Removing unused module `\sky130_fd_sc_hd__dlrbp_1'.
+Removing unused module `\sky130_fd_sc_hd__dlrbn_2'.
+Removing unused module `\sky130_fd_sc_hd__dlrbn_1'.
+Removing unused module `\sky130_fd_sc_hd__diode_2'.
+Removing unused module `\sky130_fd_sc_hd__dfxtp_4'.
+Removing unused module `\sky130_fd_sc_hd__dfxtp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfxbp_2'.
+Removing unused module `\sky130_fd_sc_hd__dfxbp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfstp_4'.
+Removing unused module `\sky130_fd_sc_hd__dfstp_2'.
+Removing unused module `\sky130_fd_sc_hd__dfstp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfsbp_2'.
+Removing unused module `\sky130_fd_sc_hd__dfsbp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfrtp_4'.
+Removing unused module `\sky130_fd_sc_hd__dfrtp_2'.
+Removing unused module `\sky130_fd_sc_hd__dfrtp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfrtn_1'.
+Removing unused module `\sky130_fd_sc_hd__dfrbp_2'.
+Removing unused module `\sky130_fd_sc_hd__dfrbp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfbbp_1'.
+Removing unused module `\sky130_fd_sc_hd__dfbbn_2'.
+Removing unused module `\sky130_fd_sc_hd__dfbbn_1'.
+Removing unused module `\sky130_fd_sc_hd__decap_8'.
+Removing unused module `\sky130_fd_sc_hd__decap_6'.
+Removing unused module `\sky130_fd_sc_hd__decap_4'.
+Removing unused module `\sky130_fd_sc_hd__decap_3'.
+Removing unused module `\sky130_fd_sc_hd__decap_12'.
+Removing unused module `\sky130_fd_sc_hd__conb_1'.
+Removing unused module `\sky130_fd_sc_hd__clkinvlp_4'.
+Removing unused module `\sky130_fd_sc_hd__clkinvlp_2'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_8'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_4'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_2'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_16'.
+Removing unused module `\sky130_fd_sc_hd__clkinv_1'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s50_2'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s50_1'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s25_2'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s25_1'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s18_2'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s18_1'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s15_2'.
+Removing unused module `\sky130_fd_sc_hd__clkdlybuf4s15_1'.
+Removing unused module `\sky130_fd_sc_hd__clkbuf_8'.
+Removing unused module `\sky130_fd_sc_hd__clkbuf_4'.
+Removing unused module `\sky130_fd_sc_hd__clkbuf_2'.
+Removing unused module `\sky130_fd_sc_hd__clkbuf_16'.
+Removing unused module `\sky130_fd_sc_hd__clkbuf_1'.
+Removing unused module `\sky130_fd_sc_hd__bufinv_8'.
+Removing unused module `\sky130_fd_sc_hd__bufinv_16'.
+Removing unused module `\sky130_fd_sc_hd__bufbuf_8'.
+Removing unused module `\sky130_fd_sc_hd__bufbuf_16'.
+Removing unused module `\sky130_fd_sc_hd__buf_8'.
+Removing unused module `\sky130_fd_sc_hd__buf_6'.
+Removing unused module `\sky130_fd_sc_hd__buf_4'.
+Removing unused module `\sky130_fd_sc_hd__buf_2'.
+Removing unused module `\sky130_fd_sc_hd__buf_16'.
+Removing unused module `\sky130_fd_sc_hd__buf_12'.
+Removing unused module `\sky130_fd_sc_hd__buf_1'.
+Removing unused module `\sky130_fd_sc_hd__and4bb_4'.
+Removing unused module `\sky130_fd_sc_hd__and4bb_2'.
+Removing unused module `\sky130_fd_sc_hd__and4bb_1'.
+Removing unused module `\sky130_fd_sc_hd__and4b_4'.
+Removing unused module `\sky130_fd_sc_hd__and4b_1'.
+Removing unused module `\sky130_fd_sc_hd__and4_4'.
+Removing unused module `\sky130_fd_sc_hd__and4_1'.
+Removing unused module `\sky130_fd_sc_hd__and3b_4'.
+Removing unused module `\sky130_fd_sc_hd__and3b_1'.
+Removing unused module `\sky130_fd_sc_hd__and3_4'.
+Removing unused module `\sky130_fd_sc_hd__and3_1'.
+Removing unused module `\sky130_fd_sc_hd__and2b_4'.
+Removing unused module `\sky130_fd_sc_hd__and2b_1'.
+Removing unused module `\sky130_fd_sc_hd__and2_4'.
+Removing unused module `\sky130_fd_sc_hd__and2_1'.
+Removing unused module `\sky130_fd_sc_hd__and2_0'.
+Removing unused module `\sky130_fd_sc_hd__a41oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a41oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a41o_4'.
+Removing unused module `\sky130_fd_sc_hd__a41o_1'.
+Removing unused module `\sky130_fd_sc_hd__a32oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a32oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a32o_4'.
+Removing unused module `\sky130_fd_sc_hd__a32o_1'.
+Removing unused module `\sky130_fd_sc_hd__a31oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a31oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a31o_4'.
+Removing unused module `\sky130_fd_sc_hd__a31o_1'.
+Removing unused module `\sky130_fd_sc_hd__a311oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a311oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a311o_4'.
+Removing unused module `\sky130_fd_sc_hd__a311o_1'.
+Removing unused module `\sky130_fd_sc_hd__a2bb2oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a2bb2oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a2bb2o_4'.
+Removing unused module `\sky130_fd_sc_hd__a2bb2o_1'.
+Removing unused module `\sky130_fd_sc_hd__a22oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a22oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a22o_4'.
+Removing unused module `\sky130_fd_sc_hd__a22o_1'.
+Removing unused module `\sky130_fd_sc_hd__a222oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a221oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a221oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a221o_4'.
+Removing unused module `\sky130_fd_sc_hd__a221o_1'.
+Removing unused module `\sky130_fd_sc_hd__a21oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a21oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a21o_4'.
+Removing unused module `\sky130_fd_sc_hd__a21o_1'.
+Removing unused module `\sky130_fd_sc_hd__a21boi_4'.
+Removing unused module `\sky130_fd_sc_hd__a21boi_1'.
+Removing unused module `\sky130_fd_sc_hd__a21boi_0'.
+Removing unused module `\sky130_fd_sc_hd__a21bo_4'.
+Removing unused module `\sky130_fd_sc_hd__a21bo_1'.
+Removing unused module `\sky130_fd_sc_hd__a211oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a211oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a211o_4'.
+Removing unused module `\sky130_fd_sc_hd__a211o_1'.
+Removing unused module `\sky130_fd_sc_hd__a2111oi_4'.
+Removing unused module `\sky130_fd_sc_hd__a2111oi_1'.
+Removing unused module `\sky130_fd_sc_hd__a2111oi_0'.
+Removing unused module `\sky130_fd_sc_hd__a2111o_4'.
+Removing unused module `\sky130_fd_sc_hd__a2111o_1'.
+Removed 353 unused modules.
+
+11.2. Executing PROC pass (convert processes to netlists).
+
+11.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+11.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+11.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+11.2.4. Executing PROC_INIT pass (extract init attributes).
+
+11.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+11.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+
+11.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+11.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+11.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+
+11.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+11.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+11.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module sky130_fd_sc_hd__mux2_1.
+Optimizing module sky130_fd_sc_hd__or4_2.
+Optimizing module sky130_fd_sc_hd__a41oi_2.
+Optimizing module sky130_fd_sc_hd__inv_2.
+Optimizing module sky130_fd_sc_hd__xor2_2.
+Optimizing module sky130_fd_sc_hd__a41o_2.
+Optimizing module sky130_fd_sc_hd__o2bb2a_2.
+Optimizing module sky130_fd_sc_hd__o21a_2.
+Optimizing module sky130_fd_sc_hd__a32oi_2.
+Optimizing module sky130_fd_sc_hd__o31ai_2.
+Optimizing module sky130_fd_sc_hd__or4b_2.
+Optimizing module sky130_fd_sc_hd__a32o_2.
+Optimizing module sky130_fd_sc_hd__nor2_2.
+Optimizing module sky130_fd_sc_hd__o211ai_2.
+Optimizing module sky130_fd_sc_hd__a31oi_2.
+Optimizing module sky130_fd_sc_hd__o22ai_2.
+Optimizing module sky130_fd_sc_hd__or3b_2.
+Optimizing module sky130_fd_sc_hd__a31o_2.
+Optimizing module sky130_fd_sc_hd__o211a_2.
+Optimizing module sky130_fd_sc_hd__o31a_2.
+Optimizing module sky130_fd_sc_hd__a311oi_2.
+Optimizing module sky130_fd_sc_hd__dfxtp_2.
+Optimizing module sky130_fd_sc_hd__nand4b_2.
+Optimizing module sky130_fd_sc_hd__a311o_2.
+Optimizing module sky130_fd_sc_hd__o22a_2.
+Optimizing module sky130_fd_sc_hd__o2111ai_2.
+Optimizing module sky130_fd_sc_hd__a2bb2oi_2.
+Optimizing module sky130_fd_sc_hd__nand4_2.
+Optimizing module sky130_fd_sc_hd__o41a_2.
+Optimizing module sky130_fd_sc_hd__a2bb2o_2.
+Optimizing module aes_cipher_top.
+Optimizing module sky130_fd_sc_hd__nand3b_2.
+Optimizing module sky130_fd_sc_hd__a22oi_2.
+Optimizing module sky130_fd_sc_hd__o2111a_2.
+Optimizing module sky130_fd_sc_hd__o221ai_2.
+Optimizing module sky130_fd_sc_hd__a22o_2.
+Optimizing module sky130_fd_sc_hd__nand3_2.
+Optimizing module sky130_fd_sc_hd__o311ai_2.
+Optimizing module sky130_fd_sc_hd__or2_2.
+Optimizing module sky130_fd_sc_hd__a221oi_2.
+Optimizing module sky130_fd_sc_hd__nand2b_2.
+Optimizing module sky130_fd_sc_hd__o221a_2.
+Optimizing module sky130_fd_sc_hd__a221o_2.
+Optimizing module sky130_fd_sc_hd__o32ai_2.
+Optimizing module sky130_fd_sc_hd__xnor2_2.
+Optimizing module sky130_fd_sc_hd__a21oi_2.
+Optimizing module sky130_fd_sc_hd__and4b_2.
+Optimizing module sky130_fd_sc_hd__nand2_2.
+Optimizing module sky130_fd_sc_hd__a21o_2.
+Optimizing module sky130_fd_sc_hd__o21bai_2.
+Optimizing module sky130_fd_sc_hd__and4_2.
+Optimizing module sky130_fd_sc_hd__a21boi_2.
+Optimizing module sky130_fd_sc_hd__o311a_2.
+Optimizing module sky130_fd_sc_hd__mux4_2.
+Optimizing module sky130_fd_sc_hd__and3b_2.
+Optimizing module sky130_fd_sc_hd__a21bo_2.
+Optimizing module sky130_fd_sc_hd__or3_2.
+Optimizing module sky130_fd_sc_hd__o21ba_2.
+Optimizing module sky130_fd_sc_hd__a211oi_2.
+Optimizing module sky130_fd_sc_hd__and3_2.
+Optimizing module sky130_fd_sc_hd__o32a_2.
+Optimizing module sky130_fd_sc_hd__a211o_2.
+Optimizing module sky130_fd_sc_hd__nor3b_2.
+Optimizing module sky130_fd_sc_hd__and2b_2.
+Optimizing module sky130_fd_sc_hd__a2111oi_2.
+Optimizing module sky130_fd_sc_hd__o2bb2ai_2.
+Optimizing module sky130_fd_sc_hd__o21ai_2.
+Optimizing module sky130_fd_sc_hd__and2_2.
+Optimizing module sky130_fd_sc_hd__a2111o_2.
+Optimizing module sky130_fd_sc_hd__nor3_2.
+
+11.3. Executing FLATTEN pass (flatten design).
+Deleting now unused module sky130_fd_sc_hd__mux2_1.
+Deleting now unused module sky130_fd_sc_hd__or4_2.
+Deleting now unused module sky130_fd_sc_hd__a41oi_2.
+Deleting now unused module sky130_fd_sc_hd__inv_2.
+Deleting now unused module sky130_fd_sc_hd__xor2_2.
+Deleting now unused module sky130_fd_sc_hd__a41o_2.
+Deleting now unused module sky130_fd_sc_hd__o2bb2a_2.
+Deleting now unused module sky130_fd_sc_hd__o21a_2.
+Deleting now unused module sky130_fd_sc_hd__a32oi_2.
+Deleting now unused module sky130_fd_sc_hd__o31ai_2.
+Deleting now unused module sky130_fd_sc_hd__or4b_2.
+Deleting now unused module sky130_fd_sc_hd__a32o_2.
+Deleting now unused module sky130_fd_sc_hd__nor2_2.
+Deleting now unused module sky130_fd_sc_hd__o211ai_2.
+Deleting now unused module sky130_fd_sc_hd__a31oi_2.
+Deleting now unused module sky130_fd_sc_hd__o22ai_2.
+Deleting now unused module sky130_fd_sc_hd__or3b_2.
+Deleting now unused module sky130_fd_sc_hd__a31o_2.
+Deleting now unused module sky130_fd_sc_hd__o211a_2.
+Deleting now unused module sky130_fd_sc_hd__o31a_2.
+Deleting now unused module sky130_fd_sc_hd__a311oi_2.
+Deleting now unused module sky130_fd_sc_hd__dfxtp_2.
+Deleting now unused module sky130_fd_sc_hd__nand4b_2.
+Deleting now unused module sky130_fd_sc_hd__a311o_2.
+Deleting now unused module sky130_fd_sc_hd__o22a_2.
+Deleting now unused module sky130_fd_sc_hd__o2111ai_2.
+Deleting now unused module sky130_fd_sc_hd__a2bb2oi_2.
+Deleting now unused module sky130_fd_sc_hd__nand4_2.
+Deleting now unused module sky130_fd_sc_hd__o41a_2.
+Deleting now unused module sky130_fd_sc_hd__a2bb2o_2.
+Deleting now unused module sky130_fd_sc_hd__nand3b_2.
+Deleting now unused module sky130_fd_sc_hd__a22oi_2.
+Deleting now unused module sky130_fd_sc_hd__o2111a_2.
+Deleting now unused module sky130_fd_sc_hd__o221ai_2.
+Deleting now unused module sky130_fd_sc_hd__a22o_2.
+Deleting now unused module sky130_fd_sc_hd__nand3_2.
+Deleting now unused module sky130_fd_sc_hd__o311ai_2.
+Deleting now unused module sky130_fd_sc_hd__or2_2.
+Deleting now unused module sky130_fd_sc_hd__a221oi_2.
+Deleting now unused module sky130_fd_sc_hd__nand2b_2.
+Deleting now unused module sky130_fd_sc_hd__o221a_2.
+Deleting now unused module sky130_fd_sc_hd__a221o_2.
+Deleting now unused module sky130_fd_sc_hd__o32ai_2.
+Deleting now unused module sky130_fd_sc_hd__xnor2_2.
+Deleting now unused module sky130_fd_sc_hd__a21oi_2.
+Deleting now unused module sky130_fd_sc_hd__and4b_2.
+Deleting now unused module sky130_fd_sc_hd__nand2_2.
+Deleting now unused module sky130_fd_sc_hd__a21o_2.
+Deleting now unused module sky130_fd_sc_hd__o21bai_2.
+Deleting now unused module sky130_fd_sc_hd__and4_2.
+Deleting now unused module sky130_fd_sc_hd__a21boi_2.
+Deleting now unused module sky130_fd_sc_hd__o311a_2.
+Deleting now unused module sky130_fd_sc_hd__mux4_2.
+Deleting now unused module sky130_fd_sc_hd__and3b_2.
+Deleting now unused module sky130_fd_sc_hd__a21bo_2.
+Deleting now unused module sky130_fd_sc_hd__or3_2.
+Deleting now unused module sky130_fd_sc_hd__o21ba_2.
+Deleting now unused module sky130_fd_sc_hd__a211oi_2.
+Deleting now unused module sky130_fd_sc_hd__and3_2.
+Deleting now unused module sky130_fd_sc_hd__o32a_2.
+Deleting now unused module sky130_fd_sc_hd__a211o_2.
+Deleting now unused module sky130_fd_sc_hd__nor3b_2.
+Deleting now unused module sky130_fd_sc_hd__and2b_2.
+Deleting now unused module sky130_fd_sc_hd__a2111oi_2.
+Deleting now unused module sky130_fd_sc_hd__o2bb2ai_2.
+Deleting now unused module sky130_fd_sc_hd__o21ai_2.
+Deleting now unused module sky130_fd_sc_hd__and2_2.
+Deleting now unused module sky130_fd_sc_hd__a2111o_2.
+Deleting now unused module sky130_fd_sc_hd__nor3_2.
+<suppressed ~11616 debug messages>
+
+11.4. Executing FUTURE pass.
+
+11.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+<suppressed ~1226 debug messages>
+
+11.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+Removed 613 unused cells and 24066 unused wires.
+<suppressed ~1346 debug messages>
+
+11.7. Executing CHECK pass (checking for obvious problems).
+Checking module aes_cipher_top...
+Found and reported 0 problems.
+
+11.8. Executing OPT pass (performing simple optimizations).
+
+11.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+11.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+<suppressed ~56784 debug messages>
+Removed a total of 18928 cells.
+
+11.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \aes_cipher_top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+11.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \aes_cipher_top.
+Performed a total of 0 changes.
+
+11.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+Removed a total of 0 cells.
+
+11.8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+Removed 0 unused cells and 18928 unused wires.
+<suppressed ~1 debug messages>
+
+11.8.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+11.8.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+11.8.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \aes_cipher_top..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+11.8.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \aes_cipher_top.
+Performed a total of 0 changes.
+
+11.8.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+Removed a total of 0 cells.
+
+11.8.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+
+11.8.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+11.8.14. Finished OPT passes. (There is nothing left to do.)
+
+11.9. Executing WREDUCE pass (reducing word size of cells).
+
+11.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+
+11.11. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+11.12. Executing OPT pass (performing simple optimizations).
+
+11.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module aes_cipher_top.
+
+11.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\aes_cipher_top'.
+Removed a total of 0 cells.
+
+11.12.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \aes_cipher_top..
+
+11.12.4. Finished fast OPT passes.
+
+11.13. Printing statistics.
+
+=== aes_cipher_top ===
+
+   Number of wires:              83750
+   Number of wire bits:          84131
+   Number of public wires:       52183
+   Number of public wire bits:   52564
+   Number of ports:                  7
+   Number of port bits:            388
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              54748
+     $_AND_                      17592
+     $_DFF_P_                      562
+     $_NOT_                       9119
+     $_OR_                       15859
+     $scopeinfo                  11616
+
+11.14. Executing CHECK pass (checking for obvious problems).
+Checking module aes_cipher_top...
+Found and reported 0 problems.
+
+12. Executing EQUIV_MAKE pass (creating equiv checking module).
+Presumably equivalent wires: clk_gold (\clk_gold), clk_gate (\clk_gate) -> clk
+Presumably equivalent wires: done_gold (\done_gold), done_gate (\_22368_.IQ_gate) -> done
+Presumably equivalent wires: key_gold (\key_gold), key_gate (\key_gate) -> key
+Presumably equivalent wires: ld_gold (\ld_gold), ld_gate (\ld_gate) -> ld
+Presumably equivalent wires: ld_r_gold (\ld_r_gold), ld_r_gate (\_22367_.IQ_gate) -> ld_r
+Presumably equivalent wires: rst_gold (\rst_gold), rst_gate (\rst_gate) -> rst
+Presumably equivalent wires: text_in_gold (\text_in_gold), text_in_gate (\text_in_gate) -> text_in
+Presumably equivalent wires: text_out_gold (\text_out_gold), text_out_gate ({ \_22366_.IQ_gate \_22365_.IQ_gate \_22364_.IQ_gate \_22363_.IQ_gate \_22362_.IQ_gate \_22361_.IQ_gate \_22360_.IQ_gate \_22359_.IQ_gate \_22334_.IQ_gate \_22333_.IQ_gate \_22332_.IQ_gate \_22331_.IQ_gate \_22330_.IQ_gate \_22329_.IQ_gate \_22328_.IQ_gate \_22327_.IQ_gate \_22302_.IQ_gate \_22301_.IQ_gate \_22300_.IQ_gate \_22299_.IQ_gate \_22298_.IQ_gate \_22297_.IQ_gate \_22296_.IQ_gate \_22295_.IQ_gate \_22270_.IQ_gate \_22269_.IQ_gate \_22268_.IQ_gate \_22267_.IQ_gate \_22266_.IQ_gate \_22265_.IQ_gate \_22264_.IQ_gate \_22263_.IQ_gate \_22358_.IQ_gate \_22357_.IQ_gate \_22356_.IQ_gate \_22355_.IQ_gate \_22354_.IQ_gate \_22353_.IQ_gate \_22352_.IQ_gate \_22351_.IQ_gate \_22326_.IQ_gate \_22325_.IQ_gate \_22324_.IQ_gate \_22323_.IQ_gate \_22322_.IQ_gate \_22321_.IQ_gate \_22320_.IQ_gate \_22319_.IQ_gate \_22294_.IQ_gate \_22293_.IQ_gate \_22292_.IQ_gate \_22291_.IQ_gate \_22290_.IQ_gate \_22289_.IQ_gate \_22288_.IQ_gate \_22287_.IQ_gate \_22262_.IQ_gate \_22261_.IQ_gate \_22260_.IQ_gate \_22259_.IQ_gate \_22258_.IQ_gate \_22257_.IQ_gate \_22256_.IQ_gate \_22255_.IQ_gate \_22350_.IQ_gate \_22349_.IQ_gate \_22348_.IQ_gate \_22347_.IQ_gate \_22346_.IQ_gate \_22345_.IQ_gate \_22344_.IQ_gate \_22343_.IQ_gate \_22318_.IQ_gate \_22317_.IQ_gate \_22316_.IQ_gate \_22315_.IQ_gate \_22314_.IQ_gate \_22313_.IQ_gate \_22312_.IQ_gate \_22311_.IQ_gate \_22286_.IQ_gate \_22285_.IQ_gate \_22284_.IQ_gate \_22283_.IQ_gate \_22282_.IQ_gate \_22281_.IQ_gate \_22280_.IQ_gate \_22279_.IQ_gate \_22254_.IQ_gate \_22253_.IQ_gate \_22252_.IQ_gate \_22251_.IQ_gate \_22250_.IQ_gate \_22249_.IQ_gate \_22248_.IQ_gate \_22247_.IQ_gate \_22342_.IQ_gate \_22341_.IQ_gate \_22340_.IQ_gate \_22339_.IQ_gate \_22338_.IQ_gate \_22337_.IQ_gate \_22336_.IQ_gate \_22335_.IQ_gate \_22310_.IQ_gate \_22309_.IQ_gate \_22308_.IQ_gate \_22307_.IQ_gate \_22306_.IQ_gate \_22305_.IQ_gate \_22304_.IQ_gate \_22303_.IQ_gate \_22278_.IQ_gate \_22277_.IQ_gate \_22276_.IQ_gate \_22275_.IQ_gate \_22274_.IQ_gate \_22273_.IQ_gate \_22272_.IQ_gate \_22271_.IQ_gate \_22246_.IQ_gate \_22245_.IQ_gate \_22244_.IQ_gate \_22243_.IQ_gate \_22242_.IQ_gate \_22241_.IQ_gate \_22240_.IQ_gate \_22239_.IQ_gate }) -> text_out
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:128$55_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:129$58_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:130$61_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:131$64_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:132$67_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:133$70_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:134$73_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:135$76_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:136$79_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:137$82_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:138$85_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:139$88_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:140$91_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:141$94_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:142$97_gold ($mux): \ld_r_gold -> \ld_r
+Changing input S of cell $ternary$/work/rtl/aes_cipher_top.v:143$100_gold ($mux): \ld_r_gold -> \ld_r
+
+13. Executing PREP pass.
+
+13.1. Executing HIERARCHY pass (managing design hierarchy).
+
+13.1.1. Analyzing design hierarchy..
+Top module:  \equiv
+
+13.1.2. Analyzing design hierarchy..
+Top module:  \equiv
+Removing unused module `\gate'.
+Removing unused module `\gold'.
+Removed 2 unused modules.
+
+13.2. Executing PROC pass (convert processes to netlists).
+
+13.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+13.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+13.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+13.2.4. Executing PROC_INIT pass (extract init attributes).
+
+13.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+13.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+
+13.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+13.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+13.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+
+13.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+13.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+13.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+13.3. Executing FUTURE pass.
+
+13.4. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+13.5. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+13.6. Executing CHECK pass (checking for obvious problems).
+Checking module equiv...
+Found and reported 0 problems.
+
+13.7. Executing OPT pass (performing simple optimizations).
+
+13.7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+13.7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\equiv'.
+Removed a total of 0 cells.
+
+13.7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \equiv..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~24 debug messages>
+
+13.7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \equiv.
+Performed a total of 0 changes.
+
+13.7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\equiv'.
+Removed a total of 0 cells.
+
+13.7.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+13.7.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+13.7.8. Finished OPT passes. (There is nothing left to do.)
+
+13.8. Executing WREDUCE pass (reducing word size of cells).
+
+13.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+13.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+13.11. Executing OPT pass (performing simple optimizations).
+
+13.11.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module equiv.
+
+13.11.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\equiv'.
+Removed a total of 0 cells.
+
+13.11.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \equiv..
+
+13.11.4. Finished fast OPT passes.
+
+13.12. Printing statistics.
+
+=== equiv ===
+
+   Number of wires:              84103
+   Number of wire bits:          88727
+   Number of public wires:       52392
+   Number of public wire bits:   55470
+   Number of ports:                  7
+   Number of port bits:            388
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              55139
+     $_AND_                      17592
+     $_DFF_P_                      562
+     $_NOT_                       9119
+     $_OR_                       15859
+     $add                            1
+     $and                            2
+     $dff                           42
+     $equiv                        130
+     $logic_not                      2
+     $mem_v2                        21
+     $mux                           26
+     $reduce_or                      2
+     $scopeinfo                  11638
+     $sub                            1
+     $xor                          142
+
+13.13. Executing CHECK pass (checking for obvious problems).
+Checking module equiv...
+Found and reported 0 problems.
+
+14. Executing EQUIV_SIMPLE pass.
+Found 130 unproven $equiv cells (3 groups) in equiv:
+  Trying to prove $equiv for \done: failed.
+ Grouping SAT models for \text_out:
+  Trying to prove $equiv for \text_out [0]: failed.
+  Trying to prove $equiv for \text_out [1]: failed.
+  Trying to prove $equiv for \text_out [2]: failed.
+  Trying to prove $equiv for \text_out [3]: failed.
+  Trying to prove $equiv for \text_out [4]: failed.
+  Trying to prove $equiv for \text_out [5]: failed.
+  Trying to prove $equiv for \text_out [6]: failed.
+  Trying to prove $equiv for \text_out [7]: failed.
+  Trying to prove $equiv for \text_out [8]: failed.
+  Trying to prove $equiv for \text_out [9]: failed.
+  Trying to prove $equiv for \text_out [10]: failed.
+  Trying to prove $equiv for \text_out [11]: failed.
+  Trying to prove $equiv for \text_out [12]: failed.
+  Trying to prove $equiv for \text_out [13]: failed.
+  Trying to prove $equiv for \text_out [14]: failed.
+  Trying to prove $equiv for \text_out [15]: failed.
+  Trying to prove $equiv for \text_out [16]: failed.
+  Trying to prove $equiv for \text_out [17]: failed.
+  Trying to prove $equiv for \text_out [18]: failed.
+  Trying to prove $equiv for \text_out [19]: failed.
+  Trying to prove $equiv for \text_out [20]: failed.
+  Trying to prove $equiv for \text_out [21]: failed.
+  Trying to prove $equiv for \text_out [22]: failed.
+  Trying to prove $equiv for \text_out [23]: failed.
+  Trying to prove $equiv for \text_out [24]: failed.
+  Trying to prove $equiv for \text_out [25]: failed.
+  Trying to prove $equiv for \text_out [26]: failed.
+  Trying to prove $equiv for \text_out [27]: failed.
+  Trying to prove $equiv for \text_out [28]: failed.
+  Trying to prove $equiv for \text_out [29]: failed.
+  Trying to prove $equiv for \text_out [30]: failed.
+  Trying to prove $equiv for \text_out [31]: failed.
+  Trying to prove $equiv for \text_out [32]: failed.
+  Trying to prove $equiv for \text_out [33]: failed.
+  Trying to prove $equiv for \text_out [34]: failed.
+  Trying to prove $equiv for \text_out [35]: failed.
+  Trying to prove $equiv for \text_out [36]: failed.
+  Trying to prove $equiv for \text_out [37]: failed.
+  Trying to prove $equiv for \text_out [38]: failed.
+  Trying to prove $equiv for \text_out [39]: failed.
+  Trying to prove $equiv for \text_out [40]: failed.
+  Trying to prove $equiv for \text_out [41]: failed.
+  Trying to prove $equiv for \text_out [42]: failed.
+  Trying to prove $equiv for \text_out [43]: failed.
+  Trying to prove $equiv for \text_out [44]: failed.
+  Trying to prove $equiv for \text_out [45]: failed.
+  Trying to prove $equiv for \text_out [46]: failed.
+  Trying to prove $equiv for \text_out [47]: failed.
+  Trying to prove $equiv for \text_out [48]: failed.
+  Trying to prove $equiv for \text_out [49]: failed.
+  Trying to prove $equiv for \text_out [50]: failed.
+  Trying to prove $equiv for \text_out [51]: failed.
+  Trying to prove $equiv for \text_out [52]: failed.
+  Trying to prove $equiv for \text_out [53]: failed.
+  Trying to prove $equiv for \text_out [54]: failed.
+  Trying to prove $equiv for \text_out [55]: failed.
+  Trying to prove $equiv for \text_out [56]: failed.
+  Trying to prove $equiv for \text_out [57]: failed.
+  Trying to prove $equiv for \text_out [58]: failed.
+  Trying to prove $equiv for \text_out [59]: failed.
+  Trying to prove $equiv for \text_out [60]: failed.
+  Trying to prove $equiv for \text_out [61]: failed.
+  Trying to prove $equiv for \text_out [62]: failed.
+  Trying to prove $equiv for \text_out [63]: failed.
+  Trying to prove $equiv for \text_out [64]: failed.
+  Trying to prove $equiv for \text_out [65]: failed.
+  Trying to prove $equiv for \text_out [66]: failed.
+  Trying to prove $equiv for \text_out [67]: failed.
+  Trying to prove $equiv for \text_out [68]: failed.
+  Trying to prove $equiv for \text_out [69]: failed.
+  Trying to prove $equiv for \text_out [70]: failed.
+  Trying to prove $equiv for \text_out [71]: failed.
+  Trying to prove $equiv for \text_out [72]: failed.
+  Trying to prove $equiv for \text_out [73]: failed.
+  Trying to prove $equiv for \text_out [74]: failed.
+  Trying to prove $equiv for \text_out [75]: failed.
+  Trying to prove $equiv for \text_out [76]: failed.
+  Trying to prove $equiv for \text_out [77]: failed.
+  Trying to prove $equiv for \text_out [78]: failed.
+  Trying to prove $equiv for \text_out [79]: failed.
+  Trying to prove $equiv for \text_out [80]: failed.
+  Trying to prove $equiv for \text_out [81]: failed.
+  Trying to prove $equiv for \text_out [82]: failed.
+  Trying to prove $equiv for \text_out [83]: failed.
+  Trying to prove $equiv for \text_out [84]: failed.
+  Trying to prove $equiv for \text_out [85]: failed.
+  Trying to prove $equiv for \text_out [86]: failed.
+  Trying to prove $equiv for \text_out [87]: failed.
+  Trying to prove $equiv for \text_out [88]: failed.
+  Trying to prove $equiv for \text_out [89]: failed.
+  Trying to prove $equiv for \text_out [90]: failed.
+  Trying to prove $equiv for \text_out [91]: failed.
+  Trying to prove $equiv for \text_out [92]: failed.
+  Trying to prove $equiv for \text_out [93]: failed.
+  Trying to prove $equiv for \text_out [94]: failed.
+  Trying to prove $equiv for \text_out [95]: failed.
+  Trying to prove $equiv for \text_out [96]: failed.
+  Trying to prove $equiv for \text_out [97]: failed.
+  Trying to prove $equiv for \text_out [98]: failed.
+  Trying to prove $equiv for \text_out [99]: failed.
+  Trying to prove $equiv for \text_out [100]: failed.
+  Trying to prove $equiv for \text_out [101]: failed.
+  Trying to prove $equiv for \text_out [102]: failed.
+  Trying to prove $equiv for \text_out [103]: failed.
+  Trying to prove $equiv for \text_out [104]: failed.
+  Trying to prove $equiv for \text_out [105]: failed.
+  Trying to prove $equiv for \text_out [106]: failed.
+  Trying to prove $equiv for \text_out [107]: failed.
+  Trying to prove $equiv for \text_out [108]: failed.
+  Trying to prove $equiv for \text_out [109]: failed.
+  Trying to prove $equiv for \text_out [110]: failed.
+  Trying to prove $equiv for \text_out [111]: failed.
+  Trying to prove $equiv for \text_out [112]: failed.
+  Trying to prove $equiv for \text_out [113]: failed.
+  Trying to prove $equiv for \text_out [114]: failed.
+  Trying to prove $equiv for \text_out [115]: failed.
+  Trying to prove $equiv for \text_out [116]: failed.
+  Trying to prove $equiv for \text_out [117]: failed.
+  Trying to prove $equiv for \text_out [118]: failed.
+  Trying to prove $equiv for \text_out [119]: failed.
+  Trying to prove $equiv for \text_out [120]: failed.
+  Trying to prove $equiv for \text_out [121]: failed.
+  Trying to prove $equiv for \text_out [122]: failed.
+  Trying to prove $equiv for \text_out [123]: failed.
+  Trying to prove $equiv for \text_out [124]: failed.
+  Trying to prove $equiv for \text_out [125]: failed.
+  Trying to prove $equiv for \text_out [126]: failed.
+  Trying to prove $equiv for \text_out [127]: failed.
+  Trying to prove $equiv for \ld_r: success!
+Proved 1 previously unproven $equiv cells.
+
+15. Executing EQUIV_INDUCT pass.
+Found 129 unproven $equiv cells in module equiv:
+Warning: No SAT model available for cell $flatten\u0.\r0.$auto$proc_rom.cc:155:do_switch$2058_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\u0.\u0.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\u0.\u1.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\u0.\u2.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\u0.\u3.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us00.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us01.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us02.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us03.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us10.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us11.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us12.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us13.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us20.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us21.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us22.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us23.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us30.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us31.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us32.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us33.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+
+Proof deadline exceeded; equivalence remains unverified.

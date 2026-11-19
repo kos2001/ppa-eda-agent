@@ -1,0 +1,65 @@
+{
+  "scope": "synthetic model-bin selection, not SRAM characterization",
+  "simulators": {
+    "original": {
+      "path": "/opt/homebrew/bin/ngspice",
+      "sha256": "2bbf481e0e16e6414bc64e0e77cba3a81eec2a258b03b3d944fe4fc41aacaf13"
+    },
+    "indexed": {
+      "path": "/private/tmp/ppa-ngspice46-bin-20261004/bin/ngspice",
+      "sha256": "63c0702563b902e35c50b7b3b4499b4f7e23c7ad1a1f0331fabe31f5735420b9"
+    }
+  },
+  "cases": {
+    "different_bins": {
+      "original": {
+        "current_A": -0.000300053272238858,
+        "wall_seconds": 0.03698308300226927
+      },
+      "indexed": {
+        "current_A": -0.000300053272238858,
+        "wall_seconds": 0.025707000051625073
+      }
+    },
+    "overlap_original_order": {
+      "original": {
+        "current_A": -2.95042356275542e-05,
+        "wall_seconds": 0.026907708030194044
+      },
+      "indexed": {
+        "current_A": -2.95042356275542e-05,
+        "wall_seconds": 0.012222916935570538
+      }
+    },
+    "overlap_reversed_order": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.03227341594174504
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.013675375026650727
+      }
+    },
+    "duplicate_exact_model": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.03429408301599324
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.010785749997012317
+      }
+    },
+    "irrelevant_prefix": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.034047915949486196
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.019274708000011742
+      }
+    }
+  }
+}

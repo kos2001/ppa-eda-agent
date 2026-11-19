@@ -1,0 +1,38 @@
+[
+ {
+  "kind": "slew",
+  "driver": "_19334_/Y",
+  "cell": "a221oi_4",
+  "net": "_10595_",
+  "limit": "1.500000",
+  "value": "1.506721",
+  "sinks": 11,
+  "diode_sinks": 0
+ },
+ {
+  "kind": "slew",
+  "driver": "(all violated pins)",
+  "violated_pins": 12,
+  "of_which_diode_pins": 0
+ },
+ {
+  "kind": "fanout",
+  "driver": "fanout790/X",
+  "cell": "clkbuf_8",
+  "net": "net790",
+  "limit": "16",
+  "value": "17",
+  "sinks": 17,
+  "diode_sinks": 1
+ },
+ {
+  "kind": "capacitance",
+  "driver": "clkbuf_0_clk/X",
+  "cell": "clkbuf_16",
+  "net": "clknet_0_clk",
+  "limit": "0.200000",
+  "value": "0.295768",
+  "sinks": 8,
+  "diode_sinks": 0
+ }
+]

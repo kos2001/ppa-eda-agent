@@ -1,0 +1,51 @@
+
+Note: No compatibility mode selected!
+
+
+Circuit: retention comparison; same nonlinear circuit and solver
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using KLU as Direct Linear Solver
+Operating point simulation skipped by 'uic',
+  now using transient initial conditions.
+ Reference value :  1.57450e-08
+No. of Data Rows : 3047
+
+  Measurements for Transient Analysis
+
+delay               =  3.267030313460040e-10 targ=  1.426703031346004e-09 trig=  1.100000000000000e-09
+slew                =  1.285715776238029e-09 targ=  2.355294518807372e-09 trig=  1.069578742569343e-09
+stored              =  1.778258923999343e+00
+diff                =  1.951121869984221e-03
+power               =  1.721112959717996e-04 from=  0.000000000000000e+00 to=  3.000000000000000e-08
+wave                =  1.210922534491034e+00 from=  0.000000000000000e+00 to=  3.000000000000000e-08
+
+
+Total analysis time (seconds) = 0.449085
+
+Total elapsed time (seconds) = 0.459 
+
+Total DRAM available = 16384.000 MB.
+DRAM currently available =  269.234 MB.
+Maximum ngspice program size =    9.547 MB.
+Current ngspice program size =    9.547 MB.
+
+        0.46 real         0.45 user         0.00 sys
+            10010624  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 773  page reclaims
+                  21  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 604  involuntary context switches
+          6645243920  instructions retired
+          1787237615  cycles elapsed
+             7340416  peak memory footprint

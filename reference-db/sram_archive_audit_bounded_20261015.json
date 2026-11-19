@@ -1,0 +1,284 @@
+{
+  "model_qualified": false,
+  "corner_models": [
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "max_ff_n40C_1v95",
+      "expected_pvt": {
+        "process": "FF",
+        "voltage_V": 1.95,
+        "temperature_C": -40
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "max_ss_100C_1v60",
+      "expected_pvt": {
+        "process": "SS",
+        "voltage_V": 1.6,
+        "temperature_C": 100
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "max_tt_025C_1v80",
+      "expected_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": true,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "min_ff_n40C_1v95",
+      "expected_pvt": {
+        "process": "FF",
+        "voltage_V": 1.95,
+        "temperature_C": -40
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "min_ss_100C_1v60",
+      "expected_pvt": {
+        "process": "SS",
+        "voltage_V": 1.6,
+        "temperature_C": 100
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "min_tt_025C_1v80",
+      "expected_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": true,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "nom_ff_n40C_1v95",
+      "expected_pvt": {
+        "process": "FF",
+        "voltage_V": 1.95,
+        "temperature_C": -40
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "nom_ss_100C_1v60",
+      "expected_pvt": {
+        "process": "SS",
+        "voltage_V": 1.6,
+        "temperature_C": 100
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "nom_tt_025C_1v80",
+      "expected_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": true,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    }
+  ],
+  "issues": [
+    "sky130_sram_1kbyte_1rw1r_32x256_8 max_ff_n40C_1v95: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'FF', 'voltage_V': 1.95, 'temperature_C': -40}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 max_ss_100C_1v60: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'SS', 'voltage_V': 1.6, 'temperature_C': 100}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 min_ff_n40C_1v95: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'FF', 'voltage_V': 1.95, 'temperature_C': -40}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 min_ss_100C_1v60: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'SS', 'voltage_V': 1.6, 'temperature_C': 100}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 nom_ff_n40C_1v95: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'FF', 'voltage_V': 1.95, 'temperature_C': -40}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 nom_ss_100C_1v60: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'SS', 'voltage_V': 1.6, 'temperature_C': 100}"
+  ],
+  "audit_complete": true,
+  "status": "complete",
+  "expected_corners": [
+    "nom_tt_025C_1v80",
+    "nom_ss_100C_1v60",
+    "nom_ff_n40C_1v95",
+    "min_tt_025C_1v80",
+    "min_ss_100C_1v60",
+    "min_ff_n40C_1v95",
+    "max_tt_025C_1v80",
+    "max_ss_100C_1v60",
+    "max_ff_n40C_1v95"
+  ],
+  "missing_corners": [],
+  "corners_read": 9,
+  "input_audit": {
+    "scope": "all reported macro input pins, rise/fall, min/max, expected STA corners",
+    "expected_corners": [
+      "nom_tt_025C_1v80",
+      "nom_ss_100C_1v60",
+      "nom_ff_n40C_1v95",
+      "min_tt_025C_1v80",
+      "min_ss_100C_1v60",
+      "min_ff_n40C_1v95",
+      "max_tt_025C_1v80",
+      "max_ss_100C_1v60",
+      "max_ff_n40C_1v95"
+    ],
+    "corners_read": 9,
+    "pins_per_corner": {
+      "nom_tt_025C_1v80": 57,
+      "nom_ss_100C_1v60": 57,
+      "nom_ff_n40C_1v95": 57,
+      "min_tt_025C_1v80": 57,
+      "min_ss_100C_1v60": 57,
+      "min_ff_n40C_1v95": 57,
+      "max_tt_025C_1v80": 57,
+      "max_ss_100C_1v60": 57,
+      "max_ff_n40C_1v95": 57
+    },
+    "expected_inputs": {
+      "u_sram": 57
+    },
+    "coverage_complete": true,
+    "missing_corners": [],
+    "unknown_edges": [],
+    "pin_count_mismatches": [],
+    "model_validity_verified": false,
+    "model_limit": "Coverage alone does not establish per-arc Liberty range or PVT validity",
+    "worst": {
+      "corner": "max_ss_100C_1v60",
+      "pin": "u_sram/addr1[6]",
+      "edge": "max_rise_ns",
+      "slew_ns": 0.039395
+    }
+  },
+  "report_sources_sha256": {
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\max_ff_n40C_1v95\\checks.rpt": "61b691056bce519d5252dfec1b7d35915d0bd04e089d657ef04b9e6754d7a26e",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\max_ss_100C_1v60\\checks.rpt": "63be115ab7eb71068f487389a25f304afcd533402ba3fbe0e41af079bdcb6176",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\max_tt_025C_1v80\\checks.rpt": "8ccc67a73522df6715077b94c219add760cd676bfd29456e83cc3b7b1615890a",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\min_ff_n40C_1v95\\checks.rpt": "68ef8c5d19b323956e5a5fe571d2daa71589c82aa9ca6daeec56ab35b87f0c9e",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\min_ss_100C_1v60\\checks.rpt": "4b71d99c1a78d808a24469d438afc405561a088dce309c5f3697eea8756e68ed",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\min_tt_025C_1v80\\checks.rpt": "1fc5e38fd165262646980867c1d9b76e09db58fbcae78141921dc2719ca4b111",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\nom_ff_n40C_1v95\\checks.rpt": "0c38cad4e845c1528734172fbdadfd0a3d27b656ca8850867523963a4d5acba1",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\nom_ss_100C_1v60\\checks.rpt": "ac694c2694cb0326921de4fad1395340d308c7c92c884192130afaabc141520a",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\nom_tt_025C_1v80\\checks.rpt": "a7d3d84cff5e0b356b5fb1a369290be115b9ee58f70bf76f203369689e61cd0a",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\max_ff_n40C_1v95\\macro_inputs.csv": "66b41b991901895c7ed60e8a630cecbfe4eb0aec7f343736ca8951dee2c2ffa8",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\max_ss_100C_1v60\\macro_inputs.csv": "a0bdf3a431f5a12801f00edb7827db8c4de3149705c1ed705fcb5e33522ecec3",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\max_tt_025C_1v80\\macro_inputs.csv": "8b977f25de88552d413d61ef62e8570ea40fdbc0772333ac9b25795fd274c294",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\min_ff_n40C_1v95\\macro_inputs.csv": "269d6541fe2ac7e51016fb7a6a4b15f29aa6dfb2f3d861c52ba9279642a25ddd",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\min_ss_100C_1v60\\macro_inputs.csv": "0e79aa0331d98dd8f9c7d8084da7b1c61dabf3294802f76006f66f92b7881026",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\min_tt_025C_1v80\\macro_inputs.csv": "03da79277502f56ec37d8c55f22281cdb7a2896635c3e45f552c9e2f92c4298f",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\nom_ff_n40C_1v95\\macro_inputs.csv": "f04dcfeb65ef07e799fc02d77d78980fab86c1c0020971ca85d4544428d1369e",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\nom_ss_100C_1v60\\macro_inputs.csv": "bcc06f26c192cb331853c99f1251716febdb2e52a1b35ede5b6545c7e922b0ae",
+    "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\nom_tt_025C_1v80\\macro_inputs.csv": "a17b53d2d2857bafef387bba47871df3a1ce3afd25cc55a64c3c50884391cecc"
+  },
+  "config_source": "pipeline\\designs\\sram_wrapper\\experiments\\evidence-20261015-physical\\resolved.json",
+  "config_sha256": "e3e1b08cf15283e11a737fb1ea89aa5582111b360fb69b8baf5212210b51a0a8",
+  "input_coverage_complete": true,
+  "input_axis_extrapolations": [],
+  "unknown_input_checks": [],
+  "scope": "declared PVT, timing-table structure and input axes; output loads and measured functional/PVT provenance remain unqualified"
+}

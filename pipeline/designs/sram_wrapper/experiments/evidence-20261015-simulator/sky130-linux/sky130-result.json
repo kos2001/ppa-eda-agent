@@ -1,0 +1,35 @@
+{
+  "scope": "two MOS devices per PVT; not SRAM functional validation",
+  "cases": {
+    "ss": {
+      "original": {
+        "current_A": -0.000394932223035334,
+        "wall_seconds": 28.0469423630002
+      },
+      "indexed": {
+        "current_A": -0.000394932223035334,
+        "wall_seconds": 29.724203851999846
+      }
+    },
+    "tt": {
+      "original": {
+        "current_A": -0.000718163730784733,
+        "wall_seconds": 25.436178244000075
+      },
+      "indexed": {
+        "current_A": -0.000718163730784733,
+        "wall_seconds": 28.082840025999758
+      }
+    },
+    "ff": {
+      "original": {
+        "current_A": -0.00106536756316473,
+        "wall_seconds": 33.74999080200041
+      },
+      "indexed": {
+        "current_A": -0.00106536756316473,
+        "wall_seconds": 23.196285195999735
+      }
+    }
+  }
+}

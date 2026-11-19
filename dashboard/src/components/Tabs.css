@@ -47,6 +47,8 @@
 
 .report-input__actions {
   display: flex;
+  align-items: center;
+  gap: 1rem;
   justify-content: flex-end;
   margin-top: 0.6rem;
 }
@@ -68,6 +70,11 @@
 .report-input button:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.report-input button:disabled:hover {
+  border-color: inherit;
+  color: inherit;
 }
 
 .tab__error {

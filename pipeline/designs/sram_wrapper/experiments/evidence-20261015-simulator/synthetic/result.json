@@ -1,0 +1,65 @@
+{
+  "scope": "synthetic model-bin selection, not SRAM characterization",
+  "simulators": {
+    "original": {
+      "path": "/tmp/ppa-ngspice-original-install-20261015/bin/ngspice",
+      "sha256": "65f316052a3a2b30ae1f9069edc8e7cae402e84d998e82b16fdcbdbc025542e2"
+    },
+    "indexed": {
+      "path": "/tmp/ppa-ngspice-indexed-install-20261015/bin/ngspice",
+      "sha256": "8ffa1057b285a56cb976c3c641daae1254546f33caaa0d056f98c8f348b2060a"
+    }
+  },
+  "cases": {
+    "different_bins": {
+      "original": {
+        "current_A": -0.000300053272238858,
+        "wall_seconds": 0.022795158000008087
+      },
+      "indexed": {
+        "current_A": -0.000300053272238858,
+        "wall_seconds": 0.01232397600006152
+      }
+    },
+    "overlap_original_order": {
+      "original": {
+        "current_A": -2.95042356275542e-05,
+        "wall_seconds": 0.018094768000082695
+      },
+      "indexed": {
+        "current_A": -2.95042356275542e-05,
+        "wall_seconds": 0.015871376000177406
+      }
+    },
+    "overlap_reversed_order": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.017866612000034365
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.013825774999986606
+      }
+    },
+    "duplicate_exact_model": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.015822390999801428
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.01463891599996714
+      }
+    },
+    "irrelevant_prefix": {
+      "original": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.018657768000139185
+      },
+      "indexed": {
+        "current_A": -0.000617048754055334,
+        "wall_seconds": 0.014218071999948734
+      }
+    }
+  }
+}

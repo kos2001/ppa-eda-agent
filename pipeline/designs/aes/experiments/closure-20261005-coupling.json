@@ -1,0 +1,119 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261005-c0-util35-lim16",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50
+      },
+      "_why": "Control. Name-agnostic recipe (no per-net limits, no driver cells) at the diagnostic constraints, util 35, on the corrected flow code. Earlier repair/cap-v2 results predate the net/instance-name fix and carry unverified slew/cap, so they are not a baseline."
+    },
+    {
+      "tag": "aes-coupling-20261005-h15-util35-lim15",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50
+      },
+      "_why": "One axis from c0: physical fanout target 15 under the unchanged SDC limit 16, leaving one sink of room for the diode that the last antenna repair adds. If that diode is what pushes the final nets from 16 to 17, fanout should fall; if the final violators persist at 17, the diode explanation is weakened. The SDC limit is unchanged."
+    },
+    {
+      "tag": "aes-coupling-20261005-u45-util45-lim16",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FP_CORE_UTIL": 45
+      },
+      "_why": "One axis from c0: FP_CORE_UTIL 45. Antenna violations scale with wire length and a denser floorplan shortens wires. Untried for aes; spm passes to 65 and gcd to 50."
+    },
+    {
+      "tag": "aes-coupling-20261005-u55-util55-lim16",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 16,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50,
+        "FP_CORE_UTIL": 55
+      },
+      "_why": "Second point on the utilization axis, to see whether the response is monotonic or hits routing congestion or a PDN limit."
+    },
+    {
+      "tag": "aes-coupling-20261005-orig-10ns-075-fo10",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 10,
+        "FANOUT_REPAIR_LIMIT": 10,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_ITERS": 10,
+        "GRT_ANTENNA_MARGIN": 50
+      },
+      "_why": "Distance to qualification, not a tuning attempt: the same repair recipe with the design's own 10 ns clock and the PDK defaults for transition (0.75 ns), IO delay and max fanout (10) left unset. Every earlier aes result at the diagnostic 12 ns / 1.5 ns / 25% / fanout 16 says nothing about this target. A minimum period of 10.45 ns at max_ss predicts a setup gap of about -0.45 ns (an estimate, not a measurement)."
+    }
+  ],
+  "candidate_budget": 5,
+  "evaluation_budget": {
+    "max_evaluations": 5,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Find which of diode headroom or utilization reduces the coupled antenna/fanout residue without new slew or cap failures, and measure the same recipe at the original constraints; signoff-clean before any area comparison",
+    "reference": "aes-closure-20261004-driver-upsize (4 antenna, 5 max-fanout at 12 ns / 1.5 ns / 25% / fanout 16)"
+  },
+  "_why": "AES fails because antenna repair and fanout repair undo each other (see docs/aes-why-it-fails-20261002.md and experiments/README.md). Each candidate changes one axis from the control c0, except orig, whose hypothesis is the distance to the original constraints."
+}

@@ -22,6 +22,12 @@ STA: `*-openroad-*sta*/*.log`).
 
 ## Verdict checklist
 
+Before the gates below, record the case's design, PDK, standard-cell library,
+toolchain identity, candidate overrides, and the file or step that supplied each
+metric. Missing required metrics block a PASS; they are not zeros. Compare two
+candidates directly only when those provenance fields match, except when a
+declared PDK/SCL comparison intentionally changes one of them.
+
 1. **Correctness gate first**: `magic__drc_error__count`,
    `design__lvs_error__count` (and the more granular
    `design__lvs_{device,net,property,unmatched_*}` counts if the summary
@@ -37,8 +43,29 @@ STA: `*-openroad-*sta*/*.log`).
    power with activity annotation — note explicitly if the metrics don't
    include a power breakdown rather than reporting zeros as if they were
    real).
+5. **Completeness**: confirm the run reached the expected final steps and that
+   each hard-gate metric came from the final signoff artifact. TritonRoute DRC
+   is useful intermediate evidence but cannot stand in for Magic signoff DRC.
+6. **Macro models and parasitics**: require final extracted SPEF annotation for
+   inserted repair drivers at every corner. For macros, inspect
+   `model_validity.macro_arc_audit`: effective resolved library mapping, declared
+   PVT, and the related/constrained transition axes of each timing table.
+   Complete input-edge records and zero DRV counts do not qualify an old
+   TT-only model at SS/FF. Matching PVT labels do not prove measured tables;
+   output-load range and functional/PVT provenance remain separate gates.
+   Extrapolation check counts repeat across tables/edges and are not physical
+   violation counts. Keep incomplete or unqualified evidence in `unverified`.
 
 ## Reporting
+
+For refreshed search rounds, follow
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. Evaluate frozen
+proposals using complete source evidence regardless of the proposer's visibility
+arm. Report metric, units, corner, source, provenance and unresolved gates
+separately from your interpretation so factual views can retain observations
+without inheriting recommendations. A selected seed or repeated model consensus
+does not establish PASS. Compare multiple qualified seeds on shared available
+metrics; keep failed diagnostic seeds out of the qualified PPA frontier.
 
 State the verdict as PASS/FAIL against the design's stated targets, with
 the specific numbers that drove it — not a vague "looks good." If this
@@ -48,6 +75,12 @@ smaller but has a 0.03ns worse setup WNS at the ff_n40C corner than
 candidate A — still positive slack, so both pass, but A has more margin").
 
 ## Scope boundary
+
+For residual closure work, read the ppa-eda-flow reference
+`.codex/skills/ppa-eda-flow/references/closure-handoff.md`. Use its exact-run
+graph refresh, shared budget, specialist routing and evidence handoff contract.
+Keep original targets and proof/model qualification separate from diagnostic
+improvements. The handoff checker is not independent signoff.
 
 Reads and interprets real signoff output only. Does not propose the next
 candidate or constraint delta (that's `feedback-optimizer`) and does not

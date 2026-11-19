@@ -1,0 +1,90 @@
+{
+  "design_name": "counter4",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidate_budget": 29,
+  "evaluation_budget": {
+    "max_evaluations": 29,
+    "max_wall_seconds": 3600
+  },
+  "max_iterations": 1,
+  "candidates": [
+    {
+      "tag": "ctx17-seed-u25",
+      "overrides": {
+        "FP_CORE_UTIL": 25,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    },
+    {
+      "tag": "ctx17-seed-u35",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    },
+    {
+      "tag": "ctx17-full-history-p2-r1",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 1"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    },
+    {
+      "tag": "ctx17-seed-only-p1-r1",
+      "overrides": {
+        "FP_CORE_UTIL": 40,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    },
+    {
+      "tag": "ctx17-fresh-evidence-p3-r2",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    },
+    {
+      "tag": "ctx17-seed-only-p2-r3",
+      "overrides": {
+        "FP_CORE_UTIL": 40,
+        "SYNTH_STRATEGY": "AREA 2"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    },
+    {
+      "tag": "ctx17-full-history-p3-r3",
+      "overrides": {
+        "FP_CORE_UTIL": 35,
+        "SYNTH_STRATEGY": "AREA 3"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    }
+  ],
+  "search": {
+    "mode": "explicit",
+    "objective": "Minimize cell area times activity-annotated total power among provenance-complete, signoff-clean and equivalence-proven candidates; report core area and worst setup/hold slack separately. Missing activity power excludes ranking, never substitute vectorless power.",
+    "reference": "pipeline/designs/counter4/experiments/context-search-20261017/protocol.json",
+    "seed": 42
+  }
+}

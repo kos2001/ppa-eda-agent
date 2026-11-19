@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "run_id": "surrogate-pilot-20261016-util35",
+  "design": "aes",
+  "toolchain": "ghcr.io/efabless/openlane2:2.3.10",
+  "target_identity": "6e6ccf15c6a13045fb9d08892dcd0d2d48753a707644e8f372c7593cacba6f37",
+  "required_gates": [
+    "final_drc",
+    "final_lvs",
+    "all_corner_timing",
+    "antenna",
+    "electrical",
+    "rtl_to_synthesis",
+    "synthesis_to_final"
+  ],
+  "gates": {
+    "final_drc": {
+      "state": "pass",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    },
+    "final_lvs": {
+      "state": "pass",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    },
+    "all_corner_timing": {
+      "state": "fail",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    },
+    "antenna": {
+      "state": "fail",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    },
+    "electrical": {
+      "state": "fail",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    },
+    "rtl_to_synthesis": {
+      "state": "infrastructure_failure",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    },
+    "synthesis_to_final": {
+      "state": "unverified",
+      "evidence": [
+        "case",
+        "reports"
+      ]
+    }
+  },
+  "artifacts": {
+    "case": {
+      "path": "original-case.json",
+      "sha256": "e4d5cc0c9f19616bb46fa63480a7f3df44dc73f4ed6e962b88ce373c4bc9532b"
+    },
+    "reports": {
+      "path": "reports-and-inputs.tar.gz",
+      "sha256": "f6c05d9f71ceae06984801bb8d2c57ced1c2d91f063d8bd6ba2ec498aad36027"
+    },
+    "command": {
+      "path": "command.json",
+      "sha256": "256bedf8204bec4863bcc260d188c859cb76a5939f1d9ff847d348b0959eac10"
+    },
+    "log": {
+      "path": "orchestrator.log",
+      "sha256": "d20d4e9debf1426df6c2e62b57258d6e9b67bb05c1e847a743044ec306c58fc5"
+    }
+  },
+  "note": "Original physical run and proof attempt; later proof retries are separate evidence and do not rewrite this case."
+}

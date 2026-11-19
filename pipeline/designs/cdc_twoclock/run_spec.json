@@ -12,6 +12,12 @@
       "overrides": {}
     }
   ],
+  "candidate_budget": 6,
+  "search": {
+    "mode": "hybrid",
+    "objective": "exercise the declared CDC negative-control gate",
+    "reference": "expected_outcome_reason in this run spec"
+  },
   "max_iterations": 1,
   "sweeps": [
     {

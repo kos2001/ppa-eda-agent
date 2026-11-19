@@ -1,0 +1,29 @@
+{
+  "design_name": "counter4",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1
+  },
+  "max_iterations": 1,
+  "candidates": [
+    {
+      "tag": "ctx17-seed-u25",
+      "overrides": {
+        "FP_CORE_UTIL": 25,
+        "SYNTH_STRATEGY": "AREA 0"
+      },
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "Classic"
+    }
+  ],
+  "search": {
+    "mode": "explicit",
+    "objective": "Minimize cell area times activity-annotated total power among provenance-complete, signoff-clean and equivalence-proven candidates; report core area and worst setup/hold slack separately. Missing activity power excludes ranking, never substitute vectorless power.",
+    "reference": "context-search-20261017 original 10 ns baseline",
+    "seed": 42
+  }
+}

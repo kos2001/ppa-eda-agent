@@ -23,7 +23,7 @@ search_strategy.py's caveat, "random search's real advantage ... is
 reaching parts of a space a grid never visits": these candidates go
 exactly there.
 
-run_spec entry (expanded by orchestrator.expand_sweeps):
+run_spec entry (expanded by candidate_plan.expand_sweeps):
 
     "design_of_experiments": {
       "space": {

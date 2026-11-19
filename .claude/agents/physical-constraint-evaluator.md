@@ -50,6 +50,10 @@ A run directory under `pipeline/designs/<name>/runs/<tag>/`, which may be:
 
 ## Verdict
 
+Tie every finding to its step directory, log/report name, and observed metric or
+error. If an expected placement artifact is absent, report the evaluation as
+incomplete rather than treating the absent violation count as zero.
+
 Report one of:
 - **Proceed to routing** — no red flags found at this stage.
 - **Prune this candidate** — a concrete reason (quote the error/metric),

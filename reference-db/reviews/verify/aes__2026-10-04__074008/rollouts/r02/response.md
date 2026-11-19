@@ -1,0 +1,17 @@
+# Diagnosis: aes__2026-10-04__074008 (`aes-closure-20261004-driver-r3-headroom12`)
+
+**What failed.** This is a valid measured physical run that fails two signoff checks. It is not a tool failure. The `verdict` shows `passed:false` with `"2 routing antenna violation(s)"` and `"2 max-fanout (DRV) violation(s)"`. Magic DRC, KLayout DRC, LVS, setup and hold counts, max-slew and max-cap are all 0. Across all 9 corners the worst setup WS is 1.550 ns and the worst hold WS is 0.0578 ns. The only `error` is `prediction.error: "ValueError: Surrogate features do not describe the physical fanout repair flow"`. That is the surrogate declining the `FanoutRepair` flow, which AGENTS.md says it doesn't cover. Ignore it: it isn't a run failure and it isn't a prediction. `max_iterations=1` and `candidate_budget=1`, so `max_iterations_reached` just means the one admitted candidate was used. `propose_repairs()` has nothing it can repair here.
+
+**Evidence.** The run dir `/private/tmp/ppa-aes-closure-20261004/.../driver-r3-headroom12` is gone. Archived copies (with hashes in `sources.json`) are in `pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-driver-r3-headroom12/`:
+- Every corner's `checks.rpt` shows `fanout1023/X` at 18 and `fanout1007/X` at 17, both against a limit of 16.
+- Neither instance appears in any of the three `fanout_repair.json` passes. Pass 3 (`51-odb-fanoutbuffers-2`) repaired only `net431` and skipped no nets, so both nets were at or under 16 sinks at step 51.
+- In `flow_sources/fanout_repair.py`, every round ends with `OpenROAD.RepairAntennas`. The most likely explanation is that the last round's diode insertion pushed these nets over the limit. I can't confirm this because the step-54 diode log and the final netlist were not archived.
+- `58-openroad-checkantennas-1` shows `_03644_` / `_12437_/A1_N` on met3 at P/R 1.59, and `text_in_r[26]` / `_14993_/A` on met1 at 1.38.
+- Compared with `headroom14-r2` (fanout 0, antenna 12, slew 14), the residue has moved rather than closed. `FANOUT_REPAIR_ROUNDS=3` is already at its 1–3 bound.
+
+**Limitations.** These results use diagnostic constraints: `CLOCK_PERIOD` 12 against the design's 10, transition 1.5 and IO 25%. Closing them would not qualify the original target, and `targets` is `{}`. The nets driven by `fanout1023`/`fanout1007` are unknown because only pin names were archived. Instance names may also shift once the overrides change.
+
+**Next steps** (one axis per candidate, `--validate-only` first, values left to `placement-strategist`):
+1. **Fanout.** Make the last repair actually be the last change. For example, the flow could run a final `FanoutBuffers` check after the last `RepairAntennas`, or reserve diode headroom for nets near the limit. This needs a flow-code change, not another override round. It should also archive the final netlist and the diode log, so net names can be resolved instead of guessed.
+2. **Antenna.** `resolved.json` shows `GRT_DESIGN_REPAIR_MAX_WIRE_LENGTH: 0`, `DESIGN_REPAIR_MAX_WIRE_LENGTH: 0` and `RUN_HEURISTIC_DIODE_INSERTION: false`. Test one long-wire repair setting aimed at `_03644_` on met3, keeping everything else at the r3 overrides. Check the variable names against the pinned OpenLane 2.3.10 contract first. Antenna violations have never been closed in any stored case, so this is a real experiment, not a precedent.
+3. After that, rerun at 10 ns / 0.75 ns before treating any closure as design evidence.

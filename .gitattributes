@@ -1,0 +1,23 @@
+# Preserve upstream patch context and simulator-produced evidence byte for byte.
+pipeline/designs/sram_wrapper/characterization/ngspice-bin-index/*.patch -whitespace
+pipeline/designs/sram_wrapper/characterization/ngspice-vector-selection/evidence/*.log -whitespace
+pipeline/designs/sram_wrapper/experiments/evidence-20261004/characterization-algorithm/** -whitespace
+# These archives carry hashes of raw tool bytes, including original whitespace.
+pipeline/designs/riscv32i/experiments/evidence-20261015-closure/closure-*/** -text -whitespace
+pipeline/designs/sram_wrapper/experiments/evidence-20261015-*/** -text -whitespace
+reference-db/cases/riscv32i__2026-10-15*.json -text
+reference-db/riscv_physical_equiv_direct_20261015.json -text
+# Retained report inputs and bounded proof evidence must retain recorded hashes.
+pipeline/designs/srio_r15_clock_fanout16/** -text -whitespace
+pipeline/designs/srio_r15_clock_fanout16_revalidate_20261015/** -text -whitespace
+reference-db/*20261015.json -text -whitespace
+reference-db/riscv_state_first_bounded_20261015.log -text -whitespace
+# Preserve surrogate pilot evidence and the source bytes recorded by its reports.
+pipeline/designs/aes/experiments/evidence-surrogate-pilot-20261016/** -text -whitespace
+pipeline/designs/aes/experiments/surrogate-cohort-pilot-20261016.json -text -whitespace
+reference-db/cases/aes__2026-10-16.json -text
+reference-db/surrogate*evaluation_20261016.json -text
+pipeline/surrogate.py text eol=crlf
+pipeline/surrogate_dataset.py -text -whitespace
+pipeline/surrogate_benchmark.py -text -whitespace
+pipeline/surrogate_repair_features.py -text -whitespace

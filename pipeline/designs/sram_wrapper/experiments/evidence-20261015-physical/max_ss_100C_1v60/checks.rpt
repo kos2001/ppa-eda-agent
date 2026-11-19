@@ -1,0 +1,166 @@
+
+===========================================================================
+report_checks -unconstrained
+===========================================================================
+======================= max_ss_100C_1v60 Corner ===================================
+
+Startpoint: u_sram (falling edge-triggered flip-flop clocked by clk)
+Endpoint: _177_ (rising edge-triggered flip-flop clocked by clk)
+Path Group: clk
+Path Type: max
+
+Fanout         Cap        Slew       Delay        Time   Description
+---------------------------------------------------------------------------------------------
+                                 10.000000   10.000000   clock clk (fall edge)
+                                  0.000000   10.000000   clock source latency
+     2    0.048246    0.209155    0.149095   10.149096 v clk (in)
+                                                         clk (net)
+                      0.209190    0.000000   10.149096 v clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     2    0.124083    0.153424    0.384694   10.533790 v clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_0_clk (net)
+                      0.202510    0.066142   10.599931 v clkbuf_1_0_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     2    0.026961    0.063546    0.329993   10.929924 v clkbuf_1_0_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_1_0_0_clk (net)
+                      0.063562    0.001331   10.931255 v clkbuf_2_0_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     2    0.020728    0.057817    0.254718   11.185973 v clkbuf_2_0_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_2_0_0_clk (net)
+                      0.057817    0.001377   11.187350 v clkbuf_3_1_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+    13    0.091313    0.124140    0.308751   11.496101 v clkbuf_3_1_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_3_1_0_clk (net)
+                      0.127088    0.014902   11.511003 v io_drv_clk0_a_1/A (sky130_fd_sc_hd__clkinv_16)
+     1    0.041176    0.063102    0.112171   11.623174 ^ io_drv_clk0_a_1/Y (sky130_fd_sc_hd__clkinv_16)
+                                                         net98 (net)
+                      0.063271    0.002260   11.625433 ^ io_drv_clk0_b_3/A (sky130_fd_sc_hd__clkinv_16)
+     1    0.008755    0.027098    0.065297   11.690730 v io_drv_clk0_b_3/Y (sky130_fd_sc_hd__clkinv_16)
+                                                         net100 (net)
+                      0.036133    0.000529   11.691259 v u_sram/clk0 (sky130_sram_1kbyte_1rw1r_32x256_8)
+     3    0.014825    0.009223    0.412529   12.103788 v u_sram/dout0[17] (sky130_sram_1kbyte_1rw1r_32x256_8)
+                                                         sram_dout0[17] (net)
+                      0.006917    0.000737   12.104526 v _177_/D (sky130_fd_sc_hd__dfxtp_1)
+                                             12.104526   data arrival time
+
+                                 20.000000   20.000000   clock clk (rise edge)
+                                  0.000000   20.000000   clock source latency
+     2    0.049184    0.354176    0.247454   20.247454 ^ clk (in)
+                                                         clk (net)
+                      0.354199    0.000000   20.247454 ^ clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     2    0.125855    0.215241    0.433921   20.681376 ^ clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_0_clk (net)
+                      0.253397    0.068512   20.749887 ^ clkbuf_1_0_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     2    0.028733    0.079231    0.316204   21.066092 ^ clkbuf_1_0_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_1_0_0_clk (net)
+                      0.079257    0.001306   21.067398 ^ clkbuf_2_1_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     2    0.019227    0.066473    0.224444   21.291842 ^ clkbuf_2_1_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_2_1_0_clk (net)
+                      0.066488    0.000940   21.292782 ^ clkbuf_3_2_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+    15    0.048654    0.105179    0.256300   21.549082 ^ clkbuf_3_2_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                                         clknet_3_2_0_clk (net)
+                      0.105684    0.004853   21.553934 ^ _177_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                                 -0.250000   21.303936   clock uncertainty
+                                  0.000000   21.303936   clock reconvergence pessimism
+                                 -0.233161   21.070774   library setup time
+                                             21.070774   data required time
+---------------------------------------------------------------------------------------------
+                                             21.070774   data required time
+                                            -12.104526   data arrival time
+---------------------------------------------------------------------------------------------
+                                              8.966249   slack (MET)
+
+
+
+
+===========================================================================
+report_checks --slack_max -0.01
+============================================================================
+======================= max_ss_100C_1v60 Corner ===================================
+
+No paths found.
+
+
+===========================================================================
+ report_check_types -max_slew -max_cap -max_fanout -violators
+============================================================================
+======================= max_ss_100C_1v60 Corner ===================================
+
+
+
+===========================================================================
+report_parasitic_annotation -report_unannotated
+============================================================================
+Found 34 unannotated drivers.
+ clkload0/Y
+ clkload1/Y
+ clkload2/Y
+ clkload3/Y
+ u_sram_68/HI
+ u_sram_69/HI
+ u_sram_70/HI
+ u_sram_71/HI
+ u_sram_72/HI
+ u_sram_73/HI
+ u_sram_74/HI
+ u_sram_75/HI
+ u_sram_76/HI
+ u_sram_77/HI
+ u_sram_78/HI
+ u_sram_79/HI
+ u_sram_80/HI
+ u_sram_81/HI
+ u_sram_82/HI
+ u_sram_83/HI
+ u_sram_84/HI
+ u_sram_85/HI
+ u_sram_86/HI
+ u_sram_87/HI
+ u_sram_88/HI
+ u_sram_89/HI
+ u_sram_90/HI
+ u_sram_91/HI
+ u_sram_92/HI
+ u_sram_93/HI
+ u_sram_94/LO
+ u_sram_95/LO
+ u_sram_96/LO
+ u_sram_97/LO
+Found 0 partially unannotated drivers.
+
+===========================================================================
+max slew violation count 0
+max fanout violation count 0
+max cap violation count 0
+============================================================================
+
+===========================================================================
+check_setup -verbose -unconstrained_endpoints -multiple_clock -no_clock -no_input_delay -loops -generated_clocks
+===========================================================================
+Warning: There are 30 unconstrained endpoints.
+  u_sram/csb0
+  u_sram/csb1
+  u_sram/din0[10]
+  u_sram/din0[11]
+  u_sram/din0[12]
+  u_sram/din0[13]
+  u_sram/din0[14]
+  u_sram/din0[15]
+  u_sram/din0[16]
+  u_sram/din0[17]
+  u_sram/din0[18]
+  u_sram/din0[19]
+  u_sram/din0[20]
+  u_sram/din0[21]
+  u_sram/din0[22]
+  u_sram/din0[23]
+  u_sram/din0[24]
+  u_sram/din0[25]
+  u_sram/din0[26]
+  u_sram/din0[27]
+  u_sram/din0[28]
+  u_sram/din0[29]
+  u_sram/din0[30]
+  u_sram/din0[31]
+  u_sram/din0[8]
+  u_sram/din0[9]
+  u_sram/wmask0[0]
+  u_sram/wmask0[1]
+  u_sram/wmask0[2]
+  u_sram/wmask0[3]

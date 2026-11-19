@@ -1,0 +1,191 @@
+{
+  "status": "read_only_condition_review",
+  "new_simulation_run": false,
+  "model_qualified": false,
+  "scope": "Failure of the measured 10ns port1 point; neither failure nor pass proof of the original20ns physical design",
+  "completed_point": {
+    "pvt": {
+      "process": "SS",
+      "voltage_V": 1.6,
+      "temperature_C": 100
+    },
+    "read_port": 1,
+    "write_port": 0,
+    "address": "11111111",
+    "bit": 31,
+    "period_ns": 10,
+    "slew_10_90_ns": 0.56,
+    "load_fF": 27.56,
+    "wall_seconds": 6816.598121844,
+    "finite_measurements": 27,
+    "timing_failures_ns": {
+      "delay_lh1": {
+        "measured": 5.30368,
+        "bound": 5,
+        "excess": 0.30368
+      },
+      "delay_sen1": {
+        "measured": 5.15392,
+        "bound": 5,
+        "excess": 0.15392
+      }
+    },
+    "independent_issues": [
+      "sense-enable delay outside half-period",
+      "delay/slew outside positive timing bound: delay_lh1"
+    ]
+  },
+  "primary_log_lines": [
+    "delay_lh1           =  5.30368e-09 targ=  1.40654e-07 trig=  1.35350e-07",
+    "delay_hl1           =  9.85890e-10 targ=  5.63359e-08 trig=  5.53500e-08",
+    "delay_sen1          =  5.15392e-09 targ=  6.05039e-08 trig=  5.53500e-08"
+  ],
+  "primary_measurement_cards": [
+    ".meas tran delay_lh1 TRIG v(clk1) VAL=0.8 FALL=1 TD=130n TARG v(dout1_31) VAL=0.8 RISE=1 TD=130n",
+    ".meas tran delay_hl1 TRIG v(clk1) VAL=0.8 FALL=1 TD=50n TARG v(dout1_31) VAL=0.8 FALL=1 TD=50n",
+    ".meas tran delay_sen1 TRIG v(clk1) VAL=0.8 FALL=1 TD=55.0n TARG v(Xsky130_sram_1kbyte_1rw1r_32x256_8.s_en1) VAL=0.8 RISE=1 TD=55.0n"
+  ],
+  "event_selection_caveat": "LH and SEN targets occur after following rising clock crossings; HL target precedes selected SEN event. Scalar measurements do not establish a causal same-cycle mechanism.",
+  "upstream_half_period_contract": {
+    "revision": "b2b069ce119d1488cbe6883b2240bceb5c7ce29a",
+    "path": "compiler/characterizer/delay.py",
+    "persistent_source": "/home/kos2001/ppa-sram-bounded-20261015/openram/compiler/characterizer/delay.py",
+    "sha256": "0941b0f7fc14dcce75a5fb2a7ab89740f904c0210e6e2d21438e064efb6014af",
+    "methods": {
+      "check_sen_measure": [
+        871,
+        880
+      ],
+      "check_valid_delays": [
+        1008,
+        1049
+      ]
+    }
+  },
+  "physical_usage": {
+    "clock_period_ns": 20,
+    "clk1_slews_ns": {
+      "max_ff_n40C_1v95": {
+        "max_rise_ns": 0.020832,
+        "max_fall_ns": 0.017649,
+        "min_rise_ns": 0.020832,
+        "min_fall_ns": 0.017649
+      },
+      "max_ss_100C_1v60": {
+        "max_rise_ns": 0.037421,
+        "max_fall_ns": 0.035451,
+        "min_rise_ns": 0.037421,
+        "min_fall_ns": 0.035451
+      },
+      "max_tt_025C_1v80": {
+        "max_rise_ns": 0.025837,
+        "max_fall_ns": 0.023135,
+        "min_rise_ns": 0.025837,
+        "min_fall_ns": 0.023135
+      },
+      "min_ff_n40C_1v95": {
+        "max_rise_ns": 0.020068,
+        "max_fall_ns": 0.017159,
+        "min_rise_ns": 0.020068,
+        "min_fall_ns": 0.017159
+      },
+      "min_ss_100C_1v60": {
+        "max_rise_ns": 0.03701,
+        "max_fall_ns": 0.035136,
+        "min_rise_ns": 0.03701,
+        "min_fall_ns": 0.035136
+      },
+      "min_tt_025C_1v80": {
+        "max_rise_ns": 0.025387,
+        "max_fall_ns": 0.022752,
+        "min_rise_ns": 0.025387,
+        "min_fall_ns": 0.022752
+      },
+      "nom_ff_n40C_1v95": {
+        "max_rise_ns": 0.020326,
+        "max_fall_ns": 0.01733,
+        "min_rise_ns": 0.020326,
+        "min_fall_ns": 0.01733
+      },
+      "nom_ss_100C_1v60": {
+        "max_rise_ns": 0.037187,
+        "max_fall_ns": 0.035254,
+        "min_rise_ns": 0.037187,
+        "min_fall_ns": 0.035254
+      },
+      "nom_tt_025C_1v80": {
+        "max_rise_ns": 0.025564,
+        "max_fall_ns": 0.022886,
+        "min_rise_ns": 0.025564,
+        "min_fall_ns": 0.022886
+      }
+    },
+    "all_output_load_range_fF": [
+      6.764022,
+      14.844512
+    ],
+    "selected_setup_path": {
+      "corner": "max_ss_100C_1v60",
+      "pin": "u_sram/dout1[31]",
+      "local_launch_ns": 11.594775,
+      "required_arrival_ns": 21.057755,
+      "available_window_ns": 9.46298,
+      "note": "Output net propagation consumes this window; macro delay remains unqualified TT-at-SS.",
+      "source_excerpt": [
+        "Endpoint: _223_ (rising edge-triggered flip-flop clocked by clk)",
+        "                                 10.000000   10.000000   clock clk (fall edge)",
+        "                      0.035451    0.000472   11.594775 v u_sram/clk1 (sky130_sram_1kbyte_1rw1r_32x256_8)",
+        "     2    0.011288    0.007341    0.392683   11.987458 v u_sram/dout1[31] (sky130_sram_1kbyte_1rw1r_32x256_8)",
+        "                                             11.988013   data arrival time",
+        "                                 20.000000   20.000000   clock clk (rise edge)",
+        "                                 -0.250000   21.273106   clock uncertainty",
+        "                                 -0.215350   21.057755   library setup time",
+        "                                             21.057755   data required time",
+        "                                             21.057755   data required time",
+        "                                            -11.988013   data arrival time",
+        "                                              9.069741   slack (MET)"
+      ]
+    }
+  },
+  "next_hypothesis": {
+    "change_only": "regenerate period20ns",
+    "held_fixed": [
+      "SS1.6V100C",
+      "readport1/writeport0",
+      "address255/bit31",
+      "input_slew.560ns",
+      "load27.56fF",
+      "full_netlist",
+      "KLU RELTOL.001 gear UIC and10ps step"
+    ],
+    "transient_horizon_ns": 300,
+    "execution_admitted": false,
+    "runtime_note": "Prior6816.598s for150ns; linear scaling ~13633s/~227min only an estimate.120min may be insufficient. No automatic run/retry/budget increase.",
+    "old_result_rethresholding_allowed": false
+  },
+  "sources_sha256": {
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-ss-port1/summary.json": "ab0babc1396e8edca8ace2928318168ff6c709c68f8f208006d038dd57d36ae9",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-ss-port1/result/timing.lis": "ec21e741bdfbb62b56437c55b5efbd9d2c7c5e36b47d08f168809fb955fecd7d",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-ss-port1/result/delay_meas.sp": "993426e9d741f6721acfb7bbb51a0eff1c2b442207a9d68a7f65c94f2bec4805",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-ss-port1/result/delay_stim.sp": "5558c7c20c8c2f2db4e4f9eb60d39541549d0d43ca5759907af98e0072aa2dfb",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-ss-port1/result/manifest.json": "b0b14150f33f896c86d55ddd8917774cff045dc777975c2ad3bc42f76c32b60e",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/summary.json": "d13099423aa2f369aaba321b74a594576f56225ee7ccf6d8fbfe91079aa69aa7",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-physical/resolved.json": "e3e1b08cf15283e11a737fb1ea89aa5582111b360fb69b8baf5212210b51a0a8",
+    "pipeline/designs/srio_r15_clock_fanout16_revalidate_20261015/runs/io/54-openroad-stapostpnr/max_ss_100C_1v60/max.rpt": "dee3e20eb1a80e489136c54cf5f16312fb421914c38033358bc54d929d7eb9b0",
+    "pipeline/sram_point_stimulus.py": "8bfc722c046bbb1985baa30db4be75a3ff51a93d2a9ff7fff7a698433a68766e",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/max_ff_n40C_1v95/macro_inputs.csv": "66b41b991901895c7ed60e8a630cecbfe4eb0aec7f343736ca8951dee2c2ffa8",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/max_ss_100C_1v60/macro_inputs.csv": "a0bdf3a431f5a12801f00edb7827db8c4de3149705c1ed705fcb5e33522ecec3",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/max_tt_025C_1v80/macro_inputs.csv": "8b977f25de88552d413d61ef62e8570ea40fdbc0772333ac9b25795fd274c294",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/min_ff_n40C_1v95/macro_inputs.csv": "269d6541fe2ac7e51016fb7a6a4b15f29aa6dfb2f3d861c52ba9279642a25ddd",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/min_ss_100C_1v60/macro_inputs.csv": "0e79aa0331d98dd8f9c7d8084da7b1c61dabf3294802f76006f66f92b7881026",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/min_tt_025C_1v80/macro_inputs.csv": "03da79277502f56ec37d8c55f22281cdb7a2896635c3e45f552c9e2f92c4298f",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/nom_ff_n40C_1v95/macro_inputs.csv": "f04dcfeb65ef07e799fc02d77d78980fab86c1c0020971ca85d4544428d1369e",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/nom_ss_100C_1v60/macro_inputs.csv": "bcc06f26c192cb331853c99f1251716febdb2e52a1b35ede5b6545c7e922b0ae",
+    "pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads/nom_tt_025C_1v80/macro_inputs.csv": "a17b53d2d2857bafef387bba47871df3a1ce3afd25cc55a64c3c50884391cecc"
+  },
+  "remaining_qualifications": [
+    "Measured and validated SS/TT/FF timing/power tables over required slew/load ranges for both read ports",
+    "Setup/hold axes and independent internal SRAM functional coverage beyond one address/bit sequence",
+    "Integration of qualified per-PVT Liberty mappings followed by all-corner extracted STA and physical signoff"
+  ]
+}

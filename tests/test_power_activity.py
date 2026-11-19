@@ -10,13 +10,15 @@ pipeline yet" as a documented caveat. It was closable with tools already
 in the pinned image, and on spm the default estimate turned out to
 understate combinational power by 44%.
 """
-import sys
 import json
+import sys
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
 from types import SimpleNamespace
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
@@ -140,6 +142,26 @@ class CompareTests(unittest.TestCase):
 
 
 class DiscoveryTests(unittest.TestCase):
+    def test_failed_measurement_retains_original_transcript_and_command(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            design, run = root / "design", root / "run"
+            (design / "verify").mkdir(parents=True)
+            (design / "verify/demo_tb.v").write_text("module demo_tb; endmodule")
+            (run / "final/nl").mkdir(parents=True)
+            (run / "final/nl/demo.nl.v").write_text("module demo; endmodule")
+            stdout = "###COMPILE_FAILED###\nexact compiler failure\n"
+            stderr = "original stderr\n"
+            with patch("power_activity.find_pdk_root", return_value=root), \
+                 patch("power_activity.subprocess.run", return_value=subprocess.CompletedProcess(
+                     [], 1, stdout=stdout, stderr=stderr)):
+                result = measure(design, run)
+            self.assertEqual(result["error"], "gate-level simulation did not compile")
+            self.assertEqual((run / "_power_activity/stdout.log").read_text(), stdout)
+            self.assertEqual((run / "_power_activity/stderr.log").read_text(), stderr)
+            self.assertTrue((run / "_power_activity/measurement.sh").is_file())
+            self.assertTrue((run / "_power_activity/command.json").is_file())
+
     def test_no_testbench_is_none_not_an_error(self):
         # Most designs here have none, and that is not a failure.
         d = Path(tempfile.mkdtemp())

@@ -2,7 +2,7 @@ r"""A surrogate model over reference-db, and an honest test of whether it works.
 
 The appeal is obvious: a full OpenLane flow costs 60-100 s per candidate,
 so a model that predicts the outcome from the config would let the agent
-rank candidates for free. That is the standard DTCO surrogate idea and it
+rank candidates for free. That is the standard surrogate-model idea and it
 is a good one — *given data*.
 
 This module exists mainly to find out whether that condition holds here,
@@ -104,7 +104,9 @@ MIN_SAMPLES = 8
 # none of them has gone stale while the data moved underneath.
 DEFAULT_K_BY_TARGET = {
     "area_um2": 1,
-    "power_w": 3,
+    # 2026-10-15: 366 scored folds, k=1 wins 96.175% vs k=3 95.902%.
+    # Existing policy prioritizes win rate over MAE; this is a one-fold margin.
+    "power_w": 1,
     "completed": 1,
 }
 DEFAULT_K = 1
@@ -139,6 +141,11 @@ def load_dataset(refdb: Path | str = REFDB) -> list[dict]:
         design = case.get("design")
         for iteration in case.get("iterations", []):
             for result in iteration.get("results", []):
+                # The current feature vector does not describe inserted
+                # buffer trees. Do not train on or silently merge those
+                # experiments with a stock-flow candidate.
+                if result.get("flow") in {"FanoutRepair", "MacroFanoutRepair"}:
+                    continue
                 overrides = result.get("overrides") or {}
                 # The library is part of the identity of a run. Without
                 # it two candidates that differ only by technology
@@ -381,10 +388,7 @@ def _feature_distance(fa: dict, fb: dict,
     compared = 0
     for key, (lo, hi) in ranges.items():
         va, vb = fa.get(key), fb.get(key)
-        # _numeric(), inlined: this is the innermost loop of every
-        # leave-one-out fold, and the call overhead was a fifth of it.
-        if (isinstance(va, (int, float)) and va is not True and va is not False
-                and isinstance(vb, (int, float)) and vb is not True and vb is not False):
+        if _numeric(va) and _numeric(vb):
             total += ((va - vb) / (hi - lo)) ** 2
             compared += 1
     for key in ("SYNTH_STRATEGY", "SCL"):
@@ -425,37 +429,25 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
             "n_samples": len(same),
         }
 
-    return _predict_core(target, featurize(target), same,
-                         [featurize(r) for r in same],
-                         scl_is_informative(dataset), field, k)
+    return _knn(featurize(target), same, [featurize(r) for r in same],
+                scl_is_informative(dataset), field, k)
 
 
-def _predict_core(target: dict, target_feats: dict, same: list[dict],
-                  feats: list[dict], use_scl: bool, field: str, k: int) -> dict:
-    """predict() after its row filter, on features already computed.
+def _knn(target_feats: dict, same: list[dict], feats: list[dict],
+         use_scl: bool, field: str, k: int) -> dict:
+    """The neighbourhood step of predict(), on rows already featurized.
 
-    evaluate() calls this directly. A leave-one-out pass used to
-    re-featurize the whole design and recount the libraries for every
-    fold and every k; the features of a row do not depend on which row is
-    held out, so they are computed once per evaluate() instead.
+    `same` is the comparable rows, `feats` their features in the same
+    order. evaluate() calls this once per fold with features it computed
+    once for the whole dataset instead of once per fold.
     """
-    if len(same) < MIN_SAMPLES:
-        return {
-            "value": None,
-            "refused": True,
-            "reason": (f"only {len(same)} recorded run(s) with {field} for "
-                       f"design {target.get('design')!r}; need at least "
-                       f"{MIN_SAMPLES} before a prediction means anything"),
-            "n_samples": len(same),
-        }
-    scored = _neighbours(target_feats, same, feats, use_scl)
-    return _combine(scored, len(same), field, k)
+    return _blend(_rank(target_feats, same, feats, use_scl), len(same), field, k)
 
 
-def _neighbours(target_feats: dict, same: list[dict], feats: list[dict],
-                use_scl: bool) -> list[tuple[float, dict]]:
-    """Every comparable row with its distance, nearest first. Does not
-    depend on k or on the field, so one pass serves every k best_k tries."""
+def _rank(target_feats: dict, same: list[dict], feats: list[dict],
+          use_scl: bool) -> list[tuple[float, dict]]:
+    """Comparable rows nearest first. Independent of k, so best_k() can
+    rank each fold once and slice it five ways."""
     ranges = _feature_ranges(feats)
     scored = []
     for row, row_feats in zip(same, feats):
@@ -466,19 +458,19 @@ def _neighbours(target_feats: dict, same: list[dict], feats: list[dict],
     return scored
 
 
-def _combine(scored: list[tuple[float, dict]], n_same: int, field: str,
-             k: int) -> dict:
+def _blend(scored: list[tuple[float, dict]], n_samples: int,
+           field: str, k: int) -> dict:
     if not scored:
         return {"value": None, "refused": True,
                 "reason": "no recorded run shares a comparable parameter",
-                "n_samples": n_same}
+                "n_samples": n_samples}
 
     top = scored[:k]
     # Inverse-distance weighting, with an exact match short-circuited so
     # a config that was actually run returns what it actually produced.
     if top[0][0] == 0:
         return {"value": top[0][1][field], "refused": False,
-                "exact_match": True, "n_samples": n_same,
+                "exact_match": True, "n_samples": n_samples,
                 "neighbours": [top[0][1]["overrides"]]}
     weights = [1.0 / (d + 1e-9) for d, _ in top]
     value = sum(w * r[field] for w, (_, r) in zip(weights, top)) / sum(weights)
@@ -486,7 +478,7 @@ def _combine(scored: list[tuple[float, dict]], n_same: int, field: str,
         "value": value,
         "refused": False,
         "exact_match": False,
-        "n_samples": n_same,
+        "n_samples": n_samples,
         "neighbours": [r["overrides"] for _, r in top],
         "neighbour_distances": [round(d, 4) for d, _ in top],
     }
@@ -649,72 +641,52 @@ def _is_boolean_target(field: str) -> bool:
     return field == "completed"
 
 
-def loo_folds(dataset: list[dict], field: str = "area_um2") -> list:
-    """The leave-one-out neighbour lists for `field`, one per usable row:
-    None when the row's design has no other row, else (n_same, scored).
-
-    Exactly what predict() would compute on usable-minus-one for each
-    fold. It is independent of k, so best_k() computes it once and scores
-    all five k from it instead of redoing every distance per k.
-    """
-    usable = [r for r in dataset if isinstance(r.get(field), (int, float))]
-    feats = [featurize(r) for r in usable]
-    by_design: dict[str, list[int]] = {}
-    scl_counts: dict[str, int] = {}
-    for i, r in enumerate(usable):
-        by_design.setdefault(r["design"], []).append(i)
-        scl = r.get("scl") or DEFAULT_SCL
-        scl_counts[scl] = scl_counts.get(scl, 0) + 1
-    folds = []
-    for i, held_out in enumerate(usable):
-        idx = [j for j in by_design[held_out["design"]] if j != i]
-        if not idx:
-            folds.append(None)
-            continue
-        if len(idx) < MIN_SAMPLES:
-            folds.append((len(idx), None))
-            continue
-        held_scl = held_out.get("scl") or DEFAULT_SCL
-        use_scl = sum(1 for name, n in scl_counts.items()
-                      if n - (name == held_scl) >= MIN_SAMPLES_PER_SCL) >= 2
-        folds.append((len(idx), _neighbours(
-            feats[i], [usable[j] for j in idx], [feats[j] for j in idx], use_scl)))
-    return folds
-
-
 def evaluate(dataset: list[dict], field: str = "area_um2",
-             k: int | None = None, folds: list | None = None) -> dict:
+             k: int | None = None, _ranked: dict | None = None) -> dict:
     """Leave-one-out cross-validation against a predict-the-mean baseline.
 
     A surrogate is only worth having if it beats doing nothing. This
     reports both errors so the comparison is visible rather than implied,
     and reports the sample count alongside so a flattering number on tiny
     data cannot be quoted without its context.
+
+    `_ranked` lets a caller that varies only k share each fold's ranking
+    (see best_k); it must be used with one dataset and one field.
     """
     k = default_k(field) if k is None else k
     usable = [r for r in dataset if isinstance(r.get(field), (int, float))]
     errors, baseline_errors, refusals = [], [], 0
     predictions, truths = [], []
 
-    # Same folds, same neighbours, same arithmetic as calling predict() on
-    # usable-minus-one each time; only the repeated work is hoisted.
-    if folds is None:
-        folds = loo_folds(dataset, field)
+    # Featurize each row once and count technologies once; a fold only
+    # subtracts the held-out row. predict() on `rest` would redo both for
+    # every fold, which made this quadratic in the dataset.
+    feats = [featurize(r) for r in usable]
     by_design: dict[str, list[int]] = {}
-    for i, r in enumerate(usable):
-        by_design.setdefault(r["design"], []).append(i)
+    scl_counts: dict[str, int] = {}
+    for i, row in enumerate(usable):
+        by_design.setdefault(row["design"], []).append(i)
+        key = row.get("scl") or DEFAULT_SCL
+        scl_counts[key] = scl_counts.get(key, 0) + 1
 
     for i, held_out in enumerate(usable):
-        fold = folds[i]
-        if fold is None:
+        same_idx = [j for j in by_design[held_out["design"]] if j != i]
+        if len(same_idx) < MIN_SAMPLES:
             refusals += 1
             continue
-        n_same, scored = fold
-        if scored is None:      # fewer than MIN_SAMPLES: predict() refuses
-            refusals += 1
-            continue
-        same = [usable[j] for j in by_design[held_out["design"]] if j != i]
-        got = _combine(scored, n_same, field, k)
+        held_scl = held_out.get("scl") or DEFAULT_SCL
+        scl_counts[held_scl] -= 1
+        use_scl = sum(1 for n in scl_counts.values()
+                      if n >= MIN_SAMPLES_PER_SCL) >= 2
+        scl_counts[held_scl] += 1
+        same = [usable[j] for j in same_idx]
+        if _ranked is not None and i in _ranked:
+            ranked = _ranked[i]
+        else:
+            ranked = _rank(feats[i], same, [feats[j] for j in same_idx], use_scl)
+            if _ranked is not None:
+                _ranked[i] = ranked
+        got = _blend(ranked, len(same), field, k)
         if got["refused"]:
             refusals += 1
             continue
@@ -875,8 +847,7 @@ def _verdict(errors, model_mae, base_mae, win_rate,
 
 
 def best_k(dataset: list[dict], field: str = "area_um2",
-           candidates: tuple[int, ...] = (1, 2, 3, 4, 5),
-           folds: list | None = None) -> dict:
+           candidates: tuple[int, ...] = (1, 2, 3, 4, 5)) -> dict:
     """Which k the data actually supports, rather than the one assumed.
 
     k=3 was a guess. With eight to eleven samples per design that is a
@@ -889,10 +860,9 @@ def best_k(dataset: list[dict], field: str = "area_um2",
     to have a lower average, which a single fold can move.
     """
     scored = []
-    if folds is None:
-        folds = loo_folds(dataset, field)
+    ranked: dict = {}
     for k in candidates:
-        ev = evaluate(dataset, field, k, folds)
+        ev = evaluate(dataset, field, k, _ranked=ranked)
         if ev["n_scored"] == 0:
             continue
         scored.append({

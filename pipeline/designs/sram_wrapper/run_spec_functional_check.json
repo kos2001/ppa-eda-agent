@@ -4,7 +4,11 @@
     "top": "sram_wrapper_regression",
     "testbench": "verify/sram_wrapper_regression.sv",
     "oracle": "sram_wrapper",
-    "seeds": [1, 17, 101],
+    "seeds": [
+      1,
+      17,
+      101
+    ],
     "post_route": true,
     "rtl_cell_models": true,
     "macro_models": {
@@ -13,7 +17,24 @@
     "compile_timeout_s": 300,
     "simulation_timeout_s": 30
   },
-  "targets": {"max_core_utilization": 0.75},
-  "candidates": [{"tag": "sram-functional-20261023", "overrides": {}}],
-  "max_iterations": 1
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "sram-functional-20261023",
+      "overrides": {}
+    }
+  ],
+  "max_iterations": 1,
+  "candidate_budget": 1,
+  "evaluation_budget": {
+    "max_evaluations": 1
+  },
+  "search": {
+    "mode": "verification",
+    "objective": "Check functional regression and independent physical signoff gates",
+    "reference": "reference-db/validation",
+    "seed": 1
+  }
 }

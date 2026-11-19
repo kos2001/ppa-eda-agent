@@ -1,0 +1,16 @@
+# Expected failure: invert the experiment's observed write-enable bit.
+read_verilog pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v
+read_verilog pipeline/designs/sram_wrapper/src/sram_wrapper.v
+prep -top sram_wrapper -flatten
+design -stash gold
+read_verilog -DINTERFACE_NEGATIVE_CONTROL pipeline/designs/sram_wrapper/experiments/verify_interface_cells.v
+read_verilog -DIO_CHAIN4 -DIO_CLK_DRV -DIO_CLK_CHAIN2 -DIO_STRONG_PREDRIVER -DIO_CLK_STRONG_PREDRIVER pipeline/designs/sram_wrapper/experiments/sram_wrapper_io2.v
+prep -top sram_wrapper -flatten
+design -stash gate
+design -copy-from gold -as gold sram_wrapper
+design -copy-from gate -as gate sram_wrapper
+equiv_make gold gate equiv
+prep -top equiv
+equiv_simple -seq 5
+equiv_induct -seq 5
+equiv_status -assert

@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-15T10:32:04.302823+00:00",
+  "status": "running",
+  "started_at": "2026-10-15T10:31:39.627773+00:00",
+  "deadline_kst": "2026-10-15T23:31:39.627773+09:00",
+  "timeout_s": 14400.0,
+  "period_ns": 20.0,
+  "read_port": 1,
+  "write_port": 0,
+  "pid": 883,
+  "sample_elapsed_s": 20.001612017,
+  "process_present": true,
+  "model_qualified": false,
+  "cmdline": "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice -n -b -o timing.lis delay_stim.sp ",
+  "resource_state": [
+    "State:\tR (running)",
+    "VmRSS:\t 5849156 kB",
+    "VmSwap:\t       0 kB",
+    "Threads:\t1"
+  ]
+}

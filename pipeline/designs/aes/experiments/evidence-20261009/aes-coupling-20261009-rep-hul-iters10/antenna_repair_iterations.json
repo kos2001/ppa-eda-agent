@@ -1,0 +1,78 @@
+{
+ "41-openroad-repairantennas": {
+  "config_GRT_ANTENNA_ITERS": 10,
+  "config_GRT_ANTENNA_MARGIN": 50,
+  "iterations_executed": 4,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 215,
+    "nets_rerouted": 4256
+   },
+   {
+    "iteration": 2,
+    "violations_found": 42,
+    "nets_rerouted": 198
+   },
+   {
+    "iteration": 3,
+    "violations_found": 1,
+    "nets_rerouted": 2
+   },
+   {
+    "iteration": 4,
+    "violations_found": 0
+   }
+  ],
+  "source_log": "<scratch>/aes/runs/aes-coupling-20261009-rep-hul-iters10/41-openroad-repairantennas/1-diodeinsertion/diodeinsertion.log"
+ },
+ "46-openroad-repairantennas-1": {
+  "config_GRT_ANTENNA_ITERS": 10,
+  "config_GRT_ANTENNA_MARGIN": 50,
+  "iterations_executed": 4,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 126,
+    "nets_rerouted": 4545
+   },
+   {
+    "iteration": 2,
+    "violations_found": 38,
+    "nets_rerouted": 102
+   },
+   {
+    "iteration": 3,
+    "violations_found": 4,
+    "nets_rerouted": 4
+   },
+   {
+    "iteration": 4,
+    "violations_found": 0
+   }
+  ],
+  "source_log": "<scratch>/aes/runs/aes-coupling-20261009-rep-hul-iters10/46-openroad-repairantennas-1/1-diodeinsertion/diodeinsertion.log"
+ },
+ "50-openroad-repairantennas-2": {
+  "config_GRT_ANTENNA_ITERS": 10,
+  "config_GRT_ANTENNA_MARGIN": 50,
+  "iterations_executed": 3,
+  "iterations": [
+   {
+    "iteration": 1,
+    "violations_found": 43,
+    "nets_rerouted": 4453
+   },
+   {
+    "iteration": 2,
+    "violations_found": 24,
+    "nets_rerouted": 62
+   },
+   {
+    "iteration": 3,
+    "violations_found": 0
+   }
+  ],
+  "source_log": "<scratch>/aes/runs/aes-coupling-20261009-rep-hul-iters10/50-openroad-repairantennas-2/1-diodeinsertion/diodeinsertion.log"
+ }
+}

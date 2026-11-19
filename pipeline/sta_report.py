@@ -141,6 +141,38 @@ def parse_drv(rpt: Path) -> dict | None:
     return {**counts, "violator_lines": violators}
 
 
+def repair_parasitic_audit(run_dir: Path, corners: list[str]) -> dict:
+    """Reject incomplete SPEF annotation on inserted repair drivers.
+
+    Clock dummy loads and tie cells can legitimately be unannotated. This
+    audit targets the physical experiment's inserted signal/clock drivers.
+    It does not qualify every other net in the design.
+    """
+    try:
+        step = latest_sta_dir(run_dir)
+    except FileNotFoundError as exc:
+        return {"verified": False, "error": str(exc), "corners": {}}
+    reports = {}
+    prefixes = ("fanout_repair_", "macro_pin_buffer_", "macro_pin_prebuffer_")
+    for corner in corners:
+        report = step / corner / "checks.rpt"
+        text = report.read_text(errors="replace") if report.is_file() else ""
+        section = re.search(r"report_parasitic_annotation[^\n]*\n=+\n(.*?)(?=\n=+|\Z)",
+                            text, re.S)
+        body = section.group(1) if section else ""
+        present = bool(re.search(r"Found \d+ (?:partially )?unannotated drivers\.", body)
+                       or "All nets have parasitics" in body)
+        drivers = sorted({m.group(1) for m in re.finditer(r"^ (\S+)\s*$", body, re.M)
+                          if m.group(1).startswith(prefixes)})
+        reports[corner] = {"report_present": present, "incomplete_repair_drivers": drivers,
+                           "report": str(report)}
+    return {"verified": bool(reports) and all(r["report_present"]
+                                             and not r["incomplete_repair_drivers"]
+                                             for r in reports.values()),
+            "corners": reports,
+            "scope": "inserted repair drivers only; not complete design or macro-model qualification"}
+
+
 def read_run(run_dir: Path, corner: str | None = None) -> dict:
     """Reads whichever STA step ran last.
 

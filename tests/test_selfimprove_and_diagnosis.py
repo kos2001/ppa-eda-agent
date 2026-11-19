@@ -12,11 +12,13 @@ import os
 import pathlib
 import sys
 import unittest
+from unittest.mock import patch
 
 PIPELINE = os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), "pipeline")
 sys.path.insert(0, PIPELINE)
 
+import case_store  # noqa: E402
 import self_improve  # noqa: E402
 import verify_diagnosis  # noqa: E402
 
@@ -188,12 +190,15 @@ class TestScanningDoesNotWrite(unittest.TestCase):
         self._unchanged()
 
     def test_a_read_only_scan_still_says_a_review_is_needed(self):
-        # Not writing must not mean not reporting. The panel's job is to
-        # say which designs are waiting on a human; only the file is
-        # deferred to whoever actually runs the scan.
-        report = self_improve.scan_all()
-        statuses = [d.get("status", "") for d in report["designs"]]
-        self.assertTrue(any("needs review" in s for s in statuses), statuses)
+        # The live store may have no review backlog after new cases land.
+        # Exercise the review state without depending on today's case index.
+        with patch.object(self_improve, "latest_case", return_value=_case()), \
+             patch.object(self_improve, "expected_outcome", return_value=None):
+            row = self_improve.scan_design("fixture")
+        self.assertEqual(row["status"], "OPEN, needs review")
+        self.assertTrue(row["needs_review"])
+        self.assertIsNone(row["review_request_generated"])
+        self._unchanged()
 
     def test_a_read_only_scan_reports_requests_that_already_exist(self):
         # An existing request is a fact about the repo, and reading it is
@@ -253,6 +258,123 @@ class TestVerifyDiagnosisGrounding(unittest.TestCase):
         self.assertEqual(report["ungrounded_candidate_tags"], [])
         self.assertEqual(report["cited_candidate_tags"], [])
 
+    KNOWN = {"aes": {"aes-closure-20261004-baseline", "c-hd-clock_period6",
+                     "I-klayoutgds"},
+             "gcd": {"c-gf180mcu_7t-clock_period12", "sky130-hd", "gf180-7t"},
+             "x": {"data-die-0-0-40-40", "hs-area0", "hs-util40"},
+             "y": {"2026-10-05-retry"}}
+
+    def _aes(self, prose):
+        case = _case(design="aes", diagnosis=prose, iterations=[{"iteration": 1,
+                     "results": [{"tag": "aes-closure-20261004-baseline", "error": ""}]}])
+        return verify_diagnosis.verify_case(case, self.KNOWN)
+
+    def test_a_real_tag_outside_cand_and_sweep_is_checked(self):
+        """Most recorded tags are not `cand-`/`sweep-`. Before, a
+        diagnosis citing `c-hd-clock_period6` was reported as checked
+        with no tags cited at all; over the 19 committed diagnoses the
+        old pattern recognised 2 tag citations, this one 23."""
+        case = _case(design="aes", diagnosis="c-hd-clock_period6 met timing.",
+                     iterations=[{"iteration": 1, "results": [
+                         {"tag": "c-hd-clock_period6", "error": ""}]}])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["cited_candidate_tags"], ["c-hd-clock_period6"])
+        self.assertEqual(report["ungrounded_candidate_tags"], [])
+
+    def test_another_designs_tag_is_flagged(self):
+        """NEGATIVE CONTROL: copy-paste from another design."""
+        case = _case(design="aes", diagnosis="c-gf180mcu_7t-clock_period12 failed.",
+                     iterations=[{"iteration": 1, "results": [
+                         {"tag": "aes-closure-20261004-baseline", "error": ""}]}])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["ungrounded_candidate_tags"],
+                         ["c-gf180mcu_7t-clock_period12"])
+
+    def test_an_invented_tag_with_a_real_prefix_is_flagged(self):
+        """NEGATIVE CONTROL: a tag nobody ran, shaped like real ones."""
+        case = _case(design="aes", diagnosis="aes-closure-20261004-r9 fixed it.",
+                     iterations=[{"iteration": 1, "results": [
+                         {"tag": "aes-closure-20261004-baseline", "error": ""}]}])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["ungrounded_candidate_tags"],
+                         ["aes-closure-20261004-r9"])
+
+    def test_a_tag_from_an_earlier_case_of_this_design_is_shown_not_flagged(self):
+        """sram_wrapper's 08-27 diagnosis proposed G-capture, H-lefdrc and
+        I-klayoutgds; a later case ran them. A carried verdict or an
+        executed proposal is not an invented reference."""
+        case = _case(design="aes", diagnosis="Compare c-hd-clock_period6.",
+                     iterations=[{"iteration": 1, "results": [
+                         {"tag": "aes-closure-20261004-baseline", "error": ""}]}])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["ungrounded_candidate_tags"], [])
+        self.assertEqual(report["candidate_tags_from_other_cases"],
+                         ["c-hd-clock_period6"])
+
+    def test_english_with_a_tag_prefix_is_not_a_tag(self):
+        """The two false positives found when every committed diagnosis
+        was replayed: "data-bus" and "hs-library" start with real tag
+        prefixes. No digit, not a recorded tag: prose."""
+        case = _case(design="x", diagnosis="The data-bus wirelength and the "
+                     "hs-library experiment.", iterations=[])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["cited_candidate_tags"], [])
+
+    def test_another_designs_date_shaped_tag_does_not_make_dates_tags(self):
+        """Review of #59: prefixes came from every design, so one case
+        elsewhere tagged `2026-10-05-retry` turned the dates in 19
+        committed diagnoses into ungrounded tags. Only this design's
+        prefixes are used, and none may start with a digit."""
+        report = self._aes("Rerun on 2026-10-04 and again 2026-08-30T13.")
+        self.assertEqual(report["cited_candidate_tags"], [])
+
+    def test_technology_names_are_prose(self):
+        """Review of #59: `gf180-only`, `sky130-hd`, `c-2` were flagged.
+        A digit must follow the prefix, one-letter prefixes are not
+        prefixes, and another design's two-part tag reads as a name."""
+        report = self._aes("Unlike the sky130-based flow, gf180-only cells; "
+                           "the sky130-hd and gf180-7t libraries; a c-2 element, I-2.")
+        self.assertEqual(report["ungrounded_candidate_tags"], [])
+
+    def test_a_tag_with_a_korean_particle_is_checked(self):
+        """`\\w` matches Hangul, so `...-r9는` was never a token."""
+        report = self._aes("aes-closure-20261004-r9는 타이밍을 만족했다.")
+        self.assertEqual(report["ungrounded_candidate_tags"], ["aes-closure-20261004-r9"])
+
+    def test_a_tag_inside_a_run_path_is_checked(self):
+        report = self._aes("See runs/aes-closure-20261004-r9/final/metrics.json.")
+        self.assertEqual(report["ungrounded_candidate_tags"], ["aes-closure-20261004-r9"])
+
+    def test_a_file_named_after_a_real_tag_cites_that_tag(self):
+        report = self._aes("aes-closure-20261004-baseline.log shows the hold fix.")
+        self.assertEqual(report["cited_candidate_tags"], ["aes-closure-20261004-baseline"])
+        self.assertEqual(report["ungrounded_candidate_tags"], [])
+
+    def test_another_designs_two_part_run_tag_is_still_copy_paste(self):
+        """Re-review of #59: excusing every two-part tag let `hs-util40`
+        from another design through. Only technology prefixes are."""
+        report = self._aes("Copied from x: hs-util40 met timing.")
+        self.assertEqual(report["ungrounded_candidate_tags"], ["hs-util40"])
+
+    def test_a_design_not_yet_indexed_uses_its_own_tags(self):
+        case = _case(design="newd", diagnosis="newd-closure-r9 fixed it.",
+                     iterations=[{"iteration": 1, "results": [
+                         {"tag": "newd-closure-r1", "error": ""}]}])
+        report = verify_diagnosis.verify_case(case, self.KNOWN)
+        self.assertEqual(report["ungrounded_candidate_tags"], ["newd-closure-r9"])
+
+    def test_reduced_coverage_is_visible(self):
+        case = _case(design="aes", diagnosis="text", iterations=[])
+        self.assertFalse(verify_diagnosis.verify_case(case, {})["store_tags_available"])
+        self.assertTrue(verify_diagnosis.verify_case(case, self.KNOWN)["store_tags_available"])
+
+    def test_an_unreadable_index_yields_no_tags_not_an_exception(self):
+        """An index caught mid-write must not stop a review being applied."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            (pathlib.Path(tmp) / "index.json").write_text('{"aes": [')
+            self.assertEqual(verify_diagnosis.recorded_tags(tmp), {})
+
     def test_review_summaries_are_checked_too(self):
         """Subagent review text is agent-written prose exactly like the
         diagnosis field, so it must be held to the same standard."""
@@ -285,7 +407,7 @@ class TestRealCommittedCasesAreGrounded(unittest.TestCase):
                 path = verify_diagnosis.REFDB / "cases" / name
                 if not path.exists():
                     continue
-                report = verify_diagnosis.verify_case(json.loads(path.read_text(encoding="utf-8")))
+                report = verify_diagnosis.verify_case(case_store.load_light(path))
                 if not report["checked"]:
                     continue
                 self.assertEqual(report["ungrounded_error_codes"], [],

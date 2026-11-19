@@ -485,8 +485,8 @@ wrapping the same command; the script itself doesn't care which.
 Until this point the dashboard's Layout Pipeline tab was strictly
 read-only: it rendered whatever `reference-db/` already contained, and
 every actual `orchestrator.py` invocation happened from a terminal. That
-made the dashboard read as a *report viewer* for a DTCO
-(design-technology co-optimization) agent rather than the agent's own
+made the dashboard read as a *report viewer* for a layout
+agent rather than the agent's own
 interface — a real gap, not just a framing complaint, since it meant the
 one artifact most people would actually open couldn't drive the thing it
 was displaying.
@@ -512,7 +512,7 @@ Closed by adding a real trigger path:
   tail log, then refreshing the reference-db view when the run
   completes so the new case appears without a manual reload.
 - Branding (`i18n.tsx`, `index.html`) updated from "PPA Readout /
-  Synopsys report reader" to "DTCO Agent Console / DTCO AI Agent" —
+  Synopsys report reader" to "Layout Agent Console / Layout AI Agent" —
   the old copy was accurate for the report-paste tabs but didn't
   describe what the Pipeline tab (the primary tab) actually is anymore.
 
@@ -568,7 +568,7 @@ claimed as fully working:
   could reduce wait time but wasn't attempted), just making an
   already-working feature legible instead of looking hung.
 
-## Performance: reference-db caching and deferred chart loading
+## Performance: reference-db caching and dependency-free chart rendering
 
 Two real, measured performance fixes made while the user was away
 (explicit "find what needs it yourself" instruction) — both low-risk,
@@ -587,21 +587,16 @@ measurements rather than assumed:
    file's content directly and confirmed the very next request reflects
    the change (cache invalidates correctly on mtime change) — not just
    a "trust the timestamp" assumption.
-2. **Deferred recharts chunk** (`CandidateAreaChart.tsx`, split out of
-   `PipelineTab.tsx`). Real measurement via Playwright on the production
-   build (`vite preview`, not dev mode): recharts' internal
-   `CategoricalChart` chunk is 88KB gzipped — the single largest JS
-   chunk in the app — and was statically imported at the top of
-   `PipelineTab.tsx`, the default/first tab every session loads,
-   forcing it into the initial render's blocking script graph. Moved
-   the one chart that uses it (the case card's "candidate area
-   comparison" bar chart) into its own component behind
-   `lazy(() => import(...))` + `Suspense`. Measured before/after: the
-   `CategoricalChart` chunk's request now starts at 85.7ms, *after*
-   `domContentLoadedEventEnd` (62.5ms) — it no longer blocks initial
-   paint, just loads in parallel and fills in shortly after. Confirmed
-   the chart still renders correctly post-change (real browser check,
-   not just a successful build).
+2. **Dependency-free comparison charts** (`CandidateAreaChart.tsx` and
+   `ObjectivesChart.tsx`). The first optimization deferred Recharts' 88KB
+   gzipped internal chunk so it did not block the initial render. The richer
+   candidate comparison later made that dependency unnecessary: the area view
+   is now semantic HTML/CSS and the Pareto view is a small inline SVG. Removing
+   Recharts eliminated its 356.93KB output chunk (103.32KB gzipped) and reduced
+   Vite's transformed module count from 652 to 79. Playwright checks exercise
+   the real case store at desktop and mobile widths, including multi-candidate
+   area rows, the four-axis Pareto view, internal mobile scrolling, and pinned
+   candidate readouts.
 
 ## Graph engineering: total guards + a ledger for the orchestrate loop
 
@@ -970,7 +965,7 @@ Expand/collapse, both locales, and the flow's layout geometry (four
 steps in one row, arrows between and none trailing) were each verified
 live rather than inferred from the diff.
 
-## The technology half of DTCO (from analog-layout-optimizer)
+## The technology half of the design/technology trade-off (from analog-layout-optimizer)
 
 `pareto.py`'s ranking was taken from
 github.com/kos2001/analog-layout-optimizer earlier. Revisiting that repo,
@@ -981,8 +976,8 @@ process changes, the schematic is fixed while the physical
 implementation must be rebuilt, and what you want out of it is a
 before/after pair plus an explicit record of what stayed invariant.
 
-That named a real gap here. The dashboard calls itself a DTCO
-(design-technology co-optimization) console, but every case in
+That named a real gap here. The dashboard calls itself a layout
+agent console, but every case in
 reference-db varies only *design* knobs — `FP_CORE_UTIL`, `DIE_AREA`,
 `SYNTH_STRATEGY` — against one fixed technology. The technology half of
 "co-optimization" was branding, not something the pipeline had ever
@@ -1014,7 +1009,7 @@ failure mode is invisible in metrics:
 - `delta_vs_baseline()` refuses to compute a delta against such a run.
   A silently meaningless comparison is worse than a failed one.
 
-With `--scl` actually in effect the result is a genuine DTCO finding
+With `--scl` actually in effect the result is a genuine technology-comparison finding
 rather than a fake tie: `sky130_fd_sc_hd` passes at 290.278 µm² (netlist
 confirmed hd), while `sky130_fd_sc_hs` **fails signoff with 21 Magic DRC
 errors** — verified to have really synthesized `sky130_fd_sc_hs` cells
@@ -1088,7 +1083,7 @@ passes or everything crashes early.
 ## "Dashboard" was the wrong frame — carrying stage 8 inside the console
 
 Observation from the user: the word *dashboard* itself was constraining
-what this could be, given the goal is an end-to-end DTCO process run by
+what this could be, given the goal is an end-to-end design process run by
 agents. That turned out to be diagnosable rather than merely semantic.
 The name was the symptom; the constraint was real and located precisely:
 

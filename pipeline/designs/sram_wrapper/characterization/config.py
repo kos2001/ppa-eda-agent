@@ -19,7 +19,7 @@ output_path = str(Path(__file__).resolve().parents[1] / "runs" / "characterizati
 analytical_delay = False
 spice_name = "ngspice"
 use_nix = False  # use the explicitly installed local simulator
-slew_scales = [0.25, 1, 8, 52]  # 0.260 ns covers measured 0.223766 ns + 15%
+slew_scales = [0.25, 1, 8, 112]  # 0.560 ns: complete 2026-10-04 input audit, web0 0.483124 ns + 15%
 load_scales = [0.25, 1, 4]
 process_corners = ["TT"]
 supply_voltages = [1.8]
@@ -30,9 +30,10 @@ check_lvsdrc = False  # characterize existing netlist; physical checks run in Op
 trim_netlist = False
 keep_temp = True
 num_sim_threads = 2
-# Liberty characterization consumes .meas results; retaining every transient
-# waveform for this million-device macro is needlessly expensive.
+# Strip legacy POST/PROBE controls; ngspice 46 batch mode already saves
+# .meas vectors automatically. This flag is not a demonstrated speedup.
 spice_save_waveforms = False
+spice_matrix_solver = "klu"  # explicitly selected in the deck; ngspice must include KLU
 # Resolve this path against the installed netlist before simulation: bank's
 # Xbitcell_array instantiates replica_bitcell_array, whose Xbitcell_array
 # instantiates bitcell_array containing the storage cells.

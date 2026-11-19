@@ -13,6 +13,7 @@ import "./App.css";
 installFetchLogging();
 
 const DiagnosisPage = lazy(() => import("./components/DiagnosisPage"));
+const OverviewTab = lazy(() => import("./components/OverviewTab"));
 const PipelineTab = lazy(() => import("./components/PipelineTab"));
 const SchematicTab = lazy(() => import("./components/SchematicTab"));
 const SystemHealth = lazy(() => import("./components/SystemHealth"));
@@ -22,6 +23,7 @@ const DataLineage = lazy(() => import("./components/DataLineage"));
 const ManualPage = lazy(() => import("./components/ManualPage"));
 
 type TabId =
+  | "overview"
   | "pipeline"
   | "schematic"
   | "health"
@@ -89,11 +91,10 @@ function NavItem({
 function AppInner() {
   const { lang, setLang, t } = useLang();
   const { diagnosing, hasUnseenResult } = useAgent();
-  // Pipeline is the primary surface of this app (real placement/routing
-  // candidate generation + evaluation) — everything else (report-paste
-  // tabs, live sim) is secondary, so it's the default view and sits
-  // first/highlighted in the sidebar rather than buried among report tabs.
-  const [active, setActive] = useState<TabId>("pipeline");
+  // Start with measured history; a design card opens its real pipeline cases.
+  const [active, setActive] = useState<TabId>("overview");
+  const [selectedDesign, setSelectedDesign] = useState<string | null>(null);
+  const [selectedCase, setSelectedCase] = useState<string | null>(null);
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme | null) ?? "dark"
   );
@@ -132,6 +133,7 @@ function AppInner() {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
+  const OVERVIEW_TAB: { id: TabId; label: string } = { id: "overview", label: lang === "ko" ? "개요 · 예제" : "Overview · Examples" };
   const PRIMARY_TAB: { id: TabId; label: string } = { id: "pipeline", label: t("tab_pipeline") };
   // A peer of the pipeline, not one of the report tabs: both are about
   // the agent system itself, where the report tabs analyse material the
@@ -191,6 +193,7 @@ function AppInner() {
     {
       label: "Flow",
       items: [
+        { label: OVERVIEW_TAB.label, onSelect: () => setActive("overview") },
         { label: t("tab_pipeline"), onSelect: () => setActive("pipeline"), hint: "P&R" },
         { label: t("tab_schematic"), onSelect: () => setActive("schematic"),
           hint: "xschem" },
@@ -246,7 +249,7 @@ function AppInner() {
         </div>
 
         <nav className="app__nav">
-          {[PRIMARY_TAB, SCHEMATIC_TAB, HEALTH_TAB, PROGRESS_TAB, LINEAGE_TAB, ASK_TAB, MANUAL_TAB]
+          {[OVERVIEW_TAB, PRIMARY_TAB, SCHEMATIC_TAB, HEALTH_TAB, PROGRESS_TAB, LINEAGE_TAB, ASK_TAB, MANUAL_TAB]
             .map((tab) => (
               <NavItem
                 key={tab.id}
@@ -295,7 +298,8 @@ function AppInner() {
       <div className="app__content">
         <main className="app__main">
           <Suspense fallback={<div className="panel"><span className="panel__title">Loading…</span></div>}>
-            {active === "pipeline" && <PipelineTab />}
+            {active === "overview" && <OverviewTab onOpenDesign={(design) => { setSelectedDesign(design); setSelectedCase(null); setActive("pipeline"); }} onOpenCase={(design, file) => { setSelectedDesign(design); setSelectedCase(file); setActive("pipeline"); }} onOpenSchematic={() => setActive("schematic")} />}
+            {active === "pipeline" && <PipelineTab initialDesign={selectedDesign} initialCase={selectedCase} />}
             {active === "schematic" && <SchematicTab />}
             {active === "health" && <SystemHealth standalone />}
             {active === "progress" && <ProgressTab />}

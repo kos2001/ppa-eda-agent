@@ -37,6 +37,7 @@ lands here is data, not signoff.
 from __future__ import annotations
 
 import json
+import math
 import re
 from pathlib import Path
 
@@ -68,23 +69,34 @@ def characterisation_ceiling(lib_path: Path | str) -> float | None:
     for m in _INDEX_1.finditer(text):
         parts = [p.strip() for p in m.group(1).split(",") if p.strip()]
         try:
-            tops.append(float(parts[-1]))
+            value = float(parts[-1])
+            if math.isfinite(value) and value > 0:
+                tops.append(value)
         except (ValueError, IndexError):
             continue
     return max(tops) if tops else None
 
 
-def macro_ceilings(design_dir: Path | str) -> dict[str, float]:
+def macro_configuration(design_dir: Path | str, run_dir: Path | str | None = None):
+    """Prefer the effective configuration that actually ran."""
+    source = Path(design_dir) / "config.json"
+    if run_dir is not None:
+        resolved = Path(run_dir) / "resolved.json"
+        if resolved.is_file():
+            config = json.loads(resolved.read_text())
+            if "MACROS" in config:
+                return config, resolved
+    return (json.loads(source.read_text()) if source.is_file() else {}), source
+
+
+def macro_ceilings(design_dir: Path | str, run_dir: Path | str | None = None) -> dict[str, float]:
     """Each macro instance mapped to the ceiling of its own liberty.
 
     Keyed by *instance* rather than by macro, because the STA report
     names pins as `<instance>/<pin>` and that is what has to be matched.
     """
     design_dir = Path(design_dir)
-    cfg_path = design_dir / "config.json"
-    if not cfg_path.is_file():
-        return {}
-    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    cfg, _ = macro_configuration(design_dir, run_dir)
     out: dict[str, float] = {}
     for macro, spec in (cfg.get("MACROS") or {}).items():
         libs = spec.get("lib") or {}
@@ -112,8 +124,13 @@ def _resolve(raw: str, design_dir: Path) -> Path | None:
     raw = str(raw)
     if raw.startswith("dir::"):
         return design_dir / raw[len("dir::"):]
+    if raw.startswith("/design/"):
+        return design_dir / raw[len("/design/"):]
     if raw.startswith("/pdk/"):
         # The container mount. Map it back to the checkout's own PDK.
+        direct = REPO_ROOT / "pdk" / raw[len("/pdk/"):]
+        if direct.is_file():
+            return direct
         hits = sorted((REPO_ROOT / "pdk").rglob(Path(raw).name))
         return hits[0] if hits else None
     p = Path(raw)
@@ -160,7 +177,10 @@ def parse_pin_slews(text: str) -> tuple[list[dict], int]:
     pins, unmeasured = [], 0
     for m in _PIN_SLEW.finditer(text):
         try:
-            pins.append({"pin": m.group(1), "slew_ns": float(m.group(2))})
+            value = float(m.group(2))
+            if not math.isfinite(value) or value < 0:
+                raise ValueError("invalid slew")
+            pins.append({"pin": m.group(1), "slew_ns": value})
         except ValueError:
             unmeasured += 1
     return pins, unmeasured
@@ -181,10 +201,16 @@ def check_every_pin(ceilings: dict[str, float], run_dir: Path | str) -> dict | N
         return None
     worst: dict[str, dict] = {}
     checked: set[str] = set()
+    corner_pin_sets = []
     unmeasured = 0
     for rpt in pin_reports:
         pins, missing = parse_pin_slews(rpt.read_text(encoding="utf-8", errors="ignore"))
         unmeasured += missing
+        corner_pins = [row["pin"] for row in pins
+                       if row["pin"].split("/", 1)[0] in ceilings]
+        if len(corner_pins) != len(set(corner_pins)):
+            return None
+        corner_pin_sets.append(set(corner_pins))
         for row in pins:
             inst = row["pin"].split("/", 1)[0]
             ceiling = ceilings.get(inst)
@@ -199,12 +225,17 @@ def check_every_pin(ceilings: dict[str, float], run_dir: Path | str) -> dict | N
             prev = worst.get(row["pin"])
             if prev is None or entry["slew_ns"] > prev["slew_ns"]:
                 worst[row["pin"]] = entry
-    if not checked or unmeasured:
+    if (not checked or unmeasured
+            or any(pins != checked for pins in corner_pin_sets)
+            or {pin.split("/", 1)[0] for pin in checked} != set(ceilings)):
         return None
     pins = sorted(worst.values(), key=lambda e: -e["slew_ns"])
     return {
-        "coverage": "every_macro_input_pin_every_corner",
-        "model_validity_verified": not pins,
+        # Matching report pin sets do not prove that the reports omitted no
+        # pin or entire corner. The independent arc audit checks expectations.
+        "coverage": "reported_macro_input_maxima_all_observed_corners",
+        "reported_input_slew_range_verified": not pins,
+        "model_validity_verified": False,
         "macro_ceilings_ns": ceilings,
         "corners_read": len(pin_reports),
         "pins_checked": len(checked),
@@ -216,19 +247,22 @@ def check_every_pin(ceilings: dict[str, float], run_dir: Path | str) -> dict | N
 def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
     """Pins whose reported slew is past their model's characterisation.
 
-    None when there is nothing to judge — no macro with a readable
-    liberty, or no signoff STA report. Absence of evidence is reported
-    as absence, not as a pass.
+    None for no macro or no signoff STA report. A declared macro with
+    a missing/unreadable Liberty stays explicitly unverified.
     """
-    ceilings = macro_ceilings(design_dir)
-    if not ceilings:
-        return None
+    ceilings = macro_ceilings(design_dir, run_dir)
     reports = find_reports(run_dir)
     if not reports:
         return None
+    cfg, _ = macro_configuration(design_dir, run_dir)
+    if not cfg.get("MACROS"):
+        return None
+    from macro_model_audit import check as check_arcs, summary as arc_summary
+    arcs = arc_summary(check_arcs(design_dir, run_dir))
 
     exhaustive = check_every_pin(ceilings, run_dir)
     if exhaustive is not None:
+        exhaustive["macro_arc_audit"] = arcs
         return exhaustive
 
     worst: dict[str, dict] = {}
@@ -250,14 +284,44 @@ def check(design_dir: Path | str, run_dir: Path | str) -> dict | None:
             if prev is None or entry["slew_ns"] > prev["slew_ns"]:
                 worst[row["pin"]] = entry
 
+    audit = None
+    if list(Path(run_dir).glob("*stapostpnr/*/macro_inputs.csv")):
+        from macro_slew_audit import read_audit
+        expected = {name: 57 for macro, spec in (cfg.get("MACROS") or {}).items()
+                    if macro == "sky130_sram_1kbyte_1rw1r_32x256_8"
+                    for name in spec.get("instances", {})}
+        try:
+            audit = read_audit(run_dir, expected)
+        except (OSError, ValueError, KeyError) as exc:
+            audit = {"coverage_complete": False, "error": str(exc), "rows": []}
+        for row in audit["rows"]:
+            ceiling = ceilings.get(row["pin"].split("/", 1)[0])
+            values = {edge: row[edge] for edge in ("max_rise_ns", "max_fall_ns", "min_rise_ns", "min_fall_ns")
+                      if row[edge] is not None}
+            if ceiling is None or not values:
+                continue
+            edge = max(values, key=values.get)
+            slew = values[edge]
+            if slew <= ceiling:
+                continue
+            entry = {"pin": row["pin"], "corner": row["corner"], "edge": edge,
+                     "slew_ns": slew, "characterised_to_ns": ceiling,
+                     "times_past_ceiling": round(slew / ceiling, 1)}
+            prev = worst.get(row["pin"])
+            if prev is None or slew > prev["slew_ns"]:
+                worst[row["pin"]] = entry
+
     pins = sorted(worst.values(), key=lambda e: -e["slew_ns"])
     return {
-        "coverage": "reported_slew_violations_only",
+        "coverage": ("all_macro_input_edges" if audit and audit["coverage_complete"]
+                     else "reported_slew_violations_only"),
         "model_validity_verified": False,
+        "complete_input_audit": ({k: v for k, v in audit.items() if k != "rows"} if audit else None),
         "macro_ceilings_ns": ceilings,
+        "macro_arc_audit": arcs,
         "corners_read": len(reports),
         "extrapolated_pins": pins,
-        "worst_times_past_ceiling": pins[0]["times_past_ceiling"] if pins else 0.0,
+        "worst_times_past_ceiling": pins[0]["times_past_ceiling"] if pins else (0.0 if ceilings else None),
     }
 
 
@@ -277,12 +341,24 @@ def unverified(result: dict | None) -> list[str]:
         "rise/fall slew at every corner, checked against its Liberty arc "
         "axes and explicit PVT mapping"
     )
-    exhaustive = result.get("coverage") == "every_macro_input_pin_every_corner"
+    if result.get("coverage") in ("every_macro_input_pin_every_corner",
+                                  "reported_macro_input_maxima_all_observed_corners"):
+        coverage = ("macro input maximum slew was exported at every reported corner; "
+                    "complete rise/fall coverage, per-arc Liberty range and explicit "
+                    "PVT mapping still require qualification")
+    elif result.get("coverage") == "all_macro_input_edges":
+        coverage = ("every macro input's rise/fall slew was exported at every corner; "
+                    "per-arc Liberty range and explicit PVT mapping still require qualification")
+    arcs = result.get("macro_arc_audit")
+    if arcs:
+        mismatches = sum(not r.get("pvt_matches_declared", False) for r in arcs["corner_models"])
+        coverage += (f"; declared macro PVT is mismatched or unknown in {mismatches} corner-model mapping(s), "
+                     f"{arcs['input_axis_extrapolation_count']} timing-table input-axis check(s) are outside "
+                     "their ranges; extracted output loads and measured model provenance remain unqualified")
     if not result["extrapolated_pins"]:
-        # Every input pin at every corner was measured and none is past the
-        # table: nothing is left unverified. Without that report the
-        # violator list cannot say so.
-        return [] if exhaustive else [coverage]
+        # Slew coverage can be complete while the macro model's arc/PVT
+        # provenance remains unqualified. Preserve that stronger audit.
+        return [coverage]
     pins = result["extrapolated_pins"]
     worst = pins[0]
     return [
@@ -294,7 +370,7 @@ def unverified(result: dict | None) -> list[str]:
         f"corner {worst['corner']}) — these delays are off the end of "
         f"the table, not measurements, and signoff needs a "
         f"re-characterised liberty."
-        + ("" if exhaustive else f" {coverage}")
+        + f" {coverage}"
     ]
 
 

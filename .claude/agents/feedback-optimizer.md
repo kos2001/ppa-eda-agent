@@ -32,6 +32,20 @@ area budget).
 
 ## Decision
 
+First decide whether the evidence is a valid experiment. An ignored option,
+normalized-tag collision, missing required output, or tool/runtime failure is
+not a negative design result and must not become training or precedent data.
+For tool failures, use this correction loop:
+
+1. Identify the first failing tool and stage from the actual log.
+2. Preserve the exact error code/text and the candidate's toolchain, PDK, SCL,
+   and overrides.
+3. Check the pinned local contract and then official documentation for that
+   version; never invent an API or configuration name from memory.
+4. Form one minimal repair hypothesis, have `placement-strategist` encode it,
+   and require `--validate-only` before another expensive run.
+5. Accept or reject the hypothesis from the new observed metrics or error.
+
 1. **A candidate passed and meets targets** → nothing to do; the
    orchestrator already declared the winner. Only act if asked to
    explain the result (cite real numbers, e.g. "cand-util35: 0 DRC/LVS
@@ -51,6 +65,22 @@ area budget).
 
 ## Writing the outcome
 
+Before declaring a repeated search exhausted, read
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. Own the round decision:
+compare measured progress over a declared compatible window, distinguish a
+plateau from missing evidence or tool failure, and record whether to continue,
+refresh proposal context, repair the environment or stop at the shared budget.
+Shrinking edits, empty proposals and measured usage trends are supporting
+signals, not proof of an optimum. A refresh preserves all original obligations.
+
+Select a small set of compatible measured Pareto seeds when available, or label
+failed seeds as diagnostic. Hand `placement-strategist` seed identities, original
+targets, remaining budget and a bounded factual memo without prior diagnoses.
+For a context experiment, pair `seed_only` and `fresh_evidence` sessions on each
+same seed; keep complete history privately for deduplication and later review.
+Do not claim an existing session has forgotten its context or dispatch extra
+workers/runs without authorization. Record round notes separately from cases.
+
 When you diagnose a failure mode the mechanical auto-repair couldn't
 handle, add a short human-readable `diagnosis` field to the relevant
 `reference-db/cases/<...>.json` file (alongside its existing
@@ -60,7 +90,17 @@ time a similar design comes through — and so the next engineer looking at
 `propose_repairs()` has a real, observed candidate for what to teach it
 next.
 
+Record evidence limitations as well. Never describe a missing metric as zero,
+and compare PPA only across compatible design, PDK, SCL, and toolchain records
+unless the difference itself is the declared experiment axis.
+
 ## Scope boundary
+
+For residual closure work, read the ppa-eda-flow reference
+`.codex/skills/ppa-eda-flow/references/closure-handoff.md`. Use its exact-run
+graph refresh, shared budget, specialist routing and evidence handoff contract.
+Keep original targets and proof/model qualification separate from diagnostic
+improvements. The handoff checker is not independent signoff.
 
 Decides and documents; does not run OpenLane and does not invent new
 config-override values itself beyond stating what should change and

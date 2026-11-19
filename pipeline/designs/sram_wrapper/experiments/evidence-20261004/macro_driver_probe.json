@@ -1,0 +1,1264 @@
+{
+  "macro_bbox_um": [
+    110.0,
+    150.0,
+    589.78,
+    547.5
+  ],
+  "rows": [
+    {
+      "pin": "din0[0]",
+      "net": "net105",
+      "pin_xy_um": [
+        216.95,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold8",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            233.735,
+            134.658
+          ],
+          "distance_um": 32.657,
+          "sinks": 5,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[1]",
+      "net": "net100",
+      "pin_xy_um": [
+        223.07,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold3",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            253.975,
+            137.342
+          ],
+          "distance_um": 44.093,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[2]",
+      "net": "net102",
+      "pin_xy_um": [
+        228.51,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold5",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            230.975,
+            137.342
+          ],
+          "distance_um": 15.653,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[3]",
+      "net": "net99",
+      "pin_xy_um": [
+        235.31,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold2",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            236.035,
+            137.342
+          ],
+          "distance_um": 13.913,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[4]",
+      "net": "net103",
+      "pin_xy_um": [
+        240.75,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold6",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            235.005,
+            137.342
+          ],
+          "distance_um": 18.933,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[5]",
+      "net": "net98",
+      "pin_xy_um": [
+        246.19,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold1",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            248.915,
+            137.342
+          ],
+          "distance_um": 15.913,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[6]",
+      "net": "net104",
+      "pin_xy_um": [
+        251.63,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold7",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            252.025,
+            137.342
+          ],
+          "distance_um": 13.583,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[7]",
+      "net": "net101",
+      "pin_xy_um": [
+        258.43,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "hold4",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            257.085,
+            137.342
+          ],
+          "distance_um": 14.533,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[8]",
+      "net": "net70",
+      "pin_xy_um": [
+        263.87,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_70",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            264.385,
+            137.69
+          ],
+          "distance_um": 13.355,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[9]",
+      "net": "net71",
+      "pin_xy_um": [
+        269.31,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_71",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            268.295,
+            137.69
+          ],
+          "distance_um": 13.855,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[10]",
+      "net": "net72",
+      "pin_xy_um": [
+        275.43,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_72",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            276.805,
+            137.69
+          ],
+          "distance_um": 14.215,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[11]",
+      "net": "net73",
+      "pin_xy_um": [
+        280.87,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_73",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            281.405,
+            137.69
+          ],
+          "distance_um": 13.375,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[12]",
+      "net": "net74",
+      "pin_xy_um": [
+        287.67,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_74",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            287.845,
+            137.69
+          ],
+          "distance_um": 13.015,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[13]",
+      "net": "net75",
+      "pin_xy_um": [
+        293.11,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_75",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            293.365,
+            137.69
+          ],
+          "distance_um": 13.095,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[14]",
+      "net": "net76",
+      "pin_xy_um": [
+        298.55,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_76",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            298.885,
+            137.69
+          ],
+          "distance_um": 13.175,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[15]",
+      "net": "net77",
+      "pin_xy_um": [
+        304.67,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_77",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            304.865,
+            137.69
+          ],
+          "distance_um": 13.035,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[16]",
+      "net": "net78",
+      "pin_xy_um": [
+        311.47,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_78",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            311.765,
+            137.69
+          ],
+          "distance_um": 13.135,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[17]",
+      "net": "net79",
+      "pin_xy_um": [
+        316.91,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_79",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            317.285,
+            137.69
+          ],
+          "distance_um": 13.215,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[18]",
+      "net": "net80",
+      "pin_xy_um": [
+        322.35,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_80",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            322.805,
+            137.69
+          ],
+          "distance_um": 13.295,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[19]",
+      "net": "net81",
+      "pin_xy_um": [
+        327.79,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_81",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            328.325,
+            137.69
+          ],
+          "distance_um": 13.375,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[20]",
+      "net": "net82",
+      "pin_xy_um": [
+        334.59,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_82",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            334.765,
+            137.69
+          ],
+          "distance_um": 13.015,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[21]",
+      "net": "net83",
+      "pin_xy_um": [
+        340.03,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_83",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            341.205,
+            137.69
+          ],
+          "distance_um": 14.015,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[22]",
+      "net": "net84",
+      "pin_xy_um": [
+        345.47,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_84",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            345.805,
+            137.69
+          ],
+          "distance_um": 13.175,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[23]",
+      "net": "net85",
+      "pin_xy_um": [
+        351.59,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_85",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            351.785,
+            137.69
+          ],
+          "distance_um": 13.035,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[24]",
+      "net": "net86",
+      "pin_xy_um": [
+        357.03,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_86",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            357.305,
+            134.31
+          ],
+          "distance_um": 16.495,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[25]",
+      "net": "net87",
+      "pin_xy_um": [
+        363.83,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_87",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            364.205,
+            137.69
+          ],
+          "distance_um": 13.215,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[26]",
+      "net": "net88",
+      "pin_xy_um": [
+        369.27,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_88",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            369.725,
+            137.69
+          ],
+          "distance_um": 13.295,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[27]",
+      "net": "net89",
+      "pin_xy_um": [
+        374.71,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_89",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            375.245,
+            137.69
+          ],
+          "distance_um": 13.375,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[28]",
+      "net": "net90",
+      "pin_xy_um": [
+        380.15,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_90",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            380.305,
+            137.69
+          ],
+          "distance_um": 12.995,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[29]",
+      "net": "net91",
+      "pin_xy_um": [
+        386.27,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_91",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            386.745,
+            134.31
+          ],
+          "distance_um": 16.695,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[30]",
+      "net": "net92",
+      "pin_xy_um": [
+        393.07,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_92",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            393.645,
+            137.69
+          ],
+          "distance_um": 13.415,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "din0[31]",
+      "net": "net93",
+      "pin_xy_um": [
+        398.51,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_93",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            398.705,
+            137.69
+          ],
+          "distance_um": 13.035,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[0]",
+      "net": "addr0\\[0\\]",
+      "pin_xy_um": [
+        187.71,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[0\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            187.735,
+            134.658
+          ],
+          "distance_um": 15.897,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[1]",
+      "net": "addr0\\[1\\]",
+      "pin_xy_um": [
+        110.53,
+        278.71
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[1\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            94.696,
+            221.909
+          ],
+          "distance_um": 72.635,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[2]",
+      "net": "addr0\\[2\\]",
+      "pin_xy_um": [
+        110.53,
+        287.55
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[2\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            94.696,
+            238.229
+          ],
+          "distance_um": 65.155,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[3]",
+      "net": "addr0\\[3\\]",
+      "pin_xy_um": [
+        110.53,
+        292.31
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[3\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            89.303,
+            229.61
+          ],
+          "distance_um": 83.927,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[4]",
+      "net": "addr0\\[4\\]",
+      "pin_xy_um": [
+        110.53,
+        300.47
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[4\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            92.063,
+            254.549
+          ],
+          "distance_um": 64.388,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[5]",
+      "net": "addr0\\[5\\]",
+      "pin_xy_um": [
+        110.53,
+        305.91
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[5\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            92.063,
+            249.109
+          ],
+          "distance_um": 75.268,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[6]",
+      "net": "addr0\\[6\\]",
+      "pin_xy_um": [
+        110.53,
+        314.75
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[6\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            89.303,
+            273.13
+          ],
+          "distance_um": 62.847,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr0[7]",
+      "net": "addr0\\[7\\]",
+      "pin_xy_um": [
+        110.53,
+        320.87
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr0_buf\\[7\\].addr0_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            92.063,
+            270.869
+          ],
+          "distance_um": 68.468,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[0]",
+      "net": "addr1\\[0\\]",
+      "pin_xy_um": [
+        507.31,
+        546.97
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[0\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            501.796,
+            559.189
+          ],
+          "distance_um": 17.733,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[1]",
+      "net": "addr1\\[1\\]",
+      "pin_xy_um": [
+        589.25,
+        233.15
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[1\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            527.556,
+            137.13
+          ],
+          "distance_um": 157.714,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[2]",
+      "net": "addr1\\[2\\]",
+      "pin_xy_um": [
+        589.25,
+        224.99
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[2\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            541.816,
+            137.13
+          ],
+          "distance_um": 135.294,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[3]",
+      "net": "addr1\\[3\\]",
+      "pin_xy_um": [
+        589.25,
+        218.19
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[3\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            530.316,
+            134.869
+          ],
+          "distance_um": 142.255,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[4]",
+      "net": "addr1\\[4\\]",
+      "pin_xy_um": [
+        525.67,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[4\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            486.156,
+            129.429
+          ],
+          "distance_um": 60.615,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[5]",
+      "net": "addr1\\[5\\]",
+      "pin_xy_um": [
+        523.63,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[5\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            471.436,
+            131.69
+          ],
+          "distance_um": 71.034,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[6]",
+      "net": "addr1\\[6\\]",
+      "pin_xy_um": [
+        524.31,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[6\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            477.876,
+            134.869
+          ],
+          "distance_um": 62.095,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "addr1[7]",
+      "net": "addr1\\[7\\]",
+      "pin_xy_um": [
+        524.99,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "gen_addr1_buf\\[7\\].addr1_driver_2",
+          "master": "sky130_fd_sc_hd__buf_16",
+          "pin": "X",
+          "xy_um": [
+            476.036,
+            129.429
+          ],
+          "distance_um": 70.055,
+          "sinks": 3,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "csb0",
+      "net": "net68",
+      "pin_xy_um": [
+        110.53,
+        178.07
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_68",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            98.095,
+            177.83
+          ],
+          "distance_um": 12.675,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "csb1",
+      "net": "net69",
+      "pin_xy_um": [
+        589.25,
+        532.35
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_69",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "LO",
+          "xy_um": [
+            601.565,
+            534.81
+          ],
+          "distance_um": 14.775,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "web0",
+      "net": "net105",
+      "pin_xy_um": [
+        110.53,
+        186.23
+      ],
+      "drivers": [
+        {
+          "instance": "hold8",
+          "master": "sky130_fd_sc_hd__clkbuf_2",
+          "pin": "X",
+          "xy_um": [
+            233.735,
+            134.658
+          ],
+          "distance_um": 174.777,
+          "sinks": 5,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "clk0",
+      "net": "fanout_repair_22",
+      "pin_xy_um": [
+        139.43,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "fanout_repair_22",
+          "master": "sky130_fd_sc_hd__clkbuf_8",
+          "pin": "X",
+          "xy_um": [
+            215.949,
+            131.837
+          ],
+          "distance_um": 95.212,
+          "sinks": 9,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "clk1",
+      "net": "fanout_repair_38",
+      "pin_xy_um": [
+        560.35,
+        546.97
+      ],
+      "drivers": [
+        {
+          "instance": "fanout_repair_38",
+          "master": "sky130_fd_sc_hd__clkbuf_8",
+          "pin": "X",
+          "xy_um": [
+            466.23,
+            597.122
+          ],
+          "distance_um": 144.272,
+          "sinks": 9,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "wmask0[0]",
+      "net": "net94",
+      "pin_xy_um": [
+        193.83,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_94",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "HI",
+          "xy_um": [
+            195.385,
+            136.997
+          ],
+          "distance_um": 15.088,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "wmask0[1]",
+      "net": "net95",
+      "pin_xy_um": [
+        199.27,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_95",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "HI",
+          "xy_um": [
+            199.525,
+            136.997
+          ],
+          "distance_um": 13.788,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "wmask0[2]",
+      "net": "net96",
+      "pin_xy_um": [
+        206.07,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_96",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "HI",
+          "xy_um": [
+            206.425,
+            136.997
+          ],
+          "distance_um": 13.888,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    },
+    {
+      "pin": "wmask0[3]",
+      "net": "net97",
+      "pin_xy_um": [
+        210.83,
+        150.53
+      ],
+      "drivers": [
+        {
+          "instance": "u_sram_97",
+          "master": "sky130_fd_sc_hd__conb_1",
+          "pin": "HI",
+          "xy_um": [
+            215.165,
+            136.997
+          ],
+          "distance_um": 17.868,
+          "sinks": 1,
+          "status": "PLACED"
+        }
+      ]
+    }
+  ]
+}
