@@ -381,7 +381,10 @@ def _feature_distance(fa: dict, fb: dict,
     compared = 0
     for key, (lo, hi) in ranges.items():
         va, vb = fa.get(key), fb.get(key)
-        if _numeric(va) and _numeric(vb):
+        # _numeric(), inlined: this is the innermost loop of every
+        # leave-one-out fold, and the call overhead was a fifth of it.
+        if (isinstance(va, (int, float)) and va is not True and va is not False
+                and isinstance(vb, (int, float)) and vb is not True and vb is not False):
             total += ((va - vb) / (hi - lo)) ** 2
             compared += 1
     for key in ("SYNTH_STRATEGY", "SCL"):
@@ -422,27 +425,60 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
             "n_samples": len(same),
         }
 
-    use_scl = scl_is_informative(dataset)
-    feats = [featurize(r) for r in same]
+    return _predict_core(target, featurize(target), same,
+                         [featurize(r) for r in same],
+                         scl_is_informative(dataset), field, k)
+
+
+def _predict_core(target: dict, target_feats: dict, same: list[dict],
+                  feats: list[dict], use_scl: bool, field: str, k: int) -> dict:
+    """predict() after its row filter, on features already computed.
+
+    evaluate() calls this directly. A leave-one-out pass used to
+    re-featurize the whole design and recount the libraries for every
+    fold and every k; the features of a row do not depend on which row is
+    held out, so they are computed once per evaluate() instead.
+    """
+    if len(same) < MIN_SAMPLES:
+        return {
+            "value": None,
+            "refused": True,
+            "reason": (f"only {len(same)} recorded run(s) with {field} for "
+                       f"design {target.get('design')!r}; need at least "
+                       f"{MIN_SAMPLES} before a prediction means anything"),
+            "n_samples": len(same),
+        }
+    scored = _neighbours(target_feats, same, feats, use_scl)
+    return _combine(scored, len(same), field, k)
+
+
+def _neighbours(target_feats: dict, same: list[dict], feats: list[dict],
+                use_scl: bool) -> list[tuple[float, dict]]:
+    """Every comparable row with its distance, nearest first. Does not
+    depend on k or on the field, so one pass serves every k best_k tries."""
     ranges = _feature_ranges(feats)
-    target_feats = featurize(target)
     scored = []
     for row, row_feats in zip(same, feats):
         d = _feature_distance(target_feats, row_feats, ranges, use_scl=use_scl)
         if d is not None:
             scored.append((d, row))
+    scored.sort(key=lambda dr: dr[0])
+    return scored
+
+
+def _combine(scored: list[tuple[float, dict]], n_same: int, field: str,
+             k: int) -> dict:
     if not scored:
         return {"value": None, "refused": True,
                 "reason": "no recorded run shares a comparable parameter",
-                "n_samples": len(same)}
+                "n_samples": n_same}
 
-    scored.sort(key=lambda dr: dr[0])
     top = scored[:k]
     # Inverse-distance weighting, with an exact match short-circuited so
     # a config that was actually run returns what it actually produced.
     if top[0][0] == 0:
         return {"value": top[0][1][field], "refused": False,
-                "exact_match": True, "n_samples": len(same),
+                "exact_match": True, "n_samples": n_same,
                 "neighbours": [top[0][1]["overrides"]]}
     weights = [1.0 / (d + 1e-9) for d, _ in top]
     value = sum(w * r[field] for w, (_, r) in zip(weights, top)) / sum(weights)
@@ -450,7 +486,7 @@ def predict(target: dict, dataset: list[dict], field: str = "area_um2",
         "value": value,
         "refused": False,
         "exact_match": False,
-        "n_samples": len(same),
+        "n_samples": n_same,
         "neighbours": [r["overrides"] for _, r in top],
         "neighbour_distances": [round(d, 4) for d, _ in top],
     }
@@ -613,8 +649,41 @@ def _is_boolean_target(field: str) -> bool:
     return field == "completed"
 
 
+def loo_folds(dataset: list[dict], field: str = "area_um2") -> list:
+    """The leave-one-out neighbour lists for `field`, one per usable row:
+    None when the row's design has no other row, else (n_same, scored).
+
+    Exactly what predict() would compute on usable-minus-one for each
+    fold. It is independent of k, so best_k() computes it once and scores
+    all five k from it instead of redoing every distance per k.
+    """
+    usable = [r for r in dataset if isinstance(r.get(field), (int, float))]
+    feats = [featurize(r) for r in usable]
+    by_design: dict[str, list[int]] = {}
+    scl_counts: dict[str, int] = {}
+    for i, r in enumerate(usable):
+        by_design.setdefault(r["design"], []).append(i)
+        scl = r.get("scl") or DEFAULT_SCL
+        scl_counts[scl] = scl_counts.get(scl, 0) + 1
+    folds = []
+    for i, held_out in enumerate(usable):
+        idx = [j for j in by_design[held_out["design"]] if j != i]
+        if not idx:
+            folds.append(None)
+            continue
+        if len(idx) < MIN_SAMPLES:
+            folds.append((len(idx), None))
+            continue
+        held_scl = held_out.get("scl") or DEFAULT_SCL
+        use_scl = sum(1 for name, n in scl_counts.items()
+                      if n - (name == held_scl) >= MIN_SAMPLES_PER_SCL) >= 2
+        folds.append((len(idx), _neighbours(
+            feats[i], [usable[j] for j in idx], [feats[j] for j in idx], use_scl)))
+    return folds
+
+
 def evaluate(dataset: list[dict], field: str = "area_um2",
-             k: int | None = None) -> dict:
+             k: int | None = None, folds: list | None = None) -> dict:
     """Leave-one-out cross-validation against a predict-the-mean baseline.
 
     A surrogate is only worth having if it beats doing nothing. This
@@ -627,13 +696,25 @@ def evaluate(dataset: list[dict], field: str = "area_um2",
     errors, baseline_errors, refusals = [], [], 0
     predictions, truths = [], []
 
+    # Same folds, same neighbours, same arithmetic as calling predict() on
+    # usable-minus-one each time; only the repeated work is hoisted.
+    if folds is None:
+        folds = loo_folds(dataset, field)
+    by_design: dict[str, list[int]] = {}
+    for i, r in enumerate(usable):
+        by_design.setdefault(r["design"], []).append(i)
+
     for i, held_out in enumerate(usable):
-        rest = usable[:i] + usable[i + 1:]
-        same = [r for r in rest if r["design"] == held_out["design"]]
-        if not same:
+        fold = folds[i]
+        if fold is None:
             refusals += 1
             continue
-        got = predict(held_out, rest, field, k)
+        n_same, scored = fold
+        if scored is None:      # fewer than MIN_SAMPLES: predict() refuses
+            refusals += 1
+            continue
+        same = [usable[j] for j in by_design[held_out["design"]] if j != i]
+        got = _combine(scored, n_same, field, k)
         if got["refused"]:
             refusals += 1
             continue
@@ -794,7 +875,8 @@ def _verdict(errors, model_mae, base_mae, win_rate,
 
 
 def best_k(dataset: list[dict], field: str = "area_um2",
-           candidates: tuple[int, ...] = (1, 2, 3, 4, 5)) -> dict:
+           candidates: tuple[int, ...] = (1, 2, 3, 4, 5),
+           folds: list | None = None) -> dict:
     """Which k the data actually supports, rather than the one assumed.
 
     k=3 was a guess. With eight to eleven samples per design that is a
@@ -807,8 +889,10 @@ def best_k(dataset: list[dict], field: str = "area_um2",
     to have a lower average, which a single fold can move.
     """
     scored = []
+    if folds is None:
+        folds = loo_folds(dataset, field)
     for k in candidates:
-        ev = evaluate(dataset, field, k)
+        ev = evaluate(dataset, field, k, folds)
         if ev["n_scored"] == 0:
             continue
         scored.append({

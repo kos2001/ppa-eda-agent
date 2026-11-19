@@ -310,11 +310,15 @@ def dataset_status() -> dict:
     # signoff; predicting whether it will get there at all uses every
     # configuration ever attempted — including the designs that always
     # crash and therefore contribute nothing to the first.
-    evaluations = {t: surrogate.evaluate(data, t) for t in surrogate.TARGETS}
+    # One distance pass per target, shared by the evaluation and by every
+    # k the tuning tries (it was six passes per target).
+    folds = {t: surrogate.loo_folds(data, t) for t in surrogate.TARGETS}
+    evaluations = {t: surrogate.evaluate(data, t, folds=folds[t])
+                   for t in surrogate.TARGETS}
     # Re-derived every scan rather than trusted from when it was set:
     # the best neighbourhood size is a property of how much data there
     # is, and that changes underneath it.
-    tuning = {t: surrogate.best_k(data, t) for t in surrogate.TARGETS}
+    tuning = {t: surrogate.best_k(data, t, folds=folds[t]) for t in surrogate.TARGETS}
     evaluation = evaluations["area_um2"]
     short = {
         name: d["with_area"]
