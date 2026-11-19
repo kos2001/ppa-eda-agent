@@ -19,6 +19,10 @@ import recovery_memory
 
 STOP_REASONS = ("winner_found", "plateau", "actions_exhausted", "candidates_proposed")
 
+# Knobs that define the timing target rather than move the design toward
+# it: changing one can make a violation disappear by asking for less.
+OBJECTIVE_KEYS = ("CLOCK_PERIOD", "IO_DELAY_CONSTRAINT")
+
 
 def _results(case: dict) -> list[dict]:
     return [r for it in case.get("iterations", []) or []
@@ -35,7 +39,32 @@ def plateau(results: list[dict], width: int = 3) -> bool:
     return len(states) == 1 and len(configs) == width
 
 
-def propose(case: dict, graph: dict, limit: int = 4, memory=None) -> dict:
+def _compatibility(current: dict, run: dict, allow_cross_design: bool) -> str | None:
+    """Why a recorded run cannot stand as evidence for ``current``, or None.
+
+    Evidence is compared only after design, PDK, standard-cell library and
+    OpenLane image are known and equal.  A missing PDK/SCL means the run did
+    not pass one and used the image's default: two such runs on the same
+    image match, but a default is never assumed equal to an explicit value.
+    Another design's evidence is a transfer hypothesis and is used only when
+    the caller opts in.
+    """
+    if not current.get("image") or not run.get("image"):
+        return "provenance_unknown"
+    if run.get("design") != current.get("design") and not allow_cross_design:
+        return "other_design"
+    for field in ("pdk", "scl"):
+        if run.get(field) != current.get(field):
+            if run.get(field) is None or current.get(field) is None:
+                return "technology_unresolved"
+            return "technology_mismatch"
+    if run["image"] != current["image"]:
+        return "toolchain_mismatch"
+    return None
+
+
+def propose(case: dict, graph: dict, limit: int = 4,
+            allow_cross_design: bool = False, memory=None) -> dict:
     results = _results(case)
     if not results:
         return {"stop_reason": "actions_exhausted", "candidates": [],
@@ -48,8 +77,13 @@ def propose(case: dict, graph: dict, limit: int = 4, memory=None) -> dict:
     current_bad = set(state["violations"]) | set(state["unverified"]) | set(state["errors"])
     tried = {json.dumps(r.get("overrides") or {}, sort_keys=True) for r in results}
     nodes = graph["nodes"]
+    context = {"design": case.get("design"), "pdk": current.get("pdk"),
+               "scl": current.get("scl"),
+               "image": (case.get("toolchain") or {}).get("openlane_image")}
     closures: dict[str, set[tuple]] = {}
     regressions: dict[str, set[tuple]] = {}
+    excluded: dict[str, int] = {}
+    cross_design: set[str] = set()
     for edge in graph["edges"]:
         if edge["relation"] not in ("associated_with_closure", "associated_with_regression"):
             continue
@@ -57,14 +91,26 @@ def propose(case: dict, graph: dict, limit: int = 4, memory=None) -> dict:
         signature = target.get("signature")
         if edge["relation"] == "associated_with_closure" and signature not in current_bad:
             continue
+        reason = _compatibility(context, nodes.get(edge.get("after_run"), {}),
+                                allow_cross_design)
+        if reason:
+            excluded[reason] = excluded.get(reason, 0) + 1
+            continue
+        if edge.get("design") != context["design"]:
+            cross_design.add(edge["source"])
         bucket = closures if edge["relation"] == "associated_with_closure" else regressions
         bucket.setdefault(edge["source"], set()).add(
             (edge.get("design"), edge.get("before_run"), edge.get("after_run")))
 
     base = dict(current.get("overrides") or {})
     candidates = []
+    excluded_actions: dict[str, int] = {}
     for action_id, evidence in closures.items():
         action = nodes[action_id]
+        if action["key"] in OBJECTIVE_KEYS:
+            excluded_actions["objective_constraint"] = (
+                excluded_actions.get("objective_constraint", 0) + 1)
+            continue
         overrides = dict(base)
         if action.get("value") is None:
             overrides.pop(action["key"], None)
@@ -81,7 +127,8 @@ def propose(case: dict, graph: dict, limit: int = 4, memory=None) -> dict:
             "tag": f"graph-{action['key'].lower()}",
             "overrides": overrides,
             "action": {"key": action["key"], "value": action.get("value")},
-            "evidence": {"closures": len(evidence), "regressions": len(bad_evidence)},
+            "evidence": {"closures": len(evidence), "regressions": len(bad_evidence),
+                         "scope": "cross_design" if action_id in cross_design else "same_design"},
             "score": score,
             "advisory_only": True,
         })
@@ -106,16 +153,18 @@ def propose(case: dict, graph: dict, limit: int = 4, memory=None) -> dict:
     candidates = candidates[:limit]
     if candidates:
         return {"stop_reason": "candidates_proposed", "candidates": candidates,
-                "plateau": plateau(results)}
+                "plateau": plateau(results), "excluded_evidence": excluded, "excluded_actions": excluded_actions}
     if plateau(results):
         return {"stop_reason": "plateau", "candidates": [],
-                "why": "distinct configurations repeated the same measured state"}
+                "why": "distinct configurations repeated the same measured state",
+                "excluded_evidence": excluded, "excluded_actions": excluded_actions}
     return {"stop_reason": "actions_exhausted", "candidates": [],
-            "why": "no untried action has closure evidence for the current state"}
+            "why": "no untried action has compatible closure evidence for the current state",
+            "excluded_evidence": excluded, "excluded_actions": excluded_actions}
 
 
 def plan(design: str, refdb: Path | str = case_retrieval.REFDB,
-         limit: int = 4) -> dict:
+         limit: int = 4, allow_cross_design: bool = False) -> dict:
     """Build the corpus graph and propose the next measured experiment."""
     cases = case_retrieval.load_cases(refdb)
     matches = [case for case in cases if case.get("design") == design]
@@ -126,7 +175,7 @@ def plan(design: str, refdb: Path | str = case_retrieval.REFDB,
     graph = experiment_graph.build(cases)
     observed = recovery_memory.observations(cases)
     memory = recovery_memory.RecoveryMemory(observed, recovery_memory.retune_k(observed))
-    answer = propose(target, graph, limit, memory)
+    answer = propose(target, graph, limit, allow_cross_design, memory)
     answer.update({
         "design": design,
         "case": target.get("_file"),
@@ -141,9 +190,11 @@ def main() -> None:
     ap.add_argument("--design", required=True)
     ap.add_argument("--refdb", type=Path, default=case_retrieval.REFDB)
     ap.add_argument("--limit", type=int, default=4)
+    ap.add_argument("--allow-cross-design", action="store_true",
+                    help="also use other designs' evidence on the same PDK, SCL and image")
     args = ap.parse_args()
     try:
-        answer = plan(args.design, args.refdb, args.limit)
+        answer = plan(args.design, args.refdb, args.limit, args.allow_cross_design)
     except ValueError as exc:
         raise SystemExit(str(exc)) from exc
     print(json.dumps(answer, indent=2))

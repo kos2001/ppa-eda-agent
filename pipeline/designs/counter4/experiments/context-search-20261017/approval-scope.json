@@ -1,0 +1,38 @@
+{
+  "status": "execution_rejected_by_automatic_approval_review_not_started",
+  "destination": "OpenAI Codex service through the installed, ChatGPT-authenticated codex exec CLI",
+  "payload": "counter4 measured metrics, tested overrides, corner/signoff/equivalence results, tool/PDK identities, hashes and artifact paths; previous arm responses only in full_history. No source file bodies or credentials.",
+  "model": "gpt-6.1-sol",
+  "reasoning_effort": "high",
+  "max_model_calls": 27,
+  "model_token_admission_cap": 900000,
+  "model_cost_usd": null,
+  "cost_note": "subscription billing amount unavailable; no dollar saving will be inferred",
+  "physical_evaluations_already_completed": 2,
+  "max_additional_physical_evaluations": 27,
+  "global_admission_budget_seconds": 3600,
+  "budget_remaining_seconds_at_recording": 3397.516964673996,
+  "protocol_sha256": "f527fa8ca1577c6312155efbe73ae2d2a2487548e231c97cf57245a6e5d364e2",
+  "first_round_payloads": [
+    {
+      "policy": "full_history",
+      "file": "review-payloads/full_history-round1.txt",
+      "sha256": "7eeecfac9f9122139abc525eaef2173d2dbf7f02c9161deec28b360af64dae76",
+      "characters": 32616
+    },
+    {
+      "policy": "fresh_evidence",
+      "file": "review-payloads/fresh_evidence-round1.txt",
+      "sha256": "e8042332d95b2de892c5550736d6bbfad850382868a6c5e75eef96ead040e4bc",
+      "characters": 32598
+    },
+    {
+      "policy": "seed_only",
+      "file": "review-payloads/seed_only-round1.txt",
+      "sha256": "2bacd3f4d1216218d302b0ea06685a7cff13595cd8d702c9e983b2eda78515e3",
+      "characters": 17133
+    }
+  ],
+  "physical_execution": "local installed OpenLane 2.3.10 Docker image; same 10 ns SKY130 HD design and all original gates",
+  "automatic_review_reason": "Authenticated model calls may send internal measured repository data to an external service without explicit authorization for payload and destination; planned model/physical workload is costly."
+}

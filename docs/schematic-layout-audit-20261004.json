@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-04",
+  "scope": "presentation-only standard-cell redraft; no simulation or physical evaluation",
+  "layout": "cmos-review-v3",
+  "tool": "native xschem 3.4.4",
+  "pdk": "sky130A 0fe599b2afb6708d281543108caf8310912f54af",
+  "comparison": "source ordered pin maps and native normalized statements; statement order ignored, ordered terminals/parameters retained",
+  "cells": [
+    {
+      "cell": "sky130_fd_sc_hd__a2111o_4",
+      "devices": 12,
+      "before_sha256": "488c9abace8dbc3fd0e4d3a83540550d0bb3fe69cb97f8d1bf0c8619940bdc29",
+      "after_sha256": "70a0e355d502c6eb562809e7ef731890e25636fc33085421112f7eee5ceefdd3",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__a21oi_1",
+      "devices": 6,
+      "before_sha256": "b5a7c82b382eaaa1f2c663e6b0ef43652da396ebcf4203130240a8d2102ed997",
+      "after_sha256": "ac4caf6dd5fa5822b88bcb955507abc7f77f39c7098b8bd84ad2a61740eda56b",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__a21oi_2",
+      "devices": 6,
+      "before_sha256": "ae8a30e098b2964b215c53f4c8fc4f7b0af4ee0be45d5e88611e1f419df361f9",
+      "after_sha256": "346f581d55532221c04154b3aac65553c900ffca5c4e5d0a6b3231e8097e3473",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__a2bb2oi_4",
+      "devices": 10,
+      "before_sha256": "08177a2c67c51a118df5d1b7eed4ddc640719c676b44aacecccafd19187b3c42",
+      "after_sha256": "c95eab1a58344e56414b24d8591c3ae33136a84df8e7c4a3a0e03769c224b2a8",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__a311o_2",
+      "devices": 12,
+      "before_sha256": "8c209f5eb161156a7070d2f7ea3a81c360b67b2376ba9ca67b041399f7d3661d",
+      "after_sha256": "68bb2370788b5d1181122afd5760da300725b556b1950ccd958199ae79a9d8da",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__a41o_1",
+      "devices": 12,
+      "before_sha256": "f1a0409be921689a3c92c70f34b6a0928495a02d5e9e43462e1704f0a0c500dd",
+      "after_sha256": "f2e660d25110ce137a44b56e8f0016efb51527f578f349710361e52d4b8da575",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__dlymetal6s2s_1",
+      "devices": 12,
+      "before_sha256": "a63c0beb33c9ab68e1397778e2e22e52fa2e8c24c1668a48d8a18cd3eef01637",
+      "after_sha256": "a6da682b985717f0a57d0463100d58b0d3fea876dc5de2f1a85a4094007a151a",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__inv_2",
+      "devices": 2,
+      "before_sha256": "45d1cf64e5a5133a5fb8a5ca2985a9bd7a79855a6f9d3a1a8ac221bc5bc4d086",
+      "after_sha256": "394efe73f001154620a87912f3f0f4a7bfac5a812d6996743b8466193b4c9a6c",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__mux2_1",
+      "devices": 12,
+      "before_sha256": "840f5af3b4d22e040d29f834e340ee0dd2cfcc6753fbf6713ea5a897c2f25be9",
+      "after_sha256": "6894f14efe143c9898965d725a9ec62e041ec8fef80d3bca38eca901fed41c3d",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__nand2_1",
+      "devices": 4,
+      "before_sha256": "e751b376afd99791ee861d6a89e9e21ff1435472b8ffe916117fe51c15665961",
+      "after_sha256": "9321343b2d3f3bd2e552838641a8a23a30cdb1097686159ab42cf0aabdf12769",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__nand3_1",
+      "devices": 6,
+      "before_sha256": "dcefa6a383328297fe0fd022b74767dce0dcdcdfa789836bbe57b42ae9b1896e",
+      "after_sha256": "28e4111ae4d84e91b153c27fcefad6683617ed8e205bee30c56c3b4f76a4309e",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__o21a_2",
+      "devices": 8,
+      "before_sha256": "b70be864f01e84eca71cd30e335b7c545567638f13b8c97d643f0bb01988a4b4",
+      "after_sha256": "ec567b74e0ab1fa1cf5ec326eb9b17cd3e65ee29f2d49bb36e456b09dc03e40b",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    },
+    {
+      "cell": "sky130_fd_sc_hd__xnor2_2",
+      "devices": 10,
+      "before_sha256": "921d2e6dd4b2ea4e38fb15f9cdd50325db1d9176929dfa55c4b41d1b0e2ba4ad",
+      "after_sha256": "5b79acbc244b8d0557effd49831e7847900a5eaf142a7652478cc13ad6ddc678",
+      "native_netlist_identical": true,
+      "native_erc_errors": [
+        "Error: undriven node: VNB",
+        "Error: undriven node: VPB"
+      ],
+      "native_erc_clean": false
+    }
+  ]
+}

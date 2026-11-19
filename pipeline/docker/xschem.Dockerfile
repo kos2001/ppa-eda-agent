@@ -21,17 +21,19 @@
 # pinned by its Debian version rather than by "whatever apt returns".
 #
 # Build (pipeline/custom_bridge.py does this for you on first use):
-#   docker build -f pipeline/docker/xschem.Dockerfile -t ppa-eda/xschem:3.4.4 .
+#   docker build -t ppa-eda/xschem:3.4.4-1-r1 - < pipeline/docker/xschem.Dockerfile
+# No repository build context is needed; do not send the PDK or experiment data.
 #
 # Run: mount this repo's pdk/ at /pdk — the PDK's own
 # libs.tech/xschem/xschemrc reads PDK_ROOT and PDK to find the models
 # and the sky130_fd_pr symbols.
-FROM debian:trixie-slim
+FROM debian:trixie-slim@sha256:a29215f6a35e51e22adffa17f89e9d2ef06214e64a2bad10d765c46aea49f11f
 
 # xschem 3.4.4-1 in trixie. --no-install-recommends keeps the GUI-only
 # extras out; netlisting runs with -b (no X11 at all).
 RUN apt-get update \
- && apt-get install -y --no-install-recommends xschem \
+ && apt-get install -y --no-install-recommends xschem=3.4.4-1 \
+ && test "$(dpkg-query -W -f='${Version}' xschem)" = '3.4.4-1' \
  && rm -rf /var/lib/apt/lists/*
 
 ENV PDK_ROOT=/pdk \

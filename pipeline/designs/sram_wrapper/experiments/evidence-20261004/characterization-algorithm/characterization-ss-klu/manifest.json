@@ -1,0 +1,45 @@
+{
+  "status": "failed",
+  "openram_revision": "b2b069ce119d1488cbe6883b2240bceb5c7ce29a",
+  "started_at": "2026-10-04T05:33:48.055630+00:00",
+  "pid": 58433,
+  "simulator_temp_dir": "/tmp/openram_kos2001_58433_temp/",
+  "source_spice": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_sram_macros/spice/sky130_sram_1kbyte_1rw1r_32x256_8.spice",
+  "source_spice_sha256": "40ca6e140b45a85adfa0f70095bbf13d6270a79f0a30e3344f164cfc250afcf5",
+  "prepared_spice_sha256": "2d84749242dda91f42df9773b6e49ef41a444f980f30302e7daa0b8106ab9755",
+  "storage_path_validation": {
+    "checked_bitcells": 8192,
+    "cell_format": "X{name}{hier_sep}xbank0{hier_sep}xbitcell_array{hier_sep}xbitcell_array{hier_sep}xbit_r{row}_c{col}",
+    "storage_nodes": [
+      "Q",
+      "Q_bar"
+    ],
+    "sense_enable_nodes": [
+      "xsky130_sram_1kbyte_1rw1r_32x256_8.s_en0",
+      "xsky130_sram_1kbyte_1rw1r_32x256_8.s_en1"
+    ]
+  },
+  "config_sha256": "9feba644df9db8741d640ff62cbf3dc3648f9023ba65737060de3af767d6b939",
+  "analytical_delay": false,
+  "slew_scales": [
+    0.25,
+    1,
+    8,
+    112
+  ],
+  "matrix_solver_requested": "klu",
+  "simulator_executable": "/opt/homebrew/bin/ngspice",
+  "simulator_version": "******\n** ngspice-46 : Circuit level simulation program\n** Compiled with KLU Direct Linear Solver\n** The U. C. Berkeley CAD Group\n** Copyright 1985-1994, Regents of the University of California.\n** Copyright 2001-2025, The ngspice team.\n** Please get your ngspice manual from https://ngspice.sourceforge.io/docs.html\n** Please file your bug-reports at http://ngspice.sourceforge.net/bugrep.html\n******",
+  "stimulus_slew_definition": "10-90%; full linear ramp = slew / 0.8",
+  "setup_hold_clock_axis": "related_input_slew",
+  "adapter_sha256": "bfd4de2d338da11e4b1b737acd83af3e5c7a4d643840dae19dbeec11c06915de",
+  "physical_verification": "separate OpenLane run required",
+  "pvt": {
+    "process": "SS",
+    "voltage_V": 1.6,
+    "temperature_C": 100
+  },
+  "corner_scope": "SS 1.6V 100C only; does not qualify other PVT corners",
+  "error": "KeyboardInterrupt: ",
+  "finished_at": "2026-10-04T05:39:42.683194+00:00"
+}

@@ -30,9 +30,9 @@ def concrete_cell_script(script):
 MACRO_SLEW_REPORT = "macro_pin_slews.rpt"
 
 
-def macro_pin_slew_script(script, instances):
+def macro_pin_slew_script(script, instances, *, after_source=False):
     anchor = "sta::set_cmd_corner $corner" + chr(10)
-    if script.count(anchor) != 1:
+    if not after_source and script.count(anchor) != 1:
         raise ValueError("OpenLane corner.tcl changed; review where the corner is set")
     if not instances:
         return script
@@ -49,12 +49,20 @@ foreach macro_instance {{{names}}} {{
 }}
 puts "%OL_END_REPORT"
 """
+    # The audited step sources the original STA script, then writes the
+    # complete edge report. Its wrapper has no inline corner anchor.
+    if after_source:
+        return script + "\n" + block
     return script.replace(anchor, anchor + block)
 
 
 def flow_class():
     from openlane.flows import Flow
-    from openlane.steps import Magic
+    from openlane.steps import Magic, OpenROAD
+    try:
+        from .macro_input_audit import sta_step
+    except ImportError:  # Direct /flows/macro_signoff.py container entrypoint.
+        from macro_input_audit import sta_step
 
     class ConcreteCellDRC(Magic.DRC):
         # Preserve the step id so Classic's flow controls and reports apply.
@@ -81,9 +89,9 @@ def flow_class():
             (Path(self.step_dir) / "geometry_scope.json").write_text(json.dumps(scope, indent=2) + "\n")
             return views, metrics
 
-    from openlane.steps import OpenROAD
+    audited_sta = sta_step(OpenROAD.STAPostPNR)
 
-    class MacroPinSlewSTA(OpenROAD.STAPostPNR):
+    class MacroPinSlewSTA(audited_sta):
         """Post-PnR STA that also reports the slew at every macro input pin."""
 
         def get_script_path(self):
@@ -92,11 +100,10 @@ def flow_class():
                          for inst in (macro.instances or {})]
             target = Path(self.step_dir) / "corner_macro_slews.tcl"
             if not target.exists():       # one file shared by the per-corner processes
-                target.write_text(macro_pin_slew_script(original, instances))
+                target.write_text(macro_pin_slew_script(original, instances, after_source=True))
             return str(target)
 
     classic = Flow.factory.get("Classic")
-
     def swap(step):
         if step.id == "Magic.DRC":
             return ConcreteCellDRC

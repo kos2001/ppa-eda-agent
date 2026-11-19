@@ -1,0 +1,16 @@
+{
+  "handoff_valid": true,
+  "all_declared_gates_pass": false,
+  "errors": [],
+  "unresolved": [
+    {
+      "gate": "macro_model",
+      "state": "unverified"
+    }
+  ],
+  "recommended_agents": [
+    "sram-model-qualifier",
+    "verification-ppa-evaluator"
+  ],
+  "limitation": "Declared evidence integrity only; not independent signoff or automatic dispatch."
+}

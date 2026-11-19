@@ -1,0 +1,34 @@
+{
+  "scope": "same nonlinear RC test circuit; not full SRAM functional/PVT qualification",
+  "simulator": "/private/tmp/ppa-ngspice46-bin-20261004/bin/ngspice",
+  "simulator_sha256": "63c0702563b902e35c50b7b3b4499b4f7e23c7ad1a1f0331fabe31f5735420b9",
+  "comparison_script_sha256": "1210dd54a48808383bd5edae4fec3cbe286b28dc1c7d52285df7e9419fb846c3",
+  "only_save_cards_added": true,
+  "identical_reported_measurements": true,
+  "results": {
+    "default": {
+      "measurements": {
+        "delay": 3.26703031346004e-10,
+        "slew": 1.285715776238029e-09,
+        "stored": 1.778258923999343,
+        "diff": 0.001951121869984221,
+        "power": 0.0001721112959717996,
+        "wave": 1.210922534491034
+      },
+      "maximum_rss_bytes": 10010624,
+      "deck_sha256": "7a57f41002c403b3fc9d8c54a8fad3cbe103cc59c619c6f660a04b6ee1a49b0c"
+    },
+    "selected": {
+      "measurements": {
+        "delay": 3.26703031346004e-10,
+        "slew": 1.285715776238029e-09,
+        "stored": 1.778258923999343,
+        "diff": 0.001951121869984221,
+        "power": 0.0001721112959717996,
+        "wave": 1.210922534491034
+      },
+      "maximum_rss_bytes": 10010624,
+      "deck_sha256": "a0b98a513db7a7923d8d83eadbb6f5bd9078c13a9e1bf4496fb9b8edecf14543"
+    }
+  }
+}

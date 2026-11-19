@@ -1,0 +1,208 @@
+{
+  "model_qualified": false,
+  "corner_models": [
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "max_ff_n40C_1v95",
+      "expected_pvt": {
+        "process": "FF",
+        "voltage_V": 1.95,
+        "temperature_C": -40
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "max_ss_100C_1v60",
+      "expected_pvt": {
+        "process": "SS",
+        "voltage_V": 1.6,
+        "temperature_C": 100
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "max_tt_025C_1v80",
+      "expected_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": true,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "min_ff_n40C_1v95",
+      "expected_pvt": {
+        "process": "FF",
+        "voltage_V": 1.95,
+        "temperature_C": -40
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "min_ss_100C_1v60",
+      "expected_pvt": {
+        "process": "SS",
+        "voltage_V": 1.6,
+        "temperature_C": 100
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "min_tt_025C_1v80",
+      "expected_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": true,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "nom_ff_n40C_1v95",
+      "expected_pvt": {
+        "process": "FF",
+        "voltage_V": 1.95,
+        "temperature_C": -40
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "nom_ss_100C_1v60",
+      "expected_pvt": {
+        "process": "SS",
+        "voltage_V": 1.6,
+        "temperature_C": 100
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": false,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    },
+    {
+      "macro": "sky130_sram_1kbyte_1rw1r_32x256_8",
+      "corner": "nom_tt_025C_1v80",
+      "expected_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25
+      },
+      "instances": [
+        "u_sram"
+      ],
+      "declared_pvt": {
+        "process": "TT",
+        "voltage_V": 1.8,
+        "temperature_C": 25.0
+      },
+      "pvt_matches_declared": true,
+      "model_sha256": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+      "timing_tables": 44,
+      "model_qualified": false
+    }
+  ],
+  "issues": [
+    "sky130_sram_1kbyte_1rw1r_32x256_8 max_ff_n40C_1v95: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'FF', 'voltage_V': 1.95, 'temperature_C': -40}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 max_ss_100C_1v60: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'SS', 'voltage_V': 1.6, 'temperature_C': 100}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 min_ff_n40C_1v95: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'FF', 'voltage_V': 1.95, 'temperature_C': -40}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 min_ss_100C_1v60: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'SS', 'voltage_V': 1.6, 'temperature_C': 100}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 nom_ff_n40C_1v95: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'FF', 'voltage_V': 1.95, 'temperature_C': -40}",
+    "sky130_sram_1kbyte_1rw1r_32x256_8 nom_ss_100C_1v60: declared PVT {'process': 'TT', 'voltage_V': 1.8, 'temperature_C': 25.0} differs from {'process': 'SS', 'voltage_V': 1.6, 'temperature_C': 100}"
+  ],
+  "config_source": "pipeline/designs/srio_r15_clock_fanout16_revalidate_20261015/runs/io/resolved.json",
+  "config_sha256": "e3e1b08cf15283e11a737fb1ea89aa5582111b360fb69b8baf5212210b51a0a8",
+  "input_coverage_complete": true,
+  "input_axis_extrapolations": [],
+  "unknown_input_checks": [],
+  "scope": "declared PVT, timing-table structure and input axes; output loads and measured functional/PVT provenance remain unqualified"
+}

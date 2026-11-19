@@ -1,0 +1,64 @@
+{
+  "design_name": "aes",
+  "targets": {
+    "max_core_utilization": 0.75
+  },
+  "candidates": [
+    {
+      "tag": "aes-coupling-20261009-m65i5-hul-margin65-iters5",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_MARGIN": 65,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_ITERS": 5
+      },
+      "_why": "One axis from the recorded MARGIN 65 run (ITERS 10): GRT_ANTENNA_ITERS 5. In that run repair steps 2 and 3 used all 10 iterations with 1 violation left from iteration 5 or 6 on. If each stuck iteration adds a diode, the total (2309) and the 13 diodes on _22403_/Q should fall; the final antenna count may rise by about the violations the extra iterations would have fixed. Falsified if the diode count and result equal ITERS 10."
+    },
+    {
+      "tag": "aes-coupling-20261009-m65i20-hul-margin65-iters20",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "flow": "FanoutRepair",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16,
+        "FANOUT_REPAIR_LIMIT": 15,
+        "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+        "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+        "FANOUT_REPAIR_ROUNDS": 2,
+        "GRT_ANTENNA_MARGIN": 65,
+        "FANOUT_REPAIR_DRIVER_CELLS": "{\"_20258_\": \"sky130_fd_sc_hd__o2bb2ai_4\"}",
+        "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\": 8}",
+        "GRT_ANTENNA_ITERS": 20
+      },
+      "_why": "Other side of the same axis: ITERS 20. If the stuck violation never clears, steps 2 and 3 run 20 iterations and the diode count should rise above 2309; if it clears at some iteration between 11 and 20 the step ends early and the count may fall. Falsified, as above, if the result equals ITERS 10."
+    }
+  ],
+  "candidate_budget": 2,
+  "evaluation_budget": {
+    "max_evaluations": 2,
+    "max_wall_seconds": 9000
+  },
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Find whether GRT_ANTENNA_ITERS changes the diode count and the failures at MARGIN 65, where the iteration cap binds; signoff-clean before any area comparison",
+    "reference": "aes-coupling-20261009-m65-hul-margin65 (MARGIN 65, ITERS 10: 6 antenna, 2 fanout, 8 slew, 1 cap, 2309 diodes)"
+  },
+  "_why": "Follows the MARGIN 60 and 65 result on main (b7bc8b7), the first place in these runs where the iteration cap binds. Each candidate is the recorded MARGIN 65 run with only GRT_ANTENNA_ITERS changed; diagnostic 12 ns / 1.5 ns / 25% IO / fanout 16, so neither qualifies the original target."
+}

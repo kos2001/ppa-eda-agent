@@ -1,0 +1,199 @@
+{
+  "scope": "experimental simulator recovery; no full SRAM measurement",
+  "started_at": 1792036909.4845312,
+  "commands": [
+    {
+      "argv": [
+        "/home/kos2001/ppa-sram-bounded-20261015/ngspice-46/configure",
+        "--prefix=/home/kos2001/ppa-sram-bounded-20261015/install-original",
+        "--without-x",
+        "--disable-xspice",
+        "--enable-klu",
+        "--disable-openmp",
+        "--with-readline=no"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-original",
+      "log": "original-configure.log",
+      "exit_code": 0,
+      "wall_seconds": 16.022784927000004,
+      "timeout_s": 120
+    },
+    {
+      "argv": [
+        "make",
+        "-j4"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-original",
+      "log": "original-make.log",
+      "exit_code": 0,
+      "wall_seconds": 93.36368918899998,
+      "timeout_s": 600
+    },
+    {
+      "argv": [
+        "make",
+        "install"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-original",
+      "log": "original-install.log",
+      "exit_code": 0,
+      "wall_seconds": 1.8813436660000207,
+      "timeout_s": 120
+    },
+    {
+      "argv": [
+        "/home/kos2001/ppa-sram-bounded-20261015/install-original/bin/ngspice",
+        "--version"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015",
+      "log": "original-version.log",
+      "exit_code": 0,
+      "wall_seconds": 0.002679320000027019,
+      "timeout_s": 10
+    },
+    {
+      "argv": [
+        "make",
+        "check"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-original",
+      "log": "original-check.log",
+      "exit_code": 0,
+      "wall_seconds": 107.14292118600002,
+      "timeout_s": 180
+    },
+    {
+      "argv": [
+        "patch",
+        "-p1",
+        "-i",
+        "/home/kos2001/ppa-sram-bounded-20261015/ngspice-46.patch"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/ngspice-46",
+      "log": "patch.log",
+      "exit_code": 0,
+      "wall_seconds": 0.0035289859999920736,
+      "timeout_s": 30
+    },
+    {
+      "argv": [
+        "/home/kos2001/ppa-sram-bounded-20261015/ngspice-46/configure",
+        "--prefix=/home/kos2001/ppa-sram-bounded-20261015/install-indexed",
+        "--without-x",
+        "--disable-xspice",
+        "--enable-klu",
+        "--disable-openmp",
+        "--with-readline=no"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-indexed",
+      "log": "indexed-configure.log",
+      "exit_code": 0,
+      "wall_seconds": 16.588794308000047,
+      "timeout_s": 120
+    },
+    {
+      "argv": [
+        "make",
+        "-j4"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-indexed",
+      "log": "indexed-make.log",
+      "exit_code": 0,
+      "wall_seconds": 98.91604505800001,
+      "timeout_s": 600
+    },
+    {
+      "argv": [
+        "make",
+        "install"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-indexed",
+      "log": "indexed-install.log",
+      "exit_code": 0,
+      "wall_seconds": 1.8538056219999817,
+      "timeout_s": 120
+    },
+    {
+      "argv": [
+        "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice",
+        "--version"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015",
+      "log": "indexed-version.log",
+      "exit_code": 0,
+      "wall_seconds": 0.0024259049999955096,
+      "timeout_s": 10
+    },
+    {
+      "argv": [
+        "make",
+        "check"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015/build-indexed",
+      "log": "indexed-check.log",
+      "exit_code": 0,
+      "wall_seconds": 106.03657612699999,
+      "timeout_s": 180
+    },
+    {
+      "argv": [
+        "python3",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/sram_wrapper/characterization/ngspice-bin-index/compare.py",
+        "--original",
+        "/home/kos2001/ppa-sram-bounded-20261015/install-original/bin/ngspice",
+        "--indexed",
+        "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice",
+        "--output-dir",
+        "/home/kos2001/ppa-sram-bounded-20261015/synthetic"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015",
+      "log": "synthetic.log",
+      "exit_code": 0,
+      "wall_seconds": 0.17546342200000709,
+      "timeout_s": 180
+    },
+    {
+      "argv": [
+        "python3",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/sram_wrapper/characterization/ngspice-bin-index/compare_sky130.py",
+        "--original",
+        "/home/kos2001/ppa-sram-bounded-20261015/install-original/bin/ngspice",
+        "--indexed",
+        "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice",
+        "--pdk-root",
+        "/home/kos2001/ppa-sram-bounded-20261015/pdk",
+        "--output-dir",
+        "/home/kos2001/ppa-sram-bounded-20261015/sky130"
+      ],
+      "cwd": "/home/kos2001/ppa-sram-bounded-20261015",
+      "log": "sky130.log",
+      "exit_code": 0,
+      "wall_seconds": 48.318032267000035,
+      "timeout_s": 420
+    }
+  ],
+  "release_sha256": "a0d1699af1940b06649276dcd6ff5a566c8c0cad01b2f7b5e99dedbb4d64c19b",
+  "patch_lf_sha256": "1edebd83b170d588bfb55f7301a90ba7fb28bc867cf8c44f88e79efa4108aafc",
+  "original_source_sha256": {
+    "src/frontend/runcoms.c": "77d0141ff497182e3eff7c03937ce4b10aaa5801c169f6407a36092a2557e0ff",
+    "src/frontend/runcoms2.c": "f3ef8b7ef7625f7efb6dd87e93fed1e6f7295bc72488762692fd9a401a4e0687",
+    "src/frontend/spiceif.c": "c5de8e8c0a545b5bb098dbd05a540e93deb4f2743a7175c8711d144cbf219acd",
+    "src/include/ngspice/ftedefs.h": "afe2aa883d587ee8d2e55089eefe760daf8eb7147c1ca35e2a625060250f0b51",
+    "src/include/ngspice/inpdefs.h": "712872bf5844caa18bba42472562ca1d8e97085d452903e4960bb1cadd77bd29",
+    "src/spicelib/parser/inpgmod.c": "8d200fa475406e3eb9f9a88a5ff2112c0a27b441aedea1a3e543017685f97a30",
+    "src/spicelib/parser/inpkmods.c": "30eb94395f16641efdea00c387152a2cf9d5f7e0393c3fc1f480e982d1f79ae6",
+    "src/spicelib/parser/inpmkmod.c": "41095fff30d9fd6c9be78c46a3e4803db5562d53945b8ac915d857ca3cdb34d3"
+  },
+  "original": {
+    "path": "/home/kos2001/ppa-sram-bounded-20261015/install-original/bin/ngspice",
+    "sha256": "afdd88118f44759ca0e0fea01e6513ba790e8ce4c19ea69183adebe80cf9dc67"
+  },
+  "indexed": {
+    "path": "/home/kos2001/ppa-sram-bounded-20261015/install-indexed/bin/ngspice",
+    "sha256": "9c5478fbae6ddefaf97b4c52b220cf90f57031fae063aa2dc68dba1409de0f67"
+  },
+  "model_files": 856,
+  "model_hash_manifest_sha256": "cbff54b9196e0ec112cb641745ab0219f8e7b56cfe7b59c1b8dc1b85aaf901a0",
+  "status": "controls_passed",
+  "finished_at": 1792037400.9686036
+}

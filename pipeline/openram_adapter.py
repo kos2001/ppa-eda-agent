@@ -12,14 +12,21 @@ import re
 class _DeckWriter:
     """Rewrite OpenRAM's ngspice control card without changing file APIs."""
 
-    def __init__(self, stream, save_waveforms):
+    def __init__(self, stream, save_waveforms, matrix_solver="sparse"):
         self._stream = stream
         self._save_waveforms = save_waveforms
+        if matrix_solver not in ("sparse", "klu"):
+            raise ValueError("unsupported ngspice matrix solver")
+        self._matrix_solver = matrix_solver
 
     def write(self, data):
         if not self._save_waveforms:
             data = re.sub(r"POST=1\s*", "", data, flags=re.I)
             data = re.sub(r"\s+PROBE(?=\s|$)", "", data, flags=re.I)
+        if self._matrix_solver == "klu":
+            # Select the compiled sparse solver explicitly. Building with
+            # KLU does not select it; upstream OpenRAM writes no KLU option.
+            data = re.sub(r"(?im)^(\.OPTIONS?\b)(?![^\n]*\bKLU\b)", r"\1 KLU", data)
         return self._stream.write(data)
 
     def __getattr__(self, name):
@@ -34,6 +41,7 @@ def stimulus_class(base):
             self.sf = _DeckWriter(
                 original,
                 bool(getattr(OPTS, "spice_save_waveforms", False)),
+                getattr(OPTS, "spice_matrix_solver", "sparse"),
             )
             try:
                 return super().write_control(*args, **kwargs)

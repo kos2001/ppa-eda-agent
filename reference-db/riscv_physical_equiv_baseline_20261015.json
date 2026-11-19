@@ -1,0 +1,38 @@
+{
+  "design": "riscv32i",
+  "top": "riscv",
+  "netlist": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/riscv32i/runs/closure-20261015-baseline/final/nl/riscv.nl.v",
+  "liberty": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+  "scope": "final routed logic vs synthesis; does not prove RTL-to-synthesis",
+  "reference_sources_sha256": {
+    "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/riscv32i/runs/closure-20261015-baseline/06-yosys-synthesis/riscv.nl.v": "f79615b6185214386b0148e88d3ee3e65f9e1d66b7f9c9d3b69f8a9b4922b9ff"
+  },
+  "formal_assumptions": [
+    "clk2fflogic global clock and negative hold time for async FF inputs",
+    "No analog delay, clock skew or metastability model"
+  ],
+  "physical_input_only_models": [
+    "sky130_ef_sc_hd__decap_12",
+    "sky130_fd_sc_hd__decap_3",
+    "sky130_fd_sc_hd__decap_4",
+    "sky130_fd_sc_hd__decap_6",
+    "sky130_fd_sc_hd__decap_8",
+    "sky130_fd_sc_hd__diode_2",
+    "sky130_fd_sc_hd__fill_1",
+    "sky130_fd_sc_hd__fill_2",
+    "sky130_fd_sc_hd__tapvpwrvgnd_1"
+  ],
+  "netlist_sha256": "78642ae9283e836ba6babe45c2a26508bea33ed4e55464292ca34ee629c88abd",
+  "liberty_sha256": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+  "physical_lefs_sha256": {
+    "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef": "99e7fec7196b063ef5fdd485802bf4c819561bf71eb94598720eb2635e63c992",
+    "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef": "3a3ea4e9d0973402702764d897659e52fe3d413eb48c306cd811de40a75264fa"
+  },
+  "log_sha256": "021990ebeab6676c5301099891ea05d68f4332a41e512ab5bf5859be9b3d72ba",
+  "equivalent": true,
+  "timed_out": false,
+  "proven_points": 10224,
+  "unproven_points": 0,
+  "vacuous": false,
+  "tail": null
+}

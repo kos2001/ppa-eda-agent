@@ -1,0 +1,34 @@
+import assert from "node:assert/strict";
+import { mkdtemp, mkdir, writeFile, symlink, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { artifactInventory, readArtifact } from "../server/artifacts.mjs";
+const root = await mkdtemp(path.join(tmpdir(), "ppa-artifact-test-"));
+try {
+ const run = path.join(root, "pipeline/designs/fixture/runs/recorded");
+ await mkdir(path.join(run, "01-checker"), {recursive:true});
+ await mkdir(path.join(run, "02-routing"));
+ await mkdir(path.join(run, "final"));
+ await writeFile(path.join(run, "resolved.json"), '{"PDK":"fixture"}');
+ await writeFile(path.join(run, "01-checker/state_out.json"), '{}');
+ await writeFile(path.join(run, "02-routing/route.log"), 'routing stopped');
+ await writeFile(path.join(run, "final/metrics.json"), '{"drc":0}');
+ await writeFile(path.join(run, "final/private.env"), 'fixture excluded');
+ await writeFile(path.join(root, "outside.log"), 'fixture outside run');
+ await symlink(path.join(root, "outside.log"), path.join(run, "final/linked.log"));
+ const cand = {run_dir:run}; const options = {workspaceRoot:root};
+ const inv = await artifactInventory(cand, options);
+ assert.equal(inv.run_available, true);
+ assert.ok(inv.steps.find(s=>s.id==='01-checker').snapshot_recorded);
+ assert.equal(inv.steps.find(s=>s.id==='02-routing').snapshot_recorded, false);
+ assert.ok(!inv.files.some(f=>f.id.endsWith('private.env') || f.id.endsWith('linked.log')));
+ assert.equal((await readArtifact(cand, 'final/metrics.json', options)).content, '{"drc":0}');
+ for(const id of ['../../outside.log','final/linked.log','/etc/passwd','final/private.env']) assert.equal(await readArtifact(cand,id,options),null);
+ assert.equal((await artifactInventory({run_dir:path.join(root,'missing')}, options)).run_available, false);
+ assert.equal((await artifactInventory({...cand,not_evaluated:true}, options)).run_available, false);
+ assert.equal((await artifactInventory({run_dir:root}, options)).run_available, false);
+ await writeFile(path.join(run,'large.log'),Buffer.alloc(200001,'x'));
+ const excerpt=await readArtifact(cand,'large.log',options);
+ assert.equal(excerpt.content.length,200000);assert.equal(excerpt.truncated,true);
+ console.log(JSON.stringify({source_only:true,traversal_rejected:true,symlinks_rejected:true,bounded_excerpt:true}));
+} finally {await rm(root,{recursive:true,force:true});}

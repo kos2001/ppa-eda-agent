@@ -12,6 +12,8 @@
 // status and measured duration. Everything else in here is a plain
 // `log()` call made by code at the moment it really does something.
 
+import { isApiRequest } from "../api/config";
+
 export type LogLevel = "info" | "warn" | "error" | "cmd";
 
 export type LogEntry = {
@@ -83,7 +85,7 @@ export function toText(): string {
 // through fetch too, and a transcript that logged them would bury the
 // backend traffic it exists to show.
 function isBackendCall(url: string): boolean {
-  return url.includes("127.0.0.1:8123") || url.includes("localhost:8123");
+  return isApiRequest(url, window.location.href);
 }
 
 function shortPath(url: string): string {
@@ -120,6 +122,11 @@ export function installFetchLogging(): void {
       return res;
     } catch (err) {
       const ms = Math.round(performance.now() - started);
+      const signal = init?.signal ?? (input instanceof Request ? input.signal : undefined);
+      if (signal?.aborted && (err as Error)?.name === "AbortError") {
+        log("info", "backend", `${method} ${shortPath(url)} → cancelled (${ms} ms)`);
+        throw err;
+      }
       // A backend that is not running is the single most common reason
       // a panel sits empty, and fetch reports it as a bare TypeError
       // with no URL in the message. Naming the endpoint here is what

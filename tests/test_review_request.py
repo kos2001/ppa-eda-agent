@@ -240,7 +240,7 @@ class AttemptHistoryTests(unittest.TestCase):
 class RealRequestTests(unittest.TestCase):
     """Against the real store, through the CLI the server calls."""
 
-    def test_the_aes_request_carries_the_verdict_from_its_earlier_case(self):
+    def test_the_aes_request_uses_the_current_or_carried_diagnosis(self):
         cases = ROOT / "reference-db" / "cases"
         earlier = cases / "aes__2026-08-30.json"
         later = cases / "aes__2026-08-30__134751.json"
@@ -249,16 +249,28 @@ class RealRequestTests(unittest.TestCase):
         if not json.loads(earlier.read_text(encoding="utf-8")).get("diagnosis"):
             self.skipTest("the earlier aes case has no recorded review")
 
+        # Read the real store, but write the request to a temporary
+        # directory: a test run must not leave files in reference-db/.
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        out_dir = Path(tmp.name)
         out = subprocess.run(
             [sys.executable, str(ROOT / "pipeline" / "request_review.py"),
-             "request", "--design", "aes"],
+             "request", "--design", "aes", "--output-dir", str(out_dir)],
             capture_output=True, text=True, cwd=ROOT / "pipeline", timeout=120)
         self.assertEqual(out.returncode, 0, out.stderr[-500:])
-        written = ROOT / out.stdout.strip().rsplit(" ", 1)[-1]
+        written = Path(out.stdout.strip().rsplit(" ", 1)[-1])
+        self.assertEqual(written.parent.resolve(), out_dir.resolve())
         body = written.read_text(encoding="utf-8")
         # The line that was false: a design whose previous run was
         # reviewed is not being seen for the first time.
         self.assertNotIn("(none recorded yet)", body)
+        active = re.search(r"Case file: reference-db/cases/(aes__[^\s]+\.json)", body)
+        self.assertIsNotNone(active)
+        current = json.loads((cases / active.group(1)).read_text(encoding="utf-8"))
+        if current.get("diagnosis"):
+            self.assertIn(current["diagnosis"], body)
+            return
         # Which earlier case it carries from is the newest reviewed one,
         # and the store keeps growing (three aes cases from 2026-09-10
         # each carry a diagnosis now), so the test asks for the fact —

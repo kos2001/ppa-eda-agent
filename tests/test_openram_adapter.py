@@ -1,4 +1,5 @@
 import sys
+import io
 import unittest
 from pathlib import Path
 
@@ -16,6 +17,17 @@ class CaptureStimuli:
 
 
 class StimulusTests(unittest.TestCase):
+    def test_klu_selection_preserves_accuracy_and_transient_options(self):
+        stream = io.StringIO()
+        writer = _DeckWriter(stream, False, "klu")
+        writer.write(".TRAN 10p 20n 0n 10p UIC\n")
+        writer.write(".OPTIONS POST=1 RELTOL=0.001 PROBE method=gear ACCT\n")
+        self.assertEqual(stream.getvalue(), ".TRAN 10p 20n 0n 10p UIC\n.OPTIONS KLU RELTOL=0.001 method=gear ACCT\n")
+        writer.write(".OPTIONS KLU RELTOL=0.001\n")
+        self.assertEqual(stream.getvalue().count("KLU"), 2)
+        with self.assertRaises(ValueError):
+            _DeckWriter(stream, False, "unsupported")
+
     def test_deck_writer_removes_waveform_storage_options(self):
         class Stream:
             def __init__(self):

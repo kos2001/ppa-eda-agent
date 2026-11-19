@@ -20,7 +20,9 @@ def result(overrides, violations=(), passed=False):
 
 
 def case(design, *results):
+    # closed_loop_search only uses evidence whose toolchain image is known.
     return {"design": design, "_file": f"{design}.json",
+            "toolchain": {"openlane_image": "img"},
             "iterations": [{"results": list(results)}]}
 
 
@@ -110,11 +112,11 @@ class NudgeTests(unittest.TestCase):
         target = case("t", result({"A": 1}, ["signoff:setup"]))
         graph = experiment_graph.build([history, target])
         mem = rm.RecoveryMemory([obs("signoff:setup", "A", "2", False) for _ in range(60)])
-        cand = closed_loop_search.propose(target, graph, 4, mem)["candidates"][0]
+        cand = closed_loop_search.propose(target, graph, 4, True, mem)["candidates"][0]
         self.assertLess(cand["recovery_estimate"]["p_close_any"], rm.NUDGE_THRESHOLD)
         self.assertIn("nudge", cand)
         good = rm.RecoveryMemory([obs("signoff:setup", "A", "2", True) for _ in range(60)])
-        self.assertNotIn("nudge", closed_loop_search.propose(target, graph, 4, good)["candidates"][0])
+        self.assertNotIn("nudge", closed_loop_search.propose(target, graph, 4, True, good)["candidates"][0])
 
 
 class EvaluationTests(unittest.TestCase):
@@ -141,10 +143,10 @@ class ProposeIntegrationTests(unittest.TestCase):
         strong = [obs("signoff:setup", "B", "2", True) for _ in range(20)]
         weak = [obs("signoff:setup", "A", "2", False) for _ in range(20)]
         mem = rm.RecoveryMemory(strong + weak)
-        out = closed_loop_search.propose(target, graph, 4, mem)
+        out = closed_loop_search.propose(target, graph, 4, True, mem)
         self.assertEqual(out["candidates"][0]["action"]["key"], "B")
         self.assertIn("recovery_estimate", out["candidates"][0])
-        plain = closed_loop_search.propose(target, graph, 4)
+        plain = closed_loop_search.propose(target, graph, 4, True)
         self.assertNotIn("recovery_estimate", plain["candidates"][0])
 
 

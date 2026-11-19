@@ -1,0 +1,301 @@
+{
+  "run": "closure-20261015-netrepair-r1",
+  "scope": "exact-run artifacts, not a verdict",
+  "missing_optional_patterns": [],
+  "sources": {
+    "39-openroad-checkantennas/reports/antenna_summary.rpt": {
+      "source": "39-openroad-checkantennas/reports/antenna_summary.rpt",
+      "uncompressed_sha256": "6e3b5f96ca0ffd0b169587d295c0528f2dfa086f37f532c43051d94f4c3e3d35",
+      "uncompressed_bytes": 6644,
+      "gzip": false
+    },
+    "42-openroad-repairantennas/2-openroad-checkantennas/reports/antenna_summary.rpt": {
+      "source": "42-openroad-repairantennas/2-openroad-checkantennas/reports/antenna_summary.rpt",
+      "uncompressed_sha256": "25cfc92938cc2e7f2ca2f386907f67ec26cdfaf7f1d266f236b1f856ce76ea53",
+      "uncompressed_bytes": 3148,
+      "gzip": false
+    },
+    "43-odb-fanoutbuffers/fanout_repair.json": {
+      "source": "43-odb-fanoutbuffers/fanout_repair.json",
+      "uncompressed_sha256": "a7b9ff8038a6f83ff071a42a48d998c0791d05e7fba4ef78532079b30b0e243a",
+      "uncompressed_bytes": 23429,
+      "gzip": false
+    },
+    "46-openroad-repairantennas-1/2-openroad-checkantennas/reports/antenna_summary.rpt": {
+      "source": "46-openroad-repairantennas-1/2-openroad-checkantennas/reports/antenna_summary.rpt",
+      "uncompressed_sha256": "4b79117543181aeae03db8afc0078e2c1ed4c6f432635952da1c5d112b676a99",
+      "uncompressed_bytes": 5203,
+      "gzip": false
+    },
+    "50-openroad-checkantennas-1/reports/antenna_summary.rpt": {
+      "source": "50-openroad-checkantennas-1/reports/antenna_summary.rpt",
+      "uncompressed_sha256": "ebd104b7147b8ea7487729170000141248b410e12d36306dca6d9f92c07dfaef",
+      "uncompressed_bytes": 5300,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_ff_n40C_1v95/checks.rpt": {
+      "source": "59-openroad-stapostpnr/max_ff_n40C_1v95/checks.rpt",
+      "uncompressed_sha256": "3259e267509657be690bb78ebc1d7f24cf06fa9fba022e2e251810949222a20a",
+      "uncompressed_bytes": 27933,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_ff_n40C_1v95/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/max_ff_n40C_1v95/max.rpt",
+      "uncompressed_sha256": "f5dfd883026ab6e95dfe796f6cb3dfdf14adeea1ffb0be96a524fb143ec40df0",
+      "uncompressed_bytes": 12924252,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/max_ff_n40C_1v95/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/max_ff_n40C_1v95/ws.max.rpt",
+      "uncompressed_sha256": "ab34fbad866380415d75ef06df0688b2d15ffaa7e07abf6145d6958dc1a1175c",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_ff_n40C_1v95/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/max_ff_n40C_1v95/ws.min.rpt",
+      "uncompressed_sha256": "d9ac24797097d06ad6b72a9a214383015a3a32ffb215ec20a7f0b7bd98767476",
+      "uncompressed_bytes": 211,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt": {
+      "source": "59-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt",
+      "uncompressed_sha256": "d4faf43ccf10a78458c0ea24f5a8365c3884dae8407f2cba0604daf58f38cbdd",
+      "uncompressed_bytes": 39668,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_ss_100C_1v60/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/max_ss_100C_1v60/max.rpt",
+      "uncompressed_sha256": "ec85317fa1e2665f3bd84ffdea38fe8bbb4848733fb5c0d356f2a1163e3fc4e6",
+      "uncompressed_bytes": 13225579,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/max_ss_100C_1v60/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/max_ss_100C_1v60/ws.max.rpt",
+      "uncompressed_sha256": "304b272aff7a4f35f095660d20ddeee8d8bda74bc067d4bcf0062a31b5bbd5d9",
+      "uncompressed_bytes": 212,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_ss_100C_1v60/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/max_ss_100C_1v60/ws.min.rpt",
+      "uncompressed_sha256": "1c4c9ea8a1fa26a15deb9c717206914f47f51b35f83985d66ef3ce9ec0486448",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_tt_025C_1v80/checks.rpt": {
+      "source": "59-openroad-stapostpnr/max_tt_025C_1v80/checks.rpt",
+      "uncompressed_sha256": "2f30dd3330b955c2e71a1ea2a289cf1856141a4d5f9895815fcf5f88856d2d33",
+      "uncompressed_bytes": 27933,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_tt_025C_1v80/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/max_tt_025C_1v80/max.rpt",
+      "uncompressed_sha256": "99d23e0656143117bdcb2ee69d5143280952ecff3160112d9e5b7394701ba3ae",
+      "uncompressed_bytes": 13009947,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/max_tt_025C_1v80/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/max_tt_025C_1v80/ws.max.rpt",
+      "uncompressed_sha256": "ecce376de83942f9d6c5eeb7c0732475826a2d8013a16bb073bdf425c925bef5",
+      "uncompressed_bytes": 211,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/max_tt_025C_1v80/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/max_tt_025C_1v80/ws.min.rpt",
+      "uncompressed_sha256": "2b09c3a032a6b915f8cde6eb1758a69c70cbf012735cba38f9f6ac116a12415f",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt": {
+      "source": "59-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt",
+      "uncompressed_sha256": "46b333a9250352e418448bb0907179de31984a92b8c84998bf6e332bda1b8114",
+      "uncompressed_bytes": 22977,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_ff_n40C_1v95/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/min_ff_n40C_1v95/max.rpt",
+      "uncompressed_sha256": "ea6a62827b6e0c5d303abc9618518c9294f45bcd8b03b00d03e0f7564dce001b",
+      "uncompressed_bytes": 12960679,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/min_ff_n40C_1v95/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/min_ff_n40C_1v95/ws.max.rpt",
+      "uncompressed_sha256": "913d4009d53ad3387500da6ff35dd05ff254dc6986c223e9e5a6324873d7141c",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_ff_n40C_1v95/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/min_ff_n40C_1v95/ws.min.rpt",
+      "uncompressed_sha256": "4e37ce6fdd1cd87e07c2f3fee002ae897ba65c3ecf35a3597e8b812fb2df0f03",
+      "uncompressed_bytes": 211,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_ss_100C_1v60/checks.rpt": {
+      "source": "59-openroad-stapostpnr/min_ss_100C_1v60/checks.rpt",
+      "uncompressed_sha256": "bdf1bf57de00c89fb9ce96a0c21144b2ecf41aeb6560236ad3b742389892696a",
+      "uncompressed_bytes": 22806,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_ss_100C_1v60/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/min_ss_100C_1v60/max.rpt",
+      "uncompressed_sha256": "fdf197d4ed0f1a18d86de6a440ab599bfb1626b7545cbd9e9730b7b59c7103d5",
+      "uncompressed_bytes": 13188609,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/min_ss_100C_1v60/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/min_ss_100C_1v60/ws.max.rpt",
+      "uncompressed_sha256": "b31121de8060b12ddb183fad27763200ea40173617b82ed72fcbd0295027f75d",
+      "uncompressed_bytes": 212,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_ss_100C_1v60/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/min_ss_100C_1v60/ws.min.rpt",
+      "uncompressed_sha256": "27b4d3584dc03c3708b600ed7ce1cce3ab5ba810d1ffa97355d70d73f42cf89c",
+      "uncompressed_bytes": 209,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_tt_025C_1v80/checks.rpt": {
+      "source": "59-openroad-stapostpnr/min_tt_025C_1v80/checks.rpt",
+      "uncompressed_sha256": "7e3588fa652ea47b53bf45dc79957256ca1dd168624cc644bc4534f7720bd250",
+      "uncompressed_bytes": 22806,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_tt_025C_1v80/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/min_tt_025C_1v80/max.rpt",
+      "uncompressed_sha256": "813185b90bdf4d745891abfd458a5022e210d472e5267b7c720e9c9d7c9fb63d",
+      "uncompressed_bytes": 12984173,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/min_tt_025C_1v80/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/min_tt_025C_1v80/ws.max.rpt",
+      "uncompressed_sha256": "e583a4e7c4aa0a48b6bcf056af2ddcd00f82035feed727ee3a2f7ec0f15b2c81",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/min_tt_025C_1v80/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/min_tt_025C_1v80/ws.min.rpt",
+      "uncompressed_sha256": "f0aadd0be16712a9b24c1985514be23990405fb597faf09edb0b1f77b8b67609",
+      "uncompressed_bytes": 211,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_ff_n40C_1v95/checks.rpt": {
+      "source": "59-openroad-stapostpnr/nom_ff_n40C_1v95/checks.rpt",
+      "uncompressed_sha256": "6c6138458f85037e56e365e01249378d56780140d161ab38f582d814c4bb35e4",
+      "uncompressed_bytes": 25581,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_ff_n40C_1v95/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/nom_ff_n40C_1v95/max.rpt",
+      "uncompressed_sha256": "8f49d504adb2591cbb5ae0dca3a1f8fdc71b26d6bf22c5b2085b02f07275dccf",
+      "uncompressed_bytes": 12930189,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/nom_ff_n40C_1v95/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/nom_ff_n40C_1v95/ws.max.rpt",
+      "uncompressed_sha256": "c2063a0ba48d93206e0da842534d42112f736f813322f930fc9363bc89ba3e5a",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_ff_n40C_1v95/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/nom_ff_n40C_1v95/ws.min.rpt",
+      "uncompressed_sha256": "a1f5313df81dda3155806fd580bb8adc8b3400f7050871ee1d38b535d039e109",
+      "uncompressed_bytes": 211,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_ss_100C_1v60/checks.rpt": {
+      "source": "59-openroad-stapostpnr/nom_ss_100C_1v60/checks.rpt",
+      "uncompressed_sha256": "97caf5b401a16e5c53fbfe54742c60d8487e455e8993c066e5245e657915597b",
+      "uncompressed_bytes": 37484,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_ss_100C_1v60/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/nom_ss_100C_1v60/max.rpt",
+      "uncompressed_sha256": "ab0275d970eeaa7b18eeb4f66c661d95f607532ba2a7efc6ab0a192c5a3b10bf",
+      "uncompressed_bytes": 13155901,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/nom_ss_100C_1v60/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/nom_ss_100C_1v60/ws.max.rpt",
+      "uncompressed_sha256": "9a212ffa340827c53e27a0c38702444ebebd8c91be677b5bc076a3c1fcdbe4fc",
+      "uncompressed_bytes": 213,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_ss_100C_1v60/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/nom_ss_100C_1v60/ws.min.rpt",
+      "uncompressed_sha256": "cfe00f58f78969abc92c04590e3205a15fda89c226792602bdc36fa1afbe3a58",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt": {
+      "source": "59-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt",
+      "uncompressed_sha256": "9bd2587e5eb0fd8b7a0dec227c04c542a389d1ef264e23549aa9706873dbbd26",
+      "uncompressed_bytes": 25581,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_tt_025C_1v80/max.rpt.gz": {
+      "source": "59-openroad-stapostpnr/nom_tt_025C_1v80/max.rpt",
+      "uncompressed_sha256": "b76e7e6ec3b77fc9f91c96d4cfbe2e846122edd13b7e812b653454eee8d53db6",
+      "uncompressed_bytes": 12995193,
+      "gzip": true
+    },
+    "59-openroad-stapostpnr/nom_tt_025C_1v80/ws.max.rpt": {
+      "source": "59-openroad-stapostpnr/nom_tt_025C_1v80/ws.max.rpt",
+      "uncompressed_sha256": "b43524d08446d31d828891aabbaf7177efeb09a6d84c2cdcdd854a82c350c238",
+      "uncompressed_bytes": 210,
+      "gzip": false
+    },
+    "59-openroad-stapostpnr/nom_tt_025C_1v80/ws.min.rpt": {
+      "source": "59-openroad-stapostpnr/nom_tt_025C_1v80/ws.min.rpt",
+      "uncompressed_sha256": "4ff1fea652cf9dc92ed900e137aea65a2d7acf0a33177bda61f173f8d6de6fe1",
+      "uncompressed_bytes": 211,
+      "gzip": false
+    },
+    "67-magic-drc/reports/drc_violations.magic.rpt": {
+      "source": "67-magic-drc/reports/drc_violations.magic.rpt",
+      "uncompressed_sha256": "26a98afb09784c8bf8ae5d30435e769bcd1ba02d2353e24ea83d255bff10bfb6",
+      "uncompressed_bytes": 99,
+      "gzip": false
+    },
+    "73-netgen-lvs/reports/lvs.netgen.json": {
+      "source": "73-netgen-lvs/reports/lvs.netgen.json",
+      "uncompressed_sha256": "6660ee6b7cbc54d825b613a8e09fed77d5ccb9b3d1dbfb559e35ae5e00efb4fb",
+      "uncompressed_bytes": 50524,
+      "gzip": false
+    },
+    "custom_flow_provenance.json": {
+      "source": "custom_flow_provenance.json",
+      "uncompressed_sha256": "a323bc0f37c06fc3d153a6fccc3ff83b5fdb854cf9aa500c543f7bebc7a8c3c7",
+      "uncompressed_bytes": 958,
+      "gzip": false
+    },
+    "final/def/riscv.def.gz": {
+      "source": "final/def/riscv.def",
+      "uncompressed_sha256": "72eb73e897d99250f97ff1d9bbab3d9049edd64531de3dd6cd573fa2135126b8",
+      "uncompressed_bytes": 11869328,
+      "gzip": true
+    },
+    "final/metrics.json": {
+      "source": "final/metrics.json",
+      "uncompressed_sha256": "6b1f9ba326f03a98675c8c7e9c2620b2624b73f77982453292882e40b8499240",
+      "uncompressed_bytes": 16763,
+      "gzip": false
+    },
+    "final/nl/riscv.nl.v.gz": {
+      "source": "final/nl/riscv.nl.v",
+      "uncompressed_sha256": "be82767432c4dff3a9162d72b8dc76e41720ea3f56a18efb6cfd1a13482c1f22",
+      "uncompressed_bytes": 2133189,
+      "gzip": true
+    },
+    "physical-equivalence.log.gz": {
+      "source": "physical-equivalence.log",
+      "uncompressed_sha256": "381f1410e393df9f949fe92b1b6c89b526ea09aeb7569ef1710b9716bf0bb0a3",
+      "uncompressed_bytes": 10063165,
+      "gzip": true
+    },
+    "resolved.json.gz": {
+      "source": "resolved.json",
+      "uncompressed_sha256": "0dca663b74ac440084167013772153b418d468573adb69670a1889738dfb57b1",
+      "uncompressed_bytes": 92160,
+      "gzip": true
+    }
+  }
+}

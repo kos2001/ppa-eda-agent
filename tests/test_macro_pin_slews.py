@@ -61,6 +61,13 @@ def make_design(root, ceiling=0.04):
 
 
 class ScriptPatch(unittest.TestCase):
+    def test_audited_wrapper_keeps_edge_report_before_pin_summary(self):
+        from flows.macro_input_audit import audit_script
+        original = audit_script("/scripts/corner.tcl", ["u_sram"])
+        out = macro_pin_slew_script(original, ["u_sram"], after_source=True)
+        self.assertTrue(out.startswith(original))
+        self.assertLess(out.index("macro_inputs.csv"), out.index("macro_pin_slews.rpt"))
+
     def test_the_query_goes_right_after_the_corner_is_set(self):
         out = macro_pin_slew_script(CORNER_TCL, ["u_sram"])
         self.assertLess(out.index("sta::set_cmd_corner $corner"), out.index("MACRO_PIN"))
@@ -93,6 +100,12 @@ class Parse(unittest.TestCase):
         pins, missing = model_validity.parse_pin_slews("MACRO_PIN u_sram/web0 NaN?" + NL)
         self.assertEqual((pins, missing), ([], 1))
 
+    def test_nonfinite_and_negative_values_are_not_measurements(self):
+        for value in ("nan", "inf", "-inf", "-0.1"):
+            with self.subTest(value=value):
+                self.assertEqual(model_validity.parse_pin_slews(
+                    f"MACRO_PIN u_sram/web0 {value}\n"), ([], 1))
+
 
 class Exhaustive(unittest.TestCase):
     def check(self, corners, ceiling=0.04):
@@ -102,13 +115,17 @@ class Exhaustive(unittest.TestCase):
             run = make_run(root / "run", corners)
             return model_validity.check(design, run)
 
-    def test_all_pins_inside_the_range_at_every_corner_leaves_nothing_unverified(self):
+    def test_clean_pin_slews_do_not_override_a_stronger_macro_model_audit(self):
         got = self.check({"nom_tt": {"addr0[0]": 0.021, "din0[0]": 0.03, "clk0": 0.039},
                           "max_ss": {"addr0[0]": 0.034, "din0[0]": 0.038, "clk0": 0.04}})
-        self.assertEqual(got["coverage"], "every_macro_input_pin_every_corner")
-        self.assertTrue(got["model_validity_verified"])
+        self.assertEqual(got["coverage"], "reported_macro_input_maxima_all_observed_corners")
+        self.assertTrue(got["reported_input_slew_range_verified"])
+        self.assertFalse(got["model_validity_verified"])
         self.assertEqual(got["pins_checked"], 3)
-        self.assertEqual(model_validity.unverified(got), [])
+        lines = model_validity.unverified(got)
+        self.assertEqual(len(lines), 1)
+        self.assertIn("PVT", lines[0])
+        self.assertNotIn("omit nonviolating pins", lines[0])
 
     def test_a_pin_past_the_range_at_one_corner_is_named_with_that_corner(self):
         got = self.check({"nom_tt": {"addr0[0]": 0.02, "clk0": 0.03},
@@ -143,6 +160,18 @@ class Exhaustive(unittest.TestCase):
             rpt.write_text(rpt.read_text() + "MACRO_PIN u_sram/web0 ?" + NL)
             self.assertEqual(model_validity.check(design, run)["coverage"],
                              "reported_slew_violations_only")
+
+    def test_different_pin_sets_between_corners_do_not_claim_coverage(self):
+        got = self.check({"nom_tt": {"addr0[0]": 0.02, "clk0": 0.03},
+                          "max_ss": {"addr0[0]": 0.03}})
+        self.assertEqual(got["coverage"], "reported_slew_violations_only")
+
+    def test_duplicate_pin_rows_do_not_claim_coverage(self):
+        with tempfile.TemporaryDirectory() as d:
+            run = make_run(Path(d), {"nom_tt": {"clk0": 0.02}})
+            rpt = run / "55-openroad-stapostpnr/nom_tt/macro_pin_slews.rpt"
+            rpt.write_text(rpt.read_text() + "MACRO_PIN u_sram/clk0 0.02\n")
+            self.assertIsNone(model_validity.check_every_pin({"u_sram": 0.04}, run))
 
     def test_old_runs_without_the_report_keep_the_old_behaviour(self):
         got = self.check({"nom_tt": None, "max_ss": None})

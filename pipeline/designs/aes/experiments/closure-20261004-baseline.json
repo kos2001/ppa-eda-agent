@@ -1,0 +1,26 @@
+{
+  "design_name": "aes",
+  "targets": { "max_core_utilization": 0.75 },
+  "candidates": [
+    {
+      "tag": "aes-closure-20261004-baseline",
+      "pdk": "sky130A",
+      "scl": "sky130_fd_sc_hd",
+      "overrides": {
+        "SYNTH_STRATEGY": "DELAY 0",
+        "CLOCK_PERIOD": 12,
+        "MAX_TRANSITION_CONSTRAINT": 1.5,
+        "IO_DELAY_CONSTRAINT": 25,
+        "MAX_FANOUT_CONSTRAINT": 16
+      }
+    }
+  ],
+  "candidate_budget": 1,
+  "max_iterations": 1,
+  "search": {
+    "mode": "explicit",
+    "objective": "Reproduce the closest measured AES candidate and collect per-net antenna and electrical violation reports before proposing physical repairs",
+    "reference": "reference-db/cases/aes__2026-09-10__055204.json:iter8-io25-fanout16"
+  },
+  "_why": "Historical run directories are unavailable on this host. Reproduce the historical overrides without further constraint relaxation. The 1.5 ns transition and generic 25% I/O-delay assumptions are part of this diagnostic baseline, not proof that the original 0.75 ns or an external system's interface specification is satisfied. Inspect the resolved configuration and generated SDC, including integer I/O-delay arithmetic, before interpreting the result."
+}

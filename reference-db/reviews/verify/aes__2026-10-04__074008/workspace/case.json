@@ -1,0 +1,677 @@
+{
+ "design": "aes",
+ "date": "2026-10-04",
+ "process_stages": [
+  {
+   "id": "extraction",
+   "name": "Circuit & Layout Extraction"
+  },
+  {
+   "id": "topology",
+   "name": "Topology Understanding"
+  },
+  {
+   "id": "placement_strategy",
+   "name": "Placement Strategy / Candidate Generation"
+  },
+  {
+   "id": "physical_constraint",
+   "name": "Physical Constraint Evaluation"
+  },
+  {
+   "id": "routing_generation",
+   "name": "Routing Generation Evaluation"
+  },
+  {
+   "id": "routing_candidate",
+   "name": "Routing Candidate Generation"
+  },
+  {
+   "id": "verification_ppa",
+   "name": "Verification & PPA Evaluation"
+  },
+  {
+   "id": "feedback",
+   "name": "AI Feedback / Repair / Optimization"
+  }
+ ],
+ "topology": {
+  "module_count": 6,
+  "has_macros": false,
+  "clock_domain_count": 1,
+  "port_count": 7,
+  "sequential_element_estimate": 562,
+  "power_domain_count": 1,
+  "notes": "Derived by topology_derive.py from aes's config.json, its Verilog sources and the Yosys netlist of run iter4-delay0-clk12 (11616 cells, 562 sequential by cell name). Not hand-written; no judgement of datapath/control character is made."
+ },
+ "iterations": [
+  {
+   "iteration": 1,
+   "results": [
+    {
+     "tag": "aes-closure-20261004-driver-r3-headroom12",
+     "overrides": {
+      "SYNTH_STRATEGY": "DELAY 0",
+      "CLOCK_PERIOD": 12,
+      "MAX_TRANSITION_CONSTRAINT": 1.5,
+      "IO_DELAY_CONSTRAINT": 25,
+      "MAX_FANOUT_CONSTRAINT": 16,
+      "FANOUT_REPAIR_LIMIT": 16,
+      "FANOUT_REPAIR_SIGNAL_CELL": "sky130_fd_sc_hd__buf_4",
+      "FANOUT_REPAIR_CLOCK_CELL": "sky130_fd_sc_hd__clkbuf_8",
+      "GRT_ANTENNA_ITERS": 10,
+      "GRT_ANTENNA_MARGIN": 50,
+      "FANOUT_REPAIR_NET_LIMITS": "{\"net1321\":8,\"_09030_\":8,\"net395\":14,\"net628\":14,\"net647\":14,\"net747\":14,\"net1048\":14,\"net1303\":14,\"net901\":14,\"net535\":12,\"net641\":12,\"net734\":12,\"net752\":12,\"net966\":12}",
+      "FANOUT_REPAIR_ROUNDS": 3,
+      "FANOUT_REPAIR_DRIVER_CELLS": "{\"fanout901\":\"sky130_fd_sc_hd__buf_8\",\"_20258_\":\"sky130_fd_sc_hd__o2bb2ai_4\"}"
+     },
+     "scl": "sky130_fd_sc_hd",
+     "pdk": "sky130A",
+     "verdict": {
+      "passed": false,
+      "violations": [
+       "2 routing antenna violation(s)",
+       "2 max-fanout (DRV) violation(s)"
+      ],
+      "unverified": [],
+      "signoff_checks": [
+       {
+        "key": "magic__drc_error__count",
+        "label": "Magic DRC error(s)",
+        "count": 0
+       },
+       {
+        "key": "klayout__drc_error__count",
+        "label": "KLayout DRC error(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_error__count",
+        "label": "LVS error(s)",
+        "count": 0
+       },
+       {
+        "key": "design__instance_unmapped__count",
+        "label": "unmapped instance(s) after synthesis",
+        "count": 0
+       },
+       {
+        "key": "design__xor_difference__count",
+        "label": "XOR difference(s) between tool GDS outputs",
+        "count": 0
+       },
+       {
+        "key": "magic__illegal_overlap__count",
+        "label": "illegal layout overlap(s) (Magic)",
+        "count": 0
+       },
+       {
+        "key": "route__drc_errors",
+        "label": "routing DRC error(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_device_difference__count",
+        "label": "LVS device difference(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_net_difference__count",
+        "label": "LVS net difference(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_property_fail__count",
+        "label": "LVS property failure(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_unmatched_device__count",
+        "label": "LVS unmatched device(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_unmatched_net__count",
+        "label": "LVS unmatched net(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lvs_unmatched_pin__count",
+        "label": "LVS unmatched pin(s)",
+        "count": 0
+       },
+       {
+        "key": "design__disconnected_pin__count",
+        "label": "disconnected pin(s)",
+        "count": 0
+       },
+       {
+        "key": "timing__setup_vio__count",
+        "label": "setup timing violation(s)",
+        "count": 0
+       },
+       {
+        "key": "timing__hold_vio__count",
+        "label": "hold timing violation(s)",
+        "count": 0
+       },
+       {
+        "key": "route__antenna_violation__count",
+        "label": "routing antenna violation(s)",
+        "count": 2
+       },
+       {
+        "key": "design__power_grid_violation__count",
+        "label": "power-grid violation(s)",
+        "count": 0
+       },
+       {
+        "key": "design__max_slew_violation__count",
+        "label": "max-slew (DRV) violation(s)",
+        "count": 0
+       },
+       {
+        "key": "design__max_cap_violation__count",
+        "label": "max-capacitance (DRV) violation(s)",
+        "count": 0
+       },
+       {
+        "key": "design__max_fanout_violation__count",
+        "label": "max-fanout (DRV) violation(s)",
+        "count": 2
+       },
+       {
+        "key": "synthesis__check_error__count",
+        "label": "synthesis check error(s)",
+        "count": 0
+       },
+       {
+        "key": "design__lint_error__count",
+        "label": "RTL lint error(s)",
+        "count": 0
+       }
+      ],
+      "metrics_source": "OpenLane metrics.json",
+      "area_um2": 135161,
+      "utilization": 0.37313,
+      "worst_setup_wns": 0,
+      "worst_setup_slack": 1.550480676623221,
+      "core_area_um2": 362235,
+      "wirelength_um": 696517,
+      "via_count": 134436,
+      "timing_corners": [
+       {
+        "corner": "max_ff_n40C_1v95",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "max_ss_100C_1v60",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "max_tt_025C_1v80",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "min_ff_n40C_1v95",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "min_ss_100C_1v60",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "min_tt_025C_1v80",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "nom_ff_n40C_1v95",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "nom_ss_100C_1v60",
+        "setup_wns": 0,
+        "hold_wns": 0
+       },
+       {
+        "corner": "nom_tt_025C_1v80",
+        "setup_wns": 0,
+        "hold_wns": 0
+       }
+      ],
+      "power": {
+       "internal_w": 0.03039281629025936,
+       "leakage_w": 1.6131468782987213e-07,
+       "switching_w": 0.06294760853052139,
+       "total_w": 0.09334059059619904
+      },
+      "power_domain": {
+       "ir_drop_avg_v": 0.000638,
+       "ir_drop_worst_v": 0.00418,
+       "voltage_worst_v": 1.8,
+       "supplies": [
+        {
+         "net": "VGND",
+         "drop_worst_v": 0.00391594,
+         "voltage_worst_v": 0.00391594,
+         "nominal_v": 0.00783188,
+         "drop_pct": null
+        },
+        {
+         "net": "VPWR",
+         "drop_worst_v": 0.0041755,
+         "voltage_worst_v": 1.79582,
+         "nominal_v": 1.7999955,
+         "drop_pct": 0.2319728021542276
+        }
+       ]
+      },
+      "model_validity": null,
+      "repair_parasitic_audit": {
+       "verified": true,
+       "corners": {
+        "max_ff_n40C_1v95": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/max_ff_n40C_1v95/checks.rpt"
+        },
+        "max_ss_100C_1v60": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/max_ss_100C_1v60/checks.rpt"
+        },
+        "max_tt_025C_1v80": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/max_tt_025C_1v80/checks.rpt"
+        },
+        "min_ff_n40C_1v95": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/min_ff_n40C_1v95/checks.rpt"
+        },
+        "min_ss_100C_1v60": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/min_ss_100C_1v60/checks.rpt"
+        },
+        "min_tt_025C_1v80": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/min_tt_025C_1v80/checks.rpt"
+        },
+        "nom_ff_n40C_1v95": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/nom_ff_n40C_1v95/checks.rpt"
+        },
+        "nom_ss_100C_1v60": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/nom_ss_100C_1v60/checks.rpt"
+        },
+        "nom_tt_025C_1v80": {
+         "report_present": true,
+         "incomplete_repair_drivers": [],
+         "report": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/67-openroad-stapostpnr/nom_tt_025C_1v80/checks.rpt"
+        }
+       },
+       "scope": "inserted repair drivers only; not complete design or macro-model qualification"
+      },
+      "operating_point": {
+       "clock_period_ns": 12.0,
+       "corners": [
+        {
+         "corner": "max_ff_n40C_1v95",
+         "voltage_v": 1.95,
+         "setup_ws_ns": 6.572238939097493,
+         "hold_ws_ns": 0.06484324372093922,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 5.427761060902507,
+         "fmax_mhz": 184.23802904723368
+        },
+        {
+         "corner": "max_ss_100C_1v60",
+         "voltage_v": 1.6,
+         "setup_ws_ns": 1.550480676623221,
+         "hold_ws_ns": 0.4911626799851985,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 10.449519323376778,
+         "fmax_mhz": 95.69818180659132
+        },
+        {
+         "corner": "max_tt_025C_1v80",
+         "voltage_v": 1.8,
+         "setup_ws_ns": 5.328661218654101,
+         "hold_ws_ns": 0.23529634462389473,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 6.671338781345899,
+         "fmax_mhz": 149.8949510398356
+        },
+        {
+         "corner": "min_ff_n40C_1v95",
+         "voltage_v": 1.95,
+         "setup_ws_ns": 6.70679397668465,
+         "hold_ws_ns": 0.05777989361620633,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 5.29320602331535,
+         "fmax_mhz": 188.921420325457
+        },
+        {
+         "corner": "min_ss_100C_1v60",
+         "voltage_v": 1.6,
+         "setup_ws_ns": 2.16817148150052,
+         "hold_ws_ns": 0.6944576221753289,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 9.83182851849948,
+         "fmax_mhz": 101.71048021417471
+        },
+        {
+         "corner": "min_tt_025C_1v80",
+         "voltage_v": 1.8,
+         "setup_ws_ns": 5.522561231299542,
+         "hold_ws_ns": 0.23017277624264768,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 6.477438768700458,
+         "fmax_mhz": 154.3820074119552
+        },
+        {
+         "corner": "nom_ff_n40C_1v95",
+         "voltage_v": 1.95,
+         "setup_ws_ns": 6.634373238561733,
+         "hold_ws_ns": 0.06260836470916208,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 5.365626761438267,
+         "fmax_mhz": 186.37151715188404
+        },
+        {
+         "corner": "nom_ss_100C_1v60",
+         "voltage_v": 1.6,
+         "setup_ws_ns": 1.8520456803496848,
+         "hold_ws_ns": 0.5773666153040473,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 10.147954319650315,
+         "fmax_mhz": 98.54202812714855
+        },
+        {
+         "corner": "nom_tt_025C_1v80",
+         "voltage_v": 1.8,
+         "setup_ws_ns": 5.425109404155498,
+         "hold_ws_ns": 0.23340285920184511,
+         "setup_ok": true,
+         "hold_ok": true,
+         "min_period_ns": 6.574890595844502,
+         "fmax_mhz": 152.09378550451098
+        }
+       ],
+       "fmax_mhz": 95.69818180659132,
+       "fmax_limiting_corner": "max_ss_100C_1v60",
+       "vmin_v": 1.6,
+       "vmin_is_lowest_analysed": true,
+       "failing_corners": [],
+       "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+       "period_source": "resolved.json"
+      }
+     },
+     "run_dir": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12",
+     "data": {
+      "circuit": {
+       "netlist_verilog": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/nl",
+       "netlist_powered_verilog": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/pnl",
+       "spice_netlist": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/spice"
+      },
+      "layout": {
+       "def": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/def",
+       "lef": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/lef",
+       "gds": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/gds"
+      },
+      "constraint_pdk": {
+       "pdk_version": "0fe599b2afb6708d281543108caf8310912f54af",
+       "sdc": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/sdc"
+      },
+      "verification": {
+       "metrics_json": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/metrics.json",
+       "spef": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/spef",
+       "sdf": "/private/tmp/ppa-aes-closure-20261004/aes/runs/aes-closure-20261004-driver-r3-headroom12/final/sdf"
+      }
+     },
+     "clocks": {
+      "declared_clocks": [
+       "clk"
+      ],
+      "constrained_clocks": [
+       "clk"
+      ],
+      "unconstrained_clocks": [],
+      "custom_sdc": false,
+      "warnings": [],
+      "note": "constraint coverage only — no structural CDC analysis (synchronizers, gray coding, metastability) is performed"
+     },
+     "step_coverage": {
+      "declared": 78,
+      "executed": 87,
+      "missing": [
+       {
+        "step": "OpenROAD.RepairDesignPostGRT",
+        "gated_by": "RUN_POST_GRT_DESIGN_REPAIR",
+        "value": false,
+        "is_signoff": false
+       },
+       {
+        "step": "Odb.HeuristicDiodeInsertion",
+        "gated_by": "RUN_HEURISTIC_DIODE_INSERTION",
+        "value": false,
+        "is_signoff": false
+       },
+       {
+        "step": "OpenROAD.ResizerTimingPostGRT",
+        "gated_by": "RUN_POST_GRT_RESIZER_TIMING",
+        "value": false,
+        "is_signoff": false
+       },
+       {
+        "step": "Yosys.EQY",
+        "gated_by": "RUN_EQY",
+        "value": false,
+        "is_signoff": true
+       }
+      ],
+      "missing_signoff": [
+       "Yosys.EQY"
+      ]
+     },
+     "equivalence": null,
+     "seconds": 1043.5,
+     "flow": "FanoutRepair",
+     "prediction": {
+      "error": "ValueError: Surrogate features do not describe the physical fanout repair flow"
+     },
+     "stage": "verification_ppa",
+     "produced_by_feedback": false,
+     "layout_deferred": true,
+     "netlist_deferred": true
+    }
+   ]
+  }
+ ],
+ "winner_tag": null,
+ "outcome": "no candidate met targets after all iterations",
+ "stop_reason": "max_iterations_reached",
+ "expected_outcome": null,
+ "toolchain": {
+  "openlane_image": "ghcr.io/efabless/openlane2:2.3.10",
+  "openlane_upstream": "github.com/chipfoundry/openlane2",
+  "profile": "stable",
+  "expected_openroad_revision": "edf00dff99f6c40d67a30c0e22a8191c5d2ed9d6",
+  "host": {
+   "arch": "arm64",
+   "system": "Darwin",
+   "cpu_count": 10,
+   "docker_platform": "native"
+  }
+ },
+ "constraints": {
+  "design": {
+   "design_name": "aes_cipher_top",
+   "settings": [
+    {
+     "key": "CLOCK_PORT",
+     "label": "clock port",
+     "value": "clk"
+    },
+    {
+     "key": "CLOCK_PERIOD",
+     "label": "clock period (ns)",
+     "value": 10
+    },
+    {
+     "key": "FP_CORE_UTIL",
+     "label": "target core utilization (%)",
+     "value": 35
+    }
+   ],
+   "fixed_macros": [],
+   "power_connections": [],
+   "targets": {}
+  },
+  "pdk": {
+   "source": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pdk/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef",
+   "manufacturing_grid_um": 0.005,
+   "database_units_per_um": 1000.0,
+   "sites": [
+    {
+     "name": "unithd",
+     "width_um": 0.46,
+     "height_um": 2.72,
+     "class": "CORE"
+    },
+    {
+     "name": "unithddbl",
+     "width_um": 0.46,
+     "height_um": 5.44,
+     "class": "CORE"
+    }
+   ],
+   "routing_layers": [
+    {
+     "name": "li1",
+     "direction": "vertical",
+     "pitch_um": null,
+     "min_width_um": 0.17,
+     "min_spacing_um": 0.17,
+     "min_area_um2": 0.0561,
+     "thickness_um": 0.1,
+     "max_density_pct": null,
+     "resistance_ohm_per_sq": 12.8
+    },
+    {
+     "name": "met1",
+     "direction": "horizontal",
+     "pitch_um": 0.34,
+     "min_width_um": 0.14,
+     "min_spacing_um": 0.14,
+     "min_area_um2": 0.083,
+     "thickness_um": 0.35,
+     "max_density_pct": 70.0,
+     "resistance_ohm_per_sq": 0.125
+    },
+    {
+     "name": "met2",
+     "direction": "vertical",
+     "pitch_um": 0.46,
+     "min_width_um": 0.14,
+     "min_spacing_um": 0.14,
+     "min_area_um2": 0.0676,
+     "thickness_um": 0.35,
+     "max_density_pct": 70.0,
+     "resistance_ohm_per_sq": 0.125
+    },
+    {
+     "name": "met3",
+     "direction": "horizontal",
+     "pitch_um": 0.68,
+     "min_width_um": 0.3,
+     "min_spacing_um": 0.3,
+     "min_area_um2": 0.24,
+     "thickness_um": 0.8,
+     "max_density_pct": 70.0,
+     "resistance_ohm_per_sq": 0.047
+    },
+    {
+     "name": "met4",
+     "direction": "vertical",
+     "pitch_um": 0.92,
+     "min_width_um": 0.3,
+     "min_spacing_um": 0.3,
+     "min_area_um2": 0.24,
+     "thickness_um": 0.8,
+     "max_density_pct": 70.0,
+     "resistance_ohm_per_sq": 0.047
+    },
+    {
+     "name": "met5",
+     "direction": "horizontal",
+     "pitch_um": 3.4,
+     "min_width_um": 1.6,
+     "min_spacing_um": 1.6,
+     "min_area_um2": 4.0,
+     "thickness_um": 1.2,
+     "max_density_pct": null,
+     "resistance_ohm_per_sq": 0.0285
+    }
+   ]
+  }
+ },
+ "synthesis_exploration": null,
+ "search_plan": {
+  "mode": "explicit",
+  "objective": "Reserve headroom on five final measured fanout17 nets and test one final bounded third buffer/reroute/antenna pass, preserving the successful driver sizes and final SDC",
+  "reference": "aes__2026-10-04__071933: slew0, cap0, antenna4, fanout5 at fanout535/641/734/752/966 outputs; DRC/LVS/setup/hold0 and all9 repair-driver SPEF annotations complete",
+  "seed": null,
+  "candidate_budget": 1,
+  "planned_candidates_max": 1,
+  "candidate_sources": {
+   "explicit": 1,
+   "sweep": 0,
+   "synthesis_exploration": 0
+  },
+  "max_iterations": 1
+ },
+ "layout_image": "layouts/aes__2026-10-04__aes-closure-20261004-driver-r3-headroom12.png",
+ "layout_image_tag": "aes-closure-20261004-driver-r3-headroom12",
+ "experiment_evidence": {
+  "path": "pipeline/designs/aes/experiments/evidence-20261004",
+  "input_manifest": {
+   "source_design": "/Volumes/T9-Workspace/gitspace/ppa-eda-agent/pipeline/designs/aes",
+   "work_design": "/private/tmp/ppa-aes-closure-20261004/aes",
+   "inputs": {
+    "config.json": "4140ac7a7458565d60aeaae52c8eb01a78e110c6fa09bac1818d241b9cd08980",
+    "src/aes_cipher_top.v": "432a5c262c2b502d3e68123bd88e0ad4a7694e077f2297d8243ecc6e12fe94c2",
+    "src/aes_inv_cipher_top.v": "6974d8b582f675b1e10d0e10ad36f8ec9ca76911cff54e880e71db04ab394c7c",
+    "src/aes_inv_sbox.v": "ce684a8941f3bd0a1b1345bcb4eb1cff01399a28935f89ce5b8e0be31652bbb2",
+    "src/aes_key_expand_128.v": "f5042b30d8ad45c35492acd694a45cb8f14c2046e40727e833a3e887d6cd4c83",
+    "src/aes_rcon.v": "8a5492224f5b97e640a85c9cbef168fe18ec9a11994f5d96d1f3f8847f6ecdc5",
+    "src/aes_sbox.v": "7f4fe4173d58017eb2520fb130b3b779d63a373463cb0198bd66c4371184d7fb",
+    "src/timescale.v": "0833b736793bc11f640ed66357614c0f5cf30a548a7e515333b1e46438b2cb6b"
+   }
+  },
+  "run_evidence": "pipeline/designs/aes/experiments/evidence-20261004/aes-closure-20261004-driver-r3-headroom12",
+  "storage_note": "Full binaries remain in the recorded /private/tmp directory. Compact final reports and immutable custom-flow sources are retained in Git."
+ },
+ "diagnosis": "2026-10-04 measured physical algorithm candidate aes-closure-20261004-driver-r3-headroom12. Final violations: ['2 routing antenna violation(s)', '2 max-fanout (DRV) violation(s)']. All 9 reported timing corners were evaluated; Magic DRC=0, KLayout DRC=0, LVS=0. This uses the diagnostic 12ns / 1.5ns transition / generic 25% IO constraints; it does not establish original 10ns / 0.75ns or real-interface qualification. Both requested driver masters remain up-sized in the final routed netlist. Independent actual SS Liberty Boolean functions match, and all123150 original pre-buffer pin connections were checked unchanged before the physical repair. The remaining fanout violators are fanout1023/X (18 sinks) and fanout1007/X (17 sinks) against16; the two antenna pins are _12437_/A1_N on _03644_ at met3 and _14993_/A on text_in_r[26] at met1. A third pass moves the coupled repair frontier rather than establishing closure. Budget exhausted after this measured correction."
+}

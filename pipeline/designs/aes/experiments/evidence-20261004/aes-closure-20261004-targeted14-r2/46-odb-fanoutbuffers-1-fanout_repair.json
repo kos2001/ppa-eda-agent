@@ -1,0 +1,92 @@
+{
+  "limit": 16,
+  "inserted_buffers": 8,
+  "repaired_nets": [
+    {
+      "net": "_02964_",
+      "clock": false,
+      "driver": "_11475_/X",
+      "original_sinks": 17,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_49",
+          "net": "fanout_repair_49",
+          "sink_count": 8
+        },
+        {
+          "instance": "fanout_repair_50",
+          "net": "fanout_repair_50",
+          "sink_count": 9
+        }
+      ],
+      "limit": 16,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net1055",
+      "clock": false,
+      "driver": "fanout1055/X",
+      "original_sinks": 17,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_51",
+          "net": "fanout_repair_51",
+          "sink_count": 8
+        },
+        {
+          "instance": "fanout_repair_52",
+          "net": "fanout_repair_52",
+          "sink_count": 9
+        }
+      ],
+      "limit": 16,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net1143",
+      "clock": false,
+      "driver": "fanout1143/X",
+      "original_sinks": 17,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_53",
+          "net": "fanout_repair_53",
+          "sink_count": 8
+        },
+        {
+          "instance": "fanout_repair_54",
+          "net": "fanout_repair_54",
+          "sink_count": 9
+        }
+      ],
+      "limit": 16,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net431",
+      "clock": false,
+      "driver": "fanout431/X",
+      "original_sinks": 17,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_55",
+          "net": "fanout_repair_55",
+          "sink_count": 8
+        },
+        {
+          "instance": "fanout_repair_56",
+          "net": "fanout_repair_56",
+          "sink_count": 9
+        }
+      ],
+      "limit": 16,
+      "remaining_driver_sinks": 2
+    }
+  ],
+  "skipped_nets": [],
+  "scope": "signal input pin counts; weighted Liberty fanout and timing require final STA"
+}

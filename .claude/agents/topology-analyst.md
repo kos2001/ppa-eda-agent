@@ -36,15 +36,28 @@ Using the topology signature, classify along two axes:
 
 ## Precedent lookup
 
+For repeated search or an assigned context capsule, follow
+`.codex/skills/ppa-eda-flow/references/adaptive-search.md`. A capsule assignment
+limits the lookups below to its visible evidence; do not recover hidden cases or
+diagnoses for a seed-only proposer. If topology is absent in an isolated trial,
+report it unavailable rather than fetching undisclosed artifacts.
+
 Search `reference-db/cases/*.json` for prior designs with a similar
 signature (same macro/no-macro class, similar module_count and
 sequential_element_estimate order of magnitude). For each match, report:
-- What config overrides were tried and which won.
+- What config overrides were tried and which won, with source case/tag and
+  recorded PDK/SCL/toolchain/input compatibility. Similar topology alone does
+  not establish comparable PPA. Unknown provenance remains unknown.
 - Any failure modes hit (e.g. the real PDN-generation failure recorded in
   `reference-db/cases/counter4__2026-08-21.json` at `FP_CORE_UTIL: 55`+ —
   insufficient strap width at that density/die size combination) so
   `placement-strategist` doesn't re-propose a candidate already known to
   fail for a structurally similar design.
+
+Separate measured observations from attributed diagnoses. A failed setting on
+another design is a hypothesis to investigate, not a prohibition on that axis.
+Preserve distinct compatible nondominated candidates rather than reporting only
+the historical winner; use `pipeline/evaluation_archive.py` for qualified groups.
 
 If no similar case exists yet, say so plainly — an empty reference DB is
 the expected state for the first few designs run through this pipeline,

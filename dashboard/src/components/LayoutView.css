@@ -7,8 +7,26 @@
 
 .layout-view svg {
   display: block;
+  height: 380px;
   max-height: 420px;
+  touch-action: none;
+  cursor: grab;
 }
+.layout-view svg:active { cursor: grabbing; }
+.layout-view__toolbar, .layout-view__controls { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px; align-items: center; }
+.layout-view__toolbar { border-bottom: 1px solid var(--border); }
+.layout-view__toolbar button, .layout-view__search button { background: var(--surface-raised); color: var(--text); border: 1px solid var(--border-strong); border-radius: 5px; padding: 6px 10px; cursor: pointer; font: inherit; }
+.layout-view__toolbar span, .layout-view__controls, .layout-view__note, .layout-view__search { font-size: 11px; }
+.layout-view__controls label { display: flex; gap: 5px; align-items: center; }
+.layout-view__controls i { width: 9px; height: 9px; border-radius: 2px; }
+.layout-view__note { padding: 10px 12px; margin: 0; color: var(--text-dim); line-height: 1.6; }
+.layout-view__search { padding: 10px 12px; border-top: 1px solid var(--border); }
+.layout-view__search input { width: 100%; padding: 8px; background: var(--surface-raised); border: 1px solid var(--border-strong); color: var(--text); box-sizing: border-box; }
+.layout-view__matches { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; max-height: 130px; overflow: auto; }
+.layout-view__matches button { max-width: 100%; overflow-wrap: anywhere; }
+.layout-view__search p { overflow-wrap: anywhere; }
+.layout-view :is(button, input, svg):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 700px) { .layout-view svg { height: 290px; } }
 
 .layout-view__die {
   fill: none;

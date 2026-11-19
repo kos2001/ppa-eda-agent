@@ -11,18 +11,66 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createReportCache, reportStoreKey } from "./report-cache.mjs";
+import { createLineDecoder } from "./stream-lines.mjs";
+import { handleJsonRequest } from "./http-json.mjs";
+import { designExamples } from "./examples.mjs";
+import { artifactInventory, readArtifact } from "./artifacts.mjs";
+import { createSchematicJobs } from "./schematic-jobs.mjs";
 
 const execFileAsync = promisify(execFile);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const refDbDir = path.resolve(__dirname, "..", "reference-db");
 const pipelineDir = path.resolve(__dirname, "..", "pipeline");
+async function schematicCommand(action, args = []) {
+  const { stdout } = await execFileAsync("python3", ["schematic_service.py", action, ...args],
+    { cwd: pipelineDir, timeout: action === "prepare" ? 990_000 : 360_000, maxBuffer: 8 * 1024 * 1024 });
+  const result = JSON.parse(stdout);
+  if (!["ready", "success"].includes(result.status)) {
+    const error = new Error(result.errors?.join("\n") || "Schematic operation failed");
+    error.reason = result.metadata?.reason;
+    throw error;
+  }
+  return result;
+}
+const schematicJobs = createSchematicJobs({
+  prepare: () => schematicCommand("prepare"),
+  render: async (cell, circuitOnly) => {
+    const result = await schematicCommand("render", ["--cell", cell, ...(circuitOnly ? ["--circuit"] : [])]);
+    const [kind, design, name] = cell.split("/");
+    const directory = kind === "gate" ? path.join(pipelineDir, "designs", design, "sch") : path.join(pipelineDir, "analog", design);
+    return { file: path.join(directory, `${name}${circuitOnly ? ".circuit" : ""}.svg`), sha256: result.svg_sha256 };
+  },
+});
+async function sendSchematicJob(job, res, headers) {
+  const jsonHeaders = { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" };
+  if (!job) {
+    res.writeHead(404, jsonHeaders);
+    res.end(JSON.stringify({ error: "Drawing task expired; retry", reason: "job_expired" }));
+  } else if (job.state === "failed") {
+    res.writeHead(job.reason === "renderer_unavailable" ? 503 : 422, jsonHeaders);
+    res.end(JSON.stringify({ error: job.error, reason: job.reason, state: job.state }));
+  } else if (job.state === "ready" && job.result) {
+    const body = await readFile(job.result.file);
+    if (createHash("sha256").update(body).digest("hex") !== job.result.sha256) {
+      res.writeHead(409, jsonHeaders);
+      res.end(JSON.stringify({ error: "Drawing changed after this task; retry", reason: "drawing_changed" }));
+      return;
+    }
+    res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml", "Cache-Control": "no-store" });
+    res.end(body);
+  } else {
+    res.writeHead(job.state === "ready" ? 200 : 202, { ...jsonHeaders, "Retry-After": "1" });
+    res.end(JSON.stringify({ id: job.id, state: job.state, poll: `render-jobs/${job.id}` }));
+  }
+}
 // Tool availability, keyed by whether the container was asked too. Time
 // based rather than store-keyed like reportCache: what this reports
 // changes when the machine changes, not when a case is written.
 const toolchainCache = new Map();
 const feedbackFile = path.join(refDbDir, "feedback.jsonl");
-const PORT = Number(process.env.PPA_EDA_SERVER_PORT) || 8123;
+
 
 // Auto-loads a real .env file at the repo root, if present — same
 // pattern as ~/gitspace/mi-report's load_profile(): the credential
@@ -60,19 +108,26 @@ try {
     : `[env] could not load .env: ${err?.message ?? err}`);
 }
 
+const PORT = Number(process.env.PPA_EDA_SERVER_PORT ?? 8123);
+if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) throw new Error("PPA_EDA_SERVER_PORT must be an integer from 1 to 65535");
+const FRONTEND_ORIGINS = process.env.PPA_EDA_FRONTEND_ORIGINS?.trim()
+  ? process.env.PPA_EDA_FRONTEND_ORIGINS.split(",").map((value) => new URL(value.trim()).origin)
+  : null;
+
 // Any localhost dev-server port is fine — this is a local-only tool.
 const ALLOWED_ORIGIN_RE = /^http:\/\/(localhost|127\.0\.0\.1):\d+$/;
 
 function corsHeaders(req) {
   const origin = req.headers.origin;
-  if (origin && ALLOWED_ORIGIN_RE.test(origin)) {
+  if (origin && (FRONTEND_ORIGINS ? FRONTEND_ORIGINS.includes(origin) : ALLOWED_ORIGIN_RE.test(origin))) {
     return {
       "Access-Control-Allow-Origin": origin,
+      "Vary": "Origin",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
   }
-  return {};
+  return { Vary: "Origin" };
 }
 
 // Reads the real reference-db/ case store (written by
@@ -252,26 +307,9 @@ async function candidateDetail(fileName, tag) {
 // JSON parsing alone in python) before it can count anything, so
 // /self-improve took 8.3 s and /data-lineage 7.5 s on every visit to the
 // health and lineage pages, for a store that changes only when a run
-// finishes. Keyed by the newest case mtime and the case count: a new or
-// rewritten case moves the key, nothing else does.
-const reportCache = new Map(); // route -> {key, body}
-
-async function storeKey() {
-  let newest = 0;
-  let count = 0;
-  try {
-    const names = await readdir(path.join(refDbDir, "cases"));
-    for (const name of names) {
-      if (!name.endsWith(".json")) continue;
-      const { mtimeMs } = await stat(path.join(refDbDir, "cases", name));
-      if (mtimeMs > newest) newest = mtimeMs;
-      count += 1;
-    }
-  } catch {
-    return null;
-  }
-  return `${count}:${newest}`;
-}
+// finishes. Every case and auxiliary report input participates in invalidation.
+const cachedReport = createReportCache(() =>
+  reportStoreKey(refDbDir, path.join(pipelineDir, "designs")));
 
 // The standard-cell listing costs a Python start plus a parse of the
 // library CDL (~0.25 s) on every keystroke of the search box, and its
@@ -294,15 +332,6 @@ async function stdcellStoreKey() {
     return "none"; // no signoff store yet: the listing has no verdicts to go stale
   }
   return `${count}:${newest}`;
-}
-
-async function cachedReport(route, produce) {
-  const key = await storeKey();
-  const hit = reportCache.get(route);
-  if (key !== null && hit && hit.key === key) return hit.body;
-  const body = await produce();
-  if (key !== null) reportCache.set(route, { key, body });
-  return body;
 }
 
 // The list, serialized, with a key that changes exactly when its content
@@ -353,7 +382,7 @@ async function loadReferenceDb() {
 
 // Lets the dashboard actually DRIVE the agent instead of only reading
 // what it already did — this is the difference between a report viewer
-// and a DTCO agent console: a real pipeline/orchestrator.py run
+// and a layout agent console: a real pipeline/orchestrator.py run
 // (candidate generation → OpenLane → auto-repair → reference-db case),
 // spawned on demand from the UI, not just past runs someone triggered
 // from a terminal. In-memory only (no queue/db) since this is a
@@ -541,24 +570,26 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
     state.tail.push(line);
     if (state.tail.length > MAX_TAIL_LINES) state.tail.shift();
   };
-  const onChunk = (chunk) => {
+  const onLine = (line) => {
     // Split on carriage returns as well as newlines. OpenLane redraws
     // its progress bar in place with \r and only emits \n when the bar
     // is finished, so splitting on \n alone accumulates every
     // intermediate update into one enormous line and the live view sees
     // exactly one step — the last. Measured: a full 78-step run produced
     // a single parseable "Stage" line, at 78/78.
-    for (const line of chunk.toString("utf-8").split(/\r\n|\r|\n/)) {
-      if (!line.trim()) continue;
-      trackProgress(state, line);
-      // Progress-bar redraws are the point of the above and pure noise
-      // in a readable tail — hundreds of near-identical lines would
-      // evict everything else from a 200-line buffer.
-      if (!STAGE_LINE.test(line)) pushLine(line);
-    }
+    if (!line.trim()) return;
+    trackProgress(state, line);
+    // Progress-bar redraws are the point of the above and pure noise
+    // in a readable tail — hundreds of near-identical lines would
+    // evict everything else from a 200-line buffer.
+    if (!STAGE_LINE.test(line)) pushLine(line);
   };
-  proc.stdout.on("data", onChunk);
-  proc.stderr.on("data", onChunk);
+  // stdout and stderr need independent buffers: their chunks can interleave,
+  // but a partial line on one stream must never be joined to the other.
+  const stdoutLines = createLineDecoder(onLine);
+  const stderrLines = createLineDecoder(onLine);
+  proc.stdout.on("data", (chunk) => stdoutLines.write(chunk));
+  proc.stderr.on("data", (chunk) => stderrLines.write(chunk));
 
   // Poll the run directory while the process lives. 1.5 s is well under
   // the time any OpenLane step takes, and it is a directory listing.
@@ -574,6 +605,8 @@ function startPipelineRun(design, { maxIterations = null } = {}) {
     finishProgress(state);
   });
   proc.on("close", (code) => {
+    stdoutLines.end();
+    stderrLines.end();
     if (state.status === "running") {
       state.status = code === 0 ? "done" : "error";
       if (code !== 0) state.error = `orchestrator.py exited with code ${code}`;
@@ -789,6 +822,48 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && req.url === "/health") {
+    res.writeHead(200, { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" });
+    res.end(JSON.stringify({ status: "ok", service: "ppa-eda-api", api_version: 1 }));
+    return;
+  }
+  if (req.method === "GET" && req.url === "/examples") {
+    try {
+      const examples = await designExamples(path.join(pipelineDir, "designs"));
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ examples }));
+    } catch (error) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+
+  if (req.method === "GET" && new URL(req.url, "http://localhost").pathname === "/reference-db/artifacts") {
+    const params = new URL(req.url, "http://localhost").searchParams;
+    const file = params.get("file") ?? "";
+    const tag = params.get("tag") ?? "";
+    if (!file.endsWith(".json") || path.basename(file) !== file || file.includes("..") || !tag) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "file and tag are required" }));
+      return;
+    }
+    try {
+      const { light: caseData } = await readCaseFileCached(file);
+      const candidate = caseData.iterations.flatMap(it => it.results).find(row => row.tag === tag);
+      const options = { workspaceRoot: path.resolve(__dirname, "..") };
+      const result = candidate && (params.has("id")
+        ? await readArtifact(candidate, params.get("id"), options)
+        : await artifactInventory(candidate, options));
+      res.writeHead(result ? 200 : 404, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify(result ?? { error: "Recorded artifact unavailable" }));
+    } catch (error) {
+      res.writeHead(404, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+
   // One candidate's layout and netlist — the heavy fields the list
   // leaves out (see lightCase).
   if (req.method === "GET" && req.url?.startsWith("/reference-db/candidate")) {
@@ -832,7 +907,14 @@ const server = createServer(async (req, res) => {
   // a case JSON, but this endpoint is reachable directly, so it must
   // not be usable to read arbitrary files.
   if (req.method === "GET" && req.url?.startsWith("/reference-db/layouts/")) {
-    const name = decodeURIComponent(req.url.slice("/reference-db/layouts/".length));
+    let name;
+    try {
+      name = decodeURIComponent(new URL(req.url, "http://localhost").pathname.slice("/reference-db/layouts/".length));
+    } catch {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "invalid layout image name" }));
+      return;
+    }
     if (!/^[A-Za-z0-9_.-]+\.png$/.test(name)) {
       res.writeHead(400, { ...headers, "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "invalid layout image name" }));
@@ -857,11 +939,8 @@ const server = createServer(async (req, res) => {
   // per real step of pipeline/request_review.py's own workflow —
   // generate the request, get a review, apply it back into the case.
   if (req.method === "POST" && req.url === "/review/request") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design }) => {
       try {
-        const { design } = JSON.parse(body || "{}");
         if (!isSafeDesignName(design)) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design (bare directory name) required" }));
@@ -895,11 +974,8 @@ const server = createServer(async (req, res) => {
   // the moment the request is generated, rather than making a person ask
   // for something that already exists.
   if (req.method === "POST" && req.url === "/review/cached") {
-    let cachedBody = "";
-    req.on("data", (c) => (cachedBody += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design, requestText, lang }) => {
       try {
-        const { design, requestText, lang } = JSON.parse(cachedBody || "{}");
         if (!isSafeDesignName(design) || typeof requestText !== "string") {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design and requestText required" }));
@@ -930,11 +1006,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/review/ask") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ requestText, lang, design, refresh }) => {
       try {
-        const { requestText, lang, design, refresh } = JSON.parse(body || "{}");
         if (typeof requestText !== "string" || !requestText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "requestText (non-empty string) required" }));
@@ -998,11 +1071,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/review/apply") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design, agent, responseText }) => {
       try {
-        const { design, agent, responseText } = JSON.parse(body || "{}");
         if (!isSafeDesignName(design) || typeof agent !== "string" || !agent.trim()
             || typeof responseText !== "string" || !responseText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
@@ -1035,14 +1105,17 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/pipeline/run") {
-    let runBody = "";
-    req.on("data", (chunk) => (runBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ design, maxIterations }) => {
       try {
-        const { design, maxIterations } = JSON.parse(runBody || "{}");
         if (!isSafeDesignName(design)) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design (bare directory name under pipeline/designs/) required" }));
+          return;
+        }
+        if (maxIterations != null
+            && (!Number.isInteger(maxIterations) || maxIterations < 1 || maxIterations > 1000)) {
+          res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "maxIterations must be an integer from 1 to 1000" }));
           return;
         }
         if (!(await designExists(design))) {
@@ -1089,11 +1162,8 @@ const server = createServer(async (req, res) => {
   // whole array can. Stored beside the cases so it is backed up and
   // versioned with them.
   if (req.method === "POST" && req.url === "/feedback") {
-    let body = "";
-    req.on("data", (c) => (body += c));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ message, kind, page }) => {
       try {
-        const { message, kind, page } = JSON.parse(body || "{}");
         if (typeof message !== "string" || !message.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "message (non-empty string) required" }));
@@ -1171,9 +1241,23 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // Where the data comes from and who reads it. SystemHealth answers
-  // "does anything need attention"; this answers "what is in here and
-  // where does it go", which had no answer anywhere in the console.
+  // Derived measured-cost history and qualified, compatible Pareto groups.
+  if (req.method === "GET" && req.url === "/evaluation-report") {
+    try {
+      const stdout = await cachedReport("/evaluation-report", async () => (await execFileAsync(
+        "python3", ["evaluation_archive.py", "--write"],
+        { cwd: pipelineDir, timeout: 180_000, maxBuffer: 32 * 1024 * 1024 }
+      )).stdout);
+      res.writeHead(200, { ...headers, "Content-Type": "application/json" });
+      res.end(stdout);
+    } catch (error) {
+      res.writeHead(500, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+
+  // Where the data comes from and who reads it.
   if (req.method === "GET" && req.url === "/data-lineage") {
     try {
       const stdout = await cachedReport("/data-lineage", async () => (await execFileAsync(
@@ -1263,38 +1347,60 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
-    const id = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
-    if (!/^(analog|gate)\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(id)) {
+  if (req.method === "GET" && req.url?.startsWith("/analog/inspect?")) {
+    const cell = new URL(req.url, "http://localhost").searchParams.get("cell") ?? "";
+    if (!/^(analog|gate)\/[A-Za-z0-9_][A-Za-z0-9_.-]*\/[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(cell)) {
       res.writeHead(400, { ...headers, "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
       return;
     }
-    const [kind, design, cell] = id.split("/");
-    const dir = kind === "gate"
-      ? path.join(pipelineDir, "designs", design, "sch")
-      : path.join(pipelineDir, "analog", design);
-    const sch = path.join(dir, `${cell}.sch`);
-    const svg = path.join(dir, `${cell}.svg`);
     try {
-      const schStat = await stat(sch);
-      const svgStat = await stat(svg).catch(() => null);
-      if (!svgStat || svgStat.mtimeMs < schStat.mtimeMs) {
-        await execFileAsync(
-          "python3",
-          ["-c",
-           "import sys, json; sys.path.insert(0, '.'); import custom_bridge; " +
-           `r = custom_bridge.render_schematic(${JSON.stringify(sch)}); ` +
-           "print(json.dumps(r.to_dict()))"],
-          { cwd: pipelineDir, timeout: 300_000, maxBuffer: 8 * 1024 * 1024 }
-        );
-      }
-      res.writeHead(200, { ...headers, "Content-Type": "image/svg+xml" });
-      res.end(await readFile(svg));
+      const { stdout } = await execFileAsync("python3", ["schematic_inspect.py", "--cell", cell],
+        { cwd: pipelineDir, timeout: 30_000, maxBuffer: 16 * 1024 * 1024 });
+      res.writeHead(200, { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" });
+      res.end(stdout);
     } catch (err) {
-      console.error("[analog svg error]", err);
+      let body;
+      try { body = JSON.parse(err.stdout); } catch { body = { error: "Could not inspect this schematic" }; }
+      res.writeHead(422, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify(body));
+    }
+    return;
+  }
+
+  if (req.method === "GET" && req.url?.startsWith("/analog/render-jobs/")) {
+    const id = new URL(req.url, "http://localhost").pathname.split("/").pop();
+    try { await sendSchematicJob(schematicJobs.get(id), res, headers); }
+    catch (error) {
       res.writeHead(500, { ...headers, "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: String(err.message ?? err) }));
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+  if (req.method === "POST" && req.url === "/analog/renderer/prepare") {
+    try {
+      const job = schematicJobs.start(null, false, true);
+      res.writeHead(202, { ...headers, "Content-Type": "application/json", "Cache-Control": "no-store" });
+      res.end(JSON.stringify({ id: job.id, state: job.state, poll: `../render-jobs/${job.id}` }));
+    } catch (error) {
+      res.writeHead(503, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
+    }
+    return;
+  }
+  if (req.method === "GET" && req.url?.startsWith("/analog/svg")) {
+    const params = new URL(req.url, "http://localhost").searchParams;
+    const cell = params.get("cell") ?? "";
+    if (!/^(analog|gate)\/[A-Za-z0-9_][A-Za-z0-9_.-]*\/[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(cell)) {
+      res.writeHead(400, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "cell must be <analog|gate>/<design>/<cell>" }));
+      return;
+    }
+    try {
+      await sendSchematicJob(schematicJobs.start(cell, params.get("view") === "circuit"), res, headers);
+    } catch (error) {
+      res.writeHead(503, { ...headers, "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: String(error.message ?? error) }));
     }
     return;
   }
@@ -1348,11 +1454,8 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/analog/stdcell") {
-    let stdBody = "";
-    req.on("data", (chunk) => (stdBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ cell }) => {
       try {
-        const { cell } = JSON.parse(stdBody || "{}");
         if (!/^[A-Za-z0-9_]+$/.test(cell ?? "")) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "cell required" }));
@@ -1413,12 +1516,10 @@ const server = createServer(async (req, res) => {
   // A cone is how a design too big to draw whole gets looked at — see
   // pipeline/netlist_cone.py. Returns the cell id the viewer can open.
   if (req.method === "POST" && req.url === "/analog/cone") {
-    let coneBody = "";
-    req.on("data", (chunk) => (coneBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({
+      design, seed, depth = 4, direction = "fanin",
+    }) => {
       try {
-        const { design, seed, depth = 4, direction = "fanin" } =
-          JSON.parse(coneBody || "{}");
         if (!isSafeDesignName(design) || typeof seed !== "string" || !seed.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "design and seed required" }));
@@ -1456,11 +1557,10 @@ const server = createServer(async (req, res) => {
   // call, because that IS the flow — and doing it in one place is what
   // keeps a stale deck from being simulated against an edited drawing.
   if (req.method === "POST" && req.url === "/analog/run") {
-    let analogBody = "";
-    req.on("data", (chunk) => (analogBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({
+      cell, corner = "tt", pdk = "sky130A",
+    }) => {
       try {
-        const { cell, corner = "tt", pdk = "sky130A" } = JSON.parse(analogBody || "{}");
         // Only the analog root is runnable: a gate-level schematic is a
         // view of a netlist, with no stimulus and no analysis in it.
         if (!/^analog\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(cell ?? "")) {
@@ -1548,11 +1648,8 @@ const server = createServer(async (req, res) => {
   // checkout that has not configured a key yet.
   if (req.method === "POST" && (req.url === "/ask" || req.url === "/ask/sources")) {
     const wantsAnswer = req.url === "/ask";
-    let askBody = "";
-    req.on("data", (chunk) => (askBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ question }) => {
       try {
-        const { question } = JSON.parse(askBody || "{}");
         if (typeof question !== "string" || !question.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "question (non-empty string) required" }));
@@ -1598,18 +1695,15 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === "POST" && req.url === "/diagnose") {
-    let diagBody = "";
-    req.on("data", (chunk) => (diagBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ reportText, lang }) => {
       try {
-        const { reportText, lang } = JSON.parse(diagBody || "{}");
         if (typeof reportText !== "string" || !reportText.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "reportText (non-empty string) required" }));
           return;
         }
         await proxyChat(
-          withLanguage(`Diagnose this OpenSTA simulation output:\n\n${reportText}`, lang),
+          withLanguage(`Diagnose this EDA report output:\n\n${reportText}`, lang),
           res, headers);
       } catch (err) {
         console.error("[diagnose proxy error]", err);
@@ -1634,11 +1728,8 @@ const server = createServer(async (req, res) => {
   // replacing the original — see docs/superpowers/specs/
   // 2026-08-21-autonomous-layout-agent-design.md.
   if (req.method === "POST" && req.url === "/translate") {
-    let translateBody = "";
-    req.on("data", (chunk) => (translateBody += chunk));
-    req.on("end", async () => {
+    handleJsonRequest(req, res, headers, async ({ text }) => {
       try {
-        const { text } = JSON.parse(translateBody || "{}");
         if (typeof text !== "string" || !text.trim()) {
           res.writeHead(400, { ...headers, "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "text (non-empty string) required" }));

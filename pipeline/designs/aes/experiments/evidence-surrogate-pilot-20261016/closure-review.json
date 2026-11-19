@@ -1,0 +1,33 @@
+{
+  "handoff_valid": true,
+  "all_declared_gates_pass": false,
+  "errors": [],
+  "unresolved": [
+    {
+      "gate": "all_corner_timing",
+      "state": "fail"
+    },
+    {
+      "gate": "antenna",
+      "state": "fail"
+    },
+    {
+      "gate": "electrical",
+      "state": "fail"
+    },
+    {
+      "gate": "rtl_to_synthesis",
+      "state": "infrastructure_failure"
+    },
+    {
+      "gate": "synthesis_to_final",
+      "state": "unverified"
+    }
+  ],
+  "recommended_agents": [
+    "equivalence-specialist",
+    "evidence-environment-auditor",
+    "verification-ppa-evaluator"
+  ],
+  "limitation": "Declared evidence integrity only; not independent signoff or automatic dispatch."
+}

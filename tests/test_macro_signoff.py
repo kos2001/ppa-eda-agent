@@ -34,6 +34,7 @@ class FlowSelectionTests(unittest.TestCase):
             proc = Mock(stdout=io.StringIO(""))
             proc.wait.return_value = 0
             with patch.object(run_stage.subprocess, "Popen", return_value=proc) as popen, \
+                    patch.object(run_stage, "verify_runtime_toolchain", return_value={"image_id": "sha256:verified"}), \
                     patch.object(run_stage, "claim_run_dir"):
                 run_stage.run_stage(design, "test", "Magic.DRC", ["CLOCK_PERIOD=25"],
                                     scl="sky130_fd_sc_hd", pdk="sky130A")
@@ -47,8 +48,8 @@ class FlowSelectionTests(unittest.TestCase):
     def test_macro_flow_preserves_overrides_and_step_selection(self):
         cmd = self.command({"flow": "MacroSignoff"})
         self.assertIn("/flows/macro_signoff.py", cmd)
-        self.assertIn(str(ROOT / "pipeline/flows") + ":/flows:ro", cmd)
-        for flag, value in (("--override-config", "CLOCK_PERIOD=25"),
+        self.assertTrue(any(arg.endswith(":/flows:ro") for arg in cmd))
+        for flag, value in (("--override-config", "CLOCK_PERIOD=25.0"),
                             ("--to", "Magic.DRC"), ("--pdk", "sky130A"),
                             ("--scl", "sky130_fd_sc_hd")):
             self.assertEqual(cmd[cmd.index(flag) + 1], value)
@@ -56,5 +57,5 @@ class FlowSelectionTests(unittest.TestCase):
     def test_upstream_backport_is_loaded_inside_the_selected_toolchain(self):
         cmd = self.command({"flow": "UpstreamClassic"})
         self.assertIn("/flows/upstream_classic.py", cmd)
-        self.assertIn(run_stage.IMAGE, cmd)
-        self.assertIn(str(ROOT / "pipeline/flows") + ":/flows:ro", cmd)
+        self.assertIn("sha256:verified", cmd)
+        self.assertTrue(any(arg.endswith(":/flows:ro") for arg in cmd))

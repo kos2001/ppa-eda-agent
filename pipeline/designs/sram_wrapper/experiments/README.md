@@ -1,4 +1,72 @@
-# One additional SRAM experiment, 2026-09-13
+# SRAM physical repair and model audit
+
+## 2026-10-04: fanout repaired, complete macro input audit
+
+Two new full runs completed on OpenLane 2.3.10 with the same RTL/PDK/HD cells.
+The current baseline reproduced 18 fanout and 16 macro address-slew violations.
+`sram-closure-20261004-fanout` added 44 non-inverting buffers in 18 internal
+single-driver nets and enabled post-GRT timing repair. Final fanout and
+capacitance counts are zero in every corner. Setup, hold, antenna, Magic DRC,
+KLayout DRC, routing DRC and LVS counts remain zero. Area changes from 200147
+to 200638 um². The remaining 16 address-slew violations still block a pass.
+
+The same final STA processes now export all 57 signal inputs of `u_sram`
+in all nine corners, with max/min and rise/fall slew. Coverage has no missing
+corner, pin or unknown edge. The largest observed input is **web0**, not an
+address or clock: 0.481151 ns in the baseline and 0.483124 ns in the repair,
+both max/rise in SS/max. It was absent from the old DRV violation table.
+The complete audit identifies 27 pins beyond the 0.04 ns model range.
+`model_validity.check` now consumes these extra reports when available and
+preserves the conservative incomplete-coverage behavior on older runs.
+
+**Neither run is a final PASS.** Complete pin coverage does not qualify
+per-arc tables or the wildcard TT Liberty mapping for SS/FF. The previous
+0.260 ns characterization plan missed this control-pin slew. The planned
+grid now retains the original points and extends to **0.560 ns**, covering
+the new worst input plus 15% headroom. This changes the simulation plan,
+not the production Liberty or a signoff limit.
+
+The OpenRAM runtime was restored at the validated revision and ngspice 46
+with KLU. `characterize_sram.py --prepare-only` verified the canonical macro
+interface, all 8192 bitcell paths and both sense-enable nodes against the
+installed SPICE, and archived the real prepared-netlist hashes. Its status is
+`prepared_inputs_only`: **no new simulation measurements or Liberty were
+generated**. Characterize TT/SS/FF separately before installing models.
+
+Commands/specs, raw final metrics, all per-corner input CSVs, DRV excerpts,
+antenna and buffer reports, immutable flow-source snapshots, preparation
+manifest and environment revisions are retained in `evidence-20261004/`.
+Full binaries and prepared SPICE remain under
+`/private/tmp/ppa-sram-closure-20261004/`. The default run spec now compares
+the current baseline and the measured physical fanout repair, replacing four
+effective duplicates whose Magic settings were already in the design config.
+
+To rerun the physical experiment:
+
+```sh
+python3 pipeline/orchestrator.py --design pipeline/designs/sram_wrapper \
+  --run-spec pipeline/designs/sram_wrapper/run_spec.json --validate-only
+python3 pipeline/orchestrator.py --design pipeline/designs/sram_wrapper \
+  --run-spec pipeline/designs/sram_wrapper/run_spec.json
+```
+
+To prepare a new characterization directory without launching simulation:
+
+```sh
+/private/tmp/ppa-sram-venv-20261004/bin/python pipeline/characterize_sram.py \
+  --openram-root /private/tmp/ppa-sram-openram-20261004 \
+  --output-dir /private/tmp/NEW-SRAM-PREFLIGHT --prepare-only
+```
+
+Omit `--prepare-only` and use another new output directory for actual SPICE.
+Use explicit `--corner ss` / `--corner ff` invocations for those PVT models.
+
+Repository validation after these changes: `python3 -m unittest discover -s
+tests` ran 1144 tests successfully (4 skipped); `cd dashboard && npm run build`
+passed. These software checks are separate from the remaining physical and
+macro-model signoff failures above.
+
+The earlier entries below are historical observations.
 
 Ran `sram-slew010-probe-20260913` with the existing two-stage address
 buffers and `MAX_TRANSITION_CONSTRAINT=0.10` (baseline: 0.75).
@@ -137,6 +205,47 @@ between 30 and 110 um, and moving the counter or splitting it per port in the RT
 The last is the untried block-aware change: `addr_prev` already gives port 1 its
 own register, but it is fed from `addr_ctr` across the die.
 
+## 2026-10-04: local paired inverters clear physical electrical rules
+
+The new `MacroPinBuffers` step gives 25 address/data/web inputs dedicated cells
+seeded outside the nearest macro edge, followed by legalization and routing.
+It validates the entire pin list, established power connections and known cell
+interfaces before mutation. Optional inv8/inv16 pairs preserve polarity; final
+size protection occurs after net repair. An independent OpenDB probe checks
+102,898 original connected pins and zero or two inversions per changed path.
+
+The first buf16 and inv8/inv16 runs had net/instance name collisions that caused
+OpenSTA to interpret SPEF internal nodes as instance pins. Their provisional
+slew values are **unverified**. The same issue affects earlier fanout-repair
+runs; those case records now retain an explicit annotation warning. Do not rank
+those provisional timings against fully extracted results.
+
+The corrective `sram-closure-20261004-inv8-inv16-spef` run separates net and
+instance names and has complete SPEF annotation for inserted repair drivers at
+all nine corners. Final measured results:
+
+| Check | Result |
+|---|---:|
+| Max address input slew, all corners | 0.046794 ns (limit 0.050 ns) |
+| Max slew / fanout / capacitance violations | 0 / 0 / 0 |
+| Setup / hold violations | 0 / 0 |
+| Antenna / Magic DRC / KLayout DRC / LVS | 0 / 0 / 0 / 0 |
+| Cell area | 201415 um² |
+| Macro input edges audited | 2052, complete |
+
+The 25 inputs use 50 dedicated inverters. This is measured local placement and
+cell-family selection, not an implemented optimal buffering DP. The final
+checks pass under the existing models, but **the overall verdict remains
+unverified**: 27 macro inputs exceed the current 0.040 ns table range; the worst
+is clk1 at 0.211 ns. The supplied macro's TT-only wildcard PVT mapping also
+requires qualification. No qualified replacement Liberty was installed.
+
+`run_spec.json` now compares the unchanged baseline with this measured physical
+candidate, retaining a two-candidate budget and all original final constraints.
+Use `closure-20261004-inverter-spef.json` to reproduce the isolated candidate.
+The complete compact reports, per-pass repair reports and immutable execution
+sources are in `evidence-20261004/`; the measured case is
+`reference-db/cases/sram_wrapper__2026-10-04__062713.json`.
 ## 2026-10-13: measured active learning, not a pass/fail oracle
 
 Rounds 8--10 added explicit four-stage local IO chains and treated full-flow
@@ -157,7 +266,7 @@ must remain measured features.  The next useful axis is clock/final-driver
 topology, while actual Liberty/SPICE characterisation is still required before
 claiming macro timing validity.
 
-## 2026-10-13: active-learning loop reaches a full pass
+## 2026-10-13: active-learning loop reaches physical/electrical closure
 
 The loop continued with one measured change per rung instead of training a
 pass/fail classifier:
@@ -170,15 +279,22 @@ pass/fail classifier:
 | 14 | 100 um CTS buffer distance | 0 | 0 / **0** / 5 / 0 |
 | 15 | verified clkbuf_16 leaf policy, max fanout 16 | **0** | **0 / 0 / 0 / 0** |
 
-Round 15 (`r15-clock-fanout16`) is the first full pass for this experiment:
+Round 15 (`r15-clock-fanout16`) is the first pass for this experiment's
+measured physical/electrical gates:
 all 57 macro inputs were measured over all nine timing corners, worst macro
 slew was 0.039395 ns against the 0.04 ns characterised ceiling, setup and hold
 passed, Magic/KLayout DRC were zero, LVS and XOR were clean, and both
-`violations` and `unverified` were empty. The fanout policy is not a hidden
+recorded `violations` and `unverified` were empty. The fanout policy is not a hidden
 electrical relaxation: the only affected nets are clkbuf_16 leaves with at
 most 16 sinks, already measured clean for max slew and max capacitance at all
 nine corners. OpenLane's value 10 is a generic default rather than a Sky130
 Liberty limit.
+
+This does not supersede the stronger macro-model audit added on 2026-10-04:
+explicit PVT mapping, per-arc axes, extracted output loads, and model provenance
+still require qualification before calling the macro timing model itself fully
+signed off. Round 15 closes the observable interface slew and physical rules;
+it is not a replacement Liberty characterization.
 
 This is the useful role for learning on this data volume: select the next
 orthogonal experiment, retain counterexamples, and stop sweeping axes whose
@@ -187,4 +303,3 @@ closed-loop method reduced macro-range failures 23 -> 9 -> 5 -> 3 -> 0 and
 then removed the remaining physical DRVs without allowing a prediction to
 replace signoff. Authoritative evidence is in
 `reference-db/sram_io_experiment_round15.json`.
-

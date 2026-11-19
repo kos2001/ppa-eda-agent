@@ -1,0 +1,9 @@
+{
+  "reason": "One DeepSeek calculation exhausted the 2048-token completion budget. Repeat the same measured calculation once per model at 4096 tokens; keep all original failures and do not pool these observations.",
+  "max_calls": 2,
+  "max_tokens": 4096,
+  "reasoning_effort": "medium",
+  "temperature": 0,
+  "concurrency": 2,
+  "retries": 0
+}

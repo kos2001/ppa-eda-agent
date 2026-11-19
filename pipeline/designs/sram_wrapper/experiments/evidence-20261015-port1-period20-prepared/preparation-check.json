@@ -1,0 +1,19 @@
+{
+  "status": "prepared_only",
+  "simulation_started": false,
+  "independent_changed_axis": "period_ns:10->20",
+  "other_point_axes_unchanged": [
+    "pvt",
+    "read_port",
+    "write_port",
+    "address",
+    "bit",
+    "input_slew_10_90_ns",
+    "load_fF"
+  ],
+  "transient_horizon_ns": 300,
+  "requested_measurements": 27,
+  "numerical_settings_unchanged": true,
+  "model_qualified": false,
+  "runtime_budget_note": "Previous 120min allowance does not imply automatic extension; doubling horizon may require more time. No execution admitted by this preparation."
+}

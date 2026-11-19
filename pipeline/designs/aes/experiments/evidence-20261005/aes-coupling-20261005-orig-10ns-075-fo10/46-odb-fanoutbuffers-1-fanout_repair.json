@@ -1,0 +1,155 @@
+{
+  "limit": 10,
+  "inserted_buffers": 14,
+  "repaired_nets": [
+    {
+      "net": "_08576_",
+      "clock": false,
+      "driver": "_17283_/Y",
+      "original_sinks": 11,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_105",
+          "net": "fanout_repair_net_105",
+          "sink_count": 5
+        },
+        {
+          "instance": "fanout_repair_106",
+          "net": "fanout_repair_net_106",
+          "sink_count": 6
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net1299",
+      "clock": false,
+      "driver": "fanout1299/X",
+      "original_sinks": 11,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_107",
+          "net": "fanout_repair_net_107",
+          "sink_count": 5
+        },
+        {
+          "instance": "fanout_repair_108",
+          "net": "fanout_repair_net_108",
+          "sink_count": 6
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net1788",
+      "clock": false,
+      "driver": "fanout1788/X",
+      "original_sinks": 11,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_109",
+          "net": "fanout_repair_net_109",
+          "sink_count": 5
+        },
+        {
+          "instance": "fanout_repair_110",
+          "net": "fanout_repair_net_110",
+          "sink_count": 6
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net1797",
+      "clock": false,
+      "driver": "fanout1797/X",
+      "original_sinks": 11,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_111",
+          "net": "fanout_repair_net_111",
+          "sink_count": 5
+        },
+        {
+          "instance": "fanout_repair_112",
+          "net": "fanout_repair_net_112",
+          "sink_count": 6
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net2303",
+      "clock": false,
+      "driver": "fanout2303/X",
+      "original_sinks": 13,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_113",
+          "net": "fanout_repair_net_113",
+          "sink_count": 6
+        },
+        {
+          "instance": "fanout_repair_114",
+          "net": "fanout_repair_net_114",
+          "sink_count": 7
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net2500",
+      "clock": false,
+      "driver": "fanout2500/X",
+      "original_sinks": 11,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_115",
+          "net": "fanout_repair_net_115",
+          "sink_count": 5
+        },
+        {
+          "instance": "fanout_repair_116",
+          "net": "fanout_repair_net_116",
+          "sink_count": 6
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    },
+    {
+      "net": "net531",
+      "clock": false,
+      "driver": "fanout531/X",
+      "original_sinks": 11,
+      "buffer_master": "sky130_fd_sc_hd__buf_4",
+      "buffers": [
+        {
+          "instance": "fanout_repair_117",
+          "net": "fanout_repair_net_117",
+          "sink_count": 5
+        },
+        {
+          "instance": "fanout_repair_118",
+          "net": "fanout_repair_net_118",
+          "sink_count": 6
+        }
+      ],
+      "limit": 10,
+      "remaining_driver_sinks": 2
+    }
+  ],
+  "skipped_nets": [],
+  "scope": "signal input pin counts; weighted Liberty fanout and timing require final STA"
+}

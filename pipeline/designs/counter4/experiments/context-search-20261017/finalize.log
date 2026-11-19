@@ -1,0 +1,11 @@
+Retained proof: ctx17-seed-u25 4 proven points
+Retained proof: ctx17-seed-u35 4 proven points
+$ docker run --rm --name ppa-equiv-e8d3f545dcac4396aa64fbe0efe3e86a -v /var/folders/l4/pfcntpmd2w54jszqjfxl9sj00000gn/T/tmpo022_zzt:/work ghcr.io/efabless/openlane2:2.3.10 yosys -s /work/eq.ys
+Retained proof: ctx17-full-history-p2-r1 4 proven points
+$ docker run --rm --name ppa-equiv-55e0950e41ce44edbe258d4207e90895 -v /var/folders/l4/pfcntpmd2w54jszqjfxl9sj00000gn/T/tmpjtsys5x7:/work ghcr.io/efabless/openlane2:2.3.10 yosys -s /work/eq.ys
+Retained proof: ctx17-fresh-evidence-p3-r2 4 proven points
+$ docker run --rm --name ppa-equiv-3c6db13b45f64546aaf6ee16fd7b22b2 -v /var/folders/l4/pfcntpmd2w54jszqjfxl9sj00000gn/T/tmpp46gqs0j:/work ghcr.io/efabless/openlane2:2.3.10 yosys -s /work/eq.ys
+Retained proof: ctx17-full-history-p3-r3 4 proven points
+$ docker run --rm -e QT_QPA_PLATFORM=offscreen -v /Volumes/T9-Workspace/gitspace/ppa-eda-agent/pdk:/pdk:ro -v /var/folders/l4/pfcntpmd2w54jszqjfxl9sj00000gn/T/tmpv18cds1a:/work ghcr.io/efabless/openlane2:2.3.10 klayout -z -r /work/render.py
+Fontconfig error: Cannot load default config file: No such file: (null)
+Case export: reference-db/cases/counter4__2026-10-17.json

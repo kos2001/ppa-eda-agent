@@ -1,0 +1,195 @@
+[
+ {
+  "step": "41-openroad-repairantennas",
+  "late_iteration_diodes": 3,
+  "nets": [
+   {
+    "net": "fanout_repair_net_29",
+    "driver": "fanout_repair_29",
+    "driver_cell": "buf_4",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     5,
+     6
+    ],
+    "diodes_on_net": 2,
+    "real_sinks": {
+     "nand2_4": 1,
+     "a31o_1": 1,
+     "a31oi_4": 1,
+     "a21o_1": 1,
+     "and3_1": 1,
+     "and4_1": 1,
+     "a31oi_1": 1
+    }
+   },
+   {
+    "net": "fanout_repair_net_30",
+    "driver": "fanout_repair_30",
+    "driver_cell": "buf_4",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     4
+    ],
+    "diodes_on_net": 3,
+    "real_sinks": {
+     "nand4_2": 1,
+     "a211o_1": 1,
+     "o22a_1": 1,
+     "o211a_1": 2,
+     "and4_1": 1,
+     "a221oi_1": 1
+    }
+   }
+  ]
+ },
+ {
+  "step": "46-openroad-repairantennas-1",
+  "late_iteration_diodes": 19,
+  "nets": [
+   {
+    "net": "fanout_repair_net_1463",
+    "driver": "fanout_repair_1463",
+    "driver_cell": "clkbuf_8",
+    "clock_buffer_driven": true,
+    "late_iterations_with_a_diode": [
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "diodes_on_net": 10,
+    "real_sinks": {
+     "clkbuf_8": 5
+    }
+   },
+   {
+    "net": "fanout_repair_net_1462",
+    "driver": "fanout_repair_1462",
+    "driver_cell": "clkbuf_8",
+    "clock_buffer_driven": true,
+    "late_iterations_with_a_diode": [
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ],
+    "diodes_on_net": 11,
+    "real_sinks": {
+     "dfxtp_4": 1,
+     "clkbuf_8": 2
+    }
+   },
+   {
+    "net": "\\u0.w[0][29]",
+    "driver": "_22403_",
+    "driver_cell": "dfxtp_2",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     4
+    ],
+    "diodes_on_net": 14,
+    "real_sinks": {
+     "and2_1": 1,
+     "nor2_1": 1,
+     "a21oi_1": 1,
+     "and3_1": 1,
+     "o21ba_1": 1,
+     "nor3b_2": 1,
+     "xor2_2": 1
+    }
+   },
+   {
+    "net": "\\u0.w[2][20]",
+    "driver": "_22458_",
+    "driver_cell": "dfxtp_4",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     4
+    ],
+    "diodes_on_net": 4,
+    "real_sinks": {
+     "xnor2_2": 1,
+     "nand3_1": 1,
+     "a21o_1": 1,
+     "nand3b_4": 1,
+     "o211ai_4": 1,
+     "xor2_1": 1
+    }
+   }
+  ]
+ },
+ {
+  "step": "50-openroad-repairantennas-2",
+  "late_iteration_diodes": 14,
+  "nets": [
+   {
+    "net": "\\u0.w[0][29]",
+    "driver": "_22403_",
+    "driver_cell": "dfxtp_2",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ],
+    "diodes_on_net": 14,
+    "real_sinks": {
+     "and2_1": 1,
+     "nor2_1": 1,
+     "a21oi_1": 1,
+     "and3_1": 1,
+     "o21ba_1": 1,
+     "nor3b_2": 1,
+     "xor2_2": 1
+    }
+   },
+   {
+    "net": "_00757_",
+    "driver": "_19997_",
+    "driver_cell": "o211ai_4",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "diodes_on_net": 9,
+    "real_sinks": {
+     "a31oi_1": 2,
+     "o311a_1": 1,
+     "o211a_1": 1
+    }
+   },
+   {
+    "net": "net1017",
+    "driver": "fanout1017",
+    "driver_cell": "buf_4",
+    "clock_buffer_driven": false,
+    "late_iterations_with_a_diode": [
+     6,
+     7,
+     8
+    ],
+    "diodes_on_net": 7,
+    "real_sinks": {
+     "buf_4": 2
+    }
+   }
+  ]
+ }
+]

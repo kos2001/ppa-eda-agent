@@ -1,0 +1,21 @@
+
+aes (aes_cipher_top): NOT PROVEN EQUIVALENT
+  netlist : /home/kos2001/ppa-surrogate-pilot-20261016/work/pipeline/designs/aes/runs/surrogate-pilot-20261016-util35/06-yosys-synthesis/aes_cipher_top.nl.v
+  liberty : /home/kos2001/ppa-surrogate-pilot-20261016/proof-include-retry/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+  points  : None proven, None unproven
+
+ten\us11.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us12.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us13.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us20.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us21.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us22.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us23.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us30.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us31.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us32.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+Warning: No SAT model available for cell $flatten\us33.$auto$proc_rom.cc:155:do_switch$2054_gold ($mem_v2).
+
+Proof deadline exceeded; equivalence remains unverified.
+
+$ docker run --rm --name ppa-equiv-b18f89c2d47b4b099614c20c2195c213 -v /tmp/tmpmcvjyfuy:/work ghcr.io/efabless/openlane2:2.3.10 yosys -s /work/eq.ys

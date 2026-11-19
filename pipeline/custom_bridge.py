@@ -82,6 +82,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import shutil
@@ -89,6 +90,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -164,7 +166,7 @@ class BridgeResult:
 # XQuartz and an X11-linked Tk, and the OpenLane image does not ship it.
 # One apt package on debian:trixie-slim, built locally on first use.
 # See pipeline/docker/xschem.Dockerfile.
-XSCHEM_IMAGE = "ppa-eda/xschem:3.4.4"
+XSCHEM_IMAGE = "ppa-eda/xschem:3.4.4-1-r1"
 XSCHEM_DOCKERFILE = REPO_ROOT / "pipeline" / "docker" / "xschem.Dockerfile"
 
 BACKENDS: dict[str, dict] = {
@@ -340,7 +342,7 @@ def _image_present(image: str) -> bool:
     return r.returncode == 0
 
 
-def ensure_xschem_image(timeout: int = 900) -> bool:
+def ensure_xschem_image(timeout: int = 900, diagnostics: list[str] | None = None) -> bool:
     """Build the schematic image if it is not here yet.
 
     Built rather than pulled because it is this repo's own Dockerfile —
@@ -354,13 +356,19 @@ def ensure_xschem_image(timeout: int = 900) -> bool:
         return True
     if not XSCHEM_DOCKERFILE.is_file():
         return False
-    argv = ["docker", "build", "-q", "-f", str(XSCHEM_DOCKERFILE),
-            "-t", XSCHEM_IMAGE, str(REPO_ROOT)]
+    # The image needs no repository files. A Dockerfile on stdin gives it an
+    # empty build context, avoiding PDK traversal and Windows reparse points.
+    argv = ["docker", "build", "-q", "-t", XSCHEM_IMAGE, "-"]
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=timeout,
-                           stdin=subprocess.DEVNULL)
-    except (OSError, subprocess.TimeoutExpired):
+                           input=XSCHEM_DOCKERFILE.read_text(encoding="utf-8"),
+                           encoding="utf-8")
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        if diagnostics is not None:
+            diagnostics.append(str(exc))
         return False
+    if r.returncode and diagnostics is not None:
+        diagnostics.append((r.stderr or r.stdout or "Docker image build failed")[-6000:])
     return r.returncode == 0
 
 
@@ -826,9 +834,91 @@ def fit_viewbox(svg: str, margin: float = 0.02) -> str:
                   f'width="{w:.2f}" height="{h:.2f}"', svg, count=1)
 
 
+def _render_schematic_wsl(wsl: str, schematic: Path, pdk: str, out: Path,
+                          timeout: int, circuit_only: bool) -> BridgeResult:
+    """Run the same renderer in WSL, translating paths without a shell."""
+    worker = """
+import json, subprocess, sys
+from pathlib import Path
+def linux_path(value):
+    return subprocess.check_output(['wslpath', '-a', '-u', value], text=True).strip()
+sys.path.insert(0, linux_path(sys.argv[1]))
+import custom_bridge
+custom_bridge.PDK_ROOT = Path(linux_path(sys.argv[7]))
+result = custom_bridge.render_schematic(
+    linux_path(sys.argv[2]), pdk=sys.argv[4], out=linux_path(sys.argv[3]),
+    timeout=int(sys.argv[5]), circuit_only=sys.argv[6] == '1')
+print(json.dumps(result.to_dict()))
+"""
+    argv = [wsl]
+    distro = os.environ.get("CUSTOM_BRIDGE_WSL_DISTRO", "").strip()
+    if distro:
+        argv += ["--distribution", distro]
+    argv += ["--exec", "python3", "-c", worker, str(Path(__file__).parent),
+             str(schematic), str(out), pdk, str(timeout),
+             "1" if circuit_only else "0", str(PDK_ROOT)]
+    try:
+        process = subprocess.run(argv, capture_output=True, text=True,
+                                 encoding="utf-8", errors="replace", timeout=timeout,
+                                 stdin=subprocess.DEVNULL)
+        if process.returncode:
+            raise RuntimeError(process.stderr.strip() or process.stdout.strip()
+                               or f"WSL exited with code {process.returncode}")
+        result = BridgeResult(**json.loads(process.stdout))
+        result.metadata["via"] = "wsl/" + result.metadata.get("via", "unknown")
+        result.metadata["schematic"] = str(schematic)
+        result.metadata["svg"] = str(out) if out.is_file() else None
+        if result.ok and not out.is_file():
+            result.status = ExecutionStatus.ERROR
+            result.errors.append(f"WSL renderer wrote no SVG at {out}")
+        return result
+    except (OSError, subprocess.TimeoutExpired, ValueError, TypeError, RuntimeError) as exc:
+        return BridgeResult(status=ExecutionStatus.ERROR,
+                            errors=[f"WSL schematic rendering failed: {exc}"],
+                            metadata={"reason": "wsl_render_failed", "backend": "xschem"})
+
+
 def render_schematic(schematic: Path | str, pdk: str = "sky130A",
                      out: Path | str | None = None,
-                     timeout: int = 300) -> BridgeResult:
+                     timeout: int = 300, circuit_only: bool = False) -> BridgeResult:
+    """Publish only a newly generated, validated SVG; retain the previous file on failure."""
+    schematic = Path(schematic).resolve()
+    if not schematic.is_file():
+        return BridgeResult(status=ExecutionStatus.ERROR, errors=[f"no such schematic: {schematic}"],
+                            metadata={"reason": "missing_schematic"})
+    destination = Path(out).resolve() if out else schematic.with_suffix(
+        ".circuit.svg" if circuit_only else ".svg")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".xschem-", dir=destination.parent) as directory:
+        temporary = Path(directory) / "drawing.svg"
+        result = _render_schematic_to_file(schematic, pdk, temporary, timeout, circuit_only)
+        result.metadata["svg"] = None
+        if not result.ok:
+            return result
+        try:
+            validate_svg(temporary)
+            os.replace(temporary, destination)
+        except (OSError, ValueError, ET.ParseError) as exc:
+            result.status = ExecutionStatus.ERROR
+            result.errors.append(f"SVG validation/publication failed: {exc}")
+            result.metadata["reason"] = "invalid_svg"
+            return result
+        result.metadata["svg"] = str(destination)
+        return result
+
+
+def validate_svg(path: Path) -> None:
+    root = ET.fromstring(path.read_bytes())
+    if root.tag != "{http://www.w3.org/2000/svg}svg" or not len(root):
+        raise ValueError("renderer did not produce a nonempty SVG document")
+    box = [float(value) for value in root.get("viewBox", "").replace(",", " ").split()]
+    if len(box) != 4 or not all(math.isfinite(v) for v in box) or min(box[2:]) <= 0:
+        raise ValueError("SVG has no valid drawing dimensions")
+
+
+def _render_schematic_to_file(schematic: Path | str, pdk: str = "sky130A",
+                              out: Path | str | None = None,
+                              timeout: int = 300, circuit_only: bool = False) -> BridgeResult:
     """Draw the schematic — xschem's own renderer, as SVG.
 
     A flow that starts at a schematic and never shows one is asking to be
@@ -847,7 +937,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
         return BridgeResult(status=ExecutionStatus.ERROR,
                             errors=[f"no such schematic: {schematic}"],
                             metadata={"reason": "missing_schematic"})
-    out = Path(out).resolve() if out else schematic.with_suffix(".svg")
+    out = Path(out).resolve() if out else schematic.with_suffix(".circuit.svg" if circuit_only else ".svg")
     out.parent.mkdir(parents=True, exist_ok=True)
     if not (PDK_ROOT / pdk / "libs.tech" / "xschem" / "xschemrc").is_file():
         return BridgeResult(status=ExecutionStatus.ERROR,
@@ -857,27 +947,41 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
     rcfile, rc_in_container = rcfile_for(schematic, pdk)
 
     started = time.time()
+    # A drawing-only view: remove analysis/code boxes from xschem's in-memory
+    # canvas, never save the edited sheet or use it for netlisting/simulation.
+    clean_canvas = (
+        "xschem unselect_all; set review_hidden 0; "
+        "foreach {review_name review_sym review_type} [xschem instance_list] {"
+        "if {[string match devices/code* $review_sym] || "
+        "[string match devices/netlist* $review_sym]} {"
+        "xschem select instance $review_name; incr review_hidden}}; "
+        "if {$review_hidden > 0} {xschem delete}; "
+    ) if circuit_only else ""
     exe = resolve("xschem")
+    if not exe and sys.platform == "win32" and not shutil.which("docker"):
+        wsl = shutil.which("wsl.exe")
+        if wsl:
+            return _render_schematic_wsl(wsl, schematic, pdk, out, timeout, circuit_only)
     if exe:
         argv = [exe, "-q", "-x", "--rcfile", str(rcfile),
-                "--command", f"xschem zoom_full; xschem print svg {out}",
+                "--command", clean_canvas + f"xschem zoom_full; xschem print svg {out}",
                 str(schematic)]
         via = "local"
     else:
-        if not (shutil.which("docker") and ensure_xschem_image()):
+        if not (shutil.which("docker") and _image_present(XSCHEM_IMAGE)):
             return BridgeResult(
                 status=ExecutionStatus.ERROR,
-                errors=["xschem is not installed and its image could not be built"],
+                errors=["Prepare the schematic renderer image before drawing"],
                 metadata={"reason": "not_installed", "backend": "xschem",
                           "image": XSCHEM_IMAGE})
         mount, inner = design_mount(schematic)
         argv = ["docker", "run", "--rm", *platform_args(),
-                "-v", f"{PDK_ROOT}:/pdk:ro",
+                "-v", f"{(PDK_ROOT / pdk).resolve()}:/pdk/{pdk}:ro",
                 "-v", f"{mount}:/design",
                 "-v", f"{out.parent}:/out",
                 XSCHEM_IMAGE, "xschem", "-q", "-x",
                 "--rcfile", rc_in_container,
-                "--command", f"xschem zoom_full; xschem print svg /out/{out.name}",
+                "--command", clean_canvas + f"xschem zoom_full; xschem print svg /out/{out.name}",
                 f"/design/{inner}"]
         via = "docker"
 
@@ -894,8 +998,10 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
 
     text = r.stdout + r.stderr
     errors, warnings = parse_problems(text)
+    if r.returncode:
+        errors.append(f"xschem exited with code {r.returncode}")
     if out.is_file():
-        # Same as the netlister: the file is the verdict, not the code.
+        # The outer publisher validates this temporary SVG before replacement.
         out.write_text(fit_viewbox(out.read_text(encoding="utf-8")), encoding="utf-8")
     else:
         errors.append(f"xschem wrote no SVG at {out}")
@@ -905,6 +1011,7 @@ def render_schematic(schematic: Path | str, pdk: str = "sky130A",
         execution_time=round(time.time() - started, 3),
         metadata={"backend": "xschem", "via": via, "schematic": str(schematic),
                   "svg": str(out) if out.is_file() else None, "pdk": pdk,
+                  "view": "circuit" if circuit_only else "sheet",
                   "returncode": r.returncode},
     )
 

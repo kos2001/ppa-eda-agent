@@ -1,0 +1,34 @@
+{
+  "design": "riscv32i",
+  "top": "riscv",
+  "netlist": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/riscv32i/runs/closure-20261015-baseline/final/nl/riscv.nl.v",
+  "liberty": "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib",
+  "scope": "final routed logical netlist",
+  "formal_assumptions": [
+    "clk2fflogic global clock and negative hold time for async FF inputs",
+    "No analog delay, clock skew or metastability model"
+  ],
+  "physical_input_only_models": [
+    "sky130_ef_sc_hd__decap_12",
+    "sky130_fd_sc_hd__decap_3",
+    "sky130_fd_sc_hd__decap_4",
+    "sky130_fd_sc_hd__decap_6",
+    "sky130_fd_sc_hd__decap_8",
+    "sky130_fd_sc_hd__diode_2",
+    "sky130_fd_sc_hd__fill_1",
+    "sky130_fd_sc_hd__fill_2",
+    "sky130_fd_sc_hd__tapvpwrvgnd_1"
+  ],
+  "netlist_sha256": "78642ae9283e836ba6babe45c2a26508bea33ed4e55464292ca34ee629c88abd",
+  "liberty_sha256": "8e78e14442062dba34d414fca6490b2f6b96038d4510d1438ca44fee31487135",
+  "physical_lefs_sha256": {
+    "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef": "99e7fec7196b063ef5fdd485802bf4c819561bf71eb94598720eb2635e63c992",
+    "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef": "3a3ea4e9d0973402702764d897659e52fe3d413eb48c306cd811de40a75264fa"
+  },
+  "log_sha256": "6d5d65953de82c3dd43a133e3d0d099de72706347a6ee02a0f0ac7c2e9478933",
+  "equivalent": false,
+  "proven_points": 3,
+  "unproven_points": 96,
+  "vacuous": false,
+  "tail": "_12473_.Y_gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29076: \\writedata_gold [5] \\_12348_.Y_gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29077: \\writedata_gold [6] \\_12226_.Y_gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29078: \\writedata_gold [7] \\_12106_.Y_gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29079: \\writedata_gold [8] \\_06647__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29080: \\writedata_gold [9] \\_06648__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29081: \\writedata_gold [10] \\_06649__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29082: \\writedata_gold [11] \\_06650__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29083: \\writedata_gold [12] \\_06651__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29084: \\writedata_gold [13] \\_06652__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29085: \\writedata_gold [14] \\_06658__gate\n  Unproven $equiv $auto$equiv_make.cc:257:find_same_wires$29086: \\writedata_gold [15] \\_06659__gate\n  Unproven $equiv $ERROR: Found 96 unproven $equiv cells in 'equiv_status -assert'.\n"
+}

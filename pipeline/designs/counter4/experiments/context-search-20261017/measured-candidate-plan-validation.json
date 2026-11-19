@@ -1,0 +1,19 @@
+{
+  "mode": "explicit",
+  "objective": "Minimize cell area times activity-annotated total power among provenance-complete, signoff-clean and equivalence-proven candidates; report core area and worst setup/hold slack separately. Missing activity power excludes ranking, never substitute vectorless power.",
+  "reference": "pipeline/designs/counter4/experiments/context-search-20261017/protocol.json",
+  "seed": 42,
+  "evaluation_order": "spec",
+  "candidate_budget": 29,
+  "evaluation_budget": {
+    "max_evaluations": 29,
+    "max_wall_seconds": 3600
+  },
+  "planned_candidates_max": 7,
+  "candidate_sources": {
+    "explicit": 7,
+    "sweep": 0,
+    "synthesis_exploration": 0
+  },
+  "max_iterations": 1
+}

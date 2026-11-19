@@ -79,7 +79,7 @@ export function sweptAxis(c: PipelineCase): string[] {
 /** How many real candidate runs this case holds. */
 export function candidateCount(c: PipelineCase): number {
   return (c.iterations ?? []).reduce(
-    (n, iteration) => n + (iteration.results?.length ?? 0), 0);
+    (n, iteration) => n + (iteration.results?.filter(result => !result.not_evaluated || result.screen_evaluation).length ?? 0), 0);
 }
 
 export interface DesignGroup {

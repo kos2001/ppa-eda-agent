@@ -31,7 +31,9 @@ section names, what "undefined" means in a given field, etc.) matter.
 
 1. **Identify the report type** from content or filename
    (`*area*`, `*timing*`/`*sta*`, `*power*`) and read the matching
-   reference doc.
+   reference doc. Also identify the producing tool, version, corner, units, and
+   design/run when the report exposes them. Do not combine Synopsys and
+   OpenSTA/OpenLane report fields merely because their labels look similar.
 2. **Extract key metrics**:
    - Area: total cell area, and the combinational/noncombinational/macro
      split.
@@ -59,6 +61,8 @@ text, say so explicitly and ask for one rather than fabricating example
 numbers as if they were real analysis. The `references/*.md` files contain
 illustrative example snippets clearly marked as such — never present those
 example numbers as if they came from the user's design.
+If only part of a report is present, list the missing fields that limit the
+verdict. Unknown power, timing corners, or area components remain unknown.
 
 ## Scope boundary
 

@@ -63,6 +63,19 @@ def _expected(directory: Path) -> list[dict]:
 
 
 class TestChartMatchesPipeline(unittest.TestCase):
+    def test_missing_values_and_unchecked_corners_agree(self):
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t)
+            for index, field in enumerate(["area_um2", "power", "operating_point", "worst_setup_slack"]):
+                rows = [{"tag": tag, "verdict": {"passed": True, "area_um2": 100 + offset,
+                        "power": {"total_w": 0.001}, "utilization": 0.5,
+                        "operating_point": {"corners": [{"setup_ws_ns": 1}]}}}
+                        for tag, offset in [("a", 0), ("b", 20)]]
+                rows[1]["verdict"][field] = ({"corners": [{"setup_ws_ns": 1}, {"setup_ws_ns": None}]}
+                                             if field == "operating_point" else "unknown" if field == "worst_setup_slack" else None)
+                (tmp / f"fixture{index}.json").write_text(json.dumps({"iterations": [{"iteration": 1, "results": rows}]}))
+            self.assertEqual(_harness(tmp), _expected(tmp))
+
     def test_front_and_objectives_agree_over_the_real_store(self):
         with tempfile.TemporaryDirectory() as t:
             tmp = Path(t)

@@ -1,0 +1,76 @@
+{
+  "scope": "report-only final STA replay; no P&R or model qualification",
+  "image": "ghcr.io/efabless/openlane2:2.3.10",
+  "corner_timeout_s": 60.0,
+  "script_sha256": "804377e284b79e4ccd5c259ee242719a96c8d3eb1dcbf47be29f0acf94991138",
+  "corners": {
+    "max_ss_100C_1v60": {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "ppa-macro-loads-3d53d39d9aee413087016b8004e49de8",
+        "-v",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/srio_r15_clock_fanout16_revalidate_20261015:/design:ro",
+        "-v",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/pdk:/pdk:ro",
+        "-v",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/designs/sram_wrapper/experiments/evidence-20261015-output-loads-pilot/max_ss_100C_1v60:/out",
+        "-v",
+        "/mnt/c/Users/\uae40\uc624\uc11d/claude-work/ppa-eda-agent/.closure-followup/pipeline/macro_output_loads.tcl:/audit.tcl:ro",
+        "-e",
+        "SCRIPTS_DIR=/nix/store/ss2cw3sxbrwwx9jl0rrppbw4kgcmgi2n-python3-3.11.9-env/lib/python3.11/site-packages/openlane/scripts",
+        "-e",
+        "_TCL_ENV_IN=/out/original-env.tcl",
+        "-e",
+        "_CURRENT_CORNER_NAME=max_ss_100C_1v60",
+        "-e",
+        "_CURRENT_CORNER_LIBS=/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib /design/lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.relaxed.lib",
+        "-e",
+        "_CURRENT_CORNER_NETLISTS=",
+        "-e",
+        "_CURRENT_SPEF_BY_CORNER=/design/runs/io/53-openroad-rcx/max/sram_wrapper.max.spef",
+        "-e",
+        "_SDC_IN=/nix/store/ss2cw3sxbrwwx9jl0rrppbw4kgcmgi2n-python3-3.11.9-env/lib/python3.11/site-packages/openlane/scripts/base.sdc",
+        "ghcr.io/efabless/openlane2:2.3.10",
+        "sta",
+        "-no_splash",
+        "-exit",
+        "/audit.tcl"
+      ],
+      "environment": {
+        "SCRIPTS_DIR": "/nix/store/ss2cw3sxbrwwx9jl0rrppbw4kgcmgi2n-python3-3.11.9-env/lib/python3.11/site-packages/openlane/scripts",
+        "_TCL_ENV_IN": "/out/original-env.tcl",
+        "_CURRENT_CORNER_NAME": "max_ss_100C_1v60",
+        "_CURRENT_CORNER_LIBS": "/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib /design/lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.relaxed.lib",
+        "_CURRENT_CORNER_NETLISTS": "",
+        "_CURRENT_SPEF_BY_CORNER": "/design/runs/io/53-openroad-rcx/max/sram_wrapper.max.spef",
+        "_SDC_IN": "/nix/store/ss2cw3sxbrwwx9jl0rrppbw4kgcmgi2n-python3-3.11.9-env/lib/python3.11/site-packages/openlane/scripts/base.sdc"
+      },
+      "input_sha256": {
+        "/pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib": "9b24f0db3967ac67b4cae1f74bb480fd47922d18d0ed577e3c121739b412c361",
+        "/design/lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.relaxed.lib": "183704743bb4de43f058d8072e7380fd1d873e492f47411d915f5400fb9e1feb",
+        "/design/runs/io/53-openroad-rcx/max/sram_wrapper.max.spef": "bdf1f48e16c1b1efa7c158cef299450810acb8b7c712df695eb7dcac80a7715d",
+        "/design/runs/io/51-openroad-fillinsertion/sram_wrapper.nl.v": "af2854a4dc4c6ea2432b4f0aedea1b84997f35adc0a486d90b2d1b6d16ae7cbf"
+      },
+      "retained_env_sha256": "afb9d61baae1c52b034a14874bf182d01087fa6b435fd66c6059525c786d900b",
+      "status": "returned",
+      "returncode": 0,
+      "input_slew_comparison": {
+        "matches": true,
+        "tolerance_ns": 1e-06,
+        "issues": [],
+        "pins_compared": 57
+      },
+      "output_sha256": {
+        "macro_inputs.csv": "a0bdf3a431f5a12801f00edb7827db8c4de3149705c1ed705fcb5e33522ecec3",
+        "net_loads.csv": "94a6a9c93870bdb3a522bcebc7da5a9991d5f87dbc59793c733dc4b4a25e11af",
+        "original-env.tcl": "afb9d61baae1c52b034a14874bf182d01087fa6b435fd66c6059525c786d900b",
+        "sta.log": "88d0e0d50d05ff7d2357e98bd7851d6b166722e6a6fa945c3151fb7adcb0dafa"
+      }
+    }
+  },
+  "model_qualified": false,
+  "image_id": "sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e"
+}

@@ -6,7 +6,6 @@ import argparse
 import hashlib
 import json
 import re
-import shutil
 import subprocess
 import uuid
 from pathlib import Path
@@ -53,8 +52,9 @@ def checked_path(root, relative):
     return path
 
 
-def rtl_sources(design):
-    config = json.loads((design / "config.json").read_text(encoding="utf-8"))
+def rtl_sources(design, config=None):
+    if config is None:
+        config = json.loads((design / "config.json").read_text(encoding="utf-8"))
     for key in ("VERILOG_DEFINES", "SYNTH_DEFINES", "VERILOG_INCLUDE_DIRS"):
         if config.get(key):
             raise ValueError(f"regression does not yet support {key}; refusing a different RTL configuration")
@@ -154,6 +154,34 @@ def post_route_sources(run_dir, spec=None):
     return files + macro_files
 
 
+def combined_status(statuses):
+    """Failures dominate; absent or incomplete evidence cannot establish a pass."""
+    states = set(statuses)
+    if "failed" in states:
+        return "failed"
+    return "passed" if states == {"passed"} else "unverified"
+
+
+def snapshot_sources(files, design, work, post_route):
+    """Copy and hash each input in one bounded-memory pass."""
+    sources, records = [], []
+    for index, source in enumerate(files):
+        relative = (Path(f"input{index}.v")
+                    if post_route or not source.is_relative_to(design)
+                    else source.relative_to(design))
+        dest = work / "source" / relative
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        digest = hashlib.sha256()
+        with source.open("rb") as original, dest.open("wb") as snapshot:
+            for chunk in iter(lambda: original.read(1024 * 1024), b""):
+                snapshot.write(chunk)
+                digest.update(chunk)
+        records.append({"path": str(source), "snapshot": str(relative),
+                        "sha256": digest.hexdigest()})
+        sources.append("/work/source/" + relative.as_posix())
+    return sources, records
+
+
 def _check_stage(design_dir, run_dir, spec, stage):
     validate(spec)
     design = Path(design_dir).resolve()
@@ -169,7 +197,7 @@ def _check_stage(design_dir, run_dir, spec, stage):
         if post_route:
             files = post_route_sources(Path(run_dir).resolve(), spec)
         else:
-            files = rtl_sources(design) + macro_sources(config, spec)
+            files = rtl_sources(design, config) + macro_sources(config, spec)
             if spec.get("rtl_cell_models"):
                 # RTL with explicit standard-cell instances needs real cell models too.
                 pdk = config.get("PDK", "sky130A")
@@ -178,19 +206,12 @@ def _check_stage(design_dir, run_dir, spec, stage):
                           for name in ("primitives.v", f"{scl}.v")]
         files = files + [checked_path(design, spec["testbench"])]
         if spec.get("oracle"):
-            top = json.loads((design / "config.json").read_text(encoding="utf-8"))["DESIGN_NAME"]
+            top = config["DESIGN_NAME"]
             if spec["oracle"] != top:
                 raise ValueError("oracle does not match design")
             record["oracle"] = {"name": spec["oracle"], "sha256": hashlib.sha256(
                 Path(functional_oracles.__file__).read_bytes()).hexdigest()}
-        sources = []
-        for index, source in enumerate(files):
-            relative = Path(f"input{index}.v") if post_route or not source.is_relative_to(design) else source.relative_to(design)
-            dest = work / "source" / relative
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, dest)
-            record["sources"].append({"path": str(source), "snapshot": str(relative), "sha256": hashlib.sha256(dest.read_bytes()).hexdigest()})
-            sources.append("/work/source/" + relative.as_posix())
+        sources, record["sources"] = snapshot_sources(files, design, work, post_route)
         version = execute(work, ["iverilog", "-V"] if post_route else ["verilator", "--version"], 30, "version.log", image=image)
         if version["returncode"] != 0 or version["timed_out"]:
             raise RuntimeError("cannot read simulator version")
@@ -224,7 +245,7 @@ def _check_stage(design_dir, run_dir, spec, stage):
                 record["runs"].append({**result, "seed": seed, "status": status, "checks": checks,
                                        "oracle": oracle, "perf": perf})
             states = [r["status"] for r in record["runs"]]
-            record["status"] = "failed" if "failed" in states else "passed" if all(s == "passed" for s in states) else "unverified"
+            record["status"] = combined_status(states)
     except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as exc:
         record["reason"] = f"{type(exc).__name__}: {exc}"
     (work / "result.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
@@ -238,7 +259,7 @@ def check(design_dir, run_dir, spec):
         result["rtl_status"] = result["status"]
         result["post_route"] = post
         statuses = [result["status"], post["status"]]
-        result["status"] = "failed" if "failed" in statuses else "passed" if all(s == "passed" for s in statuses) else "unverified"
+        result["status"] = combined_status(statuses)
         result["scope"] = "RTL and post-route netlist functional simulation; no SDF"
         (Path(result["artifact_dir"]) / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     return result
