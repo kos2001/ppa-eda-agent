@@ -17,15 +17,18 @@ Requires:
       `volare enable --pdk sky130 --pdk-root <repo>/pdk <version>`)
 """
 import argparse
+import hashlib
 import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
-from toolchain import OPENLANE_IMAGE as IMAGE, platform_args
+from toolchain import OPENLANE_IMAGE as IMAGE, FLOW_COMMAND, FLOW_MODULE, platform_args
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PDK_ROOT = REPO_ROOT / "pdk"
@@ -88,6 +91,30 @@ def reject_ignored_overrides(overrides: list[str], output: str,
         )
 
 
+def verify_runtime_toolchain():
+    # Probe the installed executable, not just the revision declared in Python.
+    from benchmark_toolchain import inspect_tools
+    return inspect_tools()
+
+
+def decimal_constraint_overrides(config, overrides):
+    """Preserve real-valued intent across Tcl's integer division boundary.
+
+    Only explicit scalar inputs are normalized; inherited PDK/default values
+    are not guessed. The final constraint audit still checks effective values.
+    """
+    result = list(overrides)
+    explicit = {item.split('=', 1)[0]: item.split('=', 1)[1]
+                for item in overrides if '=' in item}
+    for key in ('CLOCK_PERIOD', 'IO_DELAY_CONSTRAINT',
+                'TIME_DERATING_CONSTRAINT', 'CTS_DELAY_BUFFER_DERATE_PCT'):
+        value = explicit.get(key, config.get(key))
+        if not isinstance(value, bool) and re.fullmatch(r'[+-]?\d+', str(value)):
+            result = [item for item in result if item.split('=', 1)[0] != key]
+            result.append(f'{key}={value}.0')
+    return result
+
+
 def run_stage(design_dir: Path, tag: str, to_step: str | None,
               overrides: list[str], overwrite: bool = True,
               scl: str | None = None, pdk: str | None = None,
@@ -109,34 +136,55 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
         raise FileNotFoundError(f"no config.json in {design_dir}")
 
     cfg = json.loads((design_dir / "config.json").read_text())
+    overrides = decimal_constraint_overrides(cfg, overrides)
     selected_flow = flow or (cfg.get("meta") or {}).get("flow", "Classic")
-    if flow is not None and flow not in {"Classic", "MacroSignoff", "UpstreamClassic"}:
+    if flow is not None and flow not in {"Classic", "MacroSignoff", "UpstreamClassic", "FanoutRepair", "MacroFanoutRepair"}:
         raise ValueError(f"Unsupported flow override: {flow}")
     custom_script = {
         "MacroSignoff": "macro_signoff.py",
         "UpstreamClassic": "upstream_classic.py",
+        "FanoutRepair": "fanout_repair.py",
+        "MacroFanoutRepair": "fanout_repair.py",
     }.get(selected_flow)
-    extra_mounts = (["-v", f"{REPO_ROOT / 'pipeline' / 'flows'}:/flows:ro"]
+    if custom_script and FLOW_MODULE != "openlane":
+        raise ValueError(f"{selected_flow} requires the OpenLane API; use "
+                         "PPA_EDA_TOOLCHAIN=stable for this custom flow")
+    runtime_tools = verify_runtime_toolchain()
+    # A running experiment must not pick up edits made for the next one.
+    snapshot = None
+    flow_source = REPO_ROOT / "pipeline" / "flows"
+    if custom_script:
+        snapshot = tempfile.TemporaryDirectory(prefix="ppa-flow-sources-")
+        flow_source = Path(snapshot.name)
+        for source in (REPO_ROOT / "pipeline" / "flows").glob("*.py"):
+            shutil.copy2(source, flow_source / source.name)
+    extra_mounts = (["-v", f"{flow_source}:/flows:ro"]
                     if custom_script else [])
     # Custom Python flows bypass the OpenLane CLI's Volare resolution. A host
     # absolute PDK symlink is dangling inside Docker; mount its real target.
     selected_pdk = PDK_ROOT / (pdk or "sky130A")
-    if custom_script and selected_pdk.is_dir():
+    if (custom_script or FLOW_MODULE == "librelane") and selected_pdk.is_dir():
         extra_mounts += ["-v", f"{selected_pdk.resolve()}:/pdk/{pdk or 'sky130A'}:ro"]
     entrypoint = (["python3", f"/flows/{custom_script}"]
-                  if custom_script else ["openlane"])
+                  if custom_script else [FLOW_COMMAND])
+    if selected_flow == "MacroFanoutRepair":
+        entrypoint += ["--concrete-magic"]
     cmd = [
         "docker", "run", "--rm", *platform_args(),
         *host_ca_args(),
         "-v", f"{PDK_ROOT}:/pdk",
         "-v", f"{design_dir}:/design",
         *extra_mounts,
-        IMAGE,
+        runtime_tools["image_id"],
         *entrypoint, "--pdk-root", "/pdk",
         "--run-tag", tag,
     ]
     if scl:
         cmd += ["--scl", scl]
+    if FLOW_MODULE == "librelane":
+        # Preserve the explicitly installed PDK for paired comparisons instead
+        # of silently downloading a newer Ciel PDK alongside the tool upgrade.
+        cmd.append("--manual-pdk")
     # The PDK, for the same reason as --scl above: it is a flag, not a
     # config override. sky130A is OpenLane's default, so passing nothing
     # keeps every existing run byte-identical.
@@ -188,7 +236,22 @@ def run_stage(design_dir: Path, tag: str, to_step: str | None,
     output = "".join(captured)
 
     claim_run_dir(design_dir, tag)
-    reject_ignored_overrides(overrides, output, tag)
+    if snapshot:
+        run_dir = design_dir / "runs" / tag
+        if run_dir.is_dir():
+            retained = run_dir / "flow_sources"
+            shutil.copytree(flow_source, retained, dirs_exist_ok=True)
+            provenance = {"flow": selected_flow, "entrypoint": entrypoint,
+                          "sources_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                                             for p in sorted(retained.glob("*.py"))}}
+            (run_dir / "custom_flow_provenance.json").write_text(json.dumps(provenance, indent=2) + "\n")
+        snapshot.cleanup()
+    run_dir = design_dir / "runs" / tag
+    if run_dir.is_dir():
+        (run_dir / "runtime_toolchain.json").write_text(
+            json.dumps(runtime_tools, indent=2) + "\n", encoding="utf-8")
+    # Unknown keys in the design config are just as ineffective as CLI keys.
+    reject_ignored_overrides(overrides + [f"{key}=" for key in cfg], output, tag)
     if returncode != 0:
         raise RuntimeError(
             f"OpenLane run '{tag}' exited {returncode} — "
@@ -262,7 +325,7 @@ def main():
                      help="stop at this OpenLane step id (default: full flow)")
     ap.add_argument("--override", action="append", default=[],
                      help="KEY=VALUE config override, repeatable")
-    ap.add_argument("--flow", choices=["Classic", "MacroSignoff", "UpstreamClassic"],
+    ap.add_argument("--flow", choices=["Classic", "MacroSignoff", "UpstreamClassic", "FanoutRepair", "MacroFanoutRepair"],
                     help="evaluate a flow without changing the design config")
     args = ap.parse_args()
 

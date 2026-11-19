@@ -1,0 +1,2108 @@
+{
+  "case": "reference-db/cases/gcd__2026-10-23__073051.json",
+  "pdk": "gf180mcuD",
+  "scl": "gf180mcu_fd_sc_mcu7t5v0",
+  "clock_period_ns": 10,
+  "synth_strategy": "DELAY 2",
+  "max_fanout_constraint": 12,
+  "rows": [
+    {
+      "tag": "gf180-20261023-clk10-util30",
+      "utilization_percent": 30,
+      "core_area_um2": 26100.9,
+      "cell_area_um2": 13926.3,
+      "worst_setup_slack_ns": -0.7854854766726038,
+      "worst_hold_slack_ns": 0.28824526914526927,
+      "vectorless_power_w": 0.019559748470783234,
+      "verdict": {
+        "passed": false,
+        "violations": [
+          "111 setup timing violation(s)",
+          "worst setup WNS -0.7854854766726038 (timing violation)"
+        ],
+        "unverified": [],
+        "signoff_checks": [
+          {
+            "key": "magic__drc_error__count",
+            "label": "Magic DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "klayout__drc_error__count",
+            "label": "KLayout DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_error__count",
+            "label": "LVS error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__instance_unmapped__count",
+            "label": "unmapped instance(s) after synthesis",
+            "count": 0
+          },
+          {
+            "key": "design__xor_difference__count",
+            "label": "XOR difference(s) between tool GDS outputs",
+            "count": 0
+          },
+          {
+            "key": "magic__illegal_overlap__count",
+            "label": "illegal layout overlap(s) (Magic)",
+            "count": 0
+          },
+          {
+            "key": "route__drc_errors",
+            "label": "routing DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_device_difference__count",
+            "label": "LVS device difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_net_difference__count",
+            "label": "LVS net difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_property_fail__count",
+            "label": "LVS property failure(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_device__count",
+            "label": "LVS unmatched device(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_net__count",
+            "label": "LVS unmatched net(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_pin__count",
+            "label": "LVS unmatched pin(s)",
+            "count": 0
+          },
+          {
+            "key": "design__disconnected_pin__count",
+            "label": "disconnected pin(s)",
+            "count": 0
+          },
+          {
+            "key": "timing__setup_vio__count",
+            "label": "setup timing violation(s)",
+            "count": 111
+          },
+          {
+            "key": "timing__hold_vio__count",
+            "label": "hold timing violation(s)",
+            "count": 0
+          },
+          {
+            "key": "route__antenna_violation__count",
+            "label": "routing antenna violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__power_grid_violation__count",
+            "label": "power-grid violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_slew_violation__count",
+            "label": "max-slew (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_cap_violation__count",
+            "label": "max-capacitance (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_fanout_violation__count",
+            "label": "max-fanout (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "synthesis__check_error__count",
+            "label": "synthesis check error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lint_error__count",
+            "label": "RTL lint error(s)",
+            "count": 0
+          }
+        ],
+        "metrics_source": "OpenLane metrics.json",
+        "area_um2": 13926.3,
+        "utilization": 0.533558,
+        "worst_setup_wns": -0.7854854766726038,
+        "worst_setup_slack": -0.7854854766726038,
+        "core_area_um2": 26100.9,
+        "wirelength_um": 16001,
+        "via_count": 2883,
+        "timing_corners": [
+          {
+            "corner": "max_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_ss_125C_4v50",
+            "setup_wns": -0.7854854766726038,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ss_125C_4v50",
+            "setup_wns": -0.5428262437634608,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ss_125C_4v50",
+            "setup_wns": -0.6545946192595501,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          }
+        ],
+        "power": {
+          "internal_w": 0.010885861702263355,
+          "leakage_w": 1.612762474678675e-07,
+          "switching_w": 0.008673724718391895,
+          "total_w": 0.019559748470783234
+        },
+        "power_domain": {
+          "ir_drop_avg_v": 0.000933,
+          "ir_drop_worst_v": 0.00322,
+          "voltage_worst_v": 5,
+          "supplies": [
+            {
+              "net": "VDD",
+              "drop_worst_v": 0.00322497,
+              "voltage_worst_v": 4.99678,
+              "nominal_v": 5.00000497,
+              "drop_pct": 0.06449933588766013
+            },
+            {
+              "net": "VSS",
+              "drop_worst_v": 0.00265872,
+              "voltage_worst_v": 0.00265872,
+              "nominal_v": 0.00531744,
+              "drop_pct": null
+            }
+          ]
+        },
+        "target_checks": [
+          {
+            "target": "max_clock_period_ns",
+            "actual": 10.0,
+            "limit": 10,
+            "unit": "ns",
+            "status": "passed"
+          }
+        ],
+        "klayout_drc": {
+          "count": 0,
+          "per_rule": {},
+          "report": "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util30/gf180_klayout_drc/gcd_main.lyrdb",
+          "variant": "D",
+          "tables": [
+            "comp",
+            "contact",
+            "contact_split",
+            "dnwell",
+            "dnwell_split",
+            "drc_bjt",
+            "dualgate",
+            "dummy_exclude",
+            "efuse",
+            "esd",
+            "geom",
+            "hres",
+            "ldnmos",
+            "ldnmos_split",
+            "ldpmos",
+            "ldpmos_split",
+            "lres",
+            "lvpwell",
+            "lvpwell_split",
+            "lvs_bjt",
+            "mcell",
+            "metal1",
+            "metal1_split",
+            "metal2",
+            "metal3",
+            "metal4",
+            "metal5",
+            "metaltop",
+            "metaltop_30k",
+            "mim_a",
+            "mim_b",
+            "nat",
+            "nat_split",
+            "nplus",
+            "nwell",
+            "nwell_split",
+            "otp_mk",
+            "poly2",
+            "pplus",
+            "pres",
+            "sab",
+            "sram_3p3",
+            "sram_5p0",
+            "via1",
+            "via1_split",
+            "via2",
+            "via2_split",
+            "via3",
+            "via3_split",
+            "via4",
+            "via4_split",
+            "via5",
+            "ymtp_mk"
+          ],
+          "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
+        },
+        "model_validity": null,
+        "operating_point": {
+          "clock_period_ns": 10.0,
+          "corners": [
+            {
+              "corner": "max_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.782077980069054,
+              "hold_ws_ns": 0.2948348315608437,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.217922019930946,
+              "fmax_mhz": 191.64717222302104
+            },
+            {
+              "corner": "max_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -0.7854854766726038,
+              "hold_ws_ns": 1.284925202607381,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 10.785485476672603,
+              "fmax_mhz": 92.71719869845923
+            },
+            {
+              "corner": "max_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.070500385302912,
+              "hold_ws_ns": 0.6308621581470555,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.929499614697088,
+              "fmax_mhz": 144.31056434133498
+            },
+            {
+              "corner": "min_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.871291508048174,
+              "hold_ws_ns": 0.28824526914526927,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.128708491951826,
+              "fmax_mhz": 194.98086147209182
+            },
+            {
+              "corner": "min_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -0.5428262437634608,
+              "hold_ws_ns": 1.3130322756275286,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 10.54282624376346,
+              "fmax_mhz": 94.85122650025114
+            },
+            {
+              "corner": "min_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.208836398529665,
+              "hold_ws_ns": 0.6207916578727749,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.791163601470335,
+              "fmax_mhz": 147.2501707635924
+            },
+            {
+              "corner": "nom_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.830790126875181,
+              "hold_ws_ns": 0.2912045131899495,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.169209873124819,
+              "fmax_mhz": 193.4531629677272
+            },
+            {
+              "corner": "nom_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -0.6545946192595501,
+              "hold_ws_ns": 1.300046329608128,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 10.65459461925955,
+              "fmax_mhz": 93.85622219660722
+            },
+            {
+              "corner": "nom_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.1459413742274376,
+              "hold_ws_ns": 0.6253155947814631,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.854058625772563,
+              "fmax_mhz": 145.8989563117844
+            }
+          ],
+          "fmax_mhz": 144.31056434133498,
+          "fmax_limiting_corner": "max_tt_025C_5v00",
+          "vmin_v": 5.0,
+          "vmin_is_lowest_analysed": false,
+          "failing_corners": [
+            "max_ss_125C_4v50",
+            "min_ss_125C_4v50",
+            "nom_ss_125C_4v50"
+          ],
+          "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+          "period_source": "resolved.json"
+        },
+        "power_activity": {
+          "testbench": "pipeline/designs/gcd/verify/gcd_tb.v",
+          "netlist": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util30/final/nl/gcd.nl.v",
+          "pdk": "gf180mcuD",
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "clock_period_ns": 10.0,
+          "simulation_model": "functional cell models; no SDF; not timing qualification",
+          "testbench_clock_parameterized": true,
+          "annotated_pins": 1639,
+          "parasitics": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util30/final/spef/max/gcd.max.spef",
+          "constraints": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util30/final/sdc/gcd.sdc",
+          "corner": "ff_n40C_5v50",
+          "simulation_tail": "1 after 71 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )\ngcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )\ngcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )\ngcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )\ngcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )\ngcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )\ngcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )\ngcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )\ngcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd_tb: 0 error(s)\n/work/tb.v:104: $finish called at 2489716000 (1ps)",
+          "vectorless": {
+            "sequential": {
+              "internal_w": 0.00304,
+              "switching_w": 0.000886,
+              "leakage_w": 1.91e-08,
+              "total_w": 0.00393
+            },
+            "combinational": {
+              "internal_w": 0.00564,
+              "switching_w": 0.00662,
+              "leakage_w": 7.73e-08,
+              "total_w": 0.0123
+            },
+            "clock": {
+              "internal_w": 0.0022,
+              "switching_w": 0.00117,
+              "leakage_w": 6.49e-08,
+              "total_w": 0.00337
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.0109,
+              "switching_w": 0.00867,
+              "leakage_w": 1.61e-07,
+              "total_w": 0.0196
+            }
+          },
+          "annotated": {
+            "sequential": {
+              "internal_w": 0.00232,
+              "switching_w": 0.000146,
+              "leakage_w": 1.92e-08,
+              "total_w": 0.00247
+            },
+            "combinational": {
+              "internal_w": 0.0007,
+              "switching_w": 0.000907,
+              "leakage_w": 7.61e-08,
+              "total_w": 0.00161
+            },
+            "clock": {
+              "internal_w": 0.0022,
+              "switching_w": 0.00117,
+              "leakage_w": 6.49e-08,
+              "total_w": 0.00337
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.00522,
+              "switching_w": 0.00222,
+              "leakage_w": 1.6e-07,
+              "total_w": 0.00744
+            }
+          },
+          "delta": {
+            "clock": {
+              "vectorless_w": 0.00337,
+              "annotated_w": 0.00337,
+              "change_pct": 0.0
+            },
+            "combinational": {
+              "vectorless_w": 0.0123,
+              "annotated_w": 0.00161,
+              "change_pct": -86.9
+            },
+            "sequential": {
+              "vectorless_w": 0.00393,
+              "annotated_w": 0.00247,
+              "change_pct": -37.2
+            },
+            "total": {
+              "vectorless_w": 0.0196,
+              "annotated_w": 0.00744,
+              "change_pct": -62.0
+            }
+          }
+        },
+        "implementation_evidence": {
+          "required": false,
+          "checks": [
+            {
+              "name": "RTL / synthesis netlist equivalence",
+              "status": "unverified"
+            },
+            {
+              "name": "Nonempty final GDS artifact",
+              "status": "passed"
+            }
+          ],
+          "gds_files": [
+            "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util30/final/gds/gcd.gds"
+          ],
+          "qualified": false,
+          "scope": "Local implementation checks; not a proof of all workload behavior or formal post-route equivalence."
+        }
+      }
+    },
+    {
+      "tag": "gf180-20261023-clk10-util38",
+      "utilization_percent": 38,
+      "core_area_um2": 20389,
+      "cell_area_um2": 13417.1,
+      "worst_setup_slack_ns": -1.1487460197115662,
+      "worst_hold_slack_ns": 0.2858785511455892,
+      "vectorless_power_w": 0.01943589560687542,
+      "verdict": {
+        "passed": false,
+        "violations": [
+          "81 setup timing violation(s)",
+          "worst setup WNS -1.1487460197115662 (timing violation)"
+        ],
+        "unverified": [],
+        "signoff_checks": [
+          {
+            "key": "magic__drc_error__count",
+            "label": "Magic DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "klayout__drc_error__count",
+            "label": "KLayout DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_error__count",
+            "label": "LVS error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__instance_unmapped__count",
+            "label": "unmapped instance(s) after synthesis",
+            "count": 0
+          },
+          {
+            "key": "design__xor_difference__count",
+            "label": "XOR difference(s) between tool GDS outputs",
+            "count": 0
+          },
+          {
+            "key": "magic__illegal_overlap__count",
+            "label": "illegal layout overlap(s) (Magic)",
+            "count": 0
+          },
+          {
+            "key": "route__drc_errors",
+            "label": "routing DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_device_difference__count",
+            "label": "LVS device difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_net_difference__count",
+            "label": "LVS net difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_property_fail__count",
+            "label": "LVS property failure(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_device__count",
+            "label": "LVS unmatched device(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_net__count",
+            "label": "LVS unmatched net(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_pin__count",
+            "label": "LVS unmatched pin(s)",
+            "count": 0
+          },
+          {
+            "key": "design__disconnected_pin__count",
+            "label": "disconnected pin(s)",
+            "count": 0
+          },
+          {
+            "key": "timing__setup_vio__count",
+            "label": "setup timing violation(s)",
+            "count": 81
+          },
+          {
+            "key": "timing__hold_vio__count",
+            "label": "hold timing violation(s)",
+            "count": 0
+          },
+          {
+            "key": "route__antenna_violation__count",
+            "label": "routing antenna violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__power_grid_violation__count",
+            "label": "power-grid violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_slew_violation__count",
+            "label": "max-slew (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_cap_violation__count",
+            "label": "max-capacitance (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_fanout_violation__count",
+            "label": "max-fanout (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "synthesis__check_error__count",
+            "label": "synthesis check error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lint_error__count",
+            "label": "RTL lint error(s)",
+            "count": 0
+          }
+        ],
+        "metrics_source": "OpenLane metrics.json",
+        "area_um2": 13417.1,
+        "utilization": 0.658053,
+        "worst_setup_wns": -1.1487460197115662,
+        "worst_setup_slack": -1.1487460197115662,
+        "core_area_um2": 20389,
+        "wirelength_um": 15965,
+        "via_count": 2914,
+        "timing_corners": [
+          {
+            "corner": "max_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_ss_125C_4v50",
+            "setup_wns": -1.1487460197115662,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ss_125C_4v50",
+            "setup_wns": -0.7471286023546276,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ss_125C_4v50",
+            "setup_wns": -0.9296013111290202,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          }
+        ],
+        "power": {
+          "internal_w": 0.010787329636514187,
+          "leakage_w": 1.4371116208167223e-07,
+          "switching_w": 0.008648422546684742,
+          "total_w": 0.01943589560687542
+        },
+        "power_domain": {
+          "ir_drop_avg_v": 0.0011,
+          "ir_drop_worst_v": 0.00407,
+          "voltage_worst_v": 5,
+          "supplies": [
+            {
+              "net": "VDD",
+              "drop_worst_v": 0.00407499,
+              "voltage_worst_v": 4.99593,
+              "nominal_v": 5.000004990000001,
+              "drop_pct": 0.08149971866328075
+            },
+            {
+              "net": "VSS",
+              "drop_worst_v": 0.00252824,
+              "voltage_worst_v": 0.00252824,
+              "nominal_v": 0.00505648,
+              "drop_pct": null
+            }
+          ]
+        },
+        "target_checks": [
+          {
+            "target": "max_clock_period_ns",
+            "actual": 10.0,
+            "limit": 10,
+            "unit": "ns",
+            "status": "passed"
+          }
+        ],
+        "klayout_drc": {
+          "count": 0,
+          "per_rule": {},
+          "report": "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util38/gf180_klayout_drc/gcd_main.lyrdb",
+          "variant": "D",
+          "tables": [
+            "comp",
+            "contact",
+            "contact_split",
+            "dnwell",
+            "dnwell_split",
+            "drc_bjt",
+            "dualgate",
+            "dummy_exclude",
+            "efuse",
+            "esd",
+            "geom",
+            "hres",
+            "ldnmos",
+            "ldnmos_split",
+            "ldpmos",
+            "ldpmos_split",
+            "lres",
+            "lvpwell",
+            "lvpwell_split",
+            "lvs_bjt",
+            "mcell",
+            "metal1",
+            "metal1_split",
+            "metal2",
+            "metal3",
+            "metal4",
+            "metal5",
+            "metaltop",
+            "metaltop_30k",
+            "mim_a",
+            "mim_b",
+            "nat",
+            "nat_split",
+            "nplus",
+            "nwell",
+            "nwell_split",
+            "otp_mk",
+            "poly2",
+            "pplus",
+            "pres",
+            "sab",
+            "sram_3p3",
+            "sram_5p0",
+            "via1",
+            "via1_split",
+            "via2",
+            "via2_split",
+            "via3",
+            "via3_split",
+            "via4",
+            "via4_split",
+            "via5",
+            "ymtp_mk"
+          ],
+          "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
+        },
+        "model_validity": null,
+        "operating_point": {
+          "clock_period_ns": 10.0,
+          "corners": [
+            {
+              "corner": "max_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.742570914665036,
+              "hold_ws_ns": 0.29240738435999913,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.257429085334964,
+              "fmax_mhz": 190.20703537198304
+            },
+            {
+              "corner": "max_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -1.1487460197115662,
+              "hold_ws_ns": 1.3548327287983757,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 11.148746019711567,
+              "fmax_mhz": 89.69618630040972
+            },
+            {
+              "corner": "max_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.0210741430271497,
+              "hold_ws_ns": 0.626868019680702,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.97892585697285,
+              "fmax_mhz": 143.2885261276806
+            },
+            {
+              "corner": "min_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.848872551833261,
+              "hold_ws_ns": 0.2858785511455892,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.151127448166739,
+              "fmax_mhz": 194.13225746450811
+            },
+            {
+              "corner": "min_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -0.7471286023546276,
+              "hold_ws_ns": 1.3661496764976548,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 10.747128602354628,
+              "fmax_mhz": 93.04810959281778
+            },
+            {
+              "corner": "min_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.1833625525537963,
+              "hold_ws_ns": 0.6168356000572431,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.816637447446204,
+              "fmax_mhz": 146.69989532370417
+            },
+            {
+              "corner": "nom_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.800239452908723,
+              "hold_ws_ns": 0.2888834808690249,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.199760547091277,
+              "fmax_mhz": 192.31654822247452
+            },
+            {
+              "corner": "nom_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -0.9296013111290202,
+              "hold_ws_ns": 1.3656609563083928,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 10.92960131112902,
+              "fmax_mhz": 91.49464573623142
+            },
+            {
+              "corner": "nom_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.1092493904042757,
+              "hold_ws_ns": 0.6214480217434966,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.890750609595724,
+              "fmax_mhz": 145.12207111478517
+            }
+          ],
+          "fmax_mhz": 143.2885261276806,
+          "fmax_limiting_corner": "max_tt_025C_5v00",
+          "vmin_v": 5.0,
+          "vmin_is_lowest_analysed": false,
+          "failing_corners": [
+            "max_ss_125C_4v50",
+            "min_ss_125C_4v50",
+            "nom_ss_125C_4v50"
+          ],
+          "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+          "period_source": "resolved.json"
+        },
+        "power_activity": {
+          "testbench": "pipeline/designs/gcd/verify/gcd_tb.v",
+          "netlist": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util38/final/nl/gcd.nl.v",
+          "pdk": "gf180mcuD",
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "clock_period_ns": 10.0,
+          "simulation_model": "functional cell models; no SDF; not timing qualification",
+          "testbench_clock_parameterized": true,
+          "annotated_pins": 1611,
+          "parasitics": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util38/final/spef/max/gcd.max.spef",
+          "constraints": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util38/final/sdc/gcd.sdc",
+          "corner": "ff_n40C_5v50",
+          "simulation_tail": "1 after 71 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )\ngcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )\ngcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )\ngcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )\ngcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )\ngcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )\ngcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )\ngcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )\ngcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd_tb: 0 error(s)\n/work/tb.v:104: $finish called at 2489716000 (1ps)",
+          "vectorless": {
+            "sequential": {
+              "internal_w": 0.00302,
+              "switching_w": 0.000946,
+              "leakage_w": 1.9e-08,
+              "total_w": 0.00396
+            },
+            "combinational": {
+              "internal_w": 0.0054,
+              "switching_w": 0.00662,
+              "leakage_w": 7.53e-08,
+              "total_w": 0.012
+            },
+            "clock": {
+              "internal_w": 0.00237,
+              "switching_w": 0.00108,
+              "leakage_w": 4.94e-08,
+              "total_w": 0.00345
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.0108,
+              "switching_w": 0.00865,
+              "leakage_w": 1.44e-07,
+              "total_w": 0.0194
+            }
+          },
+          "annotated": {
+            "sequential": {
+              "internal_w": 0.00226,
+              "switching_w": 0.000128,
+              "leakage_w": 1.9e-08,
+              "total_w": 0.00239
+            },
+            "combinational": {
+              "internal_w": 0.000662,
+              "switching_w": 0.000905,
+              "leakage_w": 7.42e-08,
+              "total_w": 0.00157
+            },
+            "clock": {
+              "internal_w": 0.00237,
+              "switching_w": 0.00108,
+              "leakage_w": 4.94e-08,
+              "total_w": 0.00345
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.0053,
+              "switching_w": 0.00211,
+              "leakage_w": 1.43e-07,
+              "total_w": 0.00741
+            }
+          },
+          "delta": {
+            "clock": {
+              "vectorless_w": 0.00345,
+              "annotated_w": 0.00345,
+              "change_pct": 0.0
+            },
+            "combinational": {
+              "vectorless_w": 0.012,
+              "annotated_w": 0.00157,
+              "change_pct": -86.9
+            },
+            "sequential": {
+              "vectorless_w": 0.00396,
+              "annotated_w": 0.00239,
+              "change_pct": -39.6
+            },
+            "total": {
+              "vectorless_w": 0.0194,
+              "annotated_w": 0.00741,
+              "change_pct": -61.8
+            }
+          }
+        },
+        "implementation_evidence": {
+          "required": false,
+          "checks": [
+            {
+              "name": "RTL / synthesis netlist equivalence",
+              "status": "unverified"
+            },
+            {
+              "name": "Nonempty final GDS artifact",
+              "status": "passed"
+            }
+          ],
+          "gds_files": [
+            "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util38/final/gds/gcd.gds"
+          ],
+          "qualified": false,
+          "scope": "Local implementation checks; not a proof of all workload behavior or formal post-route equivalence."
+        }
+      }
+    },
+    {
+      "tag": "gf180-20261023-clk10-util45",
+      "utilization_percent": 45,
+      "core_area_um2": 17168.7,
+      "cell_area_um2": 13344.6,
+      "worst_setup_slack_ns": -1.7974484631681835,
+      "worst_hold_slack_ns": 0.34464021501023795,
+      "vectorless_power_w": 0.01969996839761734,
+      "verdict": {
+        "passed": false,
+        "violations": [
+          "126 setup timing violation(s)",
+          "utilization 0.777 > target 0.75",
+          "worst setup WNS -1.7974484631681835 (timing violation)"
+        ],
+        "unverified": [],
+        "signoff_checks": [
+          {
+            "key": "magic__drc_error__count",
+            "label": "Magic DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "klayout__drc_error__count",
+            "label": "KLayout DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_error__count",
+            "label": "LVS error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__instance_unmapped__count",
+            "label": "unmapped instance(s) after synthesis",
+            "count": 0
+          },
+          {
+            "key": "design__xor_difference__count",
+            "label": "XOR difference(s) between tool GDS outputs",
+            "count": 0
+          },
+          {
+            "key": "magic__illegal_overlap__count",
+            "label": "illegal layout overlap(s) (Magic)",
+            "count": 0
+          },
+          {
+            "key": "route__drc_errors",
+            "label": "routing DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_device_difference__count",
+            "label": "LVS device difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_net_difference__count",
+            "label": "LVS net difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_property_fail__count",
+            "label": "LVS property failure(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_device__count",
+            "label": "LVS unmatched device(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_net__count",
+            "label": "LVS unmatched net(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_pin__count",
+            "label": "LVS unmatched pin(s)",
+            "count": 0
+          },
+          {
+            "key": "design__disconnected_pin__count",
+            "label": "disconnected pin(s)",
+            "count": 0
+          },
+          {
+            "key": "timing__setup_vio__count",
+            "label": "setup timing violation(s)",
+            "count": 126
+          },
+          {
+            "key": "timing__hold_vio__count",
+            "label": "hold timing violation(s)",
+            "count": 0
+          },
+          {
+            "key": "route__antenna_violation__count",
+            "label": "routing antenna violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__power_grid_violation__count",
+            "label": "power-grid violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_slew_violation__count",
+            "label": "max-slew (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_cap_violation__count",
+            "label": "max-capacitance (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_fanout_violation__count",
+            "label": "max-fanout (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "synthesis__check_error__count",
+            "label": "synthesis check error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lint_error__count",
+            "label": "RTL lint error(s)",
+            "count": 0
+          }
+        ],
+        "metrics_source": "OpenLane metrics.json",
+        "area_um2": 13344.6,
+        "utilization": 0.777266,
+        "worst_setup_wns": -1.7974484631681835,
+        "worst_setup_slack": -1.7974484631681835,
+        "core_area_um2": 17168.7,
+        "wirelength_um": 17300,
+        "via_count": 3071,
+        "timing_corners": [
+          {
+            "corner": "max_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_ss_125C_4v50",
+            "setup_wns": -1.7974484631681835,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ss_125C_4v50",
+            "setup_wns": -1.1801235878101506,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ss_125C_4v50",
+            "setup_wns": -1.458983197773248,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          }
+        ],
+        "power": {
+          "internal_w": 0.010696631856262684,
+          "leakage_w": 1.3057373848823772e-07,
+          "switching_w": 0.00900320615619421,
+          "total_w": 0.01969996839761734
+        },
+        "power_domain": {
+          "ir_drop_avg_v": 0.0011,
+          "ir_drop_worst_v": 0.00289,
+          "voltage_worst_v": 5,
+          "supplies": [
+            {
+              "net": "VDD",
+              "drop_worst_v": 0.00289371,
+              "voltage_worst_v": 4.99711,
+              "nominal_v": 5.0000037100000005,
+              "drop_pct": 0.057874157057375454
+            },
+            {
+              "net": "VSS",
+              "drop_worst_v": 0.00211853,
+              "voltage_worst_v": 0.00211853,
+              "nominal_v": 0.00423706,
+              "drop_pct": null
+            }
+          ]
+        },
+        "target_checks": [
+          {
+            "target": "max_clock_period_ns",
+            "actual": 10.0,
+            "limit": 10,
+            "unit": "ns",
+            "status": "passed"
+          }
+        ],
+        "klayout_drc": {
+          "count": 0,
+          "per_rule": {},
+          "report": "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util45/gf180_klayout_drc/gcd_main.lyrdb",
+          "variant": "D",
+          "tables": [
+            "comp",
+            "contact",
+            "contact_split",
+            "dnwell",
+            "dnwell_split",
+            "drc_bjt",
+            "dualgate",
+            "dummy_exclude",
+            "efuse",
+            "esd",
+            "geom",
+            "hres",
+            "ldnmos",
+            "ldnmos_split",
+            "ldpmos",
+            "ldpmos_split",
+            "lres",
+            "lvpwell",
+            "lvpwell_split",
+            "lvs_bjt",
+            "mcell",
+            "metal1",
+            "metal1_split",
+            "metal2",
+            "metal3",
+            "metal4",
+            "metal5",
+            "metaltop",
+            "metaltop_30k",
+            "mim_a",
+            "mim_b",
+            "nat",
+            "nat_split",
+            "nplus",
+            "nwell",
+            "nwell_split",
+            "otp_mk",
+            "poly2",
+            "pplus",
+            "pres",
+            "sab",
+            "sram_3p3",
+            "sram_5p0",
+            "via1",
+            "via1_split",
+            "via2",
+            "via2_split",
+            "via3",
+            "via3_split",
+            "via4",
+            "via4_split",
+            "via5",
+            "ymtp_mk"
+          ],
+          "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
+        },
+        "model_validity": null,
+        "operating_point": {
+          "clock_period_ns": 10.0,
+          "corners": [
+            {
+              "corner": "max_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.673245922511538,
+              "hold_ws_ns": 0.36912252077477137,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.326754077488462,
+              "fmax_mhz": 187.731587652249
+            },
+            {
+              "corner": "max_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -1.7974484631681835,
+              "hold_ws_ns": 1.3502123135061188,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 11.797448463168184,
+              "fmax_mhz": 84.76409141536116
+            },
+            {
+              "corner": "max_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 2.8893763754969775,
+              "hold_ws_ns": 0.7434556514183821,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 7.110623624503022,
+              "fmax_mhz": 140.63464089901007
+            },
+            {
+              "corner": "min_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.791807974932052,
+              "hold_ws_ns": 0.34464021501023795,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.208192025067948,
+              "fmax_mhz": 192.00520932923044
+            },
+            {
+              "corner": "min_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -1.1801235878101506,
+              "hold_ws_ns": 1.3466600438160632,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 11.18012358781015,
+              "fmax_mhz": 89.44444953097964
+            },
+            {
+              "corner": "min_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.0754550887573373,
+              "hold_ws_ns": 0.7060791040588755,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.924544911242663,
+              "fmax_mhz": 144.41382254253332
+            },
+            {
+              "corner": "nom_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.7380865016971425,
+              "hold_ws_ns": 0.3556870454399864,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.2619134983028575,
+              "fmax_mhz": 190.0449333350944
+            },
+            {
+              "corner": "nom_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -1.458983197773248,
+              "hold_ws_ns": 1.347911154177897,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 11.458983197773248,
+              "fmax_mhz": 87.26777784213208
+            },
+            {
+              "corner": "nom_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 2.990857868245167,
+              "hold_ws_ns": 0.7231053738237603,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 7.0091421317548335,
+              "fmax_mhz": 142.67081209118476
+            }
+          ],
+          "fmax_mhz": 140.63464089901007,
+          "fmax_limiting_corner": "max_tt_025C_5v00",
+          "vmin_v": 5.0,
+          "vmin_is_lowest_analysed": false,
+          "failing_corners": [
+            "max_ss_125C_4v50",
+            "min_ss_125C_4v50",
+            "nom_ss_125C_4v50"
+          ],
+          "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+          "period_source": "resolved.json"
+        },
+        "power_activity": {
+          "testbench": "pipeline/designs/gcd/verify/gcd_tb.v",
+          "netlist": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util45/final/nl/gcd.nl.v",
+          "pdk": "gf180mcuD",
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "clock_period_ns": 10.0,
+          "simulation_model": "functional cell models; no SDF; not timing qualification",
+          "testbench_clock_parameterized": true,
+          "annotated_pins": 1615,
+          "parasitics": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util45/final/spef/max/gcd.max.spef",
+          "constraints": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util45/final/sdc/gcd.sdc",
+          "corner": "ff_n40C_5v50",
+          "simulation_tail": "1 after 71 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )\ngcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )\ngcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )\ngcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )\ngcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )\ngcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )\ngcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )\ngcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )\ngcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd_tb: 0 error(s)\n/work/tb.v:104: $finish called at 2489716000 (1ps)",
+          "vectorless": {
+            "sequential": {
+              "internal_w": 0.00301,
+              "switching_w": 0.00101,
+              "leakage_w": 1.9e-08,
+              "total_w": 0.00402
+            },
+            "combinational": {
+              "internal_w": 0.00552,
+              "switching_w": 0.0069,
+              "leakage_w": 7.57e-08,
+              "total_w": 0.0124
+            },
+            "clock": {
+              "internal_w": 0.00217,
+              "switching_w": 0.00109,
+              "leakage_w": 3.59e-08,
+              "total_w": 0.00326
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.0107,
+              "switching_w": 0.009,
+              "leakage_w": 1.31e-07,
+              "total_w": 0.0197
+            }
+          },
+          "annotated": {
+            "sequential": {
+              "internal_w": 0.00233,
+              "switching_w": 0.000159,
+              "leakage_w": 1.9e-08,
+              "total_w": 0.00249
+            },
+            "combinational": {
+              "internal_w": 0.000722,
+              "switching_w": 0.000959,
+              "leakage_w": 7.48e-08,
+              "total_w": 0.00168
+            },
+            "clock": {
+              "internal_w": 0.00217,
+              "switching_w": 0.00109,
+              "leakage_w": 3.59e-08,
+              "total_w": 0.00326
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.00523,
+              "switching_w": 0.0022,
+              "leakage_w": 1.3e-07,
+              "total_w": 0.00743
+            }
+          },
+          "delta": {
+            "clock": {
+              "vectorless_w": 0.00326,
+              "annotated_w": 0.00326,
+              "change_pct": 0.0
+            },
+            "combinational": {
+              "vectorless_w": 0.0124,
+              "annotated_w": 0.00168,
+              "change_pct": -86.5
+            },
+            "sequential": {
+              "vectorless_w": 0.00402,
+              "annotated_w": 0.00249,
+              "change_pct": -38.1
+            },
+            "total": {
+              "vectorless_w": 0.0197,
+              "annotated_w": 0.00743,
+              "change_pct": -62.3
+            }
+          }
+        },
+        "implementation_evidence": {
+          "required": false,
+          "checks": [
+            {
+              "name": "RTL / synthesis netlist equivalence",
+              "status": "unverified"
+            },
+            {
+              "name": "Nonempty final GDS artifact",
+              "status": "passed"
+            }
+          ],
+          "gds_files": [
+            "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util45/final/gds/gcd.gds"
+          ],
+          "qualified": false,
+          "scope": "Local implementation checks; not a proof of all workload behavior or formal post-route equivalence."
+        }
+      }
+    },
+    {
+      "tag": "gf180-20261023-clk10-util50",
+      "utilization_percent": 50,
+      "core_area_um2": 15805.4,
+      "cell_area_um2": 13902.2,
+      "worst_setup_slack_ns": -2.9710998946509344,
+      "worst_hold_slack_ns": 0.3352599404098877,
+      "vectorless_power_w": 0.021052224561572075,
+      "verdict": {
+        "passed": false,
+        "violations": [
+          "122 setup timing violation(s)",
+          "utilization 0.880 > target 0.75",
+          "worst setup WNS -2.9710998946509344 (timing violation)"
+        ],
+        "unverified": [],
+        "signoff_checks": [
+          {
+            "key": "magic__drc_error__count",
+            "label": "Magic DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "klayout__drc_error__count",
+            "label": "KLayout DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_error__count",
+            "label": "LVS error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__instance_unmapped__count",
+            "label": "unmapped instance(s) after synthesis",
+            "count": 0
+          },
+          {
+            "key": "design__xor_difference__count",
+            "label": "XOR difference(s) between tool GDS outputs",
+            "count": 0
+          },
+          {
+            "key": "magic__illegal_overlap__count",
+            "label": "illegal layout overlap(s) (Magic)",
+            "count": 0
+          },
+          {
+            "key": "route__drc_errors",
+            "label": "routing DRC error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_device_difference__count",
+            "label": "LVS device difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_net_difference__count",
+            "label": "LVS net difference(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_property_fail__count",
+            "label": "LVS property failure(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_device__count",
+            "label": "LVS unmatched device(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_net__count",
+            "label": "LVS unmatched net(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lvs_unmatched_pin__count",
+            "label": "LVS unmatched pin(s)",
+            "count": 0
+          },
+          {
+            "key": "design__disconnected_pin__count",
+            "label": "disconnected pin(s)",
+            "count": 0
+          },
+          {
+            "key": "timing__setup_vio__count",
+            "label": "setup timing violation(s)",
+            "count": 122
+          },
+          {
+            "key": "timing__hold_vio__count",
+            "label": "hold timing violation(s)",
+            "count": 0
+          },
+          {
+            "key": "route__antenna_violation__count",
+            "label": "routing antenna violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__power_grid_violation__count",
+            "label": "power-grid violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_slew_violation__count",
+            "label": "max-slew (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_cap_violation__count",
+            "label": "max-capacitance (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "design__max_fanout_violation__count",
+            "label": "max-fanout (DRV) violation(s)",
+            "count": 0
+          },
+          {
+            "key": "synthesis__check_error__count",
+            "label": "synthesis check error(s)",
+            "count": 0
+          },
+          {
+            "key": "design__lint_error__count",
+            "label": "RTL lint error(s)",
+            "count": 0
+          }
+        ],
+        "metrics_source": "OpenLane metrics.json",
+        "area_um2": 13902.2,
+        "utilization": 0.879583,
+        "worst_setup_wns": -2.9710998946509344,
+        "worst_setup_slack": -2.9710998946509344,
+        "core_area_um2": 15805.4,
+        "wirelength_um": 21529,
+        "via_count": 3371,
+        "timing_corners": [
+          {
+            "corner": "max_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_ss_125C_4v50",
+            "setup_wns": -2.9710998946509344,
+            "hold_wns": 0
+          },
+          {
+            "corner": "max_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_ss_125C_4v50",
+            "setup_wns": -2.131942682736331,
+            "hold_wns": 0
+          },
+          {
+            "corner": "min_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ff_n40C_5v50",
+            "setup_wns": 0,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_ss_125C_4v50",
+            "setup_wns": -2.516610102652334,
+            "hold_wns": 0
+          },
+          {
+            "corner": "nom_tt_025C_5v00",
+            "setup_wns": 0,
+            "hold_wns": 0
+          }
+        ],
+        "power": {
+          "internal_w": 0.011372861452400684,
+          "leakage_w": 1.2782695080204576e-07,
+          "switching_w": 0.009679233655333519,
+          "total_w": 0.021052224561572075
+        },
+        "power_domain": {
+          "ir_drop_avg_v": 0.00137,
+          "ir_drop_worst_v": 0.00294,
+          "voltage_worst_v": 5,
+          "supplies": [
+            {
+              "net": "VDD",
+              "drop_worst_v": 0.0029427,
+              "voltage_worst_v": 4.99706,
+              "nominal_v": 5.0000027000000005,
+              "drop_pct": 0.058853968218857154
+            },
+            {
+              "net": "VSS",
+              "drop_worst_v": 0.00170258,
+              "voltage_worst_v": 0.00170258,
+              "nominal_v": 0.00340516,
+              "drop_pct": null
+            }
+          ]
+        },
+        "target_checks": [
+          {
+            "target": "max_clock_period_ns",
+            "actual": 10.0,
+            "limit": 10,
+            "unit": "ns",
+            "status": "passed"
+          }
+        ],
+        "klayout_drc": {
+          "count": 0,
+          "per_rule": {},
+          "report": "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util50/gf180_klayout_drc/gcd_main.lyrdb",
+          "variant": "D",
+          "tables": [
+            "comp",
+            "contact",
+            "contact_split",
+            "dnwell",
+            "dnwell_split",
+            "drc_bjt",
+            "dualgate",
+            "dummy_exclude",
+            "efuse",
+            "esd",
+            "geom",
+            "hres",
+            "ldnmos",
+            "ldnmos_split",
+            "ldpmos",
+            "ldpmos_split",
+            "lres",
+            "lvpwell",
+            "lvpwell_split",
+            "lvs_bjt",
+            "mcell",
+            "metal1",
+            "metal1_split",
+            "metal2",
+            "metal3",
+            "metal4",
+            "metal5",
+            "metaltop",
+            "metaltop_30k",
+            "mim_a",
+            "mim_b",
+            "nat",
+            "nat_split",
+            "nplus",
+            "nwell",
+            "nwell_split",
+            "otp_mk",
+            "poly2",
+            "pplus",
+            "pres",
+            "sab",
+            "sram_3p3",
+            "sram_5p0",
+            "via1",
+            "via1_split",
+            "via2",
+            "via2_split",
+            "via3",
+            "via3_split",
+            "via4",
+            "via4_split",
+            "via5",
+            "ymtp_mk"
+          ],
+          "source": "gf180mcu PDK klayout/drc rule deck, driven as run_drc.py would (OpenLane 2.3.10's KLayout.DRC skips non-sky130 PDKs)"
+        },
+        "model_validity": null,
+        "operating_point": {
+          "clock_period_ns": 10.0,
+          "corners": [
+            {
+              "corner": "max_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.660059137141302,
+              "hold_ws_ns": 0.35738146786809083,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.339940862858698,
+              "fmax_mhz": 187.267991478216
+            },
+            {
+              "corner": "max_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -2.9710998946509344,
+              "hold_ws_ns": 1.4202640576720909,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 12.971099894650933,
+              "fmax_mhz": 77.0944644726993
+            },
+            {
+              "corner": "max_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 2.7975520469793107,
+              "hold_ws_ns": 0.7253944317206714,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 7.202447953020689,
+              "fmax_mhz": 138.84168362238597
+            },
+            {
+              "corner": "min_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.8015615065238375,
+              "hold_ws_ns": 0.3352599404098877,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.1984384934761625,
+              "fmax_mhz": 192.36545767636974
+            },
+            {
+              "corner": "min_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -2.131942682736331,
+              "hold_ws_ns": 1.4258932216330515,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 12.13194268273633,
+              "fmax_mhz": 82.42702971412757
+            },
+            {
+              "corner": "min_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.100804145661709,
+              "hold_ws_ns": 0.6917540069892982,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.899195854338291,
+              "fmax_mhz": 144.94442846860028
+            },
+            {
+              "corner": "nom_ff_n40C_5v50",
+              "voltage_v": 5.5,
+              "setup_ws_ns": 4.737629533887283,
+              "hold_ws_ns": 0.34522902180800047,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 5.262370466112717,
+              "fmax_mhz": 190.02843042684796
+            },
+            {
+              "corner": "nom_ss_125C_4v50",
+              "voltage_v": 4.5,
+              "setup_ws_ns": -2.516610102652334,
+              "hold_ws_ns": 1.4232359027484571,
+              "setup_ok": false,
+              "hold_ok": true,
+              "min_period_ns": 12.516610102652335,
+              "fmax_mhz": 79.89383641406988
+            },
+            {
+              "corner": "nom_tt_025C_5v00",
+              "voltage_v": 5.0,
+              "setup_ws_ns": 3.0021679325614987,
+              "hold_ws_ns": 0.706850598060507,
+              "setup_ok": true,
+              "hold_ok": true,
+              "min_period_ns": 6.997832067438502,
+              "fmax_mhz": 142.90140008547556
+            }
+          ],
+          "fmax_mhz": 138.84168362238597,
+          "fmax_limiting_corner": "max_tt_025C_5v00",
+          "vmin_v": 5.0,
+          "vmin_is_lowest_analysed": false,
+          "failing_corners": [
+            "max_ss_125C_4v50",
+            "min_ss_125C_4v50",
+            "nom_ss_125C_4v50"
+          ],
+          "note": "Fmax is this placed netlist's critical path, not a prediction of re-closing at that period; Vmin is the lowest characterised corner that passes, not a swept minimum",
+          "period_source": "resolved.json"
+        },
+        "power_activity": {
+          "testbench": "pipeline/designs/gcd/verify/gcd_tb.v",
+          "netlist": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util50/final/nl/gcd.nl.v",
+          "pdk": "gf180mcuD",
+          "scl": "gf180mcu_fd_sc_mcu7t5v0",
+          "clock_period_ns": 10.0,
+          "simulation_model": "functional cell models; no SDF; not timing qualification",
+          "testbench_clock_parameterized": true,
+          "annotated_pins": 1625,
+          "parasitics": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util50/final/spef/max/gcd.max.spef",
+          "constraints": "pipeline/designs/gcd/runs/gf180-20261023-clk10-util50/final/sdc/gcd.sdc",
+          "corner": "ff_n40C_5v50",
+          "simulation_tail": "1 after 71 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )\ngcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )\ngcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )\ngcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )\ngcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )\ngcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )\ngcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )\ngcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )\ngcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd_tb: 0 error(s)\n/work/tb.v:104: $finish called at 2489716000 (1ps)",
+          "vectorless": {
+            "sequential": {
+              "internal_w": 0.00309,
+              "switching_w": 0.00106,
+              "leakage_w": 1.95e-08,
+              "total_w": 0.00415
+            },
+            "combinational": {
+              "internal_w": 0.00601,
+              "switching_w": 0.00755,
+              "leakage_w": 7.94e-08,
+              "total_w": 0.0136
+            },
+            "clock": {
+              "internal_w": 0.00227,
+              "switching_w": 0.00107,
+              "leakage_w": 2.89e-08,
+              "total_w": 0.00334
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.0114,
+              "switching_w": 0.00968,
+              "leakage_w": 1.28e-07,
+              "total_w": 0.0211
+            }
+          },
+          "annotated": {
+            "sequential": {
+              "internal_w": 0.00236,
+              "switching_w": 0.000189,
+              "leakage_w": 1.95e-08,
+              "total_w": 0.00255
+            },
+            "combinational": {
+              "internal_w": 0.000803,
+              "switching_w": 0.00104,
+              "leakage_w": 7.81e-08,
+              "total_w": 0.00185
+            },
+            "clock": {
+              "internal_w": 0.00227,
+              "switching_w": 0.00107,
+              "leakage_w": 2.89e-08,
+              "total_w": 0.00334
+            },
+            "macro": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "pad": {
+              "internal_w": 0.0,
+              "switching_w": 0.0,
+              "leakage_w": 0.0,
+              "total_w": 0.0
+            },
+            "total": {
+              "internal_w": 0.00544,
+              "switching_w": 0.00231,
+              "leakage_w": 1.27e-07,
+              "total_w": 0.00774
+            }
+          },
+          "delta": {
+            "clock": {
+              "vectorless_w": 0.00334,
+              "annotated_w": 0.00334,
+              "change_pct": 0.0
+            },
+            "combinational": {
+              "vectorless_w": 0.0136,
+              "annotated_w": 0.00185,
+              "change_pct": -86.4
+            },
+            "sequential": {
+              "vectorless_w": 0.00415,
+              "annotated_w": 0.00255,
+              "change_pct": -38.6
+            },
+            "total": {
+              "vectorless_w": 0.0211,
+              "annotated_w": 0.00774,
+              "change_pct": -63.3
+            }
+          }
+        },
+        "implementation_evidence": {
+          "required": false,
+          "checks": [
+            {
+              "name": "RTL / synthesis netlist equivalence",
+              "status": "unverified"
+            },
+            {
+              "name": "Nonempty final GDS artifact",
+              "status": "passed"
+            }
+          ],
+          "gds_files": [
+            "/mnt/c/Users/김오석/claude-work/ppa-eda-agent/pipeline/designs/gcd/runs/gf180-20261023-clk10-util50/final/gds/gcd.gds"
+          ],
+          "qualified": false,
+          "scope": "Local implementation checks; not a proof of all workload behavior or formal post-route equivalence."
+        }
+      }
+    }
+  ]
+}

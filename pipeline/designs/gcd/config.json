@@ -2,6 +2,7 @@
   "DESIGN_NAME": "gcd",
   "VERILOG_FILES": "dir::src/gcd.v",
   "CLOCK_PORT": "clk",
-  "CLOCK_PERIOD": 10,
+  "CLOCK_PERIOD": 13.2,
+  "TIME_DERATING_CONSTRAINT": 5.0,
   "FP_CORE_UTIL": 38
 }

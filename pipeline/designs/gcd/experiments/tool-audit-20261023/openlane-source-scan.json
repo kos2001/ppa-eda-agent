@@ -1,0 +1,88 @@
+[
+  {
+    "path": "scripts/base.sdc",
+    "sha256": "cc63d204b0edfb975b62f9b70066e3b19b322b18c539ce339f28f064ce30229b",
+    "matches": [
+      {
+        "line": 19,
+        "text": "set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_DELAY_CONSTRAINT) / 100]"
+      },
+      {
+        "line": 20,
+        "text": "set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_DELAY_CONSTRAINT) / 100]"
+      },
+      {
+        "line": 48,
+        "text": "set ::env(SYNTH_CLK_DRIVING_CELL) $::env(SYNTH_DRIVING_CELL)"
+      },
+      {
+        "line": 52,
+        "text": "-lib_cell [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 0] \\"
+      },
+      {
+        "line": 53,
+        "text": "-pin [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 1] \\"
+      },
+      {
+        "line": 72,
+        "text": "set_timing_derate -early [expr 1-[expr $::env(TIME_DERATING_CONSTRAINT) / 100]]"
+      },
+      {
+        "line": 73,
+        "text": "set_timing_derate -late [expr 1+[expr $::env(TIME_DERATING_CONSTRAINT) / 100]]"
+      }
+    ]
+  },
+  {
+    "path": "scripts/openroad/common/io.tcl",
+    "sha256": "30478f65d023b814e45a180506c86bb331a8dd1f8e48d00172b192eb674eab50",
+    "matches": [
+      {
+        "line": 51,
+        "text": "set ::env(IO_PCT) [expr $::env(IO_DELAY_CONSTRAINT) / 100]"
+      },
+      {
+        "line": 52,
+        "text": "set ::env(SYNTH_TIMING_DERATE) [expr $::env(TIME_DERATING_CONSTRAINT) / 100]"
+      },
+      {
+        "line": 60,
+        "text": "if { [env_var_used $::env(_SDC_IN) SYNTH_DRIVING_CELL_PIN] == 1 } {"
+      },
+      {
+        "line": 61,
+        "text": "set synth_driving_cell_bk $::env(SYNTH_DRIVING_CELL)"
+      },
+      {
+        "line": 62,
+        "text": "set ::env(SYNTH_DRIVING_CELL_PIN) [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 1]"
+      },
+      {
+        "line": 63,
+        "text": "set ::env(SYNTH_DRIVING_CELL) [lindex [split $::env(SYNTH_DRIVING_CELL) \"/\"] 0]"
+      },
+      {
+        "line": 92,
+        "text": "if { [info exists ::env(SYNTH_DRIVING_CELL_PIN)] } {"
+      },
+      {
+        "line": 93,
+        "text": "unset ::env(SYNTH_DRIVING_CELL_PIN)"
+      },
+      {
+        "line": 94,
+        "text": "set ::env(SYNTH_DRIVING_CELL) $synth_driving_cell_bk"
+      }
+    ]
+  },
+  {
+    "path": "scripts/pyosys/synthesize.py",
+    "sha256": "8e1d86d926ebe0d86a2e44d2b375be3fb7a059dcdc37b0f58aec4dac74c48ab5",
+    "matches": [
+      {
+        "line": 253,
+        "text": "print(f\"set_driving_cell {config['SYNTH_DRIVING_CELL']}\", file=f)"
+      }
+    ]
+  }
+]

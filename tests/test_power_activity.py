@@ -11,15 +11,18 @@ in the pinned image, and on spm the default estimate turned out to
 understate combinational power by 44%.
 """
 import sys
+import json
 import tempfile
 import unittest
+from unittest.mock import patch
+from types import SimpleNamespace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "pipeline"))
 
 from power_activity import (  # noqa: E402
     POWER_CORNER, POWER_RC_CORNER, PowerActivityError, compare, find_netlist,
-    find_sdc, find_spef, find_testbench, measure, parse_power,
+    find_sdc, find_spef, find_testbench, measure, parse_power, run_technology,
 )
 
 # A real OpenSTA report_power table, as emitted for spm.
@@ -61,6 +64,58 @@ class ParseTests(unittest.TestCase):
 
     def test_text_without_a_table_yields_nothing(self):
         self.assertEqual(parse_power("Annotated 1061 pin activities."), {})
+
+
+class TechnologyTests(unittest.TestCase):
+    def test_gf180_uses_resolved_library_and_5v50_corner(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            (run / "resolved.json").write_text(json.dumps({
+                "PDK": "gf180mcuD", "STD_CELL_LIBRARY": "gf180mcu_fd_sc_mcu7t5v0",
+                "STA_CORNERS": ["max_ff_n40C_5v50", "nom_tt_025C_5v00"],
+                "CLOCK_PERIOD": 13.2,
+            }))
+            pdk, scl, corner, cfg = run_technology(run, None, None)
+            self.assertEqual((pdk, scl, corner),
+                             ("gf180mcuD", "gf180mcu_fd_sc_mcu7t5v0", "ff_n40C_5v50"))
+            self.assertEqual(cfg["CLOCK_PERIOD"], 13.2)
+
+    def test_missing_run_config_keeps_legacy_sky130_defaults(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(run_technology(Path(directory), None, None)[:3],
+                             ("sky130A", "sky130_fd_sc_hd", POWER_CORNER))
+
+    def test_unknown_run_corner_is_not_silently_sky130(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = Path(directory)
+            (run / "resolved.json").write_text('{"PDK": "gf180mcuD"}')
+            with self.assertRaises(PowerActivityError):
+                run_technology(run, None, None)
+
+
+class ExecutionFailureTests(unittest.TestCase):
+    def run_result(self, stdout, returncode=0):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "verify").mkdir()
+            (root / "verify/x_tb.v").write_text("module x_tb; endmodule")
+            (root / "final/nl").mkdir(parents=True)
+            (root / "final/nl/x.nl.v").write_text("module x; endmodule")
+            with patch("power_activity.find_pdk_root", return_value=root), patch(
+                "power_activity.subprocess.run",
+                return_value=SimpleNamespace(stdout=stdout, stderr="", returncode=returncode),
+            ):
+                return measure(root, root)
+
+    def test_failed_simulation_does_not_publish_power(self):
+        result = self.run_result("###SIM###\nFATAL: mismatch", 1)
+        self.assertIn("error", result)
+        self.assertNotIn("annotated", result)
+
+    def test_power_table_without_vcd_annotation_is_rejected(self):
+        result = self.run_result("###ANNOTATED###\n" + REPORT)
+        self.assertIn("error", result)
+        self.assertNotIn("annotated", result)
 
 
 class CompareTests(unittest.TestCase):

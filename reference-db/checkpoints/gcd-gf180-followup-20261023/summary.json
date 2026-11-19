@@ -1,0 +1,702 @@
+{
+  "date": "2026-10-23",
+  "design": "gcd",
+  "pdk": "gf180mcuD",
+  "scl": "gf180mcu_fd_sc_mcu7t5v0",
+  "toolchain": "ghcr.io/efabless/openlane2:2.3.10",
+  "original_target_ns": 10.0,
+  "image_id": "sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e",
+  "image_repo_digests": [
+    "ghcr.io/efabless/openlane2@sha256:37c3bd4ea0534a276cb2deb88d601044857bad2807b9bc5b36efe9d02c62624e"
+  ],
+  "target_met": false,
+  "records": [
+    {
+      "tag": "gf180-20261023-clk13p2",
+      "clock_period_ns": 13.2,
+      "physical_timing_passed": true,
+      "violations": [],
+      "unverified_physical_metrics": [],
+      "worst_setup_slack_ns": 0.26788261256357276,
+      "worst_hold_slack_ns": 0.2858824369262853,
+      "area_um2": 12104.3,
+      "power_activity": {
+        "testbench": "pipeline/designs/gcd/verify/gcd_tb.v",
+        "netlist": "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/nl/gcd.nl.v",
+        "pdk": "gf180mcuD",
+        "scl": "gf180mcu_fd_sc_mcu7t5v0",
+        "clock_period_ns": 13.2,
+        "simulation_model": "functional cell models; no SDF; not timing qualification",
+        "testbench_clock_parameterized": true,
+        "annotated_pins": 1593,
+        "parasitics": "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/spef/max/gcd.max.spef",
+        "constraints": "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/sdc/gcd.sdc",
+        "corner": "ff_n40C_5v50",
+        "simulation_tail": "1 after 71 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )\ngcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )\ngcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )\ngcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )\ngcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )\ngcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )\ngcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )\ngcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )\ngcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd_tb: 0 error(s)\n/work/tb.v:104: $finish called at 3286424800 (1ps)",
+        "vectorless": {
+          "sequential": {
+            "internal_w": 0.00204,
+            "switching_w": 0.000599,
+            "leakage_w": 1.71e-08,
+            "total_w": 0.00264
+          },
+          "combinational": {
+            "internal_w": 0.00331,
+            "switching_w": 0.00445,
+            "leakage_w": 6.75e-08,
+            "total_w": 0.00776
+          },
+          "clock": {
+            "internal_w": 0.0018,
+            "switching_w": 0.000756,
+            "leakage_w": 5.32e-08,
+            "total_w": 0.00256
+          },
+          "macro": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "pad": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "total": {
+            "internal_w": 0.00714,
+            "switching_w": 0.00581,
+            "leakage_w": 1.38e-07,
+            "total_w": 0.013
+          }
+        },
+        "annotated": {
+          "sequential": {
+            "internal_w": 0.00169,
+            "switching_w": 7.34e-05,
+            "leakage_w": 1.72e-08,
+            "total_w": 0.00176
+          },
+          "combinational": {
+            "internal_w": 0.00041,
+            "switching_w": 0.000624,
+            "leakage_w": 6.63e-08,
+            "total_w": 0.00103
+          },
+          "clock": {
+            "internal_w": 0.0018,
+            "switching_w": 0.000756,
+            "leakage_w": 5.32e-08,
+            "total_w": 0.00256
+          },
+          "macro": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "pad": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "total": {
+            "internal_w": 0.0039,
+            "switching_w": 0.00145,
+            "leakage_w": 1.37e-07,
+            "total_w": 0.00535
+          }
+        },
+        "delta": {
+          "clock": {
+            "vectorless_w": 0.00256,
+            "annotated_w": 0.00256,
+            "change_pct": 0.0
+          },
+          "combinational": {
+            "vectorless_w": 0.00776,
+            "annotated_w": 0.00103,
+            "change_pct": -86.7
+          },
+          "sequential": {
+            "vectorless_w": 0.00264,
+            "annotated_w": 0.00176,
+            "change_pct": -33.3
+          },
+          "total": {
+            "vectorless_w": 0.013,
+            "annotated_w": 0.00535,
+            "change_pct": -58.8
+          }
+        }
+      },
+      "formal_equivalence": "not evaluated in this follow-up",
+      "source_case": ".closure-followup/reference-db/cases/gcd__2026-10-23.json",
+      "raw_case_power_note": "Original case is immutable; separate corrected power result takes precedence when present."
+    },
+    {
+      "tag": "gf180-20261023-clk10",
+      "clock_period_ns": 10.0,
+      "physical_timing_passed": false,
+      "violations": [
+        "81 setup timing violation(s)",
+        "worst setup WNS -1.1487460197115662 (timing violation)"
+      ],
+      "unverified_physical_metrics": [],
+      "worst_setup_slack_ns": -1.1487460197115662,
+      "worst_hold_slack_ns": 0.2858785511455892,
+      "area_um2": 13417.1,
+      "power_activity": {
+        "error": "gate-level simulation did not compile",
+        "detail": "\n        gf180mcu_fd_sc_mcu7t5v0__oai211_2 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai211_4 referenced 2 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai21_1 referenced 5 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai21_4 referenced 5 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai221_1 referenced 3 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai221_2 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai22_1 referenced 4 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai22_2 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai22_4 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai31_1 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai31_2 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai31_4 referenced 1 times.\n        gf180mcu_fd_sc_mcu7t5v0__oai32_1 referenced 2 times.\n  "
+      },
+      "formal_equivalence": "not evaluated in this follow-up",
+      "source_case": ".closure-followup/reference-db/cases/gcd__2026-10-23.json",
+      "raw_case_power_note": "Original case is immutable; separate corrected power result takes precedence when present."
+    },
+    {
+      "tag": "gf180-20261023-clk10-postgrt",
+      "clock_period_ns": 10.0,
+      "physical_timing_passed": false,
+      "violations": [
+        "81 setup timing violation(s)",
+        "worst setup WNS -0.8039853454997496 (timing violation)"
+      ],
+      "unverified_physical_metrics": [],
+      "worst_setup_slack_ns": -0.8039853454997496,
+      "worst_hold_slack_ns": 0.2861916340473881,
+      "area_um2": 13869.3,
+      "power_activity": {
+        "testbench": "pipeline/designs/gcd/verify/gcd_tb.v",
+        "netlist": "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/nl/gcd.nl.v",
+        "pdk": "gf180mcuD",
+        "scl": "gf180mcu_fd_sc_mcu7t5v0",
+        "clock_period_ns": 10.0,
+        "simulation_model": "functional cell models; no SDF; not timing qualification",
+        "testbench_clock_parameterized": true,
+        "annotated_pins": 1621,
+        "parasitics": "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/spef/max/gcd.max.spef",
+        "constraints": "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/sdc/gcd.sdc",
+        "corner": "ff_n40C_5v50",
+        "simulation_tail": "1 after 71 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(39309, 52391) expected 1, got 1 after 233 cycles (ok )\ngcd(60007, 7) expected 1, got 1 after 8581 cycles (ok )\ngcd(33893, 21010) expected 1, got 1 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(58113, 43267) expected 1, got 1 after 56 cycles (ok )\ngcd(60011, 7) expected 7, got 7 after 8575 cycles (ok )\ngcd(52493, 61814) expected 1, got 1 after 69 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(52541, 26551) expected 1, got 1 after 85 cycles (ok )\ngcd(60015, 7) expected 1, got 1 after 8583 cycles (ok )\ngcd(22509, 63372) expected 3, got 3 after 45 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(59897, 48619) expected 1, got 1 after 43 cycles (ok )\ngcd(60019, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd(9414, 33989) expected 1, got 1 after 41 cycles (ok )\ngcd(65521, 65519) expected 1, got 1 after 32766 cycles (ok )\ngcd(53930, 30718) expected 2, got 2 after 42 cycles (ok )\ngcd(60023, 7) expected 1, got 1 after 8584 cycles (ok )\ngcd_tb: 0 error(s)\n/work/tb.v:104: $finish called at 2489716000 (1ps)",
+        "vectorless": {
+          "sequential": {
+            "internal_w": 0.00306,
+            "switching_w": 0.000973,
+            "leakage_w": 1.92e-08,
+            "total_w": 0.00403
+          },
+          "combinational": {
+            "internal_w": 0.00585,
+            "switching_w": 0.00696,
+            "leakage_w": 7.82e-08,
+            "total_w": 0.0128
+          },
+          "clock": {
+            "internal_w": 0.00238,
+            "switching_w": 0.00106,
+            "leakage_w": 4.81e-08,
+            "total_w": 0.00343
+          },
+          "macro": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "pad": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "total": {
+            "internal_w": 0.0113,
+            "switching_w": 0.00899,
+            "leakage_w": 1.46e-07,
+            "total_w": 0.0203
+          }
+        },
+        "annotated": {
+          "sequential": {
+            "internal_w": 0.00232,
+            "switching_w": 0.000148,
+            "leakage_w": 1.93e-08,
+            "total_w": 0.00247
+          },
+          "combinational": {
+            "internal_w": 0.000722,
+            "switching_w": 0.000947,
+            "leakage_w": 7.7e-08,
+            "total_w": 0.00167
+          },
+          "clock": {
+            "internal_w": 0.00238,
+            "switching_w": 0.00106,
+            "leakage_w": 4.81e-08,
+            "total_w": 0.00343
+          },
+          "macro": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "pad": {
+            "internal_w": 0.0,
+            "switching_w": 0.0,
+            "leakage_w": 0.0,
+            "total_w": 0.0
+          },
+          "total": {
+            "internal_w": 0.00542,
+            "switching_w": 0.00215,
+            "leakage_w": 1.44e-07,
+            "total_w": 0.00757
+          }
+        },
+        "delta": {
+          "clock": {
+            "vectorless_w": 0.00343,
+            "annotated_w": 0.00343,
+            "change_pct": 0.0
+          },
+          "combinational": {
+            "vectorless_w": 0.0128,
+            "annotated_w": 0.00167,
+            "change_pct": -87.0
+          },
+          "sequential": {
+            "vectorless_w": 0.00403,
+            "annotated_w": 0.00247,
+            "change_pct": -38.7
+          },
+          "total": {
+            "vectorless_w": 0.0203,
+            "annotated_w": 0.00757,
+            "change_pct": -62.7
+          }
+        }
+      },
+      "formal_equivalence": "not evaluated in this follow-up",
+      "source_case": ".closure-followup/reference-db/cases/gcd__2026-10-23__071420.json",
+      "raw_case_power_note": "Original case is immutable; separate corrected power result takes precedence when present."
+    }
+  ],
+  "power_fix": "Select PDK/SCL/fast-max corner from resolved.json instead of hardcoded SKY130; parameterize GCD testbench clock; reject failed or unannotated simulations.",
+  "power_limitations": "Workload-dependent functional simulation plus extracted max-RC SPEF; no SDF or glitch-accurate timing simulation. Functional success does not qualify 10 ns.",
+  "tests": {
+    "power_activity": 25,
+    "power_ranking": 11,
+    "result": "all passed under WSL"
+  },
+  "physical_evaluations": 3,
+  "artifacts": {
+    ".closure-followup/reference-db/cases/gcd__2026-10-23.json": {
+      "sha256": "3f1aef62c7b28846162cbf6291e08ad52029069249e8493e21ebc6c7adf6e5d2",
+      "bytes": 191491
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/resolved.json": {
+      "sha256": "ccf9b16d7882169da7f069002cd20f719d464c14023abed751798e3b8aee0b39",
+      "bytes": 92551
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/metrics.json": {
+      "sha256": "39b111ed88814282f0df6447fba716dd49b08183340d10913a8bd25d6ffe05fb",
+      "bytes": 16057
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/nl/gcd.nl.v": {
+      "sha256": "6fc3ce0006a174293f6707ff014ddd07965b4500f3dc8e8624c596d20cefe279",
+      "bytes": 96614
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/sdc/gcd.sdc": {
+      "sha256": "3d6564626dca4da1df039940f17f94f38c48bc48a817f0c256c4f69b0a915f03",
+      "bytes": 12036
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/spef/max/gcd.max.spef": {
+      "sha256": "0777974f0aa8d3ae67cec1a9bdbef2d784ad3dfe424253b9694121213ddb49f6",
+      "bytes": 455493
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/final/gds/gcd.gds": {
+      "sha256": "b8f62be675ad48b83df9f12503417ccae1f48dc980b5bfb8cfdb6f72c6202fb3",
+      "bytes": 975026
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/max_ff_n40C_5v50/checks.rpt": {
+      "sha256": "e84f983011a0fcfbf257327d10717c01cc7c8f8615104d183b05fa917163bd04",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt": {
+      "sha256": "150005100e3c5177500e7adafed60736a74bf8946f6ab5e6ae5905a18e4a5664",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/max_tt_025C_5v00/checks.rpt": {
+      "sha256": "d33f0ee93c5d845a4244ee6483faa268e1a6f0d222a66f418a4e3388d0e2176c",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/min_ff_n40C_5v50/checks.rpt": {
+      "sha256": "30590984faab14e55735fe141a6d1562a09cc5234f4ab60a5454679d58c4ab65",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/min_ss_125C_4v50/checks.rpt": {
+      "sha256": "65415f2520c8c1f508f88a0d8ca0fc6ae31978682003e0d2cc20cd49976c157a",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/min_tt_025C_5v00/checks.rpt": {
+      "sha256": "72f0fb538a70358707d1e78bb45fddb1bf27d04f2dcbdddeb650046435e084d0",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/nom_ff_n40C_5v50/checks.rpt": {
+      "sha256": "d1451d3269b7013f6ccf4bdafd0a1453c2e2917fe1d5b189a2d53a153de1bb8e",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/nom_ss_125C_4v50/checks.rpt": {
+      "sha256": "aa8f8723c574c26814de0fcfc41d27ca9909f034fe145cf7b61e312531c851af",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/54-openroad-stapostpnr/nom_tt_025C_5v00/checks.rpt": {
+      "sha256": "581681b489f351bd4458d41ad584960fce38664939809ddf5405a7b72f473cdb",
+      "bytes": 6924
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/gf180_klayout_drc/gcd_main.lyrdb": {
+      "sha256": "4af4461656bad77723248b46fedd5688f46b588d0f619d33882340d4d999333e",
+      "bytes": 120483
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/gf180_klayout_drc/klayout.log": {
+      "sha256": "a3f7fa24e5d02da885553c6474862202e981556b2d93c0b0bb0354cdfd7fe727",
+      "bytes": 36843
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/gf180_klayout_drc/layers_def.drc": {
+      "sha256": "bb20fba6a99cdcc238bdd9003e0f4ebf3c958b7ff3443ed3380c6710f36dd3f8",
+      "bytes": 16801
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/gf180_klayout_drc/main.drc": {
+      "sha256": "bfd2c78ac82be61ace5b99bfcb8f284a87bea87e01390436ad07e4572560fc36",
+      "bytes": 363463
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/constraints.sdc": {
+      "sha256": "3d6564626dca4da1df039940f17f94f38c48bc48a817f0c256c4f69b0a915f03",
+      "bytes": 12036
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/dump.vcd": {
+      "sha256": "f46d55b719866bf8292071cb36bdbf07e2a2739ec96166dffbea5bb91fd399db",
+      "bytes": 144610320
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/netlist.v": {
+      "sha256": "6fc3ce0006a174293f6707ff014ddd07965b4500f3dc8e8624c596d20cefe279",
+      "bytes": 96614
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/parasitics.spef": {
+      "sha256": "0777974f0aa8d3ae67cec1a9bdbef2d784ad3dfe424253b9694121213ddb49f6",
+      "bytes": 455493
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/run.sh": {
+      "sha256": "4542dbb701647d53e8e52815fec58cc0d123b6164c585afb2eb5bdf1bc6f7f97",
+      "bytes": 931
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/sim.vvp": {
+      "sha256": "7e02da5a55d243eba2d5edc961a927816be75de8499e721d86542c73c06c398a",
+      "bytes": 1201151
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/simulation.log": {
+      "sha256": "2a1194f452199a1ab6374fbbba46279c24cb4f908f1d699f6dd0277f5b016dd3",
+      "bytes": 1515
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/sta.tcl": {
+      "sha256": "a509ae2144ef4c58fd79ecd73e535aee8ab99f55cb3e174fabe82f6b96dae5ca",
+      "bytes": 358
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/tb.v": {
+      "sha256": "1ec835f3d48e429cee9f65398616b6afdaf959a1e263ea6a43dffc10f28e6b22",
+      "bytes": 3181
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/_power_activity/tool.log": {
+      "sha256": "f170ae9a49beb5f41ffad47c1cb957839ad3ea4e96d078eafa6fd25c36137615",
+      "bytes": 3476
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk13p2/power_activity_result.json": {
+      "sha256": "63f2c711516172c985446c8527104dd9195928816ae2df161758367eb13da3e7",
+      "bytes": 3910
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/resolved.json": {
+      "sha256": "8a8ba03395a91eb96fe140a58b8f49601e478abd995d692ecb65d45974538529",
+      "bytes": 92549
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/final/metrics.json": {
+      "sha256": "ec19c6c6185eb51f9deff34d50028ae4effed601eade0cf19642e4fd849941c8",
+      "bytes": 16224
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/final/nl/gcd.nl.v": {
+      "sha256": "9cf0001d33ce44d2fa0ad268e2b282cf285c83ae4b5c0f054718112743b55cf4",
+      "bytes": 94012
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/final/sdc/gcd.sdc": {
+      "sha256": "18ede6d1644e29d547d628826aca4412c9d98f584a9351134a587744f4e2dae7",
+      "bytes": 12036
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/final/spef/max/gcd.max.spef": {
+      "sha256": "1c6454eb876b82058b64cc9e646aa3b2cc78d8f4e8b6db8d6558af4de57ac3aa",
+      "bytes": 477562
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/final/gds/gcd.gds": {
+      "sha256": "bcdd6651acafe17e23e5e9c57a1aba132df15159594a018707a2eca7912cf1d9",
+      "bytes": 1018080
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/max_ff_n40C_5v50/checks.rpt": {
+      "sha256": "798af96580f59a982e4f45ba8b7f5d393463e4d3db2b33c4a9c7b7184ce0bb9b",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt": {
+      "sha256": "1a243cb79df98617bb33870b002d827da3b941680c7e66594105453c7a0cab5d",
+      "bytes": 15556
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/max_tt_025C_5v00/checks.rpt": {
+      "sha256": "d64fc234d32db44718f75c19e9a2a9b93a305ff26561aed3db3cd627ca2433bb",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/min_ff_n40C_5v50/checks.rpt": {
+      "sha256": "398582bfa55bd3c26017f5061a2ed9c87930e786089f834b78c96de0cb899de5",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/min_ss_125C_4v50/checks.rpt": {
+      "sha256": "53f13b96d5fff7d1d084a622afec6c9e5a6ca7b314079971be801c4668f3fe25",
+      "bytes": 15556
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/min_tt_025C_5v00/checks.rpt": {
+      "sha256": "08556c48f191001686df5685e663ffcc9a058ba1030dac7962f2c4a247df5d94",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/nom_ff_n40C_5v50/checks.rpt": {
+      "sha256": "3091a9104885a2705b0d12dd54f6becc2483e990fdbc8018a548d4fcf7d061c4",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/nom_ss_125C_4v50/checks.rpt": {
+      "sha256": "1ce39d4ef4c9fd9b9f0a43f9d572b0608fe5b39e4cccc51e8787ab466a0687c8",
+      "bytes": 15556
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/54-openroad-stapostpnr/nom_tt_025C_5v00/checks.rpt": {
+      "sha256": "283cf425ad19fb4fe2cf9690738c89f2eeaf7d779d06ae040dcf2d7f2bbf603a",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/gf180_klayout_drc/gcd_main.lyrdb": {
+      "sha256": "4af4461656bad77723248b46fedd5688f46b588d0f619d33882340d4d999333e",
+      "bytes": 120483
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/gf180_klayout_drc/klayout.log": {
+      "sha256": "42d0b815d09b4e412e70c47b58aeb182188a4499e30bdedfe2cc7d99cb647376",
+      "bytes": 36842
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/gf180_klayout_drc/layers_def.drc": {
+      "sha256": "bb20fba6a99cdcc238bdd9003e0f4ebf3c958b7ff3443ed3380c6710f36dd3f8",
+      "bytes": 16801
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/gf180_klayout_drc/main.drc": {
+      "sha256": "bfd2c78ac82be61ace5b99bfcb8f284a87bea87e01390436ad07e4572560fc36",
+      "bytes": 363463
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/_power_activity/constraints.sdc": {
+      "sha256": "18ede6d1644e29d547d628826aca4412c9d98f584a9351134a587744f4e2dae7",
+      "bytes": 12036
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/_power_activity/netlist.v": {
+      "sha256": "9cf0001d33ce44d2fa0ad268e2b282cf285c83ae4b5c0f054718112743b55cf4",
+      "bytes": 94012
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/_power_activity/parasitics.spef": {
+      "sha256": "1c6454eb876b82058b64cc9e646aa3b2cc78d8f4e8b6db8d6558af4de57ac3aa",
+      "bytes": 477562
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10/_power_activity/tb.v": {
+      "sha256": "1ec835f3d48e429cee9f65398616b6afdaf959a1e263ea6a43dffc10f28e6b22",
+      "bytes": 3181
+    },
+    ".closure-followup/reference-db/cases/gcd__2026-10-23__071420.json": {
+      "sha256": "0a547652f2a8d4cc35ea58428fb516e1b5a84c611f7de7be8d521966eef331ec",
+      "bytes": 100608
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/resolved.json": {
+      "sha256": "e7161faca947109c36806291fc46f452b83aed1f449ca785c39a2538431c88fb",
+      "bytes": 92548
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/metrics.json": {
+      "sha256": "e0749580b601a4e476f6cf246c46f809c69bff2b7b3b6db90f7c0fc9a37bb5b4",
+      "bytes": 16239
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/nl/gcd.nl.v": {
+      "sha256": "bebf3b6d49ec5d2deb9cddf3ee46ae0b34165278a53dbc7d9f4c143a74fe3490",
+      "bytes": 93264
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/sdc/gcd.sdc": {
+      "sha256": "18ede6d1644e29d547d628826aca4412c9d98f584a9351134a587744f4e2dae7",
+      "bytes": 12036
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/spef/max/gcd.max.spef": {
+      "sha256": "7649ecdcf36165784ddb1cc2fc1349e7b6d7eddf4d5b6dc72149e470646df387",
+      "bytes": 487089
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/final/gds/gcd.gds": {
+      "sha256": "1f945d283c23a4793630c65837f59cc70cb0ba65c557f909c34b0ef0559c51c2",
+      "bytes": 1043928
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/max_ff_n40C_5v50/checks.rpt": {
+      "sha256": "7b8e11842182c33b0f6ca394a2dd46c4a7d6bfdb55206ba0ee884e491bb8bfa8",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/max_ss_125C_4v50/checks.rpt": {
+      "sha256": "03629e94a2210e9d0a9b72c644ee65d2fd06a13f69ca80046f562e712bf1d015",
+      "bytes": 11616
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/max_tt_025C_5v00/checks.rpt": {
+      "sha256": "6c90f08ddc25aeabcb63e9c518d0df98086824d07890712b26635577a0822230",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/min_ff_n40C_5v50/checks.rpt": {
+      "sha256": "450fd20a3879bbad397dfa29eccb55179af9bd6a045af6c547987c63fa8b7083",
+      "bytes": 6650
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/min_ss_125C_4v50/checks.rpt": {
+      "sha256": "e3a7da60d2a3334aae23d632d1529bebcb8c60c02d5fbfb3cfb54a1d49fadb63",
+      "bytes": 11616
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/min_tt_025C_5v00/checks.rpt": {
+      "sha256": "a1014c90b8ec9dd3236a75f6a441b76a2a2553ca401a895102fd424431d87618",
+      "bytes": 6650
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/nom_ff_n40C_5v50/checks.rpt": {
+      "sha256": "7c6b048cf5185d2677117332838e71df58f78e8697f1fa2770b3a63f3ed3557a",
+      "bytes": 6650
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/nom_ss_125C_4v50/checks.rpt": {
+      "sha256": "c034584aeba5c5d69b88e56a81532405bc6f1c4faa1a1e4ef2da6051e24ccef7",
+      "bytes": 11616
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/55-openroad-stapostpnr/nom_tt_025C_5v00/checks.rpt": {
+      "sha256": "4df761b49e14509c7d3f399eba8b370355c4dab43f3640cd54f0bbf557820ee1",
+      "bytes": 6644
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/gf180_klayout_drc/gcd_main.lyrdb": {
+      "sha256": "4af4461656bad77723248b46fedd5688f46b588d0f619d33882340d4d999333e",
+      "bytes": 120483
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/gf180_klayout_drc/klayout.log": {
+      "sha256": "70d589c5b44132c3181ece6db77057391b3ba74ca389f87d7c878148492528ed",
+      "bytes": 36843
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/gf180_klayout_drc/layers_def.drc": {
+      "sha256": "bb20fba6a99cdcc238bdd9003e0f4ebf3c958b7ff3443ed3380c6710f36dd3f8",
+      "bytes": 16801
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/gf180_klayout_drc/main.drc": {
+      "sha256": "bfd2c78ac82be61ace5b99bfcb8f284a87bea87e01390436ad07e4572560fc36",
+      "bytes": 363463
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/compile.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/constraints.sdc": {
+      "sha256": "18ede6d1644e29d547d628826aca4412c9d98f584a9351134a587744f4e2dae7",
+      "bytes": 12036
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/dump.vcd": {
+      "sha256": "9abe61ebbb6211a57c67b0394996932f234db0eb76cf8b3052a01cb197186f6f",
+      "bytes": 145541007
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/netlist.v": {
+      "sha256": "bebf3b6d49ec5d2deb9cddf3ee46ae0b34165278a53dbc7d9f4c143a74fe3490",
+      "bytes": 93264
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/parasitics.spef": {
+      "sha256": "7649ecdcf36165784ddb1cc2fc1349e7b6d7eddf4d5b6dc72149e470646df387",
+      "bytes": 487089
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/run.sh": {
+      "sha256": "b930a0944efe200b38cc0c19347242bf53ec10c787040880cae7772f900ab6ef",
+      "bytes": 931
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/sim.vvp": {
+      "sha256": "0d7527fae5f89b0ddcd22c663b9d493ad9639bf2c6df4349b1c2e15425a17ba3",
+      "bytes": 1169941
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/simulation.log": {
+      "sha256": "9d025295a2bd0c744e2a16612d6dec91edf75e27206edd9a0578c9c867838861",
+      "bytes": 1515
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/sta.tcl": {
+      "sha256": "a509ae2144ef4c58fd79ecd73e535aee8ab99f55cb3e174fabe82f6b96dae5ca",
+      "bytes": 358
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/tb.v": {
+      "sha256": "1ec835f3d48e429cee9f65398616b6afdaf959a1e263ea6a43dffc10f28e6b22",
+      "bytes": 3181
+    },
+    "pipeline/designs/gcd/runs/gf180-20261023-clk10-postgrt/_power_activity/tool.log": {
+      "sha256": "c44542df88a4b862fc53fbc3394065a72b20f51d44155b7933f7b6bd59bb2392",
+      "bytes": 3476
+    },
+    "pipeline/power_activity.py": {
+      "sha256": "27205013ef02ce8ccced2888e60d6a972e771301043a1031ec9316d6105c7f8c",
+      "bytes": 15735
+    },
+    "pipeline/designs/gcd/verify/gcd_tb.v": {
+      "sha256": "1ec835f3d48e429cee9f65398616b6afdaf959a1e263ea6a43dffc10f28e6b22",
+      "bytes": 3181
+    },
+    "pipeline/designs/gcd/src/gcd.v": {
+      "sha256": "6c33f07c06b20147e53c098ac28f71820564d8e22c0d61cf343b27fb3dc5a328",
+      "bytes": 20385
+    },
+    "pipeline/designs/gcd/config.json": {
+      "sha256": "8ef18f4cc2fb005083b7ca212e7438e821fdf2397eb052510b33e38959f24d99",
+      "bytes": 138
+    },
+    "pipeline/designs/gcd/run_spec_gf180_10ns_20261023.json": {
+      "sha256": "556fc685da3f744f30e184c3d0c460523d217b0daca3be6da39907b9e451a267",
+      "bytes": 792
+    },
+    "pipeline/designs/gcd/run_spec_gf180_10ns_postgrt_20261023.json": {
+      "sha256": "96f1ef6c032756cb07192a04cbdee0717607eedeb936a2cb601a32b3fc780ffa",
+      "bytes": 752
+    },
+    ".cache/gcd_followup_run.py": {
+      "sha256": "2028fe95904b50d2f23b8eaf47b706e460e8424013348db71471aaca6ea26343",
+      "bytes": 594
+    },
+    ".cache/gcd_power_probe.py": {
+      "sha256": "a8ab0a97ba45f541c21019149a3e1d9e254213804adc74c45a6c16ec6265c621",
+      "bytes": 429
+    },
+    ".cache/gcd-followup-20261023.log": {
+      "sha256": "3460fe63caa168e791a6bc2e3a7200bdb36b0b348b743008b4f64065383f0e48",
+      "bytes": 1313159
+    },
+    ".cache/gcd-postgrt-20261023.log": {
+      "sha256": "d6b625e9411f0e52f3b08afb67bc3c2a6aae4a1d0e8d4571056df64128635850",
+      "bytes": 707892
+    },
+    ".closure-followup/pipeline/orchestrator.py": {
+      "sha256": "12cb099fd7ed41c4e8d532b2c674865369dfbc3bf3210f2212110123e3e35ab4",
+      "bytes": 60035
+    },
+    ".closure-followup/pipeline/run_stage.py": {
+      "sha256": "e065682d9f4d7db9a2752eeb857ff57bbdba1a65beb3bd556c00377febdd3980",
+      "bytes": 13041
+    },
+    "/home/kos2001/pdk/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog/primitives.v": {
+      "sha256": "ccc0f447f71ce35c635e08d49eb0ed77aa2ec91cf31d8e3e45a246114d3cae92",
+      "bytes": 5541
+    },
+    "/home/kos2001/pdk/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilog/gf180mcu_fd_sc_mcu7t5v0.v": {
+      "sha256": "9a21c5f98200acfe77d8ba52067164e0802284dc1c1e117f0e64fb6ac42eb64b",
+      "bytes": 975393
+    },
+    "/home/kos2001/pdk/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/lib/gf180mcu_fd_sc_mcu7t5v0__ff_n40C_5v50.lib": {
+      "sha256": "6e04fbedf4279c89a73d6caebe55de27bd760f1aa7c24a4c015489724e4c2439",
+      "bytes": 20416204
+    }
+  }
+}

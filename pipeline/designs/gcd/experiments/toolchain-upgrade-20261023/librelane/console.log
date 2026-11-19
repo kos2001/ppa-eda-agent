@@ -1,0 +1,30 @@
+{"openlane_image": "ghcr.io/librelane/librelane:3.0.16", "openlane_upstream": "github.com/librelane/librelane", "profile": "librelane", "flow_module": "librelane", "expected_openroad_revision": "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0", "host": {"arch": "x86_64", "system": "Linux", "cpu_count": 22, "docker_platform": "native"}}
+
+=== candidate 'gf180-upgrade-librelane-13p2-20261023' — overrides: {'SYNTH_STRATEGY': 'DELAY 2', 'CLOCK_PERIOD': 13.2, 'MAX_FANOUT_CONSTRAINT': 12, 'FP_CORE_UTIL': 38}, pdk: gf180mcuD, scl: gf180mcu_fd_sc_mcu7t5v0 ===
+$ docker run --rm -v /etc/ssl/certs/ca-certificates.crt:/tmp/host-ca-certificates.crt:ro -e SSL_CERT_FILE=/tmp/host-ca-certificates.crt -e NIX_SSL_CERT_FILE=/tmp/host-ca-certificates.crt -v /home/kos2001/claude_work/ppa-eda-agent/pdk:/pdk -v '/mnt/c/Users/김오석/claude-work/ppa-eda-agent/.cache/gcd-clock-merge/pipeline/designs/gcd:/design' ghcr.io/librelane/librelane:3.0.16 librelane --pdk-root /pdk --run-tag gf180-upgrade-librelane-13p2-20261023 --scl gf180mcu_fd_sc_mcu7t5v0 --manual-pdk --pdk gf180mcuD --overwrite --override-config 'SYNTH_STRATEGY="DELAY 2"' --override-config CLOCK_PERIOD=13.2 --override-config MAX_FANOUT_CONSTRAINT=12 --override-config FP_CORE_UTIL=38 /design/config.json
+[08:12:34] ERROR    Errors have occurred while loading the       __main__.py:160
+                    design configuration file.                                  
+[08:12:34] ERROR    Value for 'SYNTH_STRATEGY' is invalid for    __main__.py:162
+                    'AREA 0'｜'AREA 1'｜'AREA 2'｜'AREA                         
+                    3'｜'DELAY 0'｜'DELAY 1'｜'DELAY 2'｜'DELAY                 
+                    3'｜'DELAY 4': '"DELAY 2"'                                  
+[08:12:34] ERROR    LibreLane will now quit. Please check your   __main__.py:164
+                    configuration.                                              
+
+=== iteration 1 summary ===
+  gf180-upgrade-librelane-13p2-20261023: FAILED TO RUN — OpenLane run 'gf180-upgrade-librelane-13p2-20261023' exited 1 — see runs/gf180-upgrade-librelane-13p2-20261023/ for logs. Tail of output:
+[08:12:34] ERROR    Errors have occurred while loading the       __main__.py:160
+                    design configuration file.                                  
+[08:12:34] ERROR    Value for 'SYNTH_STRATEGY' is invalid for    __main__.py:162
+                    'AREA 0'｜'AREA 1'｜'AREA 2'｜'AREA                         
+                    3'｜'DELAY 0'｜'DELAY 1'｜'DELAY 2'｜'DELAY                 
+                    3'｜'DELAY 4': '"DELAY 2"'                                  
+[08:12:34] ERROR    LibreLane will now quit. Please check your   __main__.py:164
+                    configuration.                                              
+
+
+reached max_iterations (1) with no winner
+
+winner: none — needs a new candidate set
+stop reason: max_iterations_reached
+case written to: /mnt/c/Users/김오석/claude-work/ppa-eda-agent/.cache/gcd-clock-merge/reference-db/cases/gcd__2026-10-23__081234.json

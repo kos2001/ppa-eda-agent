@@ -19,8 +19,11 @@ so the image reference below is deliberately NOT "modernised" to match
 the new org name. Verified rather than assumed: the chipfoundry image
 name returns not-found, the efabless one resolves.
 
-2.3.10 remains the stable default. Set PPA_EDA_TOOLCHAIN=openlane-dev
-to evaluate 3.0.0.dev21 in a new run directory. The selection applies to
+2.3.10 remains the stable default for existing custom OpenLane flows.
+PPA_EDA_TOOLCHAIN=librelane selects LibreLane 3.0.16 and its bundled
+OpenROAD dcf36133 (2026-02-17), not the latest OpenROAD master commit.
+PPA_EDA_TOOLCHAIN=openlane-dev retains the older 3.0.0.dev21 profile.
+The selection applies to
 all pipeline clients and is recorded with results; it does not upgrade
 historical OpenDB files or qualify a development build for signoff.
 """
@@ -37,19 +40,28 @@ TOOLCHAIN_PROFILES = {
         "image": "ghcr.io/efabless/openlane2:3.0.0.dev21",
         "openroad_revision": "87af90f72f3f9be1fdfa1d886f0dd8d8b8f34694",
     },
+    "librelane": {
+        "image": "ghcr.io/librelane/librelane:3.0.16",
+        "openroad_revision": "dcf36133a369abc8f3c5e5738cd4d82e4903c0e0",
+        "module": "librelane",
+        "upstream": "github.com/librelane/librelane",
+    },
 }
 TOOLCHAIN_PROFILE = os.environ.get("PPA_EDA_TOOLCHAIN", "stable").strip()
 if TOOLCHAIN_PROFILE not in TOOLCHAIN_PROFILES:
     raise ValueError(f"Unknown PPA_EDA_TOOLCHAIN {TOOLCHAIN_PROFILE!r}; "
                      f"choose from {', '.join(TOOLCHAIN_PROFILES)}")
 OPENLANE_IMAGE = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["image"]
+FLOW_MODULE = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE].get("module", "openlane")
+FLOW_COMMAND = FLOW_MODULE
 # The OpenLane image has lint-only Verilator but no make/C++ build toolchain.
 # Functional simulation uses the upstream executable image at the same release.
 VERILATOR_IMAGE = "verilator/verilator:v5.018"
 
 # Where that image comes from, recorded alongside results so a case can
 # be attributed to a toolchain rather than to "whatever was installed".
-OPENLANE_UPSTREAM = "github.com/chipfoundry/openlane2"
+OPENLANE_UPSTREAM = TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE].get(
+    "upstream", "github.com/chipfoundry/openlane2")
 
 
 # Which architecture the container runs under.
@@ -103,6 +115,7 @@ def toolchain_info() -> dict:
         "openlane_image": OPENLANE_IMAGE,
         "openlane_upstream": OPENLANE_UPSTREAM,
         "profile": TOOLCHAIN_PROFILE,
+        "flow_module": FLOW_MODULE,
         "expected_openroad_revision": TOOLCHAIN_PROFILES[TOOLCHAIN_PROFILE]["openroad_revision"],
         "host": host_info(),
     }
@@ -130,7 +143,7 @@ def classic_steps() -> list[str]:
     try:
         out = subprocess.run(
             ["docker", "run", "--rm", *platform_args(), OPENLANE_IMAGE, "python3", "-c",
-             "from openlane.flows import Flow\n"
+             f"from {FLOW_MODULE}.flows import Flow\n"
              "print('\\n'.join(s.id for s in Flow.factory.get('Classic').Steps))"],
             capture_output=True, text=True, encoding="utf-8", timeout=300,
         )
