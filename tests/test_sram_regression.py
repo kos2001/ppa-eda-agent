@@ -28,7 +28,7 @@ class SRAMRegressionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 regression.macro_sources(config, spec)
             path.write_text("module sram(); reg [31:0] mem[0:255]; endmodule")
-            self.assertEqual(regression.macro_sources(config, spec), [path])
+            self.assertEqual(regression.macro_sources(config, spec), [path.resolve()])
 
     def test_missing_or_incomplete_trace_is_not_pass(self):
         for output in ("PPA_REGRESSION_PASS checks=800", "PPA_SRAM cycle=0 rst=1 dout0=xxxxxxxx dout1=xxxxxxxx"):
