@@ -21,3 +21,5 @@ pipeline/surrogate.py text eol=crlf
 pipeline/surrogate_dataset.py -text -whitespace
 pipeline/surrogate_benchmark.py -text -whitespace
 pipeline/surrogate_repair_features.py -text -whitespace
+# SPICE netlists (.sp) are simulator evidence, not SourcePawn source: keep them out of language stats.
+*.sp linguist-detectable=false
