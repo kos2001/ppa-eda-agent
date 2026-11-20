@@ -1211,7 +1211,7 @@ python3 pipeline/gate_schematic.py --design aes \
 That is 11 cells of 11,616 and 45 KB of SVG, against 39 MB for the whole
 design; `riscv32i --seed 'aluout[0]' --depth 5` is 74 of 5,423. The
 Schematic tab has the same control, with the design's own ports offered
-as seeds — nobody types an internal Yosys name like `_01769_` from
+as seeds — nobody types an auto-generated Yosys name like `_01769_` from
 memory. Pin direction comes from the Yosys JSON netlist beside the
 Verilog one rather than from pin names, for the reason `netlist_graph.py`
 already records: X/Y/Q being outputs on sky130 is a convention, not a
@@ -1308,12 +1308,12 @@ over the first sample of 37. Every one is a compound gate (`a2111oi`,
 `probe_p`, `probec_p`) at drive 2, 4 or 8, with 1–4 devices and 0–2 nets
 more in the layout than in the schematic. Reading one extraction says
 what those extra nets are: `a21oi_2`'s layout implements its `m=2` nfet
-series stack as **two independent stacks with their own internal nodes**
+series stack as **two independent stacks with their own intermediate nodes**
 (`a_114_47#`, `a_285_47#`), while the CDL's `m=2` means two parallel
 devices sharing one — and netgen cannot merge what does not share a
 node. Not every multi-drive stack is laid out that way, which is why it
 is 11 cells and not all of them: `nand3_2`, a three-high stack at the
-same `m=2`, shares both internal nodes between its fingers and matches.
+same `m=2`, shares both intermediate nodes between its fingers and matches.
 A per-cell layout style, then, not a rule about series stacks — and a
 property of the library rather than of this pipeline, since the untouched
 CDL reproduces it.
