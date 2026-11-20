@@ -92,7 +92,8 @@ class FunctionalRegressionTests(unittest.TestCase):
             root = Path(tmp)
             (root / "selected.sv").write_text("module selected; endmodule")
             (root / "config.json").write_text(json.dumps({"VERILOG_FILES": ["dir::selected.sv"]}))
-            self.assertEqual(regression.rtl_sources(root), [root / "selected.sv"])
+            # checked_path resolves symlinks (macOS /var -> /private/var).
+            self.assertEqual(regression.rtl_sources(root), [(root / "selected.sv").resolve()])
             (root / "config.json").write_text(json.dumps({"VERILOG_FILES": ["dir::selected.sv"],
                                                           "VERILOG_DEFINES": ["OTHER_BEHAVIOR"]}))
             with self.assertRaises(ValueError):
