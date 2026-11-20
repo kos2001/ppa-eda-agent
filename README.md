@@ -235,7 +235,7 @@ Remaining boundaries: the default activity-power helper on main is SKY130
 specific; the GCD comparison explicitly used its archived GF180 evaluator.
 Automatic PDK provenance has unresolved host-path coverage in these cases.
 Arbitrary custom SDC semantics, analog/model characterization, pad-ring
-arithmetic, and tool-internal algorithms need separate validation. No new
+arithmetic, and the tools' own algorithms need separate validation. No new
 13.2 ns / 5% timing closure or universally bug-free toolchain is claimed.
 
 Validation: the initial 1536-test suite exposed five mock-boundary errors
