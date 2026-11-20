@@ -55,7 +55,7 @@ code-box removal must never save the transient canvas or feed a simulation.
 
 Candidate `flow` selects a supported flow explicitly. `FanoutRepair` and
 `MacroFanoutRepair` are opt-in SKY130 HD physical experiments: they split
-internal single-driver nets after antenna insertion and rerun placement,
+non-port single-driver nets after antenna insertion and rerun placement,
 routing and antenna repair without changing the final SDC. A later diode
 pass can reintroduce fanout violations; inspect the final reports. They are
 not covered by the current surrogate. Custom flow sources are snapshotted
